@@ -33,6 +33,17 @@
 
     <link rel="stylesheet" href="/assets/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+      @media (max-width: 900px) {
+        .grid-locked {
+          grid-template-columns: 1fr !important;
+        }
+        .dev-blog-container > .grid-locked > section:has(.panel-image) {
+          order: -1;
+        }
+      }
+    </style>
   </head>
   <body>
     <div class="wrap" id="app">
@@ -103,7 +114,7 @@
                 <p>
                   Generating the landscape was our primary hurdle. We wanted to move away from standard generation algorithms 
                   and create something that felt tailor-made for our vision. Using a combination of custom JavaScript logic 
-                  and meticulous HTML5 Canvas tweaking, we established the rolling hills and deep valleys that form the physical foundation of our world.
+                  and meticulous canvas tweaking, we established the foundation of an immersive world.
                 </p>
               </div>
             </section>
