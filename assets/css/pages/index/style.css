@@ -1,0 +1,59 @@
+.feed-header {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-light);
+  text-shadow: 0 0 10px var(--accent-2);
+  text-align: center;
+  margin-bottom: var(--gap);
+}
+
+.blog-feed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.latest-blog-home {
+  display: block;
+  border-radius: var(--radius);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  max-height: 300px;
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.latest-blog-home::before {
+  background: linear-gradient(
+    to right, 
+    transparent 0%, 
+    rgba(255,255,255,0.4) 50%, 
+    transparent 100%
+  );
+  z-index: 2;
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  transform: skewX(-22.5deg) translateX(-150%);
+  pointer-events: none;
+}
+
+.latest-blog-home:hover,
+.latest-blog-home:focus-visible {
+  box-shadow: 0 0 15px 2px var(--accent);
+}
+
+/* Run shimmer animation only on focus-visible */
+.latest-blog-home:focus-visible::before {
+  animation: 0.6s linear shimmer;
+} 
+
+.discord-button-text-container {
+  display: flex;
+  gap: var(--gap);
+  justify-content: center;
+  align-items: center;
+}

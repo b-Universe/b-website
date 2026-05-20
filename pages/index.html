@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Welcome Home</title>
+    
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <meta name="description" content="It's a fun place to be - Explore my projects, concept ideas, and blogs here!">
+    <meta name="keywords" content="free, B, minecraft, ai, vr, scriping, denizen, technology, gaming">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="B">
+    <meta property="og:description" content="It's a fun place to be">
+    <meta property="og:url" content="https://home.behr.dev/web_test">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://cdn.discordapp.com/app-assets/1072200871015886868/store/1072627685811044402?size=1024">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="B">
+    <meta name="twitter:description" content="It's a fun place to be">
+    <meta name="twitter:image" content="https://cdn.discordapp.com/app-assets/1072200871015886868/store/1072627685811044402?size=1024">
+    
+    <meta name="theme-color" content="#00FFFE">
+
+    <!-- CSS Imports -->
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/pages/index/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" xintegrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+  <body>
+    <div class="wrap">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+          
+            <button id="theme-toggle" class="theme-button" title="Toggle theme">
+              <i class="fa-solid fa-moon" aria-hidden="true"></i>Dark
+            </button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+    
+      <main>
+        <div class="main-content">
+          <section class="glass-panel panel">
+            <div class="panel-image">
+              <img src="/assets/img/800x400_2.png" alt="B Project Banner">
+            </div>
+            
+            <div class="panel-content">
+              <h2>Welcome to B</h2>
+              <p>
+                This is the central hub for B. Explore our custom
+                Denizen scripts, project updates, community links, developer tools, articles, and more!
+              </p>
+              <div class="discord-button-text-container">
+                <a href="/pages/discord-redirect.html" class="theme-button cta-button">
+                  <i class="fa-brands fa-discord" aria-hidden="true"></i>Join the Server
+                </a>
+                <p>21 Online</p>
+              </div>
+            </div>
+          </section>
+
+          <h1>Latest News & Posts</h1>
+          <div class="blog-feed-container">
+            <div class="blog-feed">
+              <section class="glass-panel panel">
+                <div class="panel-content">
+                  <h3>The Riley Wedding:<br>Save the Date & Registry</h3>
+                  <p>
+                    Darian and I are tying the knot on Friday, August 13th, 2027! 
+                    We'll be setting up a hub for our venue information, wedding registry, and all the details leading up to the big day.
+                  </p>
+                  <a href="/articles/riley-wedding-2027.html" class="theme-button cta-button">
+                    <i class="fas fa-book-open" aria-hidden="true"></i>View Details
+                  </a>
+                </div>
+              <div class="latest-blog-home panel-image hover-standard img-offset-up" tabindex="0">
+                <img src="/assets/img/articles/riley-wedding-2027/section_cover.jpg" alt="Wedding Announcement">
+              </div>
+            </section>
+
+            <section class="glass-panel panel content-card">
+              <div class="panel-content">
+                <h3>Minecraft Armor_Stand Generator</h3>
+                <p>
+                  Check out my latest article! A beginner-friendly guide to
+                  customizing the <code>EntityTag.armor_pose</code> tag using
+                  Denizen's core concepts.
+                </p>
+                <a href="/projects/armor_stand-generator.html" class="theme-button cta-button">
+                  <i class="fas fa-book-open" aria-hidden="true"></i>Read More
+                </a>
+              </div>
+              <div class="latest-blog-home panel-image hover-fancy img-focus-lower" tabindex="0">
+                <a href="/projects/armor_stand-generator.html">
+                  <img src="/assets/img/projects/armor_stand-generator/demo.png" alt="Armor Stand Generator Preview">
+                </a>
+              </div>
+            </section>
+
+          </div>
+          </div>    
+        </div>
+      </main>
+
+      <footer>
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+      <!-- <sub>temp: <a href="/temp.html">link</a></sub> -->
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+  </body>
+</html>
