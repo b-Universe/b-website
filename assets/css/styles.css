@@ -1,0 +1,11 @@
+/* Global Site Formatting - Imports and Layer Definitions */
+
+/* 1. @Layer Ordering */
+@layer reset, base, theme, components, projects, utilities;
+
+/* 2. @Import Layer CSS */
+@import url("/assets/css/core/reset.css") layer(reset);
+@import url("/assets/css/core/base-styles.css") layer(base);
+@import url("/assets/css/core/themes.css") layer(theme);
+@import url("/assets/css/components.css") layer(components);
+@import url("/assets/css/utilities.css") layer(utilities);

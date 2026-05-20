@@ -1,0 +1,799 @@
+/* components.css - UI Components Layer */
+@layer components {
+  /* Starfield Background */
+  #starfield {
+    background-color: #000;
+    background-image: var(--starfield-bg);
+    display: block;
+    height: 100%;
+    left: 0;
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: -1;
+  }
+
+  header.ecstatic #starfield {
+    animation: hue-spin 25s infinite linear;
+  }
+
+  /* Page Wrappers */
+  .wrap {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+
+  header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    position: relative;
+    width: 100%;
+    z-index: 10;
+  }
+
+  .ecstatic .header,
+  .ecstatic .main-content {
+    animation: filter-hue-spin 5s infinite linear;
+    position: relative;
+  }
+
+  .ecstatic img {
+    animation: filter-hue-spin-reverse 5s infinite linear;
+  }
+
+  /* Header Layout */
+  .header {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  /* Component Typography */
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    border-bottom: 3px solid transparent;
+    border-image: linear-gradient(
+      to right,
+      transparent 0%, var(--accent-2) 5%, var(--accent) 30%, var(--accent-2) 95%, transparent 100%
+    ) 1;
+    color: var(--header-text);
+    filter: hue-rotate(0deg);
+    padding-bottom: 0.25rem;
+    text-shadow: var(--header-glow);
+  }
+
+  /* Brand and Logo */
+  .brand {
+    align-items: center;
+    display: flex;
+    flex-basis: auto;
+    gap: 0.75rem;
+    text-decoration: none;
+  }
+
+  .brand-title, 
+  .brand-subtitle {
+    color: color-mix(in srgb, var(--text-light) 100%, var(--accent) 25%);
+  }
+
+  .ecstatic .brand-title, 
+  .ecstatic .brand-subtitle {
+    animation: hue-spin 25s infinite linear;
+  }
+
+  .brand-title {
+    font-weight: 800;
+    text-shadow: 0 0 1px var(--accent);
+  }
+
+  .brand-subtitle {
+    font-size: 0.9rem;
+  }
+
+  /* Navigation Wrapper and Interactive Elements */
+  .nav-wrapper {
+    align-items: center;
+    border-radius: var(--radius);
+    display: flex;
+    gap: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .logo,
+  .theme-button,
+  .mobile-toggle {
+    background-color: var(--accent);
+    border-radius: var(--radius);
+    border: 0;
+    box-shadow: 0 0 10px var(--text-dark) inset;
+    color: var(--text-dark);
+    cursor: pointer;
+    display: grid;
+    font-size: 1.1rem;
+    font-weight: 700;
+    height: 48px;
+    outline: none;
+    overflow: hidden;
+    padding: 0.45rem;
+    place-items: center;
+    position: relative;
+    text-decoration: none;
+    text-shadow: var(--text-shadow);
+    transition: background-color 0.3s ease, box-shadow 0.2s ease, color 0.4s ease;
+  }
+
+  .logo, 
+  .mobile-toggle {
+    flex-shrink: 0;
+    font-size: 1.5rem;
+    min-width: 48px;
+    width: 48px;
+  }
+
+  .theme-button {
+    align-items: center;
+    display: flex;
+    justify-content: flex-start;
+    min-width: 128px;
+    width: 128px;
+  }
+
+  .theme-button i,
+  nav a i {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  .mobile-toggle {
+    display: none;
+  }
+
+  /* Interaction States - Default (Dark) */
+  .logo:hover,
+  .logo:focus-visible,
+  .theme-button:hover,
+  .theme-button:focus-visible,
+  .mobile-toggle:hover,
+  .mobile-toggle:focus-visible {
+    background-color: transparent;
+    box-shadow: 0 0 20px var(--accent-2), 0 0 7px rgba(255, 255, 255, 0.3) inset;
+    color: var(--accent);
+  }
+
+  .logo:active,
+  .theme-button:active,
+  .mobile-toggle:active {
+    background-color: var(--accent);
+    box-shadow: var(--box-shadow), 0 0 5px rgba(0, 0, 0, 0.3) inset;
+    color: var(--text-dark);
+  }
+
+  /* Interaction States - Light & Ecstatic */
+  .light .logo:hover,
+  .light .theme-button:hover,
+  .light .mobile-toggle:hover,
+  .ecstatic .logo:hover,
+  .ecstatic .theme-button:hover,
+  .ecstatic .mobile-toggle:hover {
+    background-color: transparent;
+  }
+
+  .light .logo:active,
+  .light .theme-button:active,
+  .light .mobile-toggle:active {
+    color: var(--accent);
+  }
+
+  .ecstatic .logo,
+  .ecstatic .theme-button,
+  .ecstatic .mobile-toggle {
+    background: rgba(0, 255, 0, 0.8);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.6), 0 0 5px rgba(255, 255, 255, 0.2) inset;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .ecstatic .logo:hover,
+  .ecstatic .theme-button:hover,
+  .ecstatic .mobile-toggle:hover {
+    background-color: transparent;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 1), 0 0 7px rgba(255, 255, 255, 0.3) inset;
+    color: var(--accent);
+  }
+
+  .ecstatic .logo:active,
+  .ecstatic .theme-button:active,
+  .ecstatic .mobile-toggle:active {
+    box-shadow: var(--box-shadow);
+  }
+}
+
+/* Component: Main Navigation */
+nav{
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  transition: 
+    max-height 0.3s ease-in-out, 
+    background-color 0.3s ease-in-out;
+}
+nav.nav-open {
+  max-height: 500px;
+  opacity: 1;
+  visibility: visible;
+  gap: 0.75rem;
+  right: 0;
+  z-index: 20;
+  padding: 0.5rem;
+}
+nav a {
+  text-decoration: none;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius);
+  opacity: 1;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  transition: 
+    color 0.3s ease-out, 
+    box-shadow 0.3s ease-out,
+    background-color 0.3s ease-out;
+  box-shadow: none;
+  background-color: transparent;
+  background-image: none;
+  animation: none;
+}
+nav a:hover,
+nav a:focus-visible {
+  color: var(--text-light);
+  text-shadow: var(--text-shadow);
+  background-color: var(--accent-2);
+  box-shadow: 0 0 20px var(--accent);
+}
+nav a:active {
+  background-color: transparent;
+  box-shadow: var(--box-shadow);
+  color: var(--accent)
+}
+
+.light nav a:hover,
+.light nav a:focus-visible{
+  color: var(--text-light);
+  background-color: transparent;
+}
+.ecstatic nav a:hover {
+  background-color: transparent;
+  color: var(--accent)
+}
+.ecstatic nav a:focus-visible {
+  color: var(--text-light)
+}
+
+.logo::before,
+.theme-button::before,
+.mobile-toggle::before,
+nav a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 75%;
+  height: 100%;
+  
+  background-color: var(--accent);
+  opacity: 0.6;
+  
+  transform: skewX(-22.5deg) translateX(-150%);
+  
+  animation: none;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.logo:hover::before,
+.logo:focus-visible::before,
+.mobile-toggle:hover::before,
+.mobile-toggle:focus-visible::before,
+.filter-button:hover::before,
+.filter-button:focus-visible::before {
+  animation: shimmer 0.3s ease-in-out 0.2s 1;
+}
+.theme-button:hover::before,
+.theme-button:focus-visible::before {
+  animation: shimmer 0.4s ease-in-out 0.2s 1;
+}
+nav a:hover::before,
+nav a:focus-visible::before {
+  animation: shimmer 0.5s ease-in-out 0.2s 1;
+}
+
+/* Component: Site Footer */
+footer{
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  text-shadow: 2px 2px 5px var(--text-shadow-color);
+  background-image: var(--color-gradient);
+  background-size: var(--color-gradient-width) 100%;
+  background-position: 0% 0%;
+  animation: filter-hue-spin 15s infinite linear;
+}
+
+.card,
+.panel,
+.breadcrumbs {
+  background: linear-gradient(
+    172deg, 
+    rgba(200, 254, 255, 0.1) 20%,
+    rgba(255, 255, 255, 0.1) 40%,
+    rgba(0, 255, 255, 0.051) 120%
+  );
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 10px var(--text-dark) inset;
+  border-radius: var(--radius);
+  transition: background-color 0.3s ease-in-out;
+}
+
+.light .card,
+.light .panel{
+  background: var(--card)
+}
+
+.ecstatic .card {
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+/* cards can display hovers, but panels and breadcrumb container shouldn't */
+.ecstatic .card:hover {
+  background-color: var(--accent-2);
+  color: var(--text-light);
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.7), 0 0 5px rgba(255, 255, 255, 0.2) inset;
+}
+.ecstatic .card i:hover {
+  color: var(--text-light);
+}
+
+/* Component: Breadcrumbs */
+.breadcrumbs {
+  max-height: 100vh;
+  align-self: center;
+  
+  border-radius: var(--radius);
+  
+  padding: 0.75rem var(--gap);
+  font-size: 0.9rem;
+  margin: auto;
+}
+
+.breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+}
+
+.breadcrumbs li {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumbs a,
+.breadcrumbs .breadcrumb-current {
+  padding: 0.25rem 1.15rem 0.25rem 0.5rem;
+}
+
+/* Component: Breadcrumbs: Default States */
+.breadcrumbs a,
+.filter-button a {
+  text-decoration: none;
+  color: var(--muted);
+  font-weight: 600;
+  border-radius: var(--radius);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Component: Logo and Button: Theme States */
+.breadcrumbs a:hover,
+.breadcrumbs a:focus-visible {
+  background-color: var(--accent);
+  color: var(--text-dark);
+  text-shadow: none;
+}
+
+.breadcrumbs .breadcrumb-current {
+  color: var(--text-light);
+  font-weight: 700;
+}
+
+.breadcrumbs li + li::before {
+  /* Chevron separator */
+  content: '\f054';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  color: var(--accent);
+  opacity: 0.5;
+  margin: 0 0.5rem;
+}
+/* Locked grid & Cards */
+.grid-locked {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--gap);
+  align-items: stretch;
+}
+
+.grid-variable {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--gap);
+  align-items: start;
+}
+
+.grid-locked .panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Glass Panels & Cards */
+  .glass-panel {
+    background: var(--card);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius);
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap);
+    margin-bottom: 0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .panel-image {
+    overflow: hidden;
+    position: relative;
+    border-radius: var(--radius);
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    perspective: 1000px;
+  }
+
+  .panel-image a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+  }
+
+  .panel-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(-8%) scale(1.1);
+  }
+
+  .img-focus-lower img,
+  .img-focus-lower a img {
+    object-position: center 10%;
+  }
+
+  .img-offset-up img {
+    transform: translateY(-8%) scale(1.1);
+  }
+
+  .hover-standard:hover img {
+    transform: scale(1.15);
+  }
+  
+  .img-offset-up.hover-standard:hover img {
+    transform: translateY(-8%) scale(1.15);
+  }
+
+  .hover-fancy:hover img {
+    transform: translateY(-12%) rotateZ(1deg) scale(1.3);
+  }
+
+.panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  align-items: center;
+  justify-content: center;
+}
+
+.panel-content h2 {
+    color: var(--header-text);
+    text-shadow: var(--header-glow);
+  }
+
+.panel-content h4 {
+  color: var(--header-text);
+  text-shadow: var(--header-glow);
+  width: 100%;
+}
+
+.panel-content p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.panel-content .cta-button {
+  width: 200px;
+  min-width: 200px;
+}
+
+.panel-content .cta-button i {
+  margin-right: 0.5rem;
+}
+
+.panel-content p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--muted);
+  text-align: left;
+} 
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+/* --- Typography Scale Fix --- */
+h1, h2, h3, h4, h5, h6 {
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  /* Removed the 2rem font-size override here so base-styles.css (3.5rem) takes over */
+}
+
+/* --- Panel Label Component --- */
+.panel-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border-bottom: 1px solid var(--accent-2);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+/* --- Blockquotes & Info Notes --- */
+blockquote {
+  border-left: 4px solid var(--accent);
+  padding: 0.75rem 1.25rem;
+  margin: 1rem 0;
+  background: rgba(0, 0, 0, 0.2); /* Gives it a slight "hollow" depth */
+}
+
+.panel-note {
+  /* Increased opacity and added a slight glow to make it stand out against the glass */
+  background: rgba(var(--accent-rgb), 0.15); 
+  border: 1px solid rgba(var(--accent-rgb), 0.4);
+  border-left: 6px solid var(--accent);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+.panel-note p {
+  color: var(--text-light); /* Keeps the text sharp inside notes */
+}
+
+/* --- Display Headings (Hero Style) --- */
+.display-1 { font-size: 4.5rem; line-height: 1; }
+.display-2 { font-size: 4.0rem; line-height: 1; }
+.display-3 { font-size: 3.5rem; line-height: 1; }
+.display-4 { font-size: 3.0rem; line-height: 1; }
+
+.display-1, .display-2, .display-3, .display-4 {
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+/* --- Secondary Header Labels --- */
+.header-label {
+  color: var(--muted);
+  font-size: 0.6em;
+  margin-left: 0.5rem;
+  text-transform: none;
+  font-family: var(--font-body); /* Standard Segoe UI for labels */
+  font-weight: 400;
+}
+
+/* --- Panel Labels (The missing subtle headers) --- */
+.panel-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border-bottom: 1px solid var(--accent-2);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  text-align: left;
+}
+
+/* --- Blockquotes & Info Notes --- */
+blockquote {
+  border-left: 4px solid var(--accent);
+  padding: 0.75rem 1.25rem;
+  margin: 1rem 0;
+  background: rgba(0, 0, 0, 0.25); /* Hollow depth effect */
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.panel-note {
+  /* Higher contrast to stand out against the glass background */
+  background: rgba(var(--accent-rgb), 0.15); 
+  border: 1px solid rgba(var(--accent-rgb), 0.4);
+  border-left: 6px solid var(--accent);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+blockquote footer {
+  font-size: 0.8rem;
+  margin-top: 0.75rem;
+  color: var(--muted);
+  display: block;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* @At Rules: responsive layouts */
+@media (width >= 768px) {
+  .wrap {
+    width: 90vw;
+  }
+  nav.nav-open {
+    right: 2.5rem;
+    top: 6rem;
+  }
+  .glass-panel {
+    grid-template-columns: 1fr 1fr;
+  }
+  .panel-content {
+    align-items: flex-start;
+  }
+}
+@media (width < 1080px) {
+  nav {
+    position: absolute;
+    top: 92px; 
+    left: auto;
+    right: 2.5rem;
+    width: 188px;
+    margin: 0;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    background-color: var(--card);
+    border-radius: var(--radius);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    overflow: visible;
+    max-height: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: 
+      max-height 0.3s ease-in-out, 
+      opacity 0.3s ease-in-out,
+      visibility 0.3s ease-in-out;
+  }
+
+  nav.nav-open {
+    max-height: 500px;
+    opacity: 1;
+    visibility: visible;
+    gap: 0.75rem;
+    right: 1rem;
+    top: 5rem;
+  }
+
+  nav a,
+  nav .button {
+    width: 100%;
+    margin: 0.25rem 0;
+    text-align: left;
+    background-color: var(--accent);
+    color: var(--text-dark);
+    text-shadow: var(--text-shadow);
+    box-shadow: 0 0 10px var(--text-dark) inset;
+    transition:
+      background-color 0.3s ease,
+      box-shadow 0.2s ease,
+      color 0.4s ease;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .mobile-toggle {
+    display: block;
+    cursor: pointer;
+  }
+}
+@media (width >= 1024px) {
+  .wrap {
+    width: 90vw;
+    max-width: 1000px;
+  }
+
+  .breadcrumb-filter-container {
+    display: flex;
+  }
+  .breadcrumbs{
+    margin-left: 0;
+    margin-right: auto;
+  }
+}
+@media (width >= 1440px) {
+  .wrap {
+    max-width: 1300px;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    transform: skewX(-22.5deg) translateX(-150%);
+  }
+  to {
+    transform: skewX(-22.5deg) translateX(150%);
+  }
+}
+@keyframes filter-hue-spin {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+@keyframes filter-hue-spin-reverse {
+  100% { filter: hue-rotate(0deg); }
+  0% { filter: hue-rotate(360deg); }
+}
+@keyframes drift-left {
+  0% {
+    transform: scale(1.1) translateX(-2.5%);
+  }
+  100% {
+    transform: scale(1.1) translateX(-5%);
+  }
+} 

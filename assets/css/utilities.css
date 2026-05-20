@@ -1,0 +1,9 @@
+/* Utilities Layer - High-priority helper classes */
+@layer utilities {
+  .debug { border: 1px solid red; }
+
+  @media (width < 1440px) {
+    .hide-on-mobile-1440 { display: none !important; }
+    .show-on-mobile-1440 { display: block !important; }
+  }
+}

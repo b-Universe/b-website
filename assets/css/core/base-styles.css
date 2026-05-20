@@ -1,0 +1,100 @@
+/* Base Layer - Foundational element styles */
+@layer base {
+  @font-face {
+    font-display: swap;
+    font-family: 'GingerMint';
+    src: url('../fonts/CA GingerMint.otf') format('opentype');
+  }
+
+  /* Global transition for smooth theme switching */
+  * {transition: background-color 0.6s ease, color 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease, backdrop-filter 0.6s ease;}
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 1rem;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--header-text);
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: var(--header-glow);
+  }
+
+  h1 { font-size: 3.5rem; line-height: 1.1; }
+  h2 { font-size: 2.5rem; line-height: 1.2; margin-bottom: 1.5rem; }
+  h3 { font-size: 1.75rem; line-height: 1.3; margin-bottom: 1rem; }
+  h4 { font-size: 1.4rem; line-height: 1.4; }
+  h5 { font-size: 1.1rem; }
+  h6 { font-size: 1rem; }
+
+  p {
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  code {
+    background-color: var(--card-tooltip);
+    border: 1px solid var(--accent-2);
+    border-radius: 4px;
+    color: var(--accent);
+    display: inline-block;
+    font-family: Consolas, "Andale Mono", "Lucida Console", "Courier New", monospace;
+    font-size: 0.85em;
+    line-height: 1;
+    padding: 0.25em 0.4em;
+    transform: translateY(-5%);
+    vertical-align: middle;
+  }
+
+  .light code {
+    color: var(--text-dark);
+  }
+  
+  code a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  code a:hover {
+    text-decoration: underline;
+  }
+
+  button {
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 10px;
+    color: inherit;
+    font: inherit;
+    padding: 0.6rem 0.7rem;
+  }
+
+  /* Responsive dimensions */
+  @media (width >= 768px) {
+    body {
+      padding: 2rem;
+    }
+  }
+
+  @media (width >= 1024px) {
+    body {
+      padding: 2rem 3rem;
+    }
+  }
+
+  @media (width >= 1440px) {
+    body {
+      padding: 2rem 4rem;
+    }
+  }
+}
