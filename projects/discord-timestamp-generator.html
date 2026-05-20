@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Discord Timestamp Generator</title>
+
+    <meta name="portfolio-title" content="Discord Timestamp Generator">
+    <meta name="portfolio-category" content="project">
+    <meta name="portfolio-date" content="2026-05-07">
+    <meta name="portfolio-thumbnail" content="/assets/img/projects/discord-timestamp-generator/thumbnail.png">
+    <meta name="portfolio-description" content="Generate dynamic, localized timestamp tags for Discord messages using an intuitive multi-format interface.">
+
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+      .generator-wrap {
+        max-width: 850px;
+        margin: 0 auto;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px; /* Space between cards */
+      }
+
+      /* Explicitly kill hover effects for these specific cards */
+      .static-card:hover {
+        transform: none !important;
+        background: linear-gradient(172deg, rgba(200, 254, 255, 0.1) 20%, rgba(255, 255, 255, 0.1) 40%, rgba(0, 255, 255, 0.051) 120%) !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 10px var(--text-dark) inset !important;
+        color: var(--text-light) !important;
+      }
+
+      .main-input-wrap {
+        background: rgba(0, 0, 0, 0.4);
+        padding: 1.5rem;
+        border-radius: var(--radius);
+        border: 1px solid var(--accent-2);
+        margin-top: 1rem;
+      }
+
+      #dateInput {
+        width: 100%;
+        padding: 0.8rem;
+        background: var(--bg);
+        border: 2px solid var(--accent);
+        border-radius: var(--radius);
+        color: var(--accent);
+        font-family: 'Consolas', 'Monaco', monospace;
+        font-size: 1.2rem;
+        outline: none;
+        text-align: center;
+      }
+
+      .result-row {
+        display: grid;
+        grid-template-columns: 180px 1fr 100px;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: var(--radius);
+        border: 1px solid rgba(var(--accent-rgb), 0.1);
+        margin-bottom: 0.75rem;
+        transition: border-color 0.3s ease;
+      }
+
+      .result-row:hover {
+        border-color: rgba(var(--accent-rgb), 0.4);
+      }
+
+      .label-box {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 800;
+        margin-bottom: 4px;
+      }
+
+      .preview-text {
+        font-size: 1rem;
+        color: var(--text-light);
+        font-weight: 500;
+      }
+
+      .tag-col { text-align: center; }
+
+      code {
+        font-family: 'Consolas', 'Monaco', monospace;
+        background: rgba(0,0,0,0.5);
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        color: var(--accent);
+        font-size: 0.9rem;
+        border: 1px solid rgba(var(--accent-rgb), 0.3);
+      }
+
+      .copy-btn {
+        width: 100% !important;
+        height: 40px !important;
+        font-size: 0.9rem !important;
+        padding: 0 !important;
+      }
+
+      .copy-btn.saved {
+        background-color: var(--accent-2) !important;
+        color: var(--text-light) !important;
+      }
+
+      .preview-image-wrap {
+        width: 100%;
+        margin-top: 1.5rem;
+        border-radius: var(--radius);
+        overflow: hidden;
+        border: 2px solid var(--accent);
+      }
+
+      .preview-image-wrap img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      @media (max-width: 768px) {
+        .result-row {
+          grid-template-columns: 1fr;
+          gap: 0.5rem;
+          text-align: center;
+        }
+        .tag-col { margin: 0.5rem 0; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase"></i>Portfolio</a>
+              <a href="https://github.com/BehrRiley" target="_blank"><i class="fab fa-github"></i>Github</a>
+            </nav>
+            <button id="theme-toggle" class="theme-button">Dark</button>
+            <button id="hamburger" class="mobile-toggle">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <div class="generator-wrap">
+          
+          <section class="content-card static-card">
+            <h1>Discord Timestamp Generator</h1>
+            <p style="text-align: left;">Discord supports dynamic markdown timestamps that automatically adjust to the viewer's local time zone. Use this tool to generate tags for your community announcements or server events.</p>
+          </section>
+
+          <section class="content-card static-card" style="padding: 25px; margin-bottom: 20px;">
+            <h3 style="text-align: left; margin-top: 0; color: var(--text-light);">Select Date and Time</h3>
+            
+            <div class="main-input-wrap" style="background: rgba(0, 0, 0, 0.4); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--accent-2); margin-top: 1rem;">
+              <input type="datetime-local" id="dateInput" step="1" style="width: 100%; padding: 0.8rem; background: var(--bg); border: 2px solid var(--accent); border-radius: var(--radius); color: var(--accent); font-family: 'Consolas', monospace; font-size: 1.2rem; outline: none; text-align: center;">
+            </div>
+
+            <div id="output" style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 10px;">
+              </div>
+          </section>
+
+<div class="content-card static-card">
+  <h3 class="h3-left" style="margin-top:0;">Discord Chat Preview</h3>
+  <p>
+    Just paste the timestamp tag you've copied above into any Discord message and watch it 
+    automagically change into an easy localized time for everyone in your community!
+  </p>
+  
+  <div class="preview-image-wrap">
+    <img src="/assets/img/projects/discord-timestamp-generator/preview.png" alt="Discord Timestamp Preview">
+  </div>
+</div>
+
+        </div>
+      </main>
+
+      <footer>
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+    <script src="/assets/js/projects/discord-timestamp-generator/script.js"></script>
+  </body>
+</html>
