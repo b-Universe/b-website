@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Portfolio</title>
+    
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/pages/portfolio/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" xintegrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+  <body>
+    <div class="wrap">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+            <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon" aria-hidden="true"></i>Dark</button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <div class="breadcrumb-filter-container">
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <ol>
+              <li>
+                <a href="/pages/index.html">
+                  <i class="fas fa-home" aria-hidden="true"></i> Home
+                </a>
+              </li>
+              <li>
+                <span class="breadcrumb-current" aria-current="page">Portfolio</span>
+              </li>
+            </ol>
+          </nav>
+
+          <div class="filter-container">
+            <div class="filter-buttons" id="category-filters">
+              <button class="filter-button active" data-filter="all" data-filter-type="category">All</button>
+              <button class="filter-button" data-filter="article" data-filter-type="category">Articles</button>
+              <button class="filter-button" data-filter="script" data-filter-type="category">Scripts</button>
+              <button class="filter-button" data-filter="project" data-filter-type="category">Projects</button>
+            </div>
+            <div class="filter-buttons" id="sort-filters">
+              <button class="filter-button active" data-filter="latest" data-filter-type="sort">Latest</button>
+              <button class="filter-button" data-filter="oldest" data-filter-type="sort">Oldest</button>
+            </div>
+          </div>
+        </div>
+
+        <section class="portfolio-grid" id="portfolio-container">
+          <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--muted);">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+            <p>Loading projects...</p>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+    <script src="/assets/js/pages/portfolio/script.js"></script>
+  </body>
+</html>

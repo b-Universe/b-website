@@ -1,0 +1,82 @@
+/* Theme Layer - CSS Variable Definitions for Light, Dark, and Ecstatic modes */
+@layer theme {
+  :root {
+    /* Global Layout variables */
+    --maxw: 95vw;
+    --radius: 8px;
+    --gap: 1.25rem;
+    --color-gradient-width: 100vw;
+
+    /* Dark Theme (Default) - Visuals */
+    --accent: rgba(0, 224, 255, 0.9);
+    --accent-2: rgba(0, 200, 201, 0.6);
+    --color-gradient: radial-gradient(circle, #00ff00, #00ffff, #0000ff, #8000ff, #ff00ff, #ff00a0, #ff0000, #ff8000, #ffff00, #80ff00, #00ff00);
+
+    /* Dark Theme - Components */
+    --bg: #0b0f14;
+    --starfield-bg: linear-gradient(180deg, rgba(0, 0, 0, 1), rgba(0, 224, 255, 0.1));
+    --card: rgba(0, 224, 255, 0.12);
+    --card-tooltip: #071829f6;
+    --box-shadow: 0 0 10px var(--accent-2), 0 0 5px rgba(255, 255, 255, 0.1) inset;
+
+    /* Dark Theme - Typography */
+    --text: #e6eef6;
+    --text-light: #e6eef6;
+    --text-dark: #0f172a;
+    --muted: #9aa6b2;
+
+    /* Header Specifics */
+    --header-text: var(--text-light);
+    --header-glow: 0 0 8px var(--accent-2);
+  }
+
+  /* Light Theme Overrides */
+  .light {
+    --bg: #fdfdf0;
+    --accent: rgba(255, 255, 120, 0.8);
+    --accent-2: rgba(255, 255, 175, 0.8);
+
+    --starfield-bg: linear-gradient(180deg, rgb(18, 16, 0), rgba(255, 230, 0, 0.1));
+    --card: rgba(175, 175, 150, 0.2);
+    --card-tooltip: rgba(175, 175, 150, 0.9);
+
+    --text: #0f172a;
+    --text-light: #e6eef6;
+    --text-dark: #0f172a;
+    --muted: #d2d3b6;
+
+    /* Header Specifics */
+    --header-text: var(--text-dark);
+    --header-glow: 0 0 10px rgba(255, 255, 255, 0.8);
+  }
+
+  /* Ecstatic Theme Overrides */
+  .ecstatic {
+    --bg: #fffbed;
+    --accent: rgba(255, 230, 0, 0.9);
+    --accent-2: rgba(255, 180, 0, 0.8);
+    --color-rainbow-horizontal: linear-gradient(
+      to right,
+      hsla(50, 100%, 10%, 0.667),
+      hsla(120, 100%, 10%, 0.667),
+      hsla(180, 100%, 10%, 0.667),
+      hsla(240, 100%, 10%, 0.667),
+      hsla(300, 100%, 10%, 0.667),
+      hsla(0, 100%, 10%, 0.667),
+      hsla(50, 100%, 10%, 0.667)
+    );
+
+    --starfield-bg: linear-gradient(180deg, #000, rgba(255, 230, 0, 0.2));
+    --card: rgba(255, 230, 0, 0.15);
+    --card-tooltip: #1a1a00;
+
+    /* Header Specifics: Sharp 1px outline + existing glow */
+    --header-text: var(--text-light);
+    --header-glow: 
+      -1px -1px 0 rgba(0, 0, 0, 0.3), 
+       1px -1px 0 rgba(0, 0, 0, 0.3), 
+      -1px  1px 0 rgba(0, 0, 0, 0.3), 
+       1px  1px 0 rgba(0, 0, 0, 0.3), 
+       0 0 12px var(--accent);
+  }
+}

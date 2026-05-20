@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - B-Website</title>
+    
+    <meta name="portfolio-title" content="B-Website">
+    <meta name="portfolio-category" content="project">
+    <meta name="portfolio-date" content="2026-05-07">
+    <meta name="portfolio-thumbnail" content="/assets/img/projects/b-website/thumbnail.png">
+    <meta name="portfolio-description" content="The development and design philosophy behind the B project hub.">
+
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+  <body>
+    <div class="wrap">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+            <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon" aria-hidden="true"></i>Dark</button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 0;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><a href="/projects/"><i class="fas fa-rocket" aria-hidden="true"></i> Projects</a></li>
+            <li><span class="breadcrumb-current" aria-current="page">B-Website</span></li>
+          </ol>
+        </nav>
+
+        <h1 style="font-size: 3.5rem; margin-top: 1rem;">
+          Style Directory
+        </h1>
+
+        <section class="glass-panel panel" style="display: block;">
+          <h2 style="margin-bottom: 2rem;">Basic UI Elements</h2>
+          
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap);">
+            
+            <div class="panel" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <h3 style="margin-top: 0; font-size: 1.4rem;">Typography</h3>
+                <p style="font-size: 0.9rem; color: var(--muted);">Impact headers, Segoe UI body text, and Consolas code block variations.</p>
+              </div>
+              <a href="/pages/style-guide/typography.html" class="theme-button" style="width: 100%; margin-top: 1rem; text-decoration: none; justify-content: center;">View Styles</a>
+            </div>
+
+            <div class="panel" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <h3 style="margin-top: 0; font-size: 1.4rem;">Buttons & Badges</h3>
+                <p style="font-size: 0.9rem; color: var(--muted);">Interactive theme buttons, glowing states, and category-specific badges.</p>
+              </div>
+              <a href="/pages/style-guide/buttons.html" class="theme-button" style="width: 100%; margin-top: 1rem; text-decoration: none; justify-content: center;">View Styles</a>
+            </div>
+
+            <div class="panel" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <h3 style="margin-top: 0; font-size: 1.4rem;">Navigation</h3>
+                <p style="font-size: 0.9rem; color: var(--muted);">Breadcrumbs, site-wide pagination, and dropdown menu architecture.</p>
+              </div>
+              <a href="/pages/style-guide/navigation.html" class="theme-button" style="width: 100%; margin-top: 1rem; text-decoration: none; justify-content: center;">View Styles</a>
+            </div>
+
+            <div class="panel" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <h3 style="margin-top: 0; font-size: 1.4rem;">Selection</h3>
+                <p style="font-size: 0.9rem; color: var(--muted);">Collapsible accordions, tabbed content containers, and form inputs.</p>
+              </div>
+              <a href="/pages/style-guide/selection.html" class="theme-button" style="width: 100%; margin-top: 1rem; text-decoration: none; justify-content: center;">View Styles</a>
+            </div>
+
+            <div class="panel" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <h3 style="margin-top: 0; font-size: 1.4rem;">Overlays</h3>
+                <p style="font-size: 0.9rem; color: var(--muted);">Glassmorphic modals, floating tooltips, and interactive popovers.</p>
+              </div>
+              <a href="/pages/style-guide/overlays.html" class="theme-button" style="width: 100%; margin-top: 1rem; text-decoration: none; justify-content: center;">View Styles</a>
+            </div>
+
+            <div class="panel" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <h3 style="margin-top: 0; font-size: 1.4rem;">Feedback</h3>
+                <p style="font-size: 0.9rem; color: var(--muted);">Progress bars, loading spinners, and system alert notifications.</p>
+              </div>
+              <a href="/pages/style-guide/feedback.html" class="theme-button" style="width: 100%; margin-top: 1rem; text-decoration: none; justify-content: center;">View Styles</a>
+            </div>
+
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+  </body>
+</html>

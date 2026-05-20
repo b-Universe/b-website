@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - The Riley Wedding</title>
+    
+    <meta name="portfolio-title" content="The Riley Wedding">
+    <meta name="portfolio-category" content="article">
+    <meta name="portfolio-date" content="2025-11-07">
+    <meta name="portfolio-thumbnail" content="/assets/img/articles/riley-wedding-2027/section_cover.jpg">
+    <meta name="portfolio-description" content="Wedding registry and details for Bear and Darian Riley.">
+
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <meta name="description" content="Wedding registry and details for Bear and Darian Riley">
+    <meta name="keywords" content="wedding, registry, Riley, B">
+    
+    <meta property="og:title" content="The Riley Wedding">
+    <meta property="og:description" content="Save the Date for Bear and Darian!">
+    <meta property="og:url" content="/articles/riley-wedding-2027.html">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/assets/img/articles/riley-wedding-2027/section_cover.jpg">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The Riley Wedding">
+    <meta name="twitter:description" content="Save the Date for Bear and Darian!">
+    <meta name="twitter:image" content="/assets/img/articles/riley-wedding-2027/section_cover.jpg">
+    
+    <meta name="theme-color" content="#00FFFE">
+
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/data-tooltip.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" xintegrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+      /* Blog Post Styling (Themed) */
+      .main-panel-content {
+        max-width: 1200px; 
+        margin: 0 auto;
+        padding: 20px;
+        background-color: var(--bg);
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .content-card {
+        background: linear-gradient(
+          172deg, 
+          rgba(200, 254, 255, 0.1) 20%,
+          rgba(255, 255, 255, 0.1) 40%,
+          rgba(0, 255, 255, 0.051) 120%
+        );
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        color: var(--text-light); 
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 10px var(--text-dark) inset;
+        border: 1px solid var(--accent-2); 
+        height: auto;
+      }
+
+      /* === NEW GRID LAYOUT === */
+      .post-split-layout {
+        display: grid;
+        grid-template-columns: 450px 1fr; 
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+      .featured-image-panel {
+        display: flex;
+        padding-top: 10px;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .post-body-panel {
+        padding-top: 10px; 
+        text-align: left;
+      }
+      
+      /* === MOBILE BREAKPOINT: Stack columns === */
+      @media (width < 1440px) {
+        .post-split-layout {
+          grid-template-columns: 1fr; 
+        }
+        .featured-image-panel {
+          order: -1; 
+        }
+      }
+
+      /* Headings and Links */
+      .post-title {
+        color: var(--text-light);
+        font-size: 2.2em;
+        margin-bottom: 15px;
+        text-shadow: var(--title-text-shadow); 
+      }
+      .original-author h2, .original-author .h2-left {
+        color: var(--text-light);
+        border-left: 4px solid var(--accent); 
+        padding-left: 10px;
+        margin: 15px 0 10px 0;
+      }
+      
+      /* Quote Block */
+      .quote-block {
+        margin: 30px 0;
+        padding: 20px;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-left: 5px solid var(--accent); 
+        border-radius: 4px;
+        box-shadow: 0 0 8px var(--accent-2); 
+      }
+      .light .quote-block {
+        background-color: var(--muted);
+      }
+      .blockquote {
+        margin: 0;
+      }
+      .blockquote p {
+        font-size: 1.1em;
+        color: var(--text-light);
+        font-style: italic;
+      }
+      .light .blockquote p {
+        color: var(--text-dark);
+      }
+      .blockquote-footer {
+        display: block;
+        margin-top: 10px;
+        font-size: 0.85em;
+        color: var(--muted);
+      }
+      .light .blockquote-footer {
+        color: var(--text-dark);
+      }
+
+      /* Image and Author */
+      .featured-image {
+        text-align: center;
+        width: 100%;
+      }
+      .featured-image img {
+        border-radius: 8px;
+        border: 2px solid var(--accent);
+        width: 100%;
+        height: auto;
+      }
+      /* Stops all images in the split layout from spinning */
+      .ecstatic .post-split-layout img {
+        animation: none !important;
+        filter: none !important;
+      }
+      .featured-image figcaption {
+        font-style: italic;
+        color: var(--muted);
+        margin-top: 20px;
+      }
+      .pfp-130 {
+        width: 130px;
+        height: 130px;
+        min-width: 130px; 
+        flex-shrink: 0;   /* This is the magic command: "Do not shrink me!" */
+        
+        /* The Bust Crop Logic */
+        object-fit: cover;            /* Fills the circle with the image width */
+        object-position: center top;  /* Anchors to the top (Head & Shoulders) */
+        /* Note: If you have empty pixels at the very top of your skin file, 
+          change 'top' to '-4px' to shift it up slightly. */
+
+        /* Styling */
+        border-radius: 50%;           /* Circle crop */
+        border: 2px solid var(--accent);
+        box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.4);
+        background-color: rgba(0,0,0,0.3);
+        
+        margin-right: 5px; /* Tiny bit of extra breathing room */
+      }
+      .ecstatic .pfp-130 img {
+        animation: none !important;
+        filter: hue-rotate(0deg);
+      }
+      
+      /* === Custom Attribution Section Styling === */
+      .original-author {
+        padding: 10px;
+        width: 100%;
+        text-align: left;
+      }
+      .attribution-list {
+        padding: 15px;
+        background-color: var(--card);
+        border-radius: 8px;
+        border: 1px solid var(--accent-2);
+        box-shadow: 0 0 8px var(--accent-2);
+      }
+      .light .attribution-list{
+        background-color: var(--card);
+      }
+      .ecstatic .attribution-list {
+        padding: 15px;
+        background-color: var(--card);
+        border-radius: none;
+        border: none;
+        box-shadow: none;
+      }
+      .glance-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+      @media (width < 1440px) {
+        .glance-grid {
+          grid-template-columns: 1fr 1fr;
+          column-gap: 20px;
+        }
+      }
+      .glance-title {
+        margin-bottom: 1rem; 
+        font-weight: 800; 
+        font-size: 1.25rem; 
+        color: var(--text-light); 
+        border-bottom: 2px solid var(--accent-2); 
+        padding-bottom: 5px;
+      }
+
+      .glance-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        margin-top: 1.5rem;
+      }
+
+      .glance-item {
+        margin-bottom: 1rem;
+        color: var(--text-light);
+        display: flex; 
+        align-items: flex-start;
+      }
+
+      .glance-item:last-child {
+        margin-bottom: 0;
+      }
+
+      /* Tablet/Desktop split */
+      @media (width < 1440px) {
+        .glance-grid {
+          grid-template-columns: 1fr 1fr;
+          column-gap: 20px;
+        }
+      }
+
+      /* Mobile stacked and centered */
+      @media (width < 768px) or (width > 1440px) {
+        .glance-title {
+          text-align: center;
+        }
+        
+        .glance-item {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+        
+        .glance-item .two-line-icon {
+          margin-right: 0;
+          margin-bottom: 10px;
+        }
+      }
+      .attribution-list ul {
+        padding-left: 0;
+      }
+      .attribution-list li {
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+      }
+      .attribution-list li i {
+        width: 25px;
+        text-align: center;
+        margin-right: 10px;
+      }
+
+      /* Keyboard Tag */
+      .two-line-icon {
+        color: var(--accent);
+        float: left;
+        font-size: 2.25em; 
+        line-height: 1; 
+        margin-right: 10px; 
+        transform: translateY(0.4rem);
+        transition: all 0.3s ease;
+      }
+      .two-line-icon:hover {
+        color: var(--text-dark);
+        text-shadow: 
+        0 0 2px var(--accent),
+        0 0 5px var(--accent),
+        0 0 10px var(--accent);
+      }
+
+      /* Default layout for Desktop (>= 1440px) */
+      .featured-content-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+      }
+
+      .show-on-mobile-1440 {
+        display: none !important;
+      }
+
+      /* Tablet/Laptop split layout (< 1440px) */
+      @media (width < 1440px) {
+        .featured-content-wrapper {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 30px;
+          align-items: center; 
+        }
+        
+        .show-on-mobile-1440 {
+          display: block !important;
+        }
+        
+        .hide-on-mobile-1440 {
+          display: none !important;
+        }
+      }
+
+      /* Mobile stacked layout (< 768px) */
+      @media (width < 768px) {
+        .featured-content-wrapper {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* === BOTTOM SECTIONS GRID === */
+      .bottom-sections-grid {
+        display: grid;
+        grid-template-columns: 1fr; 
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      /* Default DOM Order (Mobile < 768px) */
+      .card-build { order: 1; }
+      .card-facts { order: 2; }
+      .card-furry { order: 3; }
+      .card-registry { order: 4; }
+
+      /* Tablet/Laptop: 2 columns top, stacked bottom */
+      @media (width >= 768px) and (width < 1440px) {
+        .bottom-sections-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .card-build { grid-column: 1 / 2; order: 1; }
+        .card-facts { grid-column: 2 / 3; order: 2; }
+        .card-furry { grid-column: 1 / -1; order: 3; }
+        .card-registry { grid-column: 1 / -1; order: 4; }
+      }
+
+      /* Desktop: 3 columns top, Furry Family full span bottom */
+      @media (width >= 1440px) {
+        .bottom-sections-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .card-build { grid-column: 1 / 2; order: 1; }
+        .card-registry { grid-column: 2 / 3; order: 2; }
+        .card-facts { grid-column: 3 / 4; order: 3; }
+        .card-furry { grid-column: 1 / -1; order: 4; }
+      }
+
+      /* Fun Facts Table */
+      .fun-facts-wrapper {
+        width: 100%;
+        overflow-x: auto; 
+        margin-top: 1.5rem;
+      }
+      
+      .fun-facts-table {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--accent-2);
+        border-radius: var(--radius);
+        padding: 15px;
+        min-width: 500px; 
+      }
+      
+      .fft-header {
+        font-weight: 800;
+        color: var(--text-light);
+        border-bottom: 2px solid var(--accent);
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+      }
+      
+      .fft-cell {
+        padding: 8px 0;
+        color: var(--muted);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+      }
+      
+      .feature-label {
+        font-weight: 700;
+        color: var(--text-light);
+      }
+      
+      /* Remove bottom border on the last row */
+      .fun-facts-table .fft-cell:nth-last-child(-n+3) {
+        border-bottom: none;
+      }
+
+      /* === FURRY FAMILY ALTERNATING GRID === */
+      .cat-list-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 20px;
+      }
+      
+      .cat-row {
+        display: grid;
+        grid-template-columns: 96px 1fr 40px;
+        gap: 20px;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid var(--accent-2);
+      }
+      
+      .cat-row.reverse {
+        grid-template-columns: 40px 1fr 96px;
+      }
+      
+      .cat-row img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--accent);
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      }
+      
+      .cat-row i {
+        font-size: 2em;
+        color: var(--accent);
+        text-align: center;
+      }
+      
+      .cat-row p {
+        margin: 0;
+      }
+      
+      /* Mobile override to prevent text squishing */
+      @media (width < 768px) {
+        .cat-row, .cat-row.reverse {
+          grid-template-columns: 1fr;
+          text-align: center;
+          justify-items: center;
+        }
+        .cat-row i {
+          display: none;
+        }
+      }
+
+
+    </style>
+  </head>
+  <body>
+    <div class="wrap" id="app">
+      <canvas id="starfield"></canvas>
+      <header>
+        <a class="brand" href="/pages/index.html">
+          <div class="logo" aria-hidden="true">B</div>
+          <div class="brand-text-wrap">
+            <div class="brand-title">It's a fun place to be</div>
+            <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+          </div>
+        </a>
+        <div class="nav-wrapper">
+          <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+            <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+            <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+            <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+          </nav>
+          <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon" aria-hidden="true"></i>Dark</button>
+          <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+        </div>
+      </header>
+
+      <div class="main-content-panel-full" style="width: 100%;">
+
+        <div class="post-split-layout">
+            
+          <div class="content-card featured-image-panel">
+            <div class="featured-content-wrapper">
+              
+              <div class="featured-left">
+                <h2 style="margin-top: 0;">
+                  <i class="fas fa-calendar-check" style="color:var(--accent)"></i>
+                  August 13th, 2027
+                </h2>
+                
+                <figure class="featured-image">
+                  <img src="/assets/img/articles/riley-wedding-2027/db_1.jpg" alt="Darian and Bear" style="width: 100%; max-height: 380px; object-fit: cover; object-position: top center; border-radius: 8px; border: 2px solid var(--accent); box-shadow: 0 0 10px rgba(0,0,0,0.3);">
+                  <figcaption class="hide-on-mobile-1440" style="margin-top: 15px;">We're officially tying the knot! 🥰</figcaption>
+                </figure>
+              </div>
+
+              <div class="featured-right" style="text-align: left;">
+                <h3 class="show-on-mobile-1440 h3-left" style="margin-top: 0; margin-bottom: 1.5rem; color: var(--text-light);">
+                  We're officially tying the knot! 🥰
+                </h3>
+                
+                <div class="attribution-list">
+                  <p class="glance-title">At a Glance</p>
+                  
+                  <div class="glance-grid">
+                    <div class="glance-item">
+                      <i class="fas fa-ring two-line-icon"></i> 
+                      <div>
+                        <strong style="color: var(--text-light);">Engaged:</strong><br>
+                        August 13th, 2025
+                      </div>
+                    </div>
+                    
+                    <div class="glance-item">
+                      <i class="fas fa-palette two-line-icon"></i> 
+                      <div>
+                        <strong style="color: var(--text-light);">Colors:</strong><br>
+                        Teal & Pink!
+                      </div>
+                    </div>
+                    
+                    <div class="glance-item">
+                      <i class="fas fa-drumstick-bite two-line-icon"></i>
+                      <div>
+                        <strong style="color: var(--text-light);">Venue Buffet:</strong><br>
+                        Pasta bar!
+                      </div>
+                    </div>
+                    
+                    <div class="glance-item">
+                      <i class="fas fa-gamepad two-line-icon"></i>
+                      <div>
+                        <strong style="color: var(--text-light);">Dress Code:</strong><br>
+                        Fancy Dancey!
+                      </div>
+                    </div>
+                    
+                    <div class="glance-item">
+                      <i class="fas fa-rocket two-line-icon"></i>
+                      <div>
+                        <strong style="color: var(--text-light);">Honeymoon:</strong><br>
+                        To Be Determined!
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+            
+          <div class="content-card post-body-panel" style="position: relative;">
+            <section class="post-body">
+              <h1>
+                Save the Date! 
+              </h1>
+
+              <p>
+                Welcome to our official wedding hub! Darian and I are incredibly excited to announce that we're getting married on <strong>Friday, August 13th, 2027</strong>. This date isn't a coincidence - it's the exact anniversary of when we made our relationship official and got engaged, bringing our timeline full circle in the best way possible.
+              </p>
+              <p>
+                For those who know us from the server, Denizen, and/or any of our communities: yes, the owners of <strong>B</strong> are officially making it permanent! We've spent years building and fostering an amazing online community, but this is by far our favorite celebration yet.
+              </p>
+              <p>
+                We're currently in the thick of planning to make this day a perfect reflection of who we are. We want this celebration to be unforgettable, blending our favorite colors and ensuring the vibe is as welcoming and fun as our daily lives. We created this page to keep our friends, family, and players in the loop as we finalize the details.
+              </p>
+
+              <h3 class="h3-left" style="margin-top: 2rem;">Our Story: More about us</h3>
+              <img src="/assets/img/articles/riley-wedding-2027/db_2.png" alt="Bear and Darian" class="hide-on-mobile-1440" style="float: right; width: 300px; height: auto; margin: 0 0 15px 15px; filter: drop-shadow(0 0 6px var(--accent-2)); transform: translateY(30px);">
+              <p>
+                Our lives revolve around designing intricate props/models, managing server networks, and making every second together count. But our story didn't start in a workshop or a server room. We met on Tinder, sparking conversations that we simply didn't want to end. Within months, it felt like we had known each other for years - and we still catch ourselves staying up way too late just talking until one of us passes out lol.
+              </p>
+              <p>
+                We quickly realized we had an insane amount in common. It wasn't just passing interests, but a deep, overlapping passion for the same nerdy niches, games, and aesthetics. This instant connection made for infinitely long watch-lists and adventure plans that we're still happily working through today!
+              </p>
+              <p>
+                As we grew closer, we realized our differences perfectly complement each other. I bring the technical software development, while Darian brings an incredible eye for artistry and physical design. Beyond our projects, we've navigated real-life challenges together. When a severe motorcycle accident left me grounded in late 2025, Darian stepped up as my absolute rock supporting me at my worst.
+              </p>
+              <p>
+                From realizing on our early dates that she could put away a hamburger better than I could, to building our home we call "The Bearian Estates" on our Minecraft world, and even navigating life's rough unexpected hurdles side-by-side, every moment has solidified that we're meant to be the perfect team. We couldn't be more thrilled to officially start this next chapter.
+              </p>
+            </section>
+          </div>
+
+        </div>
+        <div class="info-lists-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+          
+          <div class="timeline-column content-card">
+            <h3 class="h3-left" style="margin-top:0;">More about Darian</h3>
+            <p>
+              <img src="/assets/img/articles/riley-wedding-2027/majoras_mask.jpg" class="pfp-130" alt="Majora's Mask Prop" style="float: right; transform: scaleX(-1);">
+              Darian is the artistic heart of our home. By day, she's at Wulfgar Props, getting hands-on with the gritty, messy work of painting and sanding high-end props. Her absolute favorite piece to paint and finish is the funky, the colorful rainbow-colored Majora's Mask from Zelda!
+            </p>
+            <br>
+            <p>
+              Despite the sawdust and paint, she makes it a point to dress elegantly every single day. Her love for aesthetics isn't just professional; she's a former florist with a lifelong love for flowers, Daffodils being a particular favorite.
+            </p>
+            <br>
+            <p>
+              While she's the queen of sleeping in (usually until a bowl of cereal, the true key to her heart, arrives), she is incredibly passionate about everything she loves and does. She has been our rock throughout the long recovery from Bear's motorcycle accident. When she's relaxing, she's likely watching speedruns, something crafty or creative, or playing games.
+            </p>
+          </div>
+
+          <div class="timeline-column content-card">
+            <h3 class="h3-left" style="margin-top:0;">More about Bear</h3>
+            <p>
+              <img src="https://api.mineatar.io/body/full/4fbca51c-2c03-4d4f-b1fb-f2462609a058" class="pfp-130" alt="Behr's Minecraft Character" style="float: left">
+              I handle the technical side of our projects, with my world rooted deeply in the logic of DenizenScript and JavaScript. I'm often the one struggling to sleep (especially as long as she can), which worked out perfectly for my routine of bringing Darian breakfast and coffee in bed each morning.
+            </p>
+            <br>
+            <p>
+              When I'm not writing scripts, I spend my time building LEGO Speed Champions or working on the B network. I also have a serious weakness for vanilla ice cream loaded with peanut butter and candies. In both my code and daily life, I value precision, smooth responsive transitions, and the little details that tie everything together.
+            </p>
+          </div>
+
+        </div>
+
+        <div class="bottom-sections-grid">
+          
+          <div class="content-card card-build">
+            <h3 class="h3-left" style="margin-top:0;">What We Build Together</h3>
+            <p>Our partnership is defined by the things we create and the worlds we explore together.</p>
+            
+            <div style="margin-top: 20px;">
+              <div style="margin-bottom: 1.5rem; display: flex; align-items: flex-start;">
+                <i class="fas fa-gamepad two-line-icon"></i>
+                <div>
+                  <p>
+                    <strong>The Gaming Connection:</strong> Our first shared adventure was in Minecraft, where we built "The Bearian Estates," a private town that serves as our digital home. We also share a love for Age of Empires II, City of Heroes, and various simulator games.
+                  </p>
+                </div>
+              </div>
+              
+              <div style="margin-bottom: 1.5rem; display: flex; align-items: flex-start;">
+                <i class="fas fa-cubes two-line-icon"></i>
+                <div>
+                  <p>
+                    <strong>The Collection:</strong> Our shelves are a mix of our favorite things. You'll find plenty of Nintendo LEGO sets, my City buildings, and a dedicated Pokémon corner where Darian's favorite, Ampharos (and her prized full-art holo Falinks), sits near my favorites, Alakazam and Bidoof.
+                  </p>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 1.5rem; display: flex; align-items: flex-start;">
+                <i class="fas fa-user-astronaut two-line-icon"></i>
+                <div>
+                  <p>
+                    <strong>Whovians at Heart:</strong> We're both big Doctor Who fans. Darian's favorites lean toward the chilling, the Weeping Angels and the Vashta Narada, with a soft spot for Donna Noble as a companion.
+                  </p>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 0; display: flex; align-items: flex-start;">
+                <i class="fas fa-utensils two-line-icon"></i>
+                <div>
+                  <p>
+                    <strong>The Little Things:</strong> Life for us is found in the quirks, like our frequent cucumber salad nights, or the way Darian can put away a hamburger better than I can (a realization that made me laugh since our very first dates).
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-card card-facts">
+            <h3 class="h3-left" style="margin-top:0;">Fun Facts About Us</h3>
+            
+            <div class="fun-facts-wrapper">
+              <div class="fun-facts-table">
+                <div class="fft-header">Feature</div>
+                <div class="fft-header">Darian</div>
+                <div class="fft-header">Bear</div>
+                
+                <div class="fft-cell feature-label">Favorite Pokémon</div>
+                <div class="fft-cell">Ampharos</div>
+                <div class="fft-cell">Bidoof (formerly Alakazam)</div>
+                
+                <div class="fft-cell feature-label">Comfort Food</div>
+                <div class="fft-cell">Hamburgers</div>
+                <div class="fft-cell">Lasagna</div>
+                
+                <div class="fft-cell feature-label">Favorite Project</div>
+                <div class="fft-cell">Majora's Mask</div>
+                <div class="fft-cell">The Bearian Estates</div>
+                
+                <div class="fft-cell feature-label">Morning Routine</div>
+                <div class="fft-cell">Cereal &amp; Sleeping in</div>
+                <div class="fft-cell">Coffee-making &amp; Early rising</div>
+                
+                <div class="fft-cell feature-label">Disney Pick</div>
+                <div class="fft-cell"><em>Tangled</em></div>
+                <div class="fft-cell">Superhero / Magical films</div>
+                
+                <div class="fft-cell feature-label">LEGO Focus</div>
+                <div class="fft-cell">Nintendo &amp; Creative sets</div>
+                <div class="fft-cell">Speed Champions &amp; City</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-card card-furry">
+            <h3 class="h3-left" style="margin-top:0;">Our Furry Family</h3>
+            <p style="margin-top: 0;">
+              We couldn't set up a page celebrating our growing family without mentioning our beloved cats! Tofu, Dijon Mustard, and Mulder are a huge part of our lives at home. Whether they are helping Darian inspect her latest prop designs, sitting directly on my keyboard while I'm trying to write Denizen scripts, or just causing their usual brand of adorable chaos around the house, these three bring so much life and laughter to our daily routines. They are our little furry world, and we absolutely love them to pieces.
+            </p>
+            
+            <div style="margin-top: 20px; padding: 10px; border-radius: 8px; border: 2px solid var(--accent); box-shadow: 0 0 10px var(--accent-2); overflow: hidden;">
+              <img src="/assets/img/articles/riley-wedding-2027/banner_design.png" alt="Our cat photo wall" style="width: 100%; height: auto; display: block; transform: scale(1.35);">
+            </div>
+
+            <div class="cat-list-container">
+              
+              <div class="cat-row">
+                <img src="/assets/img/articles/riley-wedding-2027/dijon_1.png" alt="Dijon Mustard">
+                <p>
+                  <strong>Dijon Mustard</strong> was adopted by myself(Bear) from <a href="https://www.mistyeyes.org/" target="_blank" rel="noopener noreferrer" data-tooltip="WARNING: May Cause Tail Wags!"><code>Misty Eyes Animal Center</code></a> in Avon. He struggles to keep a single brain cell active at any given moment, but he makes up for it by being a massive food and attention bully - if a name is called, he assumes it's his! Luckily, this works every time it actually was. He's very playful and frequently brings toy mice into the bed, and he only tolerates car rides if there is a pup cup involved. When we're trying to lay down to sleep, he loves to stomp on us. Casually walking all over us and making sure to put his entire body weight into every single paw. 
+                </p>
+                <i class="fa-solid fa-paw" style="font-size: 3em;"></i>
+              </div>
+
+              <div class="cat-row reverse">
+                <i class="fa-solid fa-paw" style="font-size: 3em;"></i>
+                <p>
+                  <strong>Mulder</strong> was rescued in Battleground by Darian along with his brother, Scully (named after the classic TV duo!). Scully unfortunately ran away, but Mulder has settled in perfectly. He's extremely chill and just likes to lay around and sleep all day. He couldn't care less about treats or catnip, reserving his appetite entirely for string. He's a lovable dummy with an insatiable hunger for string, and he certainly doesn't let the inevitable hairballs stop him from going back for second helpings. Oh, and he absolutely <em>hates</em> car rides. 
+                </p>
+                <img src="/assets/img/articles/riley-wedding-2027/mulder_1.jpg" alt="Mulder">
+              </div>
+
+              <div class="cat-row">
+                <img src="/assets/img/articles/riley-wedding-2027/tofu_1.jpg" alt="Tofu">
+                <p>
+                  <strong>Tofu</strong> joined us after we both caught her and her stray momma, Barbeque (who still visits us two years later!). Tofu is extremely timid and strongly dislikes being approached, though she does enjoy pets on her own terms sometimes. Just like Dijon, she's very playful and loves bringing her toys into the bed. When we aren't watching though, she's vicious with her toys, tearing them up ten times faster than her brothers!
+                </p>
+                <i class="fa-solid fa-paw" style="font-size: 3em;"></i>
+              </div>
+              
+            </div>
+            
+          </div>
+
+          <div class="content-card card-registry">
+            <h3 class="h3-left" style="margin-top:0;">💍 Registry & Venue Details</h3>
+            
+            <p>We're still in the process of finalizing the venue and building out our official registry, but here is what we're planning so far!</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 20px; margin-top: 2rem;">
+              <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-2);">
+                <h3 style="margin-top:0;">Theme & Colors</h3>
+                <p>
+                  We're leaning heavily into a beautiful palette of <strong>Teal and pink</strong> accents. Expect an aesthetic that feels very "us."
+                </p>
+              </div>
+              <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-2);">
+                <h3 style="margin-top:0;">The Registry</h3>
+                <p>
+                  Our official registry isn't quite open yet. Check back here closer to the big day for links to our registry, RSVP forms, and specific venue information!
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="quote-block" style="margin-top: 25px;">
+          <blockquote class="blockquote">
+            <p>"some quote maybe idk, cheesy lol"</p>
+            <footer class="blockquote-footer">~ The Future Rileys</footer>
+          </blockquote>
+        </div>
+
+      </div>
+
+      </div>
+      
+      <footer>
+        © <span id="year"></span> B  -  Built with ❤️ and plain HTML/CSS/JS by Bear Riley  -  WebServer ran on Denizen
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+  </body>
+</html>
