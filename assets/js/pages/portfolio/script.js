@@ -4,6 +4,7 @@
     if (!portfolioContainer) return;
 
     const portfolioItems = [
+      '/articles/dev-blog-1-landscape-sprites.html',
       '/articles/riley-wedding-2027.html',
       '/projects/armor_stand-generator.html',
       '/projects/b-the-game.html',

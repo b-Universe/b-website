@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Dev Blog #1: Landscape & Player Sprites</title>
+    
+    <!-- Portfolio Metadata for Automation -->
+    <meta name="portfolio-title" content="Dev Blog #1: Landscape & Sprites">
+    <meta name="portfolio-category" content="article">
+    <meta name="portfolio-date" content="2026-05-10">
+    <meta name="portfolio-thumbnail" content="/assets/img/articles/dev-blog-1-landscape-sprites/thumbnail.png">
+    <meta name="portfolio-description" content="Our first steps into the world of B, focusing on general landscape generation and sprite usage.">
+
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <meta name="description" content="Development Blog #1 for B: General Landscape and Sprite Usage.">
+    <meta name="keywords" content="B, dev blog, development, javascript, canvas, landscape, sprites, html">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="B - Dev Blog #1: Landscape & Sprites">
+    <meta property="og:description" content="Our first steps into the world of B.">
+    <meta property="og:url" content="/articles/dev-blog-1-landscape-sprites.html">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="/assets/img/articles/dev-blog-1-landscape-sprites/thumbnail.png">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="B - Dev Blog #1">
+    <meta name="twitter:description" content="Our first steps into the world of B.">
+    <meta name="twitter:image" content="/assets/img/articles/dev-blog-1-landscape-sprites/thumbnail.png">
+    
+    <meta name="theme-color" content="#00FFFE">
+
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+  <body>
+    <div class="wrap" id="app">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+          
+            <button id="theme-toggle" class="theme-button" title="Toggle theme">
+              <i class="fa-solid fa-moon" aria-hidden="true"></i>Dark
+            </button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+          <ol>
+            <li>
+              <a href="/pages/index.html">
+                <i class="fas fa-home" aria-hidden="true"></i> Home
+              </a>
+            </li>
+            <li>
+              <a href="/pages/portfolio.html">
+                <i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio
+              </a>
+            </li>
+            <li>
+              <span class="breadcrumb-current" aria-current="page">Dev Blog #1</span>
+            </li>
+          </ol>
+        </nav>
+
+        <div class="dev-blog-container">
+          <h1 class="post-title">
+            Dev Blog #1: Landscape & Sprites
+          </h1>
+
+          <!-- Row 1: Setting the Stage & Landscape -->
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Setting the Stage</h2>
+                <p>
+                  Welcome to the very first development blog for <strong>B</strong>! 
+                  When we first conceptualized this project, we knew that the environment itself needed to feel both expansive and intimately detailed. 
+                  Our very first steps into building the world began by tackling the <strong>general landscape</strong> and our <strong>sprite usage</strong>.
+                </p>
+
+                <h3>General Landscape</h3>
+                <p>
+                  Generating the landscape was our primary hurdle. We wanted to move away from standard generation algorithms 
+                  and create something that felt tailor-made for our vision. Using a combination of custom JavaScript logic 
+                  and meticulous HTML5 Canvas tweaking, we established the rolling hills and deep valleys that form the physical foundation of our world.
+                </p>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem;">
+              <div class="panel-image">
+                <figure class="featured-image">
+                  <img src="/assets/img/articles/dev-blog-1-landscape-sprites/thumbnail.png" alt="Landscape and Sprite Preview">
+                  <figcaption>
+                    <i class="fas fa-image" aria-hidden="true"></i>
+                    - Our First glimpse into the world of B!
+                  </figcaption>
+                </figure>
+              </div>
+            </section>
+          </div>
+
+          <!-- Row 2: Sprite Usage & Immersion -->
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+
+            <section class="glass-panel panel" style="padding: 2rem;">
+              <div class="panel-image">
+                <figure class="featured-image">
+                  <img src="/assets/img/articles/dev-blog-1-landscape-sprites/sprite-folder-first-view.png" alt="Immersion Preview">
+                </figure>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Sprite Usage & Immersion</h2>
+                <p>
+                  Once the ground was laid, the world needed life and character. That's where our custom sprites came into play.
+                  By utilizing custom JavaScript rendering and clever CSS styling, we were able to introduce a classic top-down 3D visual in a 2D world, 
+                  environmental details like basic blocks, and custom UI elements that seamlessly blend into our web environment.
+                </p>
+              </div>
+            </section>
+          </div>
+
+          <!-- Row 3: Bringing the Player to Life -->
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Bringing the Player to Life</h2>
+                <p>
+                  For our initial character animations, we owe heavy credit to <a href="https://xzany.itch.io/top-down-adventurer-character" target="_blank" rel="noopener noreferrer">Xzany's Top-Down Adventurer Character</a>. 
+                  They presented us with a wonderful 4-directional player sprite with several fluid animations that served as the perfect starting point for our development.
+                </p>
+                <p>
+                  As a starting basis, we also utilized various pixel-art textures kindly provided without restrictive licenses to build out the early environment.
+                </p>
+                
+                <p>
+                  Getting the first custom sprite to render correctly against our new landscape was an incredibly automagical moment. It really brought the whole concept to life!
+                </p>
+
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem;">
+              <div class="panel-image grid-locked">
+                <img src="/assets/img/articles/dev-blog-1-landscape-sprites/top-down-adventurer-character-idle.gif" alt="Idle Animation" loading="lazy">
+                <img src="/assets/img/articles/dev-blog-1-landscape-sprites/top-down-adventurer-character-run-dash.gif" alt="Run Dash Animation" loading="lazy">
+                <img src="/assets/img/articles/dev-blog-1-landscape-sprites/top-down-adventurer-character-attack.gif" alt="Attack Animation" loading="lazy">
+                <img src="/assets/img/articles/dev-blog-1-landscape-sprites/top-down-adventurer-character-hurt-die.gif" alt="Hurt Die Animation" loading="lazy">
+              </div>
+            </section>
+          </div>
+
+          <!-- Row 4: 8-Directional Development Research -->
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem;">
+              <div class="panel-image">
+                <figure class="featured-image" style="margin: 0; width: 100%;">
+                  <img src="/assets/img/articles/dev-blog-1-landscape-sprites/tumblr-8-directional-example-export.gif" alt="8-Directional Sprite Tutorial" loading="lazy" style="border-radius: 8px; border: 2px solid var(--accent); width: 100%; min-width: 100%; height: auto; display: block; box-sizing: border-box; background: rgba(0, 0, 0, 0.2);">
+                </figure>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Looking Ahead:</h2>
+                <h3>8-Directional Movement</h3>
+                <p>
+                  As we continue to grow and refine the B experience, our research is already extending into <strong>8-directional development</strong>! 
+                  We'll be utilizing fantastic resources - like this 8-directional top-down pixel art tutorial - to help us concept and build a fully custom, automagical movement system that feels wonderfully fluid!
+                </p>
+                <p>A quick preview of our next sprite models we're creating! They're going to take a lot of time, but I have that given my current lively situation.</p>
+                <img src="/assets/img/articles/dev-blog-1-landscape-sprites/flip_se.png" style="border-radius: 8px; border: 2px solid var(--accent); width: 100%; min-width: 100%; height: auto; display: block; box-sizing: border-box; background: rgba(0, 0, 0, 0.2);">
+              </div>
+            </section>
+          </div>
+
+          <!-- Outro Quote & Footer -->
+          <section class="glass-panel panel" style="padding: 2rem;">
+            <div class="quote-block">
+              <blockquote class="blockquote" style="text-align: center;">
+                <p> 
+                  Stay tuned for our next dev blog where we'll dive deeper into how we're handling entity mechanics and interactable objects across the application.
+                </p>
+              </blockquote>
+            </div>
+          </section>
+        </div>
+
+      </main>
+
+      <footer style="margin-top: 2rem;">
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+  </body>
+</html>
