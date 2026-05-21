@@ -49,11 +49,20 @@
         text-align: center;
       }
 
-      .featured-image img {
+      .featured-image img, .featured-image video {
         border-radius: 8px;
         border: 2px solid var(--accent);
+        display: block;
         width: 100%;
         height: auto;
+        
+        transform: translate3d(0, 0, 0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        perspective: 1000px;
+        will-change: transform;
+        image-rendering: crisp-edges;
+        image-rendering: -webkit-optimize-contrast;
       }
 
       .attribution-list {

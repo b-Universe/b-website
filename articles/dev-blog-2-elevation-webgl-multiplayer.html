@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Dev Blog #2: Elevation, WebGL, and Multiplayer</title>
+    
+    <meta name="portfolio-title" content="Dev Blog #2: Elevation, WebGL, and Multiplayer">
+    <meta name="portfolio-category" content="article">
+    <meta name="portfolio-date" content="2026-05-11">
+    <meta name="portfolio-thumbnail" content="/assets/img/articles/dev-blog-2-elevation-webgl-multiplayer/thumbnail.png">
+    <meta name="portfolio-description" content="Moving away from flat lands, upgrading the engine to WebGL, and adding multiplayer chat.">
+
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <meta name="description" content="Development Blog #2 for B: WebGL migration, elevation trials, and multiplayer chat.">
+    <meta name="keywords" content="B, dev blog, development, javascript, webgl, threejs, multiplayer, elevation, html">
+    
+    <meta property="og:title" content="B - Dev Blog #2: Elevation, WebGL, and Multiplayer">
+    <meta property="og:description" content="Taking B to the next dimension with WebGL and Multiplayer.">
+    <meta property="og:url" content="/articles/dev-blog-2-elevation-webgl-multiplayer.html">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="/assets/img/articles/dev-blog-2-elevation-webgl-multiplayer/thumbnail.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="B - Dev Blog #2">
+    <meta name="twitter:description" content="Taking B to the next dimension with WebGL and Multiplayer.">
+    <meta name="twitter:image" content="/assets/img/articles/dev-blog-2-elevation-webgl-multiplayer/thumbnail.png">
+    
+    <meta name="theme-color" content="#00FFFE">
+
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+      @media (max-width: 900px) {
+        .grid-locked {
+          grid-template-columns: 1fr !important;
+        }
+        .dev-blog-container > .grid-locked > section:has(.panel-image) {
+          order: -1;
+        }
+        .post-title {
+          font-size: 2.2rem !important;
+        }
+      }
+      .side-by-side-images {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        align-items: stretch;
+      }
+      .side-by-side-images figure {
+        display: flex;
+        height: 100%;
+      }
+      .side-by-side-images img {
+        width: 100%;
+        height: 100% !important;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid var(--accent);
+        box-sizing: border-box;
+      }
+      .featured-image img, .featured-image video {
+        /* Force a true 3D rendering layer */
+        transform: translate3d(0, 0, 0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        perspective: 1000px;
+        will-change: transform;
+        image-rendering: crisp-edges;
+        image-rendering: -webkit-optimize-contrast;
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" id="app">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+          
+            <button id="theme-toggle" class="theme-button" title="Toggle theme">
+              <i class="fa-solid fa-moon" aria-hidden="true"></i>Dark
+            </button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+          <ol>
+            <li>
+              <a href="/pages/index.html">
+                <i class="fas fa-home" aria-hidden="true"></i> Home
+              </a>
+            </li>
+            <li>
+              <a href="/pages/portfolio.html">
+                <i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio
+              </a>
+            </li>
+            <li>
+              <span class="breadcrumb-current" aria-current="page">Dev Blog #2</span>
+            </li>
+          </ol>
+        </nav>
+
+        <div class="dev-blog-container">
+          <h1 class="post-title">
+            Dev Blog #2:<br>Elevation, WebGL, and Multiplayer
+          </h1>
+
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Early Combat Implementation</h2>
+                <p>
+                  When we first started building the game, combat was very basic. We only had simple melee attacks working across a flat map.
+                </p>
+                <p>
+                  It served its purpose for testing hit detection and core mechanics, but the limited directions made fighting feel a bit stiff. We knew we had to completely overhaul the system to make it feel fluid and natural.
+                </p>
+                <p>
+                  $3 well spent!
+                </p>
+              </div>
+            </section>
+
+          <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-image">
+                <figure class="featured-image">
+                  <img src="/assets/img/articles/dev-blog-2-elevation-webgl-multiplayer/2026-05-10-111625.gif" alt="Old combat testing with basic attacks">
+                  <figcaption style="text-align: center; margin-top: 10px; color: var(--muted); font-size: 0.9rem;">
+                    <i class="fas fa-bolt" aria-hidden="true"></i>
+                    - Testing out the earliest version of our combat system.
+                  </figcaption>
+                </figure>
+              </div>
+            </section>
+          </div>
+
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-image">
+                <figure class="featured-image">
+                  <img src="/assets/img/articles/dev-blog-2-elevation-webgl-multiplayer/2026-05-11-215629.gif" alt="World building with elevation and tintable blocks">
+                  <figcaption style="text-align: center; margin-top: 10px; color: var(--muted); font-size: 0.9rem;">
+                    <i class="fas fa-cube" aria-hidden="true"></i>
+                    - Testing out tintable blocks and multi-block placement.
+                  </figcaption>
+                </figure>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Building Hills and Tinting Blocks</h2>
+                <p>
+                  Before we moved over to the big WebGL engine, I spent time figuring out how to actually generate world elevation. I wanted real hills and cliffs. 
+                </p>
+                <p>
+                  Along with the hills, we added tintable blocks. This is how we got the water to actually look like water. Instead of drawing a million different colored blocks, we can just take a base block and tint it whatever color we need.
+                </p>
+              </div>
+            </section>
+          </div>
+
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Climbing and Collision</h2>
+                <p>
+                  Drawing a 3D hill on the screen is one thing, but making the player walk on it correctly is a lot harder. We had to do a lot of math to get the collisions working right.
+                </p>
+                <p>
+                  If the collision is wrong, you just fall straight through the floor or get stuck inside a wall. After a lot of testing, the player can finally run up and down the elevation smoothly without breaking the game.
+                </p>
+              </div>
+            </section>
+
+          <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-image side-by-side-images">
+                <figure class="featured-image" style="margin: 0;">
+                  <img src="/assets/img/articles/dev-blog-2-elevation-webgl-multiplayer/2026-05-11-220525.gif" alt="Testing collision and climbing">
+                </figure>
+                <figure class="featured-image" style="margin: 0;">
+                  <img src="/assets/img/articles/dev-blog-2-elevation-webgl-multiplayer/2026-05-11-220812.gif" alt="Smooth movement on elevation">
+                </figure>
+              </div>
+              <figcaption style="text-align: center; margin-top: 10px; color: var(--muted); font-size: 0.9rem;">
+                <i class="fas fa-walking" aria-hidden="true"></i> - Testing out the new climbing math.
+              </figcaption>
+            </section>
+          </div>
+
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>The Big WebGL Upgrade</h2>
+                <p>
+                  As we added more hills and more blocks, the game started to have network issues. The old way of drawing the map just could not handle it. We decided to do a massive upgrade and move the whole engine over to WebGL using <code>Three.js</code>.
+                </p>
+                <p>
+                  We built a custom <code>InstancedMesh</code> pipeline. This is a fancy way of saying we tell the graphics card to draw the exact same block shape thousands of times in one go. Instead of lagging, the game can now render massive worlds smoothly.
+                </p>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Future-Proofing the Map</h2>
+                <p>
+                  To make the <code>WebGL</code> upgrade work, we completely changed how the game loads images. Loading a hundred separate block files is bad for performance. Instead, we packed all our block textures into one giant image called a texture atlas.
+                </p>
+                <p>
+                  We also set up a numeric registry system. The game just reads simple ID numbers for blocks now. This makes the game run way faster and future-proofs the engine so we can add tons of new materials later without breaking anything.
+                </p>
+              </div>
+            </section>
+          </div>
+
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-image">
+                <figure class="featured-image" style="margin: 0; width: 100%;">
+                  <img src="/assets/img/articles/dev-blog-2-elevation-webgl-multiplayer/multiplayer-showcase.png" alt="Multiplayer chat bubbles with Aya joke" style="border-radius: 8px; border: 2px solid var(--accent); width: 100%; display: block; box-sizing: border-box;">
+                  <figcaption style="text-align: center; margin-top: 10px; color: var(--muted); font-size: 0.9rem;">
+                    <i class="fas fa-comment" aria-hidden="true"></i>
+                    - Testing out the new chat system.
+                  </figcaption>
+                </figure>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Multiplayer and Chat Bubbles</h2>
+                <p>
+                  A game is way more fun with friends. We hooked up <code>Node.js</code> and <code>Socket.io</code> to get real-time multiplayer working. Seeing someone else run around the map you built is a great feeling.
+                </p>
+                <p>
+                  We added a chat system with bubbles that pop up right over the characters. While Icecapade and I were testing it out, he helped me decide on adding support for extra chat bubbles and folding text!
+                </p>
+              </div>
+            </section>
+          </div>
+
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Building and Bloopers</h2>
+                <p>
+                  To make building a lot faster we made a new multi-block selection tool. Trying to test it out on the new hills led to some pretty funny results.
+                </p>
+                <p>
+                  While these test hills were manually placed, getting the climbing mechanics working here has us incredibly excited to tackle proper procedural terrain generation with natural elevation soon!
+                </p>
+                <div class="panel-image" style="margin-top: 1rem;">
+                  <figure class="featured-image" style="margin: 0;">
+                    <video src="/assets/img/articles/dev-blog-2-elevation-webgl-multiplayer/2026-05-11-141905.mp4" controls loop playsinline style="width: 100%; border-radius: 8px; border: 2px solid var(--accent); box-sizing: border-box;"></video>
+                  </figure>
+                </div>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>8-Direction Attacks</h2>
+                <p>
+                  Remember the teaser from the last blog? We didn't stop at just running around. We also got a stack of attack animations working smooth in all 8 directions!
+                </p>
+                <div class="panel-image" style="margin-top: 1rem;">
+                  <figure class="featured-image" style="margin: 0;">
+                    <img src="/assets/img/articles/dev-blog-2-elevation-webgl-multiplayer/2026-05-11-181421.gif" alt="8-Directional Attack Demonstration" style="width: 100%; border-radius: 8px; border: 2px solid var(--accent); box-sizing: border-box;">
+                  </figure>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="quote-block" style="width: 100%; padding: 1.5rem; background: rgba(0, 0, 0, 0.3); border-left: none; border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); border-radius: 8px; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); text-align: center;">
+                <blockquote class="blockquote" style="margin: 0;">
+                  <p style="margin: 0; font-size: 1.1rem; color: var(--text-light); font-style: italic;"> 
+                    Keep an eye out for the next blog where we will show off more multiplayer chaos and combat testing!
+                  </p>
+                </blockquote>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+              <div>
+                <h3 style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.8rem; color: var(--text-light);">Want to try it out now?</h3>
+                <p style="margin-bottom: 1.5rem; color: var(--muted); font-size: 1.1rem;">There is no download and no email required!</p>
+                <a href="https://play.behr.dev/" target="_blank" rel="noopener noreferrer" class="theme-button cta-button" style="font-size: 1.3rem; padding: 1rem; width: 100%; max-width: 300px; justify-content: center; white-space: nowrap;">
+                  <i class="fas fa-gamepad" aria-hidden="true"></i> Play B Now!
+                </a>
+              </div>
+            </section>
+          </div>
+        </div>
+
+      </main>
+
+      <footer style="margin-top: 2rem;">
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+  </body>
+</html>
