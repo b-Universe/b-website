@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Dev Blog #3: WebGL, Physics, and Multiplayer Chaos</title>
+    
+    <meta name="portfolio-title" content="Dev Blog #3: WebGL, Physics, and Multiplayer Chaos">
+    <meta name="portfolio-category" content="article">
+    <meta name="portfolio-date" content="2026-05-25">
+    <meta name="portfolio-thumbnail" content="/assets/img/articles/dev-blog-3-webgl-landscape-multiplayer/thumbnail.png">
+    <meta name="portfolio-description" content="Moving to procedural terrain, adding block physics, and testing out paper airplane combat.">
+
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <meta name="description" content="Development Blog #3 for B: WebGL terrain, physics, damage indicators, and hilarious multiplayer bloopers.">
+    <meta name="keywords" content="B, dev blog, development, javascript, webgl, threejs, multiplayer, procedural terrain, html">
+    
+    <meta property="og:title" content="B - Dev Blog #3: WebGL, Physics, and Multiplayer Chaos">
+    <meta property="og:description" content="Procedural terrain, slippery ice, and getting destroyed by paper airplanes.">
+    <meta property="og:url" content="/articles/dev-blog-3-webgl-landscape-multiplayer.html">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="/assets/img/articles/dev-blog-3-webgl-landscape-multiplayer/thumbnail.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="B - Dev Blog #3">
+    <meta name="twitter:description" content="Procedural terrain, slippery ice, and getting destroyed by paper airplanes.">
+    <meta name="twitter:image" content="/assets/img/articles/dev-blog-3-webgl-landscape-multiplayer/thumbnail.png">
+    
+    <meta name="theme-color" content="#00FFFE">
+
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+      @media (max-width: 900px) {
+        .grid-locked {
+          grid-template-columns: 1fr !important;
+        }
+        .dev-blog-container > .grid-locked > section:has(.panel-image) {
+          order: -1;
+        }
+        .post-title {
+          font-size: 2.2rem !important;
+        }
+      }
+      .side-by-side-images {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        align-items: stretch;
+      }
+      .side-by-side-images figure {
+        display: flex;
+        height: 100%;
+      }
+      .side-by-side-images img {
+        width: 100%;
+        height: 100% !important;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid var(--accent);
+        box-sizing: border-box;
+      }
+      .featured-image img, .featured-image video {
+        transform: translate3d(0, 0, 0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        perspective: 1000px;
+        will-change: transform;
+        image-rendering: crisp-edges;
+        image-rendering: -webkit-optimize-contrast;
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        border: 2px solid var(--accent);
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" id="app">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+          
+            <button id="theme-toggle" class="theme-button" title="Toggle theme">
+              <i class="fa-solid fa-moon" aria-hidden="true"></i>Dark
+            </button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+          <ol>
+            <li>
+              <a href="/pages/index.html">
+                <i class="fas fa-home" aria-hidden="true"></i> Home
+              </a>
+            </li>
+            <li>
+              <a href="/pages/portfolio.html">
+                <i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio
+              </a>
+            </li>
+            <li>
+              <span class="breadcrumb-current" aria-current="page">Dev Blog #3</span>
+            </li>
+          </ol>
+        </nav>
+
+        <div class="dev-blog-container">
+          <h1 class="post-title">
+            Dev Blog #3:<br>WebGL, Physics, and Multiplayer Chaos
+          </h1>
+
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>The Great WebGL Migration</h2>
+                <p>
+                  We did a massive upgrade to the engine! Using <code>Three.js</code>, we built a brand new <code>InstancedMesh</code> architecture. 
+                  This is just a fancy way of saying we tell the graphics card to draw the exact same 32-unit voxel block thousands of times all at once.
+                </p>
+                <p>
+                  Because of this and our new dynamic memory texture atlas, the game runs incredibly fast. We're easily hitting over 144 FPS even when looking at huge maps!
+                </p>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-image">
+                <figure class="featured-image">
+                  <img src="/assets/img/articles/dev-blog-3-webgl-landscape-multiplayer/world-generation-demo.png" alt="Procedural terrain generation showing dirt patches in grass">
+                  <figcaption style="text-align: center; margin-top: 10px; color: var(--muted); font-size: 0.9rem;">
+                    <i class="fas fa-tree" aria-hidden="true"></i>
+                    - Procedural grassy terrain with natural dirt patches!
+                  </figcaption>
+                </figure>
+              </div>
+            </section>
+          </div>
+
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Organic Grid Breakers</h2>
+                <p>
+                  A big flat field of just grass gets super boring to look at. We wanted the landscape to feel gritty and natural.
+                </p>
+                <p>
+                  To fix this, we updated the engine to automatically generate patches of dirt breaking through the grass. This breaks up the blocky visual repetition perfectly, and it doesn't cost us any performance at all!
+                </p>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Shapes and Colors!</h2>
+                <p>
+                  Your building tools are super handy. You use cubes for your main walls and floors. Slabs are half-height for small details. Stairs help your character run up levels. Slopes give you smooth angles so things don't look like boxes.
+                </p>
+                <p>
+                  Instead of loading hundreds of different colored blocks and lagging the game, the engine lets you take a base texture and tint it to whatever color you need. This is exactly how you handle things like colored water and custom materials.
+                </p>
+              </div>
+            </section>
+          </div>
+
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem;">
+              <div class="panel-image">
+                <figure class="featured-image">
+                  <video src="/assets/img/articles/dev-blog-3-webgl-landscape-multiplayer/20260524-1818-43.4296993.mp4" controls loop playsinline autoplay muted></video>
+                  <figcaption style="text-align: center; margin-top: 10px; color: var(--muted); font-size: 0.9rem;">
+                    <i class="fas fa-bomb" aria-hidden="true"></i>
+                    - Particle effects from special materials and textures!
+                  </figcaption>
+                </figure>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Fluids, Friction, and Hazards</h2>
+                <p>
+                  Walking around shouldn't always feel exactly the same. We added totally distinct block physics! Now, when you run across ice you will slip and slide. If you walk into mud, you'll trudge slowly. 
+                </p>
+                <p>
+                  We also got fluids working so you can swim through water, acid, and lava. But watch out! Acid and lava apply environmental damage to you. To make it clear you are getting hurt, we added it to the damage indicators so that pops numbers right over your head!
+                </p>
+              </div>
+            </section>
+          </div>
+
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Paper Airplane Combat!</h2>
+                <p>
+                  What's a game without a little ranged combat? We started working on our projectile system, and there are plenty of quirks to keep it interesting.
+                </p>
+                <p>
+                  You can now throw crumpled up balls of paper, or fold up some neat paper airplanes! It is super satisfying watching them track and fly all across the 3D space to hit their targets.
+                </p>
+                <div class="panel-image" style="margin-top: 1.5rem;">
+                  <div class="side-by-side-images">
+                    <figure class="featured-image" style="margin: 0;">
+                      <img src="/assets/img/articles/dev-blog-3-webgl-landscape-multiplayer/paper-airplane-right.png" alt="Paper airplane sprite">
+                    </figure>
+                    <figure class="featured-image" style="margin: 0;">
+                      <img src="/assets/img/articles/dev-blog-3-webgl-landscape-multiplayer/paper-airplane-crumpled.png" alt="Crumpled paper sprite">
+                    </figure>
+                  </div>
+                  <p style="text-align: center; margin-top: 10px; color: var(--muted); font-size: 0.9rem;">
+                    Our new projectile spritesheets!
+                  </p>
+                </div>
+              <div class="panel-content" style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; border-left: 4px solid var(--accent);align-items: center;">
+                <h3 style="margin-top: 0; font-size: 1.1rem;">Fun Upgrade Idea:</h3>
+                <p style="margin-bottom: 0.5rem; font-size: 0.95rem;">
+                  Since throwing normal paper is so much fun, we considered an awesome upgrade. We want to add heavier, colorful construction paper airplanes soon!
+                </p>
+                <img src="/assets/img/articles/dev-blog-3-webgl-landscape-multiplayer/construction-paper-airplanes-concept.png" alt="Construction paper airplanes concept" style="width: 35%; border-radius: 4px; border: 1px solid var(--accent-2);">
+              </div>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-image" style="margin-bottom: 1.5rem;">
+                <figure class="featured-video">
+                  <video src="/assets/img/articles/dev-blog-3-webgl-landscape-multiplayer/20260524-1809-01.7201050.mp4" controls loop playsinline autoplay muted></video>
+                  <figcaption style="text-align: center; margin-top: 10px; color: var(--muted); font-size: 0.9rem;">
+                    <i class="fas fa-paper-plane" aria-hidden="true"></i> - Throwing paper airplanes!
+                  </figcaption>
+                </figure>
+              </div>
+            </section>
+          </div>
+
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-image side-by-side-images" style="grid-template-columns: 1fr; grid-template-rows: auto auto;">
+                <figure class="featured-image" style="margin: 0;">
+                  <img src="/assets/img/articles/dev-blog-3-webgl-landscape-multiplayer/iridian-airplane-1.png" alt="Iridian shooting hundreds of paper airplanes">
+                </figure>
+              </div>
+              <figcaption style="text-align: center; margin-top: 10px; color: var(--muted); font-size: 0.9rem;">
+                <i class="fas fa-bug" aria-hidden="true"></i> - The <strong>Iridian Incident</strong> in full swing.
+              </figcaption>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Multiplayer Chaos & The Blooper</h2>
+                <p>
+                  Testing multiplayer is fun, but it can get out of hand quickly. During one of our tests, our friend Iridian found a huge flaw in our early network code.
+                </p>
+                <p>
+                  Because the code wasn't secure yet, he was able to change his local files and set his attack cooldown to exactly zero. 
+                  He fired a massive, screen-filling wave of paper airplanes that completely obliterated me!
+                </p>
+                <p>
+                  It was absolutely hilarious, but it taught us a very important technical lesson. We are now heavily fortifying our <code>Node.js</code> backend to be authoritative. 
+                  This means the server is the boss, and it checks all the math so players can no longer execute hacked code on their clients to cheat!
+                </p>
+              </div>
+            </section>
+          </div>
+
+          <!-- Footer/CTA -->
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="quote-block" style="width: 100%; padding: 1.5rem; background: rgba(0, 0, 0, 0.3); border-left: none; border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); border-radius: 8px; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); text-align: center;">
+                <blockquote class="blockquote" style="margin: 0;">
+                  <p style="margin: 0; font-size: 1.1rem; color: var(--text-light); font-style: italic;"> 
+                    Stay tuned for more updates as we keep adding life, physics, and even more fine-tuned player controls!
+                  </p>
+                </blockquote>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+              <div>
+                <h3 style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.8rem; color: var(--text-light);">Want to try it out now?</h3>
+                <p style="margin-bottom: 1.5rem; color: var(--muted); font-size: 1.1rem;">There is no download and no email required!</p>
+                <a href="https://play.behr.dev/" target="_blank" rel="noopener noreferrer" class="theme-button cta-button" style="font-size: 1.3rem; padding: 1rem; width: 100%; max-width: 300px; justify-content: center; white-space: nowrap;">
+                  <i class="fas fa-gamepad" aria-hidden="true"></i> Play B Now!
+                </a>
+              </div>
+            </section>
+          </div>
+        </div>
+
+      </main>
+
+      <footer style="margin-top: 2rem;">
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+  </body>
+</html>

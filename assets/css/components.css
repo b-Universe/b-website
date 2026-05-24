@@ -43,7 +43,8 @@
     position: relative;
   }
 
-  .ecstatic img {
+  .ecstatic img,
+  .ecstatic video {
     animation: filter-hue-spin-reverse 5s infinite linear;
   }
 

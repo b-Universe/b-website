@@ -4,13 +4,16 @@
     if (!portfolioContainer) return;
 
     const portfolioItems = [
+      '/articles/dev-blog-3-webgl-landscape-multiplayer.html',
       '/articles/dev-blog-2-elevation-webgl-multiplayer.html',
       '/articles/dev-blog-1-landscape-sprites.html',
       '/articles/riley-wedding-2027.html',
       '/projects/armor_stand-generator.html',
       '/projects/b-the-game.html',
       '/projects/discord-timestamp-generator.html',
-      '/projects/b-website.html'
+      '/projects/b-website.html',
+      '/portfolio-scripts/discord/discord-web-redirect.html',
+      '/projects/tiny-b-links.html'
     ];
 
     let cachedCards = [];
