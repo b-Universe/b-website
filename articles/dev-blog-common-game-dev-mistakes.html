@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Why B Does Not Break: Lessons from 10 Common Dev Mistakes</title>
+    
+    <meta name="portfolio-title" content="Why B Does Not Break: 10 Dev Lessons">
+    <meta name="portfolio-category" content="article">
+    <meta name="portfolio-date" content="2026-06-15">
+    <meta name="portfolio-thumbnail" content="/assets/img/articles/dev-blog-common-game-dev-mistakes/thumbnail.png">
+    <meta name="portfolio-description" content="How our custom engine for B was built to avoid 10 classic game development pitfalls from the start.">
+
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <meta name="description" content="A breakdown of 10 common game development mistakes and how the architecture of B was designed to avoid them.">
+    <meta name="keywords" content="B, dev blog, development, javascript, webgl, threejs, nodejs, game development, common mistakes">
+    
+    <meta property="og:title" content="B - Why B Does Not Break: 10 Dev Lessons">
+    <meta property="og:description" content="How our custom engine for B was built to avoid 10 classic game development pitfalls from the start.">
+    <meta property="og:url" content="/articles/dev-blog-common-game-dev-mistakes.html">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="/assets/img/articles/dev-blog-common-game-dev-mistakes/thumbnail.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="B - Why B Does Not Break: 10 Dev Lessons">
+    <meta name="twitter:description" content="How our custom engine for B was built to avoid 10 classic game development pitfalls from the start.">
+    <meta name="twitter:image" content="/assets/img/articles/dev-blog-common-game-dev-mistakes/thumbnail.png">
+    
+    <meta name="theme-color" content="#00FFFE">
+
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+      .lesson-article-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
+
+      .post-title {
+        font-size: 2.8rem;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+      }
+
+      .intro-text {
+        font-size: 1.2rem;
+        color: var(--muted);
+        line-height: 1.7;
+        margin-bottom: 3rem;
+        text-align: center;
+      }
+
+      .lesson-card {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(var(--accent-rgb), 0.2);
+        border-radius: var(--radius);
+        margin-bottom: 2.5rem;
+        padding: 2rem;
+        display: grid;
+        grid-template-columns: 80px 1fr;
+        gap: 1.5rem;
+        align-items: flex-start;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .lesson-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(var(--accent-rgb), 0.2);
+      }
+
+      .lesson-number {
+        font-size: 4rem;
+        font-weight: 900;
+        color: var(--accent);
+        text-shadow: 0 0 10px rgba(var(--accent-rgb), 0.5);
+        line-height: 1;
+        text-align: center;
+        margin-top: -0.5rem;
+      }
+
+      .lesson-content h2 {
+        text-align: left;
+        margin-top: 0;
+        margin-bottom: 0.75rem;
+        font-size: 1.8rem;
+        color: var(--text-light);
+      }
+
+      .lesson-content p {
+        text-align: left;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: var(--muted);
+        margin-bottom: 1rem;
+      }
+
+      .lesson-content p:last-child {
+        margin-bottom: 0;
+      }
+
+      .lesson-content code {
+        color: var(--accent-2);
+        background: rgba(0,0,0,0.3);
+        padding: 0.2em 0.4em;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+
+      .lesson-card img {
+        grid-column: 1 / -1;
+        width: 100%;
+        border-radius: 8px;
+        border: 2px solid var(--accent);
+        margin-top: 1rem;
+      }
+
+      @media (max-width: 768px) {
+        .post-title {
+          font-size: 2.2rem;
+        }
+        .lesson-card {
+          grid-template-columns: 1fr;
+          padding: 1.5rem;
+        }
+        .lesson-number {
+          text-align: left;
+          font-size: 3rem;
+          margin-bottom: 0.5rem;
+        }
+        .lesson-content h2 {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" id="app">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+          
+            <button id="theme-toggle" class="theme-button" title="Toggle theme">
+              <i class="fa-solid fa-moon" aria-hidden="true"></i>Dark
+            </button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px; max-width: 900px;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><span class="breadcrumb-current" aria-current="page">Why B Does Not Break</span></li>
+          </ol>
+        </nav>
+
+        <article class="lesson-article-container">
+          <h1 class="post-title">Why B Doesn't Break: Lessons from 10 Common Dev Mistakes</h1>
+          <div class="intro-text">
+            <p style="margin-bottom: 1.5rem;">
+              Hey everyone! Welcome back. When we first sat down to start designing <strong>B</strong>, we knew we had a massive mountain to climb. Making a multiplayer game entirely from scratch is a wild learning experience, and honestly, it's really easy to fall into traps that'll completely break your project later down the line.
+            </p>
+            <p style="margin-bottom: 1.5rem;">
+              Instead of grabbing a pre-made engine off the shelf, we decided to take the hard road. But not to worry, good things cost effort! We wanted to build our own custom engine using <code>Three.js</code> for the frontend graphics and <code>Node.js</code> for the server backend. It was a ton of extra work up front, but it gave us total control over exactly how the game runs. 
+            </p>
+            <p style="margin-bottom: 0;">
+              Because of that choice, we've been able to build our world the <em>right</em> way from the ground up. When possible, we always chose to avoid the "Let's just put a placeholder here to add functionality... Later." motives that made development feel faster. This helped us dodge a lot of the classic headaches that usually haunt indie devs. In this blog, I want to dive into 10 big mistakes we've learned to avoid, and exactly how our custom engine keeps B running smoothly!
+            </p>
+          </div>
+
+          <section class="lesson-card">
+            <div class="lesson-number">01</div>
+            <div class="lesson-content">
+              <h2>Blindly Trusting Tutorials</h2>
+              <p>It's super tempting to find a tutorial on YouTube and just copy-paste the code to get something working fast. But if you don't really get *why* it works, you're gonna have a bad time later when it breaks and you have no idea how to fix it.</p>
+              <p>For B, we couldn't really do that anyway. We use a custom <code>Z-up</code> world where every block is <code>32</code> units tall. Most tutorials are for different kinds of games. So, we had to write all the important math for our <code>Three.js</code> engine ourselves. It was harder at first, but now we know exactly how every piece of our game works.</p>
+            </div>
+          </section>
+
+          <section class="lesson-card">
+            <div class="lesson-number">02</div>
+            <div class="lesson-content">
+              <h2>Position vs. Offset</h2>
+              <p>This one is tricky. There's a big difference between a character's *real* spot in the world and where the art is drawn. If you move the art, that's just an offset. If you move the <em>position</em>, you're moving the hitboxes and where the game thinks you are.</p>
+              <p>In B, we keep these totally separate. Our <code>Node.js</code> server knows your exact grid position - that's the truth. Your game client just worries about drawing the art. That's how we can do cool effects like <code>Spherical Billboarding</code>, where your sprite tilts with the camera. The art moves, but your hitbox on the server stays perfectly flat on the ground.</p>
+            </div>
+          </section>
+
+          <section class="lesson-card">
+            <div class="lesson-number">03</div>
+            <div class="lesson-content">
+              <h2>Adding a God Mode</h2>
+              <p>Testing a big game is a pain if you have to play it normally every time. You need a "god mode" to get around fast. That's why we built our own Developer Tools UI right into the game.</p>
+              <p>We can fly, teleport by clicking the map, place huge groups of blocks at once, and change game settings on the fly. It makes testing a million times easier. And don't worry, we made sure the server checks if you're an admin before it lets you do any of this, so there's no cheating for regular players.</p>
+            </div>
+          </section>
+
+          <section class="lesson-card">
+            <div class="lesson-number">04</div>
+            <div class="lesson-content">
+              <h2>Flipping Physics by Scaling</h2>
+              <p>Here's a classic mistake: to make a character face the other way, some people just set their scale to <code>-1</code>. It looks right, but it secretly breaks all the physics and hitboxes attached to that character.</p>
+              <p>Think of it this way: children typically inherit traits from their parents, and it's the exact same with tables, objects, and web elements. When a parent passes down a scale of <code>-1</code>, the child inherits that flip and works completely normally. But if that child goes into its own negative range outside of our predicted paths, the numbers compound. You end up multiplying a negative by a negative, which... as we know... turns into a positive! That sudden flip is what breaks the vectors and distorts the hitboxes.</p>
+              <p>We're totally safe from this in B. Our server handles all the important stuff like combat, collisions, and where you're aiming. Your game client is just for show. So if you flip your sprite on the screen, the server doesn't even know or care. The real hitboxes are still in the right place.</p>
+
+
+
+
+
+
+            </div>
+          </section>
+
+          <section class="lesson-card">
+            <div class="lesson-number">05</div>
+            <div class="lesson-content">
+              <h2>Preloading and Memory Leaks</h2>
+              <p>If you try to load a whole giant map into memory at once, your computer is going to overload and the game will crash. This is called a memory leak.</p>
+              <p>We fixed this in two ways; First, we use a <code>texture atlas</code>, which is one giant image with all our block textures on it. The game only has to load one file instead of hundreds! Second, we use <strong>chunk loading</strong>. The server only sends you the parts of the map that are close to you. When you walk away, your browser automatically dumps the old chunks it doesn't need anymore. This keeps the game's memory use super low.</p>
+            </div>
+          </section>
+
+          <section class="lesson-card">
+            <div class="lesson-number">06</div>
+            <div class="lesson-content">
+              <h2>Placing Enemies Directly in the Level</h2>
+              <p>It's a waste of power to have an enemy on the other side of the map thinking about what to do when there are no players around. In a lot of games, all enemies are "on" all the time.</p>
+              <p>In B, our <code>Node.js</code> server is smart about this. It knows where players are. If a map chunk is empty, the server just lets the enemies in that area chill out. It doesn't waste time running their AI. This helps the server stay fast, which is super important when you have a lot of players fighting at once.</p>
+            </div>
+          </section>
+
+          <section class="lesson-card">
+            <div class="lesson-number">07</div>
+            <div class="lesson-content">
+              <h2>Resolution and Camera Scaling</h2>
+              <p>Pixel art can look really bad if it's stretched on a weird-sized monitor. It gets all blurry or distorted. We knew this would be a problem, so we built our UI to be super flexible.</p>
+              <p>You can scale the whole interface up or down to fit your screen. We also made the zoom independent. You can zoom your main camera in for combat, but keep your minimap zoomed way out to see the whole area. Our <code>WebGL</code> canvas handles all this without making the art look ugly.</p>
+            </div>
+          </section>
+
+          <section class="lesson-card">
+            <div class="lesson-number">08</div>
+            <div class="lesson-content">
+              <h2>Static Typing vs Server Authority</h2>
+              <p>Some coding languages are very strict. You have to tell them "this variable is a number" or "this is text". This is called <code>static typing</code>. It helps catch bugs. We use <code>JavaScript</code>, which is... not strict at all. You can put anything anywhere.</p>
+              <p>To stop people from cheating, our server acts like a bouncer. It checks everything. If you try to attack someone, the server makes sure you're sending a real damage number, not some text like "a million damage". The server enforces the rules so the game stays fair.</p>
+            </div>
+          </section>
+
+          <section class="lesson-card">
+            <div class="lesson-number">09</div>
+            <div class="lesson-content">
+              <h2>Version Control Resilience</h2>
+              <p>This one is maybe the most important lesson for any dev. Use <code>Git</code>! It's like having a time machine for your code.</p>
+              <p>We've made some huge changes to B, like rewriting the whole graphics pipeline with <code>InstancedMesh</code> or moving all the combat to the server. Sometimes, those big changes break *everything*. With <code>Git</code>, if we mess up badly, we can just hit a button and go back to the last version that worked. It has saved us so many times.</p>
+            </div>
+          </section>
+
+          <section class="lesson-card">
+            <div class="lesson-number">10</div>
+            <div class="lesson-content">
+              <h2>FPS Limits and Hardware Toggles</h2>
+              <p>If a game runs too fast, it can literally make your computer overheat. You need ways to control performance. We added a bunch of options for this in B. If your computer is struggling, you can turn off fancy stuff like shadows.</p>
+              <p>We also use a trick called <code>face culling</code>. The engine is smart enough to not draw the sides of blocks that you can't see (like a side that's touching another block). This saves a ton of power and helps keep the FPS smooth, even on older computers.</p>
+              <img src="/assets/img/articles/dev-blog-common-game-dev-mistakes/adjacency-culling-example.png" alt="Example of face culling where hidden block faces are not rendered.">
+            </div>
+          </section>
+
+          <div class="grid-locked" style="grid-template-columns: 1fr; margin-top: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+              <div class="panel-content">
+                <h2 style="margin-top: 0; margin-bottom: 1rem; color: var(--text-light); font-size: 2rem;">A Strong Foundation Matters</h2>
+                <p class="intro-text" style="margin-bottom: 0;">
+                  So yeah, building a game from the ground up is a wild ride. But by thinking about these common problems from the start, we built a really strong foundation for B. It's more stable, more secure, and easier for us to add cool new stuff without breaking the old stuff.<br>Thanks for reading!
+                </p>
+              </div>
+            </section>
+          </div>
+
+        </article>
+      </main>
+
+      <footer style="margin-top: 2rem;">
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+  </body>
+</html>

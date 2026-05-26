@@ -57,7 +57,7 @@
     --accent-2: rgba(255, 180, 0, 0.8);
     --color-rainbow-horizontal: linear-gradient(
       to right,
-      hsla(50, 100%, 10%, 0.667),
+      hsla(51, 100%, 10%, 0.667),
       hsla(120, 100%, 10%, 0.667),
       hsla(180, 100%, 10%, 0.667),
       hsla(240, 100%, 10%, 0.667),

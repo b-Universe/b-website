@@ -48,6 +48,12 @@
     animation: filter-hue-spin-reverse 5s infinite linear;
   }
 
+  .ecstatic .magic-star {
+    color: #00ff00;
+    text-shadow: 0 0 8px currentColor;
+    font-weight: 800;
+  }
+
   /* Header Layout */
   .header {
     align-items: center;

@@ -40,6 +40,50 @@
       });
     }
     
+    // Auto-wrap literal asterisks for the Ecstatic theme rainbow effect
+    const walker = document.createTreeWalker(
+      document.body,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode: function(node) {
+          const parent = node.parentNode;
+          if (!parent) return NodeFilter.FILTER_SKIP;
+          const tag = parent.nodeName;
+          if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'CODE' || tag === 'PRE') {
+            return NodeFilter.FILTER_REJECT;
+          }
+          if (parent.classList && parent.classList.contains('magic-star')) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          if (node.nodeValue.includes('*')) {
+            return NodeFilter.FILTER_ACCEPT;
+          }
+          return NodeFilter.FILTER_SKIP;
+        }
+      }
+    );
+
+    const nodesToReplace = [];
+    let currentNode;
+    while (currentNode = walker.nextNode()) {
+      nodesToReplace.push(currentNode);
+    }
+
+    nodesToReplace.forEach(node => {
+      const parts = node.nodeValue.split('*');
+      const fragment = document.createDocumentFragment();
+      parts.forEach((part, i) => {
+        fragment.appendChild(document.createTextNode(part));
+        if (i < parts.length - 1) {
+          const starSpan = document.createElement('span');
+          starSpan.className = 'magic-star';
+          starSpan.textContent = '*';
+          fragment.appendChild(starSpan);
+        }
+      });
+      node.parentNode.replaceChild(fragment, node);
+    });
+
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initGlobal);
