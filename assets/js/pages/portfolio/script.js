@@ -14,7 +14,8 @@
       '/projects/discord-timestamp-generator.html',
       '/projects/b-website.html',
       '/portfolio-scripts/discord/discord-web-redirect.html',
-      '/projects/tiny-b-links.html'
+      '/projects/tiny-b-links.html',
+      '/projects/minecraft-castle-wars.html'
     ];
 
     let cachedCards = [];
