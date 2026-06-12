@@ -5,6 +5,7 @@
 
     const portfolioItems = [
       '/articles/dev-blog-common-game-dev-mistakes.html',
+      '/articles/dev-blog-4-security-speed.html',
       '/articles/dev-blog-3-webgl-landscape-multiplayer.html',
       '/articles/dev-blog-2-elevation-webgl-multiplayer.html',
       '/articles/dev-blog-1-landscape-sprites.html',
