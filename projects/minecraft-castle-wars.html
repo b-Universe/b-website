@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Minecraft Castle Wars</title>
+    
+    <meta name="portfolio-title" content="Minecraft Castle Wars">
+    <meta name="portfolio-category" content="project">
+    <meta name="portfolio-date" content="2019-05-01">
+    <meta name="portfolio-thumbnail" content="/assets/img/projects/minecraft-castle-wars/castle-wars-map-header.jpg">
+    <meta name="portfolio-description" content="A complete, fully functional recreation of the Old School RuneScape Castle Wars minigame in Minecraft.">
+
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <meta name="description" content="A complete, fully functional recreation of the Old School RuneScape Castle Wars minigame in Minecraft using Denizen.">
+    <meta name="keywords" content="B, project, minecraft, castle wars, osrs, minigame, denizen, scripting">
+    
+    <meta property="og:title" content="B - Minecraft Castle Wars">
+    <meta property="og:description" content="A complete recreation of Castle Wars inside Minecraft.">
+    <meta property="og:url" content="/projects/minecraft-castle-wars.html">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="/assets/img/projects/minecraft-castle-wars/castle-wars-map-header.jpg">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="B - Minecraft Castle Wars">
+    <meta name="twitter:description" content="A complete recreation of Castle Wars inside Minecraft.">
+    <meta name="twitter:image" content="/assets/img/projects/minecraft-castle-wars/castle-wars-map-header.jpg">
+    
+    <meta name="theme-color" content="#00FFFE">
+
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+      .hero-header {
+        width: 100%;
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 2rem;
+        border: 2px solid var(--accent);
+        box-shadow: 0 4px 20px rgba(var(--accent-rgb), 0.3);
+        position: relative;
+      }
+      
+      .hero-header img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      
+      .hero-title-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+        padding: 2rem;
+        text-align: left;
+      }
+      
+      .hero-title-overlay h1 {
+        margin: 0;
+        font-size: 3rem;
+        color: var(--text-light);
+        text-shadow: 0 0 10px rgba(0, 0, 0, 0.8), 0 0 20px var(--accent);
+      }
+      
+      .hero-title-overlay p {
+        margin: 0.5rem 0 0 0;
+        color: var(--accent);
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      @media (max-width: 900px) {
+        .grid-locked {
+          grid-template-columns: 1fr !important;
+        }
+        .dev-blog-container > .grid-locked > section:has(.panel-image) {
+          order: -1;
+        }
+        .hero-title-overlay h1 {
+          font-size: 2rem;
+        }
+      }
+
+      .side-by-side-images {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        align-items: stretch;
+      }
+
+      .side-by-side-images figure {
+        display: flex;
+        height: 100%;
+        margin: 0;
+        flex-direction: column;
+      }
+
+      .side-by-side-images img, 
+      .side-by-side-images video,
+      .featured-image img, 
+      .featured-image video {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        border: 2px solid var(--accent);
+        box-sizing: border-box;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      }
+      
+      .media-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+      @media (max-width: 768px) {
+        .media-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      figcaption {
+        text-align: center;
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" id="app">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+          
+            <button id="theme-toggle" class="theme-button" title="Toggle theme">
+              <i class="fa-solid fa-moon" aria-hidden="true"></i>Dark
+            </button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><a href="/projects/"><i class="fas fa-rocket" aria-hidden="true"></i> Projects</a></li>
+            <li><span class="breadcrumb-current" aria-current="page">Minecraft Castle Wars</span></li>
+          </ol>
+        </nav>
+
+        <div class="dev-blog-container">
+          
+          <div class="hero-header">
+            <img src="/assets/img/projects/minecraft-castle-wars/castle-wars-map-header.jpg" alt="Overhead view of the Castle Wars map in Minecraft">
+            <div class="hero-title-overlay">
+              <h1>Minecraft Castle Wars</h1>
+              <p><i class="fas fa-calendar-alt"></i> Released: May 1, 2019</p>
+            </div>
+          </div>
+
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Welcome to Castle Wars!</h2>
+                <p>
+                  Today, we are absolutely thrilled to announce the release of our completely custom recreation of the iconic Castle Wars minigame from Old School RuneScape (OSRS)! This project has been an absolute blast to build, and we have meticulously translated the classic Capture the Flag experience directly into our Minecraft server using Denizen.
+                </p>
+                <p>
+                  Playing this feels exactly like the original. We spent weeks ensuring the layout is completely accurate to the OSRS map and tuning the scripts so that every mechanic operates smoothly and faithfully. Grab your team's cape, rush the enemy castle, and defend your flag at all costs!
+                </p>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; align-items: center; justify-content: center;">
+              <figure class="featured-image" style="margin: 0;">
+                <img src="/assets/img/projects/minecraft-castle-wars/castle-wars-tooltip.png" alt="Castle Wars tooltip showing safe status and game details">
+                <figcaption style="font-size: 0.9rem;">
+                  <i class="fas fa-info-circle"></i> Custom lore tooltips outlining the premise and player safety.
+                </figcaption>
+              </figure>
+            </section>
+          </div>
+
+          <section class="glass-panel panel" style="margin-bottom: 2rem; padding: 2rem;">
+            <div class="panel-content" style="margin-bottom: 1.5rem;">
+              <h2 style="margin-top: 0;">Mechanics & Gameplay</h2>
+              <p>
+                To capture the true essence of Castle Wars, we implemented the core interactive features you know and love. Just like OSRS, you can set up barricades to block crucial choke points. Players can attack these barricades manually to break them down or use explosive potions for instant destruction. 
+              </p>
+              <p>
+                Watch your step with those potions, though! Explosive potions deal massive damage to barricades but will severely hurt you if you are caught in the blast radius. Furthermore, the underground caves aren't just for sneaking around the map. You can use your pickaxe or those same explosive potions to collapse the tunnels, blocking off shortcuts and crushing anyone unlucky enough to be standing underneath!
+              </p>
+            </div>
+            
+            <div class="media-grid">
+              <figure class="featured-image">
+                <video src="/assets/img/projects/minecraft-castle-wars/barricade-interaction.mp4" controls loop playsinline autoplay muted></video>
+                <figcaption>Setting up and attacking custom barricades.</figcaption>
+              </figure>
+              <figure class="featured-image">
+                <video src="/assets/img/projects/minecraft-castle-wars/explosive-potion-damage.mp4" controls loop playsinline autoplay muted></video>
+                <figcaption>Explosive potions deal devastating self-damage.</figcaption>
+              </figure>
+              <figure class="featured-image">
+                <video src="/assets/img/projects/minecraft-castle-wars/cave-rockfall-mechanic.mp4" controls loop playsinline autoplay muted></video>
+                <figcaption>Dynamically collapse caves with your pickaxe.</figcaption>
+              </figure>
+              <figure class="featured-image">
+                <img src="/assets/img/projects/minecraft-castle-wars/bandages.png" alt="Castle Wars bandages item">
+                <figcaption>Use custom bandages to heal during combat.</figcaption>
+              </figure>
+            </div>
+          </section>
+
+          <section class="glass-panel panel" style="margin-bottom: 2rem; padding: 2rem;">
+            <div class="panel-content" style="margin-bottom: 1.5rem;">
+              <h2 style="margin-top: 0;">Visual Effects & Target Tracking</h2>
+              <p>
+                To ensure fair play and intense chases, we built a highly robust flag tracking system. To make sure no one can simply hide with the flag underground or try to glitch out of bounds, we designed a dual-layer particle tracking system. A vibrant, colored particle trail constantly follows the flag bearer. If they try to go deep into the caves, an overhead beacon still signals their location to players on the surface!
+              </p>
+              <p>
+                We also put a lot of effort into the respawn safe rooms. When the game starts, the energy barriers activate. We created a seamless portal transition to drop you right into your team's spawn area with excellent visual feedback.
+              </p>
+            </div>
+
+            <div class="media-grid">
+              <figure class="featured-image">
+                <video src="/assets/img/projects/minecraft-castle-wars/flag-particle-trail-far.mp4" controls loop playsinline autoplay muted></video>
+                <figcaption>Surface-level flag tracking particles.</figcaption>
+              </figure>
+              <figure class="featured-image">
+                <video src="/assets/img/projects/minecraft-castle-wars/flag-particle-trail-underground.mp4" controls loop playsinline autoplay muted></video>
+                <figcaption>Dual-layer tracking exposes underground runners.</figcaption>
+              </figure>
+              <figure class="featured-image">
+                <video src="/assets/img/projects/minecraft-castle-wars/safe-room-portal.mp4" controls loop playsinline autoplay muted></video>
+                <figcaption>Seamless spawn room portal transitions.</figcaption>
+              </figure>
+              <figure class="featured-image">
+                <video src="/assets/img/projects/minecraft-castle-wars/green-portal.mp4" controls loop playsinline autoplay muted></video>
+                <figcaption>Dynamic Guthix portal visual effects.</figcaption>
+              </figure>
+            </div>
+          </section>
+
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Objectives & Interface</h2>
+                <p>
+                  The ultimate goal is, of course, taking the enemy's standard! Stealing the enemy flag and bringing it all the way back to your base triggers fantastic custom firework animations and broadcasts to the whole map. 
+                </p>
+                <p>
+                  We also built a custom, completely automated UI system for the lobby. Everything from your team's score to the waiting room countdown is neatly displayed using boss bars and scoreboard elements, ensuring you always know exactly how much time is left.
+                </p>
+              </div>
+              
+              <div style="margin-top: 1.5rem;">
+                <figure class="featured-image" style="margin: 0;">
+                  <img src="/assets/img/projects/minecraft-castle-wars/waiting-room-timers.gif" alt="Waiting room custom UI timers">
+                  <figcaption style="font-size: 0.9rem;">
+                    Clean, automated UI timers keep everything on schedule.
+                  </figcaption>
+                </figure>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem;">
+              <div class="side-by-side-images" style="grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; gap: 1.5rem;">
+                <figure class="featured-image">
+                  <video src="/assets/img/projects/minecraft-castle-wars/blue-team-scoring.mp4" controls loop playsinline autoplay muted></video>
+                  <figcaption>Blue team successfully scoring a point.</figcaption>
+                </figure>
+                <figure class="featured-image">
+                  <video src="/assets/img/projects/minecraft-castle-wars/red-team-stealing.mp4" controls loop playsinline autoplay muted></video>
+                  <figcaption>Red team grabbing the standard off the pedestal.</figcaption>
+                </figure>
+              </div>
+            </section>
+          </div>
+
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-image" style="margin-bottom: 1.5rem;">
+                <figure class="featured-image" style="margin: 0;">
+                  <video src="/assets/img/projects/minecraft-castle-wars/portal-team-balancing.mp4" controls loop playsinline autoplay muted></video>
+                  <figcaption style="font-size: 0.9rem;">
+                    <i class="fas fa-balance-scale"></i> The green portal dynamically balances team rosters.
+                  </figcaption>
+                </figure>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Lobby & Auto-Balancing</h2>
+                <p>
+                  We wanted the matchmaking to be as seamless as possible. Waiting in the lobby is fully automated, but we went a step further for game health. To ensure fair matches, the green portal (Guthix) automatically sorts players into the team with the fewest active members.
+                </p>
+                <p>
+                  This ensures neither Zamorak nor Saradomin can overwhelm the other with sheer numbers. Below, you can see a sped-up look at how our portal rooms keep the game flowing automatically round after round!
+                </p>
+              </div>
+            </section>
+          </div>
+
+        </div>
+      </main>
+
+      <footer style="margin-top: 2rem;">
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+  </body>
+</html>
