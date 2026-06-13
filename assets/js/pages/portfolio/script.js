@@ -4,6 +4,7 @@
     if (!portfolioContainer) return;
 
     const portfolioItems = [
+      '/articles/aim.html',
       '/articles/dev-blog-common-game-dev-mistakes.html',
       '/articles/dev-blog-4-security-speed.html',
       '/articles/dev-blog-3-webgl-landscape-multiplayer.html',
@@ -16,7 +17,8 @@
       '/projects/b-website.html',
       '/portfolio-scripts/discord/discord-web-redirect.html',
       '/projects/tiny-b-links.html',
-      '/projects/minecraft-castle-wars.html'
+      '/projects/minecraft-castle-wars.html',
+      '/projects/live-preview-editor.html'
     ];
 
     let cachedCards = [];
@@ -24,8 +26,11 @@
     async function loadPortfolio() {
       const fetches = portfolioItems.map(async (path) => {
         try {
-          const response = await fetch(path);
-          if (!response.ok) return null;
+          const response = await fetch(path + '?v=' + new Date().getTime());
+          if (!response.ok) {
+            console.warn(`Failed to fetch ${path}: ${response.status} ${response.statusText}`);
+            return null;
+          }
           const html = await response.text();
           const doc = new DOMParser().parseFromString(html, 'text/html');
           const getMeta = (n) => doc.querySelector(`meta[name="${n}"]`)?.getAttribute('content');

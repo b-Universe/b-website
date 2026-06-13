@@ -31,8 +31,8 @@
 .code-copy-target {
     cursor: pointer;
 }
-.syntax-dot-dash{color:#fff;font-weight:bold;}
-.light .syntax-dot-dash{color:#FF8800;font-weight:bold;}
+.syntax-dot-dash, .hljs-syntax_dot_dash {color:#fff;font-weight:bold;}
+.light .syntax-dot-dash, .light .hljs-syntax_dot_dash {color:#FF8800;font-weight:bold;}
 .js-comment{font-style:italic;font-weight:bold;}
 .light .html-comment{font-style:italic;font-weight:bold;}
 .light .css-comment{font-style:italic;font-weight:bold;}
@@ -256,22 +256,22 @@ p code {
 }
 
 /* DenizenScript syntax classes */
-.script_text{color: var(--syntax-text);}
-.script_tag{color: var(--syntax-tag);}
-.script_def_name{color: var(--syntax-defname);}
-.script_colon, .script_operator{color: var(--syntax-op);}
-.script_tag_dot{color: var(--syntax-text);font-weight:bold;}
-.script_tag_param, .script_tag_param_bracket{color: var(--syntax-op);}
-.script_key{color: var(--syntax-key);}
-.script_key_inline{color: var(--syntax-key-inline);font-style:italic;}
+.script_text, .hljs-script_text {color: var(--syntax-text);}
+.script_tag, .hljs-script_tag {color: var(--syntax-tag);}
+.script_def_name, .hljs-script_def_name {color: var(--syntax-defname);}
+.script_colon, .script_operator, .hljs-script_colon, .hljs-script_operator {color: var(--syntax-op);}
+.script_tag_dot, .hljs-script_tag_dot {color: var(--syntax-text);font-weight:bold;}
+.script_tag_param, .script_tag_param_bracket, .hljs-script_tag_param, .hljs-script_tag_param_bracket {color: var(--syntax-op);}
+.script_key, .hljs-script_key {color: var(--syntax-key);}
+.script_key_inline, .hljs-script_key_inline {color: var(--syntax-key-inline);font-style:italic;}
 
-.script_command, .syntax_command{color: var(--syntax-command);font-style:italic;}
-.script_quote_single, .script_quote_double{color: var(--syntax-quote);}
+.script_command, .syntax_command, .hljs-script_command {color: var(--syntax-command);font-style:italic;}
+.script_quote_single, .script_quote_double, .hljs-script_quote_single, .hljs-script_quote_double {color: var(--syntax-quote);}
 
-.script_comment_normal{color: var(--syntax-comment-norm);}
-.script_comment_header{color: var(--syntax-comment-header);}
-.script_comment_code{color: var(--syntax-comment-norm);}
-.script_comment_todo{color: var(--syntax-comment-todo);font-weight:bold;}
+.script_comment_normal, .hljs-script_comment_normal {color: var(--syntax-comment-norm);}
+.script_comment_header, .hljs-script_comment_header {color: var(--syntax-comment-header);}
+.script_comment_code, .hljs-script_comment_code {color: var(--syntax-comment-norm);}
+.script_comment_todo, .hljs-script_comment_todo {color: var(--syntax-comment-todo);font-weight:bold;}
 
 .syntax_required{color: var(--syntax-required);font-weight:bold;}
 .syntax_optional{color: var(--syntax-optional);}

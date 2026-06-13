@@ -1,0 +1,2266 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Live Preview Editor</title>
+    
+    <meta name="portfolio-title" content="Live Preview Editor">
+    <meta name="portfolio-category" content="project">
+    <meta name="portfolio-date" content="2026-05-08">
+    <meta name="portfolio-thumbnail" content="/assets/img/projects/b-website/thumbnail.png">
+    <meta name="portfolio-description" content="A custom web-based Markdown Editor that styles real-time while keeping raw syntax visible using a dual-layer architecture. Easily create a 'What You See Is What You Mean' preview!">
+
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <meta name="description" content="A custom web-based Markdown Editor that styles real-time while keeping raw syntax visible using a dual-layer architecture.">
+    <meta name="keywords" content="free, B, markdown, editor, wysiwym, live preview, realtime, denizen, github">
+    
+    <meta property="og:title" content="B - Live Preview Editor">
+    <meta property="og:description" content="A custom web-based Markdown Editor that styles real-time while keeping raw syntax visible using a dual-layer architecture.">
+    <meta property="og:url" content="/projects/live-preview-editor.html">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="/assets/img/projects/b-website/thumbnail.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="B - Live Preview Editor">
+    <meta name="twitter:description" content="A custom web-based Markdown Editor that styles real-time while keeping raw syntax visible using a dual-layer architecture.">
+    <meta name="twitter:image" content="/assets/img/projects/b-website/thumbnail.png">
+    
+    <meta name="theme-color" content="#00FFFE">
+
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/denizen/behrry-dark.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+      .wysiwym-layout {
+        --ed-fz: 14px;
+        --ed-lh: 16px;
+        width: 100%;
+        max-width: none;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+      }
+
+      .wysiwym-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 10px;
+        background: rgba(0, 0, 0, 0.4);
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid var(--accent);
+      }
+
+      .wysiwym-toolbar select {
+        background: rgba(0, 0, 0, 0.4);
+        color: var(--text-light);
+        border: 1px solid var(--accent);
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-family: inherit;
+        font-size: 14px;
+        outline: none;
+        cursor: pointer;
+      }
+
+      .fmt-btn {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--accent);
+        color: var(--text-light);
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .fmt-btn:hover {
+        background: var(--accent);
+        color: #000;
+      }
+
+      .label-gutter {
+        width: 150px;
+        display: grid;
+        grid-template-columns: 35px 45px 50px;
+        text-align: right;
+        padding-right: 15px;
+        gap: 5px;
+      }
+
+      .wysiwym-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 400px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 2px solid var(--accent);
+        border-radius: var(--radius);
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .editor-header-band {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.6);
+        border-bottom: 1px solid var(--accent-2);
+        padding: 4px 10px;
+        font-weight: bold;
+        font-size: 12px;
+        color: var(--accent);
+        text-transform: uppercase;
+      }
+
+      .editor-body-row {
+        display: flex;
+        flex: 1;
+        position: relative;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .gutter {
+        width: 150px;
+        background: rgba(0, 0, 0, 0.6);
+        border-right: 1px solid var(--accent-2);
+        overflow-y: hidden;
+        overflow-x: auto;
+        padding: 10px 15px 10px 5px;
+        font-family: 'Consolas', monospace;
+        font-size: var(--ed-fz);
+        line-height: var(--ed-lh);
+        color: var(--muted);
+        user-select: none;
+      }
+
+      .gutter-line {
+        display: grid;
+        grid-template-columns: 35px 45px 50px;
+        text-align: right;
+        gap: 5px;
+        align-items: start;
+      }
+      
+      .gutter-line.match-line {
+        color: var(--accent);
+        font-weight: bold;
+        background: rgba(0, 255, 254, 0.1);
+      }
+
+      .editor-wrapper {
+        flex: 1;
+        position: relative;
+        min-width: 0;
+      }
+
+      .editor-display, .editor-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        padding: 10px;
+        font-family: 'Consolas', monospace;
+        font-size: var(--ed-fz);
+        line-height: var(--ed-lh);
+        white-space: pre;
+        box-sizing: border-box;
+        margin: 0;
+        border: none;
+        tab-size: 2;
+      }
+
+      .word-wrap-enabled {
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+      }
+
+      .editor-input {
+        color: transparent;
+        background: transparent;
+        caret-color: var(--text-light);
+        z-index: 2;
+        resize: none;
+        outline: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+
+      .editor-input.overwrite-mode {
+        caret-color: #ff5555;
+      }
+
+      .editor-display {
+        color: var(--text-light);
+        z-index: 1;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .editor-display .h1-equiv {
+        font-size: inherit;
+        font-weight: bold;
+        color: #ffffff;
+        text-shadow: 0 0 8px var(--accent);
+        border-bottom: 1px solid rgba(0, 255, 254, 0.4);
+      }
+      
+      .editor-display .bold-equiv {
+        font-weight: bold;
+        color: #ffffff;
+      }
+      
+      .editor-display .italic-equiv {
+        font-style: italic;
+        color: #dddddd;
+      }
+      
+      .editor-display .strike-equiv {
+        text-decoration: line-through;
+        color: var(--muted);
+      }
+
+      .editor-display .hr-equiv {
+        color: var(--muted);
+        letter-spacing: -2px;
+      }
+      
+      .editor-display .code-equiv {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+      }
+      .editor-display .code-equiv:not(.hljs) {
+        color: #00FFFE;
+      }
+
+      .editor-display .error-equiv {
+        color: #ff5555;
+        background: rgba(255, 85, 85, 0.1);
+        text-decoration: underline wavy #ff5555;
+      }
+      
+      .editor-display .task-unchecked {
+        color: #ff5555;
+        font-weight: bold;
+      }
+      
+      .editor-display .task-checked {
+        color: #55ff55;
+        font-weight: bold;
+      }
+      
+      .editor-display .table-equiv {
+        background: rgba(255, 255, 255, 0.08);
+        color: #e0e0e0;
+      }
+
+      .editor-display .quote-equiv {
+        color: var(--accent);
+        font-style: italic;
+      }
+      
+      .editor-display .list-equiv {
+        color: var(--accent-2);
+        font-weight: bold;
+      }
+
+      .editor-display .link-equiv {
+        color: #88DDFF;
+        text-decoration: underline;
+      }
+
+      .editor-display .image-equiv {
+        color: #FF88DD;
+        font-style: italic;
+      }
+      
+      .ws-bubble {
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+        border-radius: 2px;
+      }
+      .ws-linear {
+        box-shadow: inset 1px 0 0 0 rgba(255, 255, 255, 0.2);
+      }
+
+      .preview-pane {
+        display: none;
+        flex: 1;
+        background: rgba(0, 0, 0, 0.6);
+        border-left: 2px solid var(--accent);
+        padding: 15px;
+        color: var(--text-light);
+        overflow-y: auto;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .wysiwym-container.dual-view .preview-pane {
+        display: block;
+      }
+
+      .preview-pane h1, .preview-pane h2, .preview-pane h3,
+      .preview-pane h4, .preview-pane h5, .preview-pane h6 {
+        margin: 0;
+        color: #ffffff;
+      }
+      .preview-pane p {
+        margin: 0;
+      }
+      .preview-pane blockquote {
+        border-left: 4px solid var(--accent);
+        margin: 0 0 0 10px;
+        padding-left: 10px;
+        color: var(--accent);
+        font-style: italic;
+      }
+      .preview-pane code {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2px 4px;
+        border-radius: 4px;
+        color: #00FFFE;
+        font-family: 'Consolas', monospace;
+      }
+      .preview-pane pre {
+        background: rgba(0,0,0,0.3);
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid var(--accent-2);
+        overflow-x: auto;
+        margin: 0;
+      }
+      .preview-pane pre code {
+        background: transparent;
+        padding: 0;
+        border: none;
+      }
+      .hljs { color: var(--text-light); }
+      .hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-tag { color: #00FFFE; }
+      .hljs-built_in, .hljs-name, .hljs-title, .hljs-attr, .hljs-attribute { color: #FF88DD; }
+      .hljs-string, .hljs-type, .hljs-symbol, .hljs-bullet, .hljs-addition { color: #88DDFF; }
+      .hljs-number { color: #55ff55; }
+      .hljs-comment, .hljs-quote, .hljs-meta, .hljs-deletion { color: var(--muted); font-style: italic; }
+      .hljs-section, .hljs-title.class_ { color: #ffcc00; font-weight: bold; }
+      .preview-pane table {
+        border-collapse: collapse;
+        margin: 0;
+        width: 100%;
+      }
+      .preview-pane th, .preview-pane td {
+        border: 1px solid var(--accent-2);
+        padding: 6px 12px;
+        text-align: left;
+      }
+      .preview-pane ul, .preview-pane ol, .preview-pane li {
+        margin: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+
+      #selection-footer {
+        position: absolute;
+        bottom: 20px;
+        right: 25px;
+        background: var(--accent);
+        color: #000000;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 13px;
+        z-index: 10;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      }
+
+      .wysiwym-layout.is-fullscreen {
+        background-color: var(--bg, #111111);
+        width: 100vw;
+        height: 100vh;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .wysiwym-layout.is-fullscreen > h1 {
+        display: none;
+      }
+      .wysiwym-layout.is-fullscreen .wysiwym-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      .wysiwym-layout.is-fullscreen .editor-body-row {
+        flex: 1;
+        display: flex;
+        min-height: 0 !important;
+      }
+      .wysiwym-layout.is-fullscreen .editor-wrapper,
+      .wysiwym-layout.is-fullscreen .editor-input,
+      .wysiwym-layout.is-fullscreen .editor-display,
+      .wysiwym-layout.is-fullscreen .gutter,
+      .wysiwym-layout.is-fullscreen .preview-pane {
+        height: 100% !important;
+        min-height: 0 !important;
+      }
+
+      body.focus-mode header,
+      body.focus-mode .wysiwym-toolbar,
+      body.focus-mode .breadcrumbs,
+      body.focus-mode h1,
+      body.focus-mode footer {
+        display: none !important;
+      }
+      body.focus-mode .wysiwym-layout {
+        padding-top: 2rem !important;
+      }
+      #exitFocusBtn {
+        display: none;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        background: var(--accent);
+        color: #000;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        transition: transform 0.2s ease;
+      }
+      #exitFocusBtn:hover {
+        transform: translateY(-2px);
+      }
+
+      .mobile-tabs {
+        display: none;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        border-bottom: 1px solid var(--accent-2);
+      }
+      .mobile-tab {
+        flex: 1;
+        padding: 10px;
+        background: transparent;
+        color: var(--text-light);
+        border: none;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        font-weight: bold;
+        text-align: center;
+        transition: all 0.2s;
+      }
+      .mobile-tab.active {
+        color: var(--accent);
+        border-bottom: 2px solid var(--accent);
+      }
+
+      .wysiwym-tooltip {
+        position: fixed;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        border-left: 2px solid var(--accent);
+        border-radius: 4px;
+        padding: 10px;
+        width: 280px;
+        color: var(--text-light);
+        pointer-events: none;
+        z-index: 10000;
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+        transition: opacity 0.15s ease, transform 0.15s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      }
+      .wysiwym-tooltip.show {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      .wysiwym-tooltip-header {
+        font-weight: bold;
+        color: var(--accent);
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .wysiwym-tooltip-desc {
+        font-size: 13px;
+        line-height: 1.4;
+      }
+      .wysiwym-tooltip-desc code {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2px 4px;
+        border-radius: 4px;
+        color: #00FFFE;
+        font-family: 'Consolas', monospace;
+      }
+      .wysiwym-tooltip-shortcut {
+        margin-top: 8px;
+        font-size: 11px;
+        color: var(--muted);
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+
+      @media (max-width: 800px) {
+        .mobile-tabs {
+          display: flex;
+        }
+        #dualViewBtn {
+          display: none !important;
+        }
+        .wysiwym-container:not(.show-preview) .preview-pane {
+          display: none !important;
+        }
+        .wysiwym-container.show-preview .editor-wrapper,
+        .wysiwym-container.show-preview .gutter {
+          display: none !important;
+        }
+        .wysiwym-container.show-preview .preview-pane {
+          display: block !important;
+          border: none;
+          margin: 0;
+        }
+        .wysiwym-layout.is-fullscreen .editor-wrapper,
+        .wysiwym-layout.is-fullscreen .preview-pane {
+          height: 100% !important;
+          flex: 1;
+        }
+        .editor-header-band {
+          flex-wrap: wrap;
+          padding: 10px;
+          gap: 10px;
+        }
+        .editor-header-band > div:nth-child(2) {
+          order: 3;
+          padding-left: 0 !important;
+          width: 100%;
+        }
+        #totalMetrics {
+          margin-left: auto;
+        }
+        .label-gutter {
+          width: 45px;
+          grid-template-columns: 1fr;
+          padding-right: 5px;
+        }
+        .label-gutter span:not(:first-child),
+        .gutter-line span:not(:first-child) {
+          display: none;
+        }
+        .gutter {
+          width: 45px;
+          padding: 10px 5px;
+        }
+        .gutter-line {
+          grid-template-columns: 1fr;
+        }
+        #filenameInput {
+          flex: 1;
+          min-width: 50px;
+          width: auto !important;
+        }
+      }
+      @media (max-width: 500px) {
+        #findInput, #replaceInput {
+          width: calc(50% - 4px) !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" id="app">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+            <button id="theme-toggle" class="theme-button" title="Toggle theme">
+              <i class="fa-solid fa-moon" aria-hidden="true"></i>Dark
+            </button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content wysiwym-layout">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 1rem;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><a href="/projects/"><i class="fas fa-rocket" aria-hidden="true"></i> Projects</a></li>
+            <li><span class="breadcrumb-current" aria-current="page">Live Preview Editor</span></li>
+          </ol>
+        </nav>
+        <button id="exitFocusBtn"><i class="fas fa-eye-slash"></i> Exit Focus Mode</button>
+        <h1 style="font-size: 2.5rem; margin-top: 0; margin-bottom: 0.5rem;">Live Preview Editor</h1>
+        
+        <div class="wysiwym-toolbar">
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; width: 100%; align-items: center; justify-content: center;">
+            <button class="fmt-btn" data-prefix="**" data-suffix="**" title="Bold" data-help-desc="Wraps your text in <code>**</code> to make it bold and stand out!" data-shortcut="Ctrl+B"><i class="fas fa-bold"></i></button>
+            <button class="fmt-btn" data-prefix="*" data-suffix="*" title="Italic" data-help-desc="Wraps your text in <code>*</code> to neatly italicize it." data-shortcut="Ctrl+I"><i class="fas fa-italic"></i></button>
+            <button class="fmt-btn" data-prefix="~~" data-suffix="~~" title="Strikethrough" data-help-desc="Wraps your text in <code>~~</code> to strike a line straight through it." data-shortcut="Ctrl+S"><i class="fas fa-strikethrough"></i></button>
+            <button class="fmt-btn" data-prefix="`" data-suffix="`" title="Inline Code" data-help-desc="Wraps text in <code>\`</code> to format it as a short snippet of code."><i class="fas fa-code"></i></button>
+            <button class="fmt-btn" data-prefix="&#10;```&#10;" data-suffix="&#10;```&#10;" title="Code Block" data-help-desc="Wraps text in <code>\`\`\`</code> to create a multi-line block. Automagically highlights your syntax if you add a language name!"><i class="fas fa-file-code"></i></button>
+            <button class="fmt-btn" data-prefix="| Left Align | Center Align | Right Align |&#10;| :--- | :---: | ---: |&#10;| Cell | Cell | Cell |&#10;" data-suffix="" title="Insert Table" data-help-desc="Automagically generates a perfect markdown table template for you to fill out."><i class="fas fa-table"></i></button>
+            <button class="fmt-btn" data-prefix="| Cell | Cell |&#10;" data-suffix="" title="Insert Row" data-help-desc="Inserts a new row for your table."><i class="fas fa-grip-lines"></i></button>
+            <button class="fmt-btn" data-prefix="!" data-suffix="" title="Insert Image" data-help-desc="Inserts the <code>!alt</code> format to embed a picture directly into your document."><i class="fas fa-image"></i></button>
+            <button class="fmt-btn" data-prefix="" data-suffix="" title="Insert Link" data-help-desc="Inserts the <code>text</code> format to create a clickable hyperlink."><i class="fas fa-link"></i></button>
+            <span style="border-left: 1px solid var(--accent-2); margin: 0 5px; height: 24px;"></span>
+            <button class="fmt-btn" data-prefix="# " data-suffix="" title="Header 1" data-help-desc="Prefixes your line with <code>#</code> to make it a large header. Add more hashes for smaller sub-headers!"><i class="fas fa-heading"></i></button>
+            <button class="fmt-btn" data-prefix="- [ ] " data-suffix="" title="Task List" data-help-desc="Creates an interactive checkbox list. You can click them right in the editor or the preview!"><i class="fas fa-tasks"></i></button>
+            <button class="fmt-btn" data-prefix="- " data-suffix="" title="Bulleted List" data-help-desc="Creates an unordered bulleted list."><i class="fas fa-list-ul"></i></button>
+            <button class="fmt-btn" data-prefix="1. " data-suffix="" title="Ordered List" data-help-desc="Creates a numbered list."><i class="fas fa-list-ol"></i></button>
+            <button class="fmt-btn" data-prefix="> " data-suffix="" title="Blockquote" data-help-desc="Prefixes your text with <code>&gt;</code> to format it as a quote."><i class="fas fa-quote-right"></i></button>
+            <span style="border-left: 1px solid var(--accent-2); margin: 0 5px; height: 24px;"></span>
+            <button id="resetBtn" class="fmt-btn" title="Reset to Default" data-help-desc="Replaces everything with the default starter text. Don't worry, you can always <code>Ctrl+Z</code> if you misclick!"><i class="fas fa-undo"></i></button>
+            <button id="clearBtn" class="fmt-btn" title="Clear All" data-help-desc="Clears all text from the editor."><i class="fas fa-trash-alt"></i></button>
+            <button id="copyHtmlBtn" class="fmt-btn" title="Copy HTML" data-help-desc="Copies the parsed HTML from the preview pane."><i class="fab fa-html5"></i></button>
+            <button id="copyBtn" class="fmt-btn" title="Copy Raw Text" data-help-desc="Copies the raw Markdown text." data-shortcut="Ctrl+C (No selection copies line)"><i class="fas fa-copy"></i></button>
+            <button id="fullscreenBtn" class="fmt-btn" title="Fullscreen" data-help-desc="Expands the editor to fill your entire screen for maximum workspace!"><i class="fas fa-expand"></i></button>
+            <button id="focusModeBtn" class="fmt-btn" title="Focus Mode" data-help-desc="Hides the website navigation and menus so you can focus completely on your writing."><i class="fas fa-eye"></i></button>
+            <button id="toggleFindReplaceBtn" class="fmt-btn" title="Find and Replace" data-help-desc="Opens the search bar for finding and modifying text." data-shortcut="Ctrl+F / Ctrl+H"><i class="fas fa-search"></i></button>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; width: 100%; align-items: center; justify-content: center; border-top: 1px solid rgba(0, 255, 254, 0.2); padding-top: 10px; margin-top: 2px;">
+            <select id="fontSizeSelect" style="margin-right: 8px;" title="Font Size" data-help-desc="Adjust the size of the font in the editor.">
+              <option value="12">12px Font</option>
+              <option value="14" selected>14px Font</option>
+              <option value="16">16px Font</option>
+              <option value="18">18px Font</option>
+              <option value="20">20px Font</option>
+            </select>
+            <select id="tabSelect" style="margin-right: 8px;" title="Tab Size" data-help-desc="Adjust the number of spaces for indentation.">
+              <option value="2">2 Spaces</option>
+              <option value="4">4 Spaces</option>
+            </select>
+            <select id="whitespaceSelect" style="margin-right: 8px;" title="Whitespace Rendering" data-help-desc="Toggle rendering style of whitespaces (None, Bubble, Linear).">
+              <option value="none" selected>Whitespace: None</option>
+              <option value="bubble">Whitespace: Bubble</option>
+              <option value="linear">Whitespace: Linear</option>
+            </select>
+            <button id="wordWrapBtn" class="fmt-btn" title="Word Wrap" data-help-desc="Toggles wrapping long lines of text so they don't scroll off the screen."><i class="fas fa-align-left"></i> Word Wrap: OFF</button>
+            <button id="lineNumBtn" class="fmt-btn" title="Line Numbers" data-help-desc="Toggles the line number gutter."><i class="fas fa-list-ol"></i> Line Nums: ON</button>
+            <button id="warningsBtn" class="fmt-btn" title="Warnings" data-help-desc="Toggles helpful red squiggly underlines that instantly warn you of borked syntax formatting!"><i class="fas fa-exclamation-triangle"></i> Warnings: ON</button>
+            <button id="dualViewBtn" class="fmt-btn" title="Dual View" data-help-desc="Toggles the side-by-side live preview pane so you can see exactly how your document renders!"><i class="fas fa-columns"></i> Dual View: OFF</button>
+          </div>
+          <div id="findReplaceBar" style="display: none; flex-wrap: wrap; gap: 8px; width: 100%; align-items: center; justify-content: center; border-top: 1px solid rgba(0, 255, 254, 0.2); padding-top: 10px; margin-top: 2px;">
+            <div style="display: flex; gap: 4px;">
+              <input type="text" id="findInput" placeholder="Find..." style="background: rgba(0,0,0,0.4); color: var(--text-light); border: 1px solid var(--accent); padding: 6px 10px; border-radius: 4px; font-family: inherit; font-size: 13px; outline: none; width: 150px;">
+              <button id="caseSensitiveBtn" class="fmt-btn" title="Match Case" data-help-desc="Toggles case sensitivity for your searches." style="font-family: 'Consolas', monospace; font-weight: bold;">Aa</button>
+              <button id="regexSearchBtn" class="fmt-btn" title="Regular Expression" data-help-desc="Allows you to use powerful Regex matchers like <code>.*</code> in your searches." style="font-family: 'Consolas', monospace; font-weight: bold;">.*</button>
+              <button id="findPrevBtn" class="fmt-btn" title="Find Previous" data-help-desc="Jumps to the previous search match." data-shortcut="Shift+Enter"><i class="fas fa-arrow-up"></i></button>
+              <button id="findNextBtn" class="fmt-btn" title="Find Next" data-help-desc="Jumps to the next search match." data-shortcut="Enter"><i class="fas fa-arrow-down"></i></button>
+            </div>
+            <input type="text" id="replaceInput" placeholder="Replace with..." style="background: rgba(0,0,0,0.4); color: var(--text-light); border: 1px solid var(--accent); padding: 6px 10px; border-radius: 4px; font-family: inherit; font-size: 13px; outline: none; width: 150px;">
+            <button id="replaceBtn" class="fmt-btn" title="Replace Next" data-help-desc="Replaces the currently selected match."><i class="fas fa-step-forward"></i> Replace</button>
+            <button id="replaceAllBtn" class="fmt-btn" title="Replace All" data-help-desc="Automagically replaces every match in the entire document!"><i class="fas fa-fast-forward"></i> Replace All</button>
+            <button id="clearFindReplaceBtn" class="fmt-btn" title="Clear Inputs" data-help-desc="Clears your search inputs."><i class="fas fa-eraser"></i> Clear</button>
+            <button id="closeFindReplaceBtn" class="fmt-btn" title="Close" data-help-desc="Closes the search bar." data-shortcut="Escape"><i class="fas fa-times"></i></button>
+            <span id="findReplaceMsg" style="color: var(--muted); font-size: 13px; margin-left: auto;"></span>
+          </div>
+        </div>
+
+        <div class="wysiwym-container">
+          <div class="editor-header-band">
+            <div class="label-gutter" id="band-gutter-labels">
+              <span>Line</span><span>Chars</span><span>Total</span>
+            </div>
+            <div style="flex: 1; display: flex; align-items: center; padding-left: 15px; gap: 5px;">
+              <input type="text" id="filenameInput" placeholder="document" style="background: rgba(255, 255, 255, 0.05); color: var(--text-light); border: 1px solid var(--accent-2); padding: 4px 8px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 12px; outline: none; width: 200px; text-transform: none;">
+              <span style="color: var(--muted); text-transform: lowercase;">.md</span>
+              <input type="file" id="importFile" accept=".md,.txt" style="display: none;">
+              <button id="importBtn" class="fmt-btn" title="Upload .md" data-help-desc="Upload a local <code>.md</code> or <code>.txt</code> file to edit it." style="padding: 3px 8px; font-size: 11px; margin-left: 10px;"><i class="fas fa-upload"></i> Import</button>
+              <button id="exportBtn" class="fmt-btn" title="Download .md" data-help-desc="Download your raw Markdown code to your device." style="padding: 3px 8px; font-size: 11px;"><i class="fas fa-download"></i> .md</button>
+              <button id="downloadHtmlBtn" class="fmt-btn" title="Download HTML" data-help-desc="Download the fully rendered HTML output." style="padding: 3px 8px; font-size: 11px;"><i class="fas fa-download"></i> .html</button>
+            </div>
+            <div id="keyboardIndicators" style="display: flex; gap: 10px; color: var(--muted); font-size: 11px; font-weight: bold; margin-right: 15px;">
+              <span id="ind-caps" style="opacity: 0.3; transition: all 0.2s;">CAPS</span>
+              <span id="ind-num" style="opacity: 0.3; transition: all 0.2s;">NUM</span>
+              <span id="ind-ovr" style="opacity: 0.3; transition: all 0.2s;">INS</span>
+            </div>
+            <div id="totalMetrics" style="color: var(--muted); font-weight: normal; text-transform: none; padding-right: 5px;">0 words | 0 chars</div>
+          </div>
+          <div class="mobile-tabs">
+            <button class="mobile-tab active" data-tab="editor">Editor</button>
+            <button class="mobile-tab" data-tab="preview">Preview</button>
+          </div>
+          <div class="editor-body-row">
+            <div class="gutter" id="gutter"></div>
+            <div class="editor-wrapper">
+              <div class="editor-display" id="display"></div>
+              <textarea class="editor-input" id="input" spellcheck="false"></textarea>
+            </div>
+            <div id="selection-footer">Selected: 0 chars</div>
+            <div id="preview-pane" class="preview-pane"></div>
+          </div>
+        </div>
+      </main>
+
+      <footer style="margin-top: 2rem;">
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+    <script src="/assets/css/highlight/highlight.js"></script>
+    <script src="/assets/css/highlight/denizen.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const input = document.getElementById("input");
+        const display = document.getElementById("display");
+        const gutter = document.getElementById("gutter");
+        const selectionFooter = document.getElementById("selection-footer");
+        const fontSizeSelect = document.getElementById("fontSizeSelect");
+        const tabSelect = document.getElementById("tabSelect");
+        const whitespaceSelect = document.getElementById("whitespaceSelect");
+        const importBtn = document.getElementById("importBtn");
+        const importFile = document.getElementById("importFile");
+        const exportBtn = document.getElementById("exportBtn");
+        const copyBtn = document.getElementById("copyBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const clearBtn = document.getElementById("clearBtn");
+        const copyHtmlBtn = document.getElementById("copyHtmlBtn");
+        const downloadHtmlBtn = document.getElementById("downloadHtmlBtn");
+        const fullscreenBtn = document.getElementById("fullscreenBtn");
+        const focusModeBtn = document.getElementById("focusModeBtn");
+        const exitFocusBtn = document.getElementById("exitFocusBtn");
+        const dualViewBtn = document.getElementById("dualViewBtn");
+        const wordWrapBtn = document.getElementById("wordWrapBtn");
+        const lineNumBtn = document.getElementById("lineNumBtn");
+        const warningsBtn = document.getElementById("warningsBtn");
+        const toggleFindReplaceBtn = document.getElementById("toggleFindReplaceBtn");
+        const findReplaceBar = document.getElementById("findReplaceBar");
+        const findInput = document.getElementById("findInput");
+        const caseSensitiveBtn = document.getElementById("caseSensitiveBtn");
+        const regexSearchBtn = document.getElementById("regexSearchBtn");
+        const findPrevBtn = document.getElementById("findPrevBtn");
+        const findNextBtn = document.getElementById("findNextBtn");
+        const replaceInput = document.getElementById("replaceInput");
+        const replaceBtn = document.getElementById("replaceBtn");
+        const replaceAllBtn = document.getElementById("replaceAllBtn");
+        const clearFindReplaceBtn = document.getElementById("clearFindReplaceBtn");
+        const closeFindReplaceBtn = document.getElementById("closeFindReplaceBtn");
+        const findReplaceMsg = document.getElementById("findReplaceMsg");
+        const container = document.querySelector(".wysiwym-container");
+        const totalMetrics = document.getElementById("totalMetrics");
+        const filenameInput = document.getElementById("filenameInput");
+        const bandGutterLabels = document.getElementById("band-gutter-labels");
+        const layout = document.querySelector(".wysiwym-layout");
+        const sizeMap = { "12": 14, "14": 16, "16": 18, "18": 20, "20": 24 };
+        let isLineNums = true;
+        let isOverwriteMode = false;
+        let isCaseSensitive = false;
+        let isRegexSearch = false;
+        const indCaps = document.getElementById('ind-caps');
+        const indNum = document.getElementById('ind-num');
+        const indOvr = document.getElementById('ind-ovr');
+
+        const tooltip = document.createElement('div');
+        tooltip.className = 'wysiwym-tooltip';
+        tooltip.innerHTML = `
+          <div class="wysiwym-tooltip-header"><i id="tt-icon"></i> <span id="tt-title"></span></div>
+          <div class="wysiwym-tooltip-desc" id="tt-desc"></div>
+          <div class="wysiwym-tooltip-shortcut" id="tt-shortcut"></div>
+        `;
+        document.body.appendChild(tooltip);
+
+        const ttIcon = tooltip.querySelector('#tt-icon');
+        const ttTitle = tooltip.querySelector('#tt-title');
+        const ttDesc = tooltip.querySelector('#tt-desc');
+        const ttShortcut = tooltip.querySelector('#tt-shortcut');
+
+        document.querySelectorAll('.fmt-btn, select, #filenameInput').forEach(btn => {
+          if (btn.hasAttribute('title')) {
+            if (!btn.hasAttribute('data-help-title')) {
+              btn.setAttribute('data-help-title', btn.getAttribute('title'));
+            }
+            btn.removeAttribute('title');
+          }
+
+          btn.addEventListener('mouseenter', () => {
+            const title = btn.getAttribute('data-help-title');
+            const desc = btn.getAttribute('data-help-desc');
+            const shortcut = btn.getAttribute('data-shortcut');
+            const iconNode = btn.querySelector('i');
+            const iconClass = iconNode ? iconNode.className : 'fas fa-info-circle';
+
+            if (!title && !desc) return;
+
+            ttTitle.textContent = title || 'Info';
+            ttDesc.innerHTML = desc || '';
+            ttIcon.className = iconClass;
+            
+            if (shortcut) {
+              ttShortcut.textContent = 'Shortcut: ' + shortcut;
+              ttShortcut.style.display = 'block';
+            } else {
+              ttShortcut.style.display = 'none';
+            }
+
+            tooltip.classList.add('show');
+            const rect = btn.getBoundingClientRect();
+            let top = rect.bottom + 10;
+            let left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2);
+            
+            if (left < 10) left = 10;
+            if (left + tooltip.offsetWidth > window.innerWidth - 10) left = window.innerWidth - tooltip.offsetWidth - 10;
+            if (top + tooltip.offsetHeight > window.innerHeight - 10) top = rect.top - tooltip.offsetHeight - 10;
+
+            tooltip.style.top = top + 'px';
+            tooltip.style.left = left + 'px';
+          });
+
+          btn.addEventListener('mouseleave', () => tooltip.classList.remove('show'));
+          btn.addEventListener('click', () => tooltip.classList.remove('show'));
+        });
+        
+        let isWordWrap = localStorage.getItem('wysiwym-word-wrap') === 'true';
+        if (isWordWrap) {
+          input.classList.add('word-wrap-enabled');
+          display.classList.add('word-wrap-enabled');
+          wordWrapBtn.style.background = 'var(--accent)';
+          wordWrapBtn.style.color = '#000';
+          wordWrapBtn.innerHTML = '<i class="fas fa-align-left"></i> Word Wrap: ON';
+        }
+        
+        let isWarningsOn = localStorage.getItem('wysiwym-warnings') !== 'false';
+        if (!isWarningsOn) {
+          warningsBtn.style.background = 'var(--accent)';
+          warningsBtn.style.color = '#000';
+          warningsBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Warnings: OFF';
+        }
+
+        const DEFAULT_TEMPLATE = `---
+
+
+# This is a header
+
+This editor uses a dual-layer approach. The **bold**, *italic*, and ~~strike~~ styles are rendered underneath the transparent textarea. 
+
+Interactive Tasks:
+- [ ] Click this checkbox directly!
+- [ ] Line sync preserved flawlessly.
+- [ ] Formatting updates instantly.
+
+---
+
+1. ordered
+2. numbered
+3. list
+
+- unordered
+- bullet
+- list
+
+> quote text
+
+Play my game!
+
+\`\`\`yml
+yaml:
+  what:
+    - yaml aint markup language
+\`\`\`
+
+\`\`\`css
+  .ecstatic .magic-star {
+    color: #00ff00;
+    text-shadow: 0 0 8px currentColor;
+    font-weight: 800;
+  }
+\`\`\`
+
+\`\`\`dsc
+task script:
+    type: task
+    script:
+        - narrate "hello world"
+        - flag <server.flag[b.fancy]> this.key:++
+        - if !<[definition].is_truthy>:
+          - flag server not_truthy:->:now
+\`\`\``;
+
+        const savedText = localStorage.getItem('wysiwym-autosave');
+        if (savedText !== null) {
+          input.value = savedText;
+        } else {
+          input.value = DEFAULT_TEMPLATE;
+        }
+
+        let isDualView = localStorage.getItem('wysiwym-dual-view');
+        if (isDualView === null) isDualView = 'true';
+        if (isDualView === 'true') {
+          container.classList.add('dual-view');
+          dualViewBtn.style.background = 'var(--accent)';
+          dualViewBtn.style.color = '#000';
+          dualViewBtn.innerHTML = '<i class="fas fa-columns"></i> Dual View: ON';
+        }
+
+        function escapeHtml(text) {
+          return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function unescapeHtml(text) {
+          return text.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+        }
+
+        function render() {
+          const text = input.value;
+          localStorage.setItem('wysiwym-autosave', text);
+                    
+          let totalWords = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+          if (text.trim().length === 0) totalWords = 0;
+          if (totalMetrics) totalMetrics.textContent = `${totalWords} words | ${text.length} chars`;
+
+          const firstLine = text.split('\n')[0] || '';
+          const headerMatch = firstLine.match(/^#\s+(.+)$/);
+          if (headerMatch) {
+            let safeName = headerMatch[1].toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+            filenameInput.placeholder = safeName || "document";
+          } else {
+            filenameInput.placeholder = "document";
+          }
+
+          let html = escapeHtml(text);
+
+          const tabSize = parseInt(tabSelect.value, 10);
+          let lines = html.split('\n');
+          html = lines.map(line => {
+            if (!isWarningsOn) return line;
+            let errorIndices = [];
+            
+            let standaloneBackticks = [];
+            for (let i = 0; i < line.length; i++) {
+              if (line[i] === '`') {
+                if ((i > 0 && line[i-1] === '`') || (i < line.length - 1 && line[i+1] === '`')) continue;
+                standaloneBackticks.push(i);
+              }
+            }
+            if (standaloneBackticks.length % 2 !== 0) {
+              errorIndices.push({ idx: standaloneBackticks[standaloneBackticks.length - 1], len: 1, title: "Unclosed inline code block" });
+            }
+            
+            let boldCount = (line.match(/\*\*/g) || []).length;
+            if (boldCount % 2 !== 0) {
+              errorIndices.push({ idx: line.lastIndexOf('**'), len: 2, title: "Unclosed bold tag" });
+            }
+            
+            let standaloneAsterisks = [];
+            let isList = line.match(/^[ \t]*\*[ \t]+/);
+            let listAsteriskIndex = isList ? line.indexOf('*') : -1;
+            
+            for (let i = 0; i < line.length; i++) {
+              if (line[i] === '*') {
+                if (i === listAsteriskIndex) continue;
+                if ((i > 0 && line[i-1] === '*') || (i < line.length - 1 && line[i+1] === '*')) continue;
+                standaloneAsterisks.push(i);
+              }
+            }
+            
+            if (standaloneAsterisks.length % 2 !== 0) {
+              errorIndices.push({ idx: standaloneAsterisks[standaloneAsterisks.length - 1], len: 1, title: "Unclosed italic tag" });
+            }
+            
+            let strikeCount = (line.match(/~~/g) || []).length;
+            if (strikeCount % 2 !== 0) {
+              errorIndices.push({ idx: line.lastIndexOf('~~'), len: 2, title: "Unclosed strikethrough tag" });
+            }
+            
+            const leadingSpaceMatch = line.match(/^[ \t]+/);
+            if (leadingSpaceMatch) {
+              let spaceStr = leadingSpaceMatch[0];
+              let spaceCount = 0;
+              for (let i = 0; i < spaceStr.length; i++) {
+                if (spaceStr[i] === ' ') spaceCount++;
+                else if (spaceStr[i] === '\t') spaceCount += tabSize - (spaceCount % tabSize);
+              }
+              if (spaceCount % tabSize !== 0) {
+                errorIndices.push({ idx: 0, len: spaceStr.length, title: `Uneven indentation: ${spaceCount} spaces (expected multiple of ${tabSize})` });
+              }
+            }
+
+            errorIndices.sort((a, b) => b.idx - a.idx);
+            
+            errorIndices.forEach(err => {
+              if (err.idx !== -1) {
+                const errLen = err.len || (line.length - err.idx);
+                line = line.substring(0, err.idx) + `<span class="error-equiv" title="${err.title}">` + line.substring(err.idx, err.idx + errLen) + '</span>' + line.substring(err.idx + errLen);
+              }
+            });
+            
+            return line;
+          }).join('\n');
+
+          let editorCodeBlocks = [];
+          html = html.replace(/```(\w*)\r?\n([\s\S]*?)```/g, (match, lang, code) => {
+            let highlighted = code;
+            let hljsClass = '';
+            if (lang && window.hljs && hljs.getLanguage(lang)) {
+              try {
+                highlighted = hljs.highlight(unescapeHtml(code), { language: lang }).value;
+                hljsClass = ' hljs';
+              } catch(e) {}
+            }
+            editorCodeBlocks.push(`<span class="code-equiv${hljsClass}">\`\`\`${lang}\n${highlighted}\`\`\`</span>`);
+            return `__ED_CBLOCK_${editorCodeBlocks.length - 1}__`;
+          });
+          html = html.replace(/```([\s\S]*?)```/g, (match) => {
+            editorCodeBlocks.push(`<span class="code-equiv">${match}</span>`);
+            return `__ED_CBLOCK_${editorCodeBlocks.length - 1}__`;
+          });
+          html = html.replace(/`([^`\n]+)`/g, (match, p1) => {
+            editorCodeBlocks.push(`<span class="code-equiv">\`${p1}\`</span>`);
+            return `__ED_CBLOCK_${editorCodeBlocks.length - 1}__`;
+          });
+
+          html = html.replace(/^([ \t]*)(#{1,6})[ \t]+(.*)$/gm, '$1<span class="h1-equiv">$2 $3</span>');
+          html = html.replace(/\*\*(.*?)\*\*/g, '<span class="bold-equiv">**$1**</span>');
+          html = html.replace(/\*(.*?)\*/g, '<span class="italic-equiv">*$1*</span>');
+          html = html.replace(/~~(.*?)~~/g, '<span class="strike-equiv">~~$1~~</span>');
+          html = html.replace(/^([ \t]*)(---+)[ \t-]*$/gm, '$1<span class="hr-equiv">$2</span>');
+          html = html.replace(/^([ \t]*)- \[ \]/gm, '$1<span class="task-unchecked">- [ ]</span>');
+          html = html.replace(/^([ \t]*)- \[x\]/gm, '$1<span class="task-checked">- [x]</span>');
+          html = html.replace(/^([ \t]*)(\|.*\|)[ \t]*$/gm, '$1<span class="table-equiv">$2</span>');
+          html = html.replace(/^([ \t]*)(&gt;.*)$/gm, '$1<span class="quote-equiv">$2</span>');
+          html = html.replace(/^([ \t]*)([-*]|\d+\.)([ \t]+)/gm, '$1<span class="list-equiv">$2$3</span>');
+          html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<span class="image-equiv">![$1]($2)</span>');
+          html = html.replace(/(^|[^!])\[([^\]]+)\]\(([^)]+)\)/g, '$1<span class="link-equiv">[$2]($3)</span>');
+
+          editorCodeBlocks.forEach((block, i) => {
+            html = html.replace(`__ED_CBLOCK_${i}__`, block);
+          });
+
+          const wsType = whitespaceSelect.value;
+          if (wsType !== 'none') {
+            html = html.replace(/^[ \t]+/gm, (match) => {
+              let out = '';
+              let col = 0;
+              let chunk = '';
+              for (let i = 0; i < match.length; i++) {
+                let c = match[i];
+                if (c === '\t') {
+                  chunk += c;
+                  col += tabSize - (col % tabSize);
+                  out += `<span class="ws-${wsType}">${chunk}</span>`;
+                  chunk = '';
+                } else {
+                  chunk += c;
+                  col += 1;
+                  if (col % tabSize === 0) {
+                    out += `<span class="ws-${wsType}">${chunk}</span>`;
+                    chunk = '';
+                  }
+                }
+              }
+              if (chunk) out += `<span class="ws-${wsType}">${chunk}</span>`;
+              return out;
+            });
+          }
+
+          display.innerHTML = html;
+          updateGutter(text);
+          renderPreviewPane(text);
+          resizeEditor();
+        }
+
+        function renderPreviewPane(text) {
+          let pHtml = escapeHtml(text);
+          
+          let previewCodeBlocks = [];
+          pHtml = pHtml.replace(/```(\w*)\r?\n([\s\S]*?)```/g, (match, lang, code) => {
+            const langClass = lang ? ` class="language-${lang}"` : '';
+            previewCodeBlocks.push(`<pre><code${langClass}>${code}</code></pre>`);
+            return `__PV_CBLOCK_${previewCodeBlocks.length - 1}__`;
+          });
+          pHtml = pHtml.replace(/```([\s\S]*?)```/g, (match, code) => {
+            previewCodeBlocks.push(`<pre><code>${code}</code></pre>`);
+            return `__PV_CBLOCK_${previewCodeBlocks.length - 1}__`;
+          });
+          pHtml = pHtml.replace(/`([^`\n]+)`/g, (match, code) => {
+            previewCodeBlocks.push(`<code>${code}</code>`);
+            return `__PV_CBLOCK_${previewCodeBlocks.length - 1}__`;
+          });
+          
+          pHtml = pHtml.replace(/^(#{1,6})[ \t]+(.*)$/gm, (m, h, c) => `<h${h.length}>${c}</h${h.length}>`);
+          pHtml = pHtml.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+          pHtml = pHtml.replace(/\*(.*?)\*/g, '<em>$1</em>');
+          pHtml = pHtml.replace(/~~(.*?)~~/g, '<del>$1</del>');
+          pHtml = pHtml.replace(/^[ \t]*---+[ \t-]*$/gm, '<hr style="border: 0; border-bottom: 2px solid var(--accent-2); margin: 0;">');
+          pHtml = pHtml.replace(/^[ \t]*&gt;+[ \t]*(.*)$/gm, '<blockquote>$1</blockquote>');
+          pHtml = pHtml.replace(/^([ \t]*)- \[ \][ \t]+(.*)$/gm, '$1<label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: #ff5555; font-weight: bold; margin: 0;"><input type="checkbox" class="preview-checkbox" style="margin: 0;"> <span>$2</span></label>');
+          pHtml = pHtml.replace(/^([ \t]*)- \[x\][ \t]+(.*)$/gm, '$1<label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: #55ff55; font-weight: bold; margin: 0;"><input type="checkbox" class="preview-checkbox" checked style="margin: 0;"> <span>$2</span></label>');
+          pHtml = pHtml.replace(/^[ \t]*([-*])[ \t]+(.*)$/gm, '<li style="margin-left: 20px; list-style-type: disc;">$2</li>');
+          pHtml = pHtml.replace(/^[ \t]*(\d+)\.[ \t]+(.*)$/gm, '<li style="margin-left: 20px; list-style-type: decimal;" value="$1">$2</li>');
+          pHtml = pHtml.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; border-radius: 4px; border: 1px solid var(--accent-2); margin: 0;">');
+          pHtml = pHtml.replace(/(^|[^!])\[([^\]]+)\]\(([^)]+)\)/g, '$1<a href="$3" target="_blank" style="color: #88DDFF; text-decoration: underline;">$2</a>');
+          pHtml = pHtml.replace(/(?:^[ \t]*\|.*\|[ \t]*\n?)+/gm, (match) => {
+            const rows = match.trim().split('\n');
+            let tableHtml = '<table>';
+            let alignments = [];
+
+            if (rows.length > 1 && rows[1].match(/^[ \t]*\|(?:[-: \t]+\|)+\s*$/)) {
+              const alignCells = rows[1].replace(/^[ \t]*\|/, '').replace(/\|[ \t]*$/, '').split('|');
+              alignments = alignCells.map(cell => {
+                cell = cell.trim();
+                if (cell.startsWith(':') && cell.endsWith(':')) return 'center';
+                if (cell.endsWith(':')) return 'right';
+                if (cell.startsWith(':')) return 'left';
+                return '';
+              });
+            }
+
+            let rowIndex = 0;
+            rows.forEach((row, index) => {
+              if (row.match(/^[ \t]*\|(?:[-: \t]+\|)+\s*$/)) return;
+              const cells = row.replace(/^[ \t]*\|/, '').replace(/\|[ \t]*$/, '').split('|');
+              const cellTag = rowIndex === 0 ? 'th' : 'td';
+              tableHtml += '<tr>' + cells.map((cell, colIndex) => {
+                const alignStyle = alignments[colIndex] ? ` style="text-align: ${alignments[colIndex]};"` : '';
+                return `<${cellTag}${alignStyle}>${cell.trim()}</${cellTag}>`;
+              }).join('') + '</tr>';
+              rowIndex++;
+            });
+            tableHtml += '</table>';
+            return tableHtml + (match.endsWith('\n') ? '\n' : '');
+          });
+          
+          pHtml = pHtml.replace(/<\/(h[1-6]|pre|table|blockquote|li)>\n/g, '</$1>');
+          pHtml = pHtml.replace(/(<hr[^>]*>)\n/g, '$1');
+
+          previewCodeBlocks.forEach((block, i) => {
+            pHtml = pHtml.replace(`__PV_CBLOCK_${i}__`, block);
+          });
+
+          const previewPane = document.getElementById("preview-pane");
+          if (previewPane) {
+            previewPane.innerHTML = pHtml;
+            if (window.hljs) {
+              previewPane.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightElement(block);
+              });
+            }
+          }
+        }
+
+        window.handlePreviewCheckboxChange = function(index, checked) {
+          const start = input.selectionStart;
+          const end = input.selectionEnd;
+          let matchCount = 0;
+          const text = input.value;
+          const regex = /^[ \t]*- \[[ x]\]/gm;
+          let match;
+          
+          while ((match = regex.exec(text)) !== null) {
+            if (matchCount === index) {
+              const matchStart = match.index;
+              const matchEnd = matchStart + match[0].length;
+              const replacement = checked ? match[0].replace('- [ ]', '- [x]') : match[0].replace('- [x]', '- [ ]');
+              
+              input.focus();
+              input.selectionStart = matchStart;
+              input.selectionEnd = matchEnd;
+              document.execCommand('insertText', false, replacement);
+              break;
+            }
+            matchCount++;
+          }
+          input.selectionStart = start;
+          input.selectionEnd = end;
+          render();
+        };
+
+        function resizeEditor() {
+          if (document.fullscreenElement) return;
+          
+          const wrapper = document.querySelector('.editor-wrapper');
+          const previewPane = document.getElementById("preview-pane");
+          
+          input.style.transition = 'none';
+          display.style.transition = 'none';
+          gutter.style.transition = 'none';
+          wrapper.style.transition = 'none';
+          if (previewPane) previewPane.style.transition = 'none';
+
+          const oldHeight = input.style.height;
+          
+          input.style.height = 'auto';
+          display.style.height = 'auto';
+          
+          const bodyRow = document.querySelector('.editor-body-row');
+          const absoluteTop = bodyRow.getBoundingClientRect().top + window.scrollY;
+          let minH = window.innerHeight - absoluteTop - 100;
+          if (document.body.classList.contains('focus-mode')) {
+            minH = window.innerHeight - absoluteTop - 40;
+          }
+          if (minH < 400) minH = 400;
+          
+          let newHeight = Math.max(input.scrollHeight, minH);
+          
+          document.querySelector('.editor-wrapper').style.minHeight = newHeight + 'px';
+          input.style.height = oldHeight || (minH + 'px');
+          display.style.height = oldHeight || (minH + 'px');
+          
+          void input.offsetHeight;
+          
+          const transRule = 'height 0.2s ease-out, min-height 0.2s ease-out';
+          input.style.transition = transRule;
+          display.style.transition = transRule;
+          gutter.style.transition = transRule;
+          wrapper.style.transition = transRule;
+          if (previewPane) previewPane.style.transition = transRule;
+          
+          wrapper.style.minHeight = newHeight + 'px';
+          input.style.height = newHeight + 'px';
+          display.style.height = newHeight + 'px';
+          gutter.style.height = newHeight + 'px';
+          
+          if (previewPane) previewPane.style.height = newHeight + 'px';
+        }
+
+        function updateGutter(text) {
+          let measureDiv = document.getElementById('measure-div');
+          if (!measureDiv) {
+            measureDiv = document.createElement('div');
+            measureDiv.id = 'measure-div';
+            measureDiv.style.visibility = 'hidden';
+            measureDiv.style.position = 'absolute';
+            measureDiv.style.whiteSpace = 'pre-wrap';
+            measureDiv.style.wordBreak = 'break-word';
+            measureDiv.style.padding = '0';
+            measureDiv.style.margin = '0';
+            measureDiv.style.border = 'none';
+            measureDiv.style.fontFamily = 'Consolas, monospace';
+            measureDiv.style.fontSize = 'var(--ed-fz)';
+            measureDiv.style.lineHeight = 'var(--ed-lh)';
+            document.querySelector('.editor-wrapper').appendChild(measureDiv);
+          }
+
+          const lines = text.split('\n');
+          let html = '';
+          let cumulative = 0;
+          const isWrap = isWordWrap;
+          
+          const findStr = (findReplaceBar.style.display !== 'none') ? findInput.value : '';
+          let searchRegex = null;
+          if (findStr) {
+            try {
+              const escaped = isRegexSearch ? findStr : findStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              searchRegex = new RegExp(escaped, isCaseSensitive ? '' : 'i');
+            } catch(e) {}
+          }
+          
+          if (isWrap) {
+            const computedStyle = window.getComputedStyle(input);
+            const exactWidth = input.clientWidth - parseFloat(computedStyle.paddingLeft) - parseFloat(computedStyle.paddingRight);
+            measureDiv.style.width = exactWidth + 'px';
+            measureDiv.style.tabSize = tabSelect.value;
+          }
+
+          for (let i = 0; i < lines.length; i++) {
+            const len = lines[i].length;
+            cumulative += len;
+            let hStr = sizeMap[fontSizeSelect.value] + 'px';
+            if (isWrap) {
+              measureDiv.textContent = lines[i] || ' ';
+              hStr = measureDiv.offsetHeight + 'px';
+            }
+              
+              let isMatch = false;
+            if (searchRegex) {
+              isMatch = searchRegex.test(lines[i]);
+              searchRegex.lastIndex = 0;
+              }
+              const matchClass = isMatch ? ' match-line' : '';
+              
+              html += `<div class="gutter-line${matchClass}" style="height: ${hStr};"><span>${i + 1}</span><span>${len}</span><span>${cumulative}</span></div>`;
+            cumulative += 1;
+          }
+          gutter.innerHTML = html;
+        }
+
+        input.addEventListener('input', render);
+
+        input.addEventListener('scroll', () => {
+          display.scrollTop = input.scrollTop;
+          display.scrollLeft = input.scrollLeft;
+          gutter.scrollTop = input.scrollTop;
+          const previewPane = document.getElementById("preview-pane");
+          if (previewPane) previewPane.scrollTop = input.scrollTop;
+        });
+
+        input.addEventListener('click', function(e) {
+          const pos = this.selectionStart;
+          const val = this.value;
+
+          let lineStart = val.lastIndexOf('\n', pos - 1) + 1;
+          let lineEnd = val.indexOf('\n', pos);
+          if (lineEnd === -1) lineEnd = val.length;
+
+          let lineText = val.substring(lineStart, lineEnd);
+
+          let trimmedLine = lineText.trimStart();
+          let leadingSpaces = lineText.length - trimmedLine.length;
+
+          if (trimmedLine.startsWith('- [ ]') || trimmedLine.startsWith('- [x]')) {
+            let matchStart = lineStart + leadingSpaces;
+            let matchEnd = matchStart + 5;
+
+            if (pos >= matchStart && pos <= matchEnd) {
+              let isChecked = trimmedLine.startsWith('- [x]');
+              let replacement = isChecked ? '- [ ]' : '- [x]';
+              
+              this.selectionStart = matchStart;
+              this.selectionEnd = matchEnd;
+              document.execCommand('insertText', false, replacement);
+              
+              this.selectionStart = this.selectionEnd = pos;
+              render();
+            }
+          }
+        });
+
+        const checkSelection = () => {
+          if (document.activeElement === input) {
+            let len = Math.abs(input.selectionEnd - input.selectionStart);
+            if (len > 0) {
+              selectionFooter.style.opacity = '1';
+              let selectedText = input.value.substring(input.selectionStart, input.selectionEnd);
+              let words = selectedText.trim().split(/\s+/).filter(w => w.length > 0).length;
+              let wordStr = words === 1 ? 'word' : 'words';
+              selectionFooter.textContent = `Selected: ${len} chars | ${words} ${wordStr}`;
+            } else {
+              selectionFooter.style.opacity = '0';
+            }
+          } else {
+            selectionFooter.style.opacity = '0';
+          }
+        };
+        
+        function updateKeyboardIndicators(e) {
+          if (e && typeof e.getModifierState === 'function') {
+            const caps = e.getModifierState('CapsLock');
+            const num = e.getModifierState('NumLock');
+            if (indCaps) { indCaps.style.opacity = caps ? '1' : '0.3'; indCaps.style.color = caps ? 'var(--accent)' : 'var(--muted)'; }
+            if (indNum) { indNum.style.opacity = num ? '1' : '0.3'; indNum.style.color = num ? 'var(--accent)' : 'var(--muted)'; }
+          }
+        }
+        document.addEventListener('keydown', updateKeyboardIndicators);
+        document.addEventListener('keyup', updateKeyboardIndicators);
+        document.addEventListener('mousedown', updateKeyboardIndicators);
+
+        function updateOverwriteIndicator() {
+          if (isOverwriteMode) {
+            indOvr.textContent = 'OVR'; indOvr.style.opacity = '1'; indOvr.style.color = '#ff5555'; input.classList.add('overwrite-mode');
+          } else {
+            indOvr.textContent = 'INS'; indOvr.style.opacity = '0.3'; indOvr.style.color = 'var(--muted)'; input.classList.remove('overwrite-mode');
+          }
+        }
+        updateOverwriteIndicator();
+        
+        input.addEventListener('select', checkSelection);
+        input.addEventListener('click', checkSelection);
+        input.addEventListener('keyup', checkSelection);
+        document.addEventListener('selectionchange', checkSelection);
+        
+        window.addEventListener('resize', () => {
+          if (isWordWrap) render();
+          else resizeEditor();
+        });
+
+        input.addEventListener('keydown', function(e) {
+          if (e.key === 'Insert') {
+            e.preventDefault();
+            isOverwriteMode = !isOverwriteMode;
+            updateOverwriteIndicator();
+            return;
+          }
+
+          const autoPairs = { '<': '>', '[': ']', '(': ')', '{': '}', '"': '"', "'": "'" };
+          const closingKeys = Object.values(autoPairs);
+          
+          if (closingKeys.includes(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey && this.selectionStart === this.selectionEnd) {
+             const nextChar = this.value[this.selectionStart];
+             if (nextChar === e.key) {
+               e.preventDefault();
+               this.selectionStart = this.selectionEnd = this.selectionStart + 1;
+               return;
+             }
+          }
+
+          if (autoPairs[e.key] && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            const val = this.value;
+            
+            if (start !== end) {
+              e.preventDefault();
+              const selectedText = val.substring(start, end);
+              document.execCommand('insertText', false, e.key + selectedText + autoPairs[e.key]);
+              this.selectionStart = start + 1;
+              this.selectionEnd = end + 1;
+              render();
+              return;
+            } else {
+              const nextChar = val[start];
+              if (!nextChar || /[\s\n\}\]\)\>\'\"]/.test(nextChar)) {
+                e.preventDefault();
+                document.execCommand('insertText', false, e.key + autoPairs[e.key]);
+                this.selectionStart = this.selectionEnd = start + 1;
+                render();
+                return;
+              }
+            }
+          }
+
+          if (e.key === 'Backspace' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            const start = this.selectionStart;
+            if (start === this.selectionEnd && start > 0) {
+              const prevChar = this.value[start - 1];
+              const nextChar = this.value[start];
+              if (autoPairs[prevChar] && autoPairs[prevChar] === nextChar) {
+                e.preventDefault();
+                this.selectionStart = start - 1;
+                this.selectionEnd = start + 1;
+                document.execCommand('insertText', false, '');
+                render();
+                return;
+              }
+            }
+          }
+
+          if (isOverwriteMode && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && this.selectionStart === this.selectionEnd) {
+            if (this.selectionStart < this.value.length && this.value[this.selectionStart] !== '\n') {
+              this.selectionEnd = this.selectionStart + 1;
+            }
+          }
+
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c' && this.selectionStart === this.selectionEnd) {
+            e.preventDefault();
+            const start = this.selectionStart;
+            const val = this.value;
+            let lineStart = val.lastIndexOf('\n', start - 1) + 1;
+            let lineEnd = val.indexOf('\n', start);
+            
+            if (lineEnd !== -1) {
+              lineEnd += 1;
+            } else {
+              lineEnd = val.length;
+            }
+            
+            this.selectionStart = lineStart;
+            this.selectionEnd = lineEnd;
+            document.execCommand('copy');
+            this.selectionStart = this.selectionEnd = start;
+            return;
+          }
+
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
+            e.preventDefault();
+            const val = this.value;
+            if (this.selectionStart === this.selectionEnd) {
+              let start = this.selectionStart;
+              let end = start;
+              while (start > 0 && /[a-zA-Z0-9_-]/.test(val[start - 1])) start--;
+              while (end < val.length && /[a-zA-Z0-9_-]/.test(val[end])) end++;
+              if (start !== end) {
+                this.selectionStart = start;
+                this.selectionEnd = end;
+              }
+            } else {
+              const selectedText = val.substring(this.selectionStart, this.selectionEnd);
+              let nextIndex = val.indexOf(selectedText, this.selectionEnd);
+              if (nextIndex === -1) {
+                nextIndex = val.indexOf(selectedText, 0);
+              }
+              if (nextIndex !== -1) {
+                this.selectionStart = nextIndex;
+                this.selectionEnd = nextIndex + selectedText.length;
+              }
+            }
+            checkSelection();
+            return;
+          }
+
+          if (e.key === 'Tab') {
+            e.preventDefault();
+            const tabSize = parseInt(tabSelect.value, 10);
+            const spaces = ' '.repeat(tabSize);
+            
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            const val = this.value;
+            const lineStart = val.lastIndexOf('\n', start - 1) + 1;
+            let lineEnd = val.indexOf('\n', end);
+            if (lineEnd === -1) lineEnd = val.length;
+            
+            const lines = val.substring(lineStart, lineEnd).split('\n');
+
+            if (e.shiftKey || lines.length > 1) {
+              let newText = lines.map(line => {
+                if (e.shiftKey) {
+                  const leadingSpaces = line.match(/^ +/);
+                  if (leadingSpaces) {
+                    const removeCount = Math.min(tabSize, leadingSpaces[0].length);
+                    return line.substring(removeCount);
+                  }
+                  return line;
+                } else {
+                  return spaces + line;
+                }
+              }).join('\n');
+
+              this.selectionStart = lineStart;
+              this.selectionEnd = lineEnd;
+              document.execCommand('insertText', false, newText);
+
+              if (lines.length > 1) {
+                this.selectionStart = lineStart;
+                this.selectionEnd = lineStart + newText.length;
+              } else {
+                let shift = e.shiftKey ? -Math.min(tabSize, (lines[0].match(/^ +/) || [''])[0].length) : tabSize;
+                this.selectionStart = this.selectionEnd = Math.max(lineStart, start + shift);
+              }
+            } else {
+              const currentLine = lines[0];
+              const listMatch = currentLine.match(/^(\s*)([-*]|\d+\.)(\s+\[[ x]\])?(\s*)/);
+              if (listMatch && start <= lineStart + listMatch[0].length && start >= lineStart) {
+                this.selectionStart = lineStart;
+                this.selectionEnd = lineStart;
+                document.execCommand('insertText', false, spaces);
+                this.selectionStart = start + tabSize;
+                this.selectionEnd = end + tabSize;
+              } else {
+                document.execCommand('insertText', false, spaces);
+              }
+            }
+            render();
+            return;
+          }
+
+          if (e.key === 'Enter') {
+            const start = this.selectionStart;
+            const val = this.value;
+            const lineStart = val.lastIndexOf('\n', start - 1) + 1;
+            const currentLine = val.substring(lineStart, start);
+            
+            const listMatch = currentLine.match(/^(\s*(?:-|\*|\d+\.)\s+)(.*)/);
+            if (listMatch) {
+              e.preventDefault();
+              let prefix = listMatch[1];
+              if (listMatch[2].trim() === '') {
+                this.selectionStart = lineStart;
+                this.selectionEnd = start;
+                document.execCommand('insertText', false, '');
+              } else {
+                let numMatch = prefix.match(/^(\s*)(\d+)(\.\s+)/);
+                if (numMatch) prefix = numMatch[1] + (parseInt(numMatch[2], 10) + 1) + numMatch[3];
+                document.execCommand('insertText', false, '\n' + prefix);
+              }
+              render();
+              return;
+            }
+            
+            const indentMatch = currentLine.match(/^(\s+)/);
+            if (indentMatch) {
+              e.preventDefault();
+              const prefix = indentMatch[1];
+              document.execCommand('insertText', false, '\n' + prefix);
+              render();
+              return;
+            }
+          }
+
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'x' && this.selectionStart === this.selectionEnd) {
+            const start = this.selectionStart;
+            const val = this.value;
+            let lineStart = val.lastIndexOf('\n', start - 1) + 1;
+            let lineEnd = val.indexOf('\n', start);
+            
+            if (lineEnd !== -1) {
+              lineEnd += 1;
+            } else {
+              lineEnd = val.length;
+              if (lineStart > 0) lineStart -= 1;
+            }
+            
+            this.selectionStart = lineStart;
+            this.selectionEnd = lineEnd;
+            return;
+          }
+
+          if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+            e.preventDefault();
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            const val = this.value;
+
+            let lineStart = val.lastIndexOf('\n', start - 1) + 1;
+            let lineEnd = val.indexOf('\n', end);
+            if (lineEnd === -1) lineEnd = val.length;
+
+            if (e.key === 'ArrowUp') {
+              if (lineStart === 0) return;
+              
+              let prevLineStart = val.lastIndexOf('\n', lineStart - 2) + 1;
+              let prevLine = val.substring(prevLineStart, lineStart - 1);
+              let currentLines = val.substring(lineStart, lineEnd);
+              
+              this.selectionStart = prevLineStart;
+              this.selectionEnd = lineEnd;
+              
+              document.execCommand('insertText', false, currentLines + '\n' + prevLine);
+              
+              let relativeStart = start - lineStart;
+              let relativeEnd = end - lineStart;
+              this.selectionStart = prevLineStart + relativeStart;
+              this.selectionEnd = prevLineStart + relativeEnd;
+            } else {
+              if (lineEnd === val.length) return;
+              
+              let nextLineEnd = val.indexOf('\n', lineEnd + 1);
+              if (nextLineEnd === -1) nextLineEnd = val.length;
+              
+              let currentLines = val.substring(lineStart, lineEnd);
+              let nextLine = val.substring(lineEnd + 1, nextLineEnd);
+              
+              this.selectionStart = lineStart;
+              this.selectionEnd = nextLineEnd;
+              
+              document.execCommand('insertText', false, nextLine + '\n' + currentLines);
+              
+              let newBlockStart = lineStart + nextLine.length + 1;
+              let relativeStart = start - lineStart;
+              let relativeEnd = end - lineStart;
+              this.selectionStart = newBlockStart + relativeStart;
+              this.selectionEnd = newBlockStart + relativeEnd;
+            }
+            render();
+            return;
+          }
+
+          if (e.ctrlKey || e.metaKey) {
+            let prefix = '', suffix = '';
+            if (e.key === 'b' || e.key === 'B') { prefix = '**'; suffix = '**'; } 
+            else if (e.key === 'i' || e.key === 'I') { prefix = '*'; suffix = '*'; } 
+            else if (e.key === 's' || e.key === 'S') { prefix = '~~'; suffix = '~~'; } 
+            else { return; }
+            
+            e.preventDefault();
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            const selectedText = this.value.substring(start, end);
+            
+            document.execCommand('insertText', false, prefix + selectedText + suffix);
+            
+            if (selectedText.length === 0) {
+              this.selectionStart = this.selectionEnd = start + prefix.length;
+            } else {
+              this.selectionStart = start;
+              this.selectionEnd = end + prefix.length + suffix.length;
+            }
+            render();
+          }
+        });
+
+        fontSizeSelect.addEventListener('change', function() {
+          const sz = this.value;
+          layout.style.setProperty('--ed-fz', sz + 'px');
+          layout.style.setProperty('--ed-lh', sizeMap[sz] + 'px');
+          render();
+          resizeEditor();
+        });
+
+        tabSelect.addEventListener('change', function() {
+          const size = this.value;
+          input.style.tabSize = size;
+          display.style.tabSize = size;
+          render();
+        });
+        
+        whitespaceSelect.addEventListener('change', render);
+
+        document.querySelectorAll('.fmt-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const prefix = btn.getAttribute('data-prefix');
+            const suffix = btn.getAttribute('data-suffix');
+            
+            if (prefix === null || suffix === null) return;
+            
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const text = input.value;
+            const selectedText = text.substring(start, end);
+
+            input.focus();
+
+            if (prefix === '# ') {
+              let lineStart = text.lastIndexOf('\n', start - 1) + 1;
+              let lineEnd = text.indexOf('\n', end);
+              if (lineEnd === -1) lineEnd = text.length;
+              let currentLine = text.substring(lineStart, lineEnd);
+
+              const headerMatch = currentLine.match(/^(#{1,5})\s+(.*)$/);
+              const maxHeaderMatch = currentLine.match(/^#{6}\s+(.*)$/);
+
+              input.selectionStart = lineStart;
+              input.selectionEnd = lineEnd;
+
+              if (headerMatch) {
+                let newHeader = headerMatch[1] + '# ' + headerMatch[2];
+                document.execCommand('insertText', false, newHeader);
+                input.selectionStart = input.selectionEnd = lineStart + newHeader.length;
+                render();
+                return;
+              } else if (maxHeaderMatch) {
+                let newText = maxHeaderMatch[1];
+                document.execCommand('insertText', false, newText);
+                input.selectionStart = input.selectionEnd = lineStart + newText.length;
+                render();
+                return;
+              } else if (selectedText.length === 0) {
+                document.execCommand('insertText', false, '# ' + currentLine);
+                input.selectionStart = input.selectionEnd = lineStart + 2 + currentLine.length;
+                render();
+                return;
+              }
+              input.selectionStart = start;
+              input.selectionEnd = end;
+            }
+
+            if ((prefix === '- [ ] ' || prefix === '- ' || prefix === '1. ') && selectedText.length === 0) {
+              let lineEnd = text.indexOf('\n', end);
+              if (lineEnd === -1) lineEnd = text.length;
+              
+              let lineStart = text.lastIndexOf('\n', start - 1) + 1;
+              let currentLine = text.substring(lineStart, lineEnd);
+              
+              if (currentLine.trim() === '') {
+                input.selectionStart = lineStart;
+                input.selectionEnd = lineEnd;
+                document.execCommand('insertText', false, prefix);
+                input.selectionStart = input.selectionEnd = lineStart + prefix.length;
+              } else {
+                input.selectionStart = lineEnd;
+                input.selectionEnd = lineEnd;
+                document.execCommand('insertText', false, '\n' + prefix);
+                input.selectionStart = input.selectionEnd = lineEnd + 1 + prefix.length;
+              }
+              render();
+              return;
+            }
+
+            input.selectionStart = start;
+            input.selectionEnd = end;
+            document.execCommand('insertText', false, prefix + selectedText + suffix);
+            
+            input.selectionStart = start + prefix.length;
+            input.selectionEnd = end + prefix.length;
+            
+            render();
+          });
+        });
+
+        lineNumBtn.addEventListener('click', function() {
+          isLineNums = !isLineNums;
+          if (!isLineNums) {
+            gutter.style.display = 'none';
+            if (bandGutterLabels) bandGutterLabels.style.display = 'none';
+            lineNumBtn.style.background = 'var(--accent)';
+            lineNumBtn.style.color = '#000';
+            lineNumBtn.innerHTML = '<i class="fas fa-list-ol"></i> Line Nums: OFF';
+          } else {
+            gutter.style.display = 'block';
+            if (bandGutterLabels) bandGutterLabels.style.display = 'grid';
+            lineNumBtn.style.background = '';
+            lineNumBtn.style.color = '';
+            lineNumBtn.innerHTML = '<i class="fas fa-list-ol"></i> Line Nums: ON';
+          }
+          resizeEditor();
+        });
+
+        wordWrapBtn.addEventListener('click', function() {
+          isWordWrap = !isWordWrap;
+          localStorage.setItem('wysiwym-word-wrap', isWordWrap);
+          if (isWordWrap) {
+            input.classList.add('word-wrap-enabled');
+            display.classList.add('word-wrap-enabled');
+            wordWrapBtn.style.background = 'var(--accent)';
+            wordWrapBtn.style.color = '#000';
+            wordWrapBtn.innerHTML = '<i class="fas fa-align-left"></i> Word Wrap: ON';
+          } else {
+            input.classList.remove('word-wrap-enabled');
+            display.classList.remove('word-wrap-enabled');
+            wordWrapBtn.style.background = '';
+            wordWrapBtn.style.color = '';
+            wordWrapBtn.innerHTML = '<i class="fas fa-align-left"></i> Word Wrap: OFF';
+          }
+          render();
+          resizeEditor();
+        });
+
+        warningsBtn.addEventListener('click', function() {
+          isWarningsOn = !isWarningsOn;
+          localStorage.setItem('wysiwym-warnings', isWarningsOn);
+          if (!isWarningsOn) {
+            warningsBtn.style.background = 'var(--accent)';
+            warningsBtn.style.color = '#000';
+            warningsBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Warnings: OFF';
+          } else {
+            warningsBtn.style.background = '';
+            warningsBtn.style.color = '';
+            warningsBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Warnings: ON';
+          }
+          render();
+        });
+
+        document.getElementById("preview-pane").addEventListener('change', function(e) {
+          if (e.target && e.target.classList.contains('preview-checkbox')) {
+            const pane = document.getElementById("preview-pane");
+            const checkboxes = Array.from(pane.querySelectorAll('.preview-checkbox'));
+            const index = checkboxes.indexOf(e.target);
+            window.handlePreviewCheckboxChange(index, e.target.checked);
+          }
+        });
+
+        clearBtn.addEventListener('click', () => {
+          if (confirm("Are you sure you want to clear all text?")) {
+            input.focus();
+            input.selectionStart = 0;
+            input.selectionEnd = input.value.length;
+            document.execCommand('insertText', false, '');
+            render();
+          }
+        });
+
+        resetBtn.addEventListener('click', () => {
+          if (confirm("Are you sure you want to reset to the default template? This will overwrite your current text.")) {
+            input.focus();
+            input.selectionStart = 0;
+            input.selectionEnd = input.value.length;
+            document.execCommand('insertText', false, DEFAULT_TEMPLATE);
+            render();
+          }
+        });
+
+        dualViewBtn.addEventListener('click', () => {
+          container.classList.toggle('dual-view');
+          const isActive = container.classList.contains('dual-view');
+          localStorage.setItem('wysiwym-dual-view', isActive ? 'true' : 'false');
+          
+          if (isActive) {
+            dualViewBtn.style.background = 'var(--accent)';
+            dualViewBtn.style.color = '#000';
+            dualViewBtn.innerHTML = '<i class="fas fa-columns"></i> Dual View: ON';
+          } else {
+            dualViewBtn.style.background = '';
+            dualViewBtn.style.color = '';
+            dualViewBtn.innerHTML = '<i class="fas fa-columns"></i> Dual View: OFF';
+          }
+          render();
+        });
+
+        const mobileTabs = document.querySelectorAll('.mobile-tab');
+        mobileTabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            mobileTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            if (tab.getAttribute('data-tab') === 'preview') {
+              container.classList.add('show-preview');
+            } else {
+              container.classList.remove('show-preview');
+            }
+            resizeEditor();
+          });
+        });
+
+        importBtn.addEventListener('click', () => {
+          importFile.click();
+        });
+
+        importFile.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            input.focus();
+            input.selectionStart = 0;
+            input.selectionEnd = input.value.length;
+            document.execCommand('insertText', false, event.target.result);
+            filenameInput.value = file.name.replace(/\.[^/.]+$/, "");
+            render();
+            resizeEditor();
+          };
+          reader.readAsText(file);
+          importFile.value = '';
+        });
+
+        exportBtn.addEventListener('click', () => {
+          const blob = new Blob([input.value], { type: 'text/markdown' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          let fn = filenameInput.value.trim() || filenameInput.placeholder || 'document';
+          a.download = fn + '.md';
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+
+        downloadHtmlBtn.addEventListener('click', () => {
+          const pane = document.getElementById("preview-pane");
+          const blob = new Blob([pane.innerHTML], { type: 'text/html' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          let fn = filenameInput.value.trim() || filenameInput.placeholder || 'document';
+          a.download = fn + '.html';
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+
+        function copyToClipboard(str, btn, successHTML, defaultHTML) {
+          if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(str).then(() => {
+              btn.innerHTML = successHTML;
+              setTimeout(() => { btn.innerHTML = defaultHTML; }, 2000);
+            }).catch(err => {
+               fallbackCopyTextToClipboard(str, btn, successHTML, defaultHTML);
+            });
+          } else {
+            fallbackCopyTextToClipboard(str, btn, successHTML, defaultHTML);
+          }
+        }
+        
+        function fallbackCopyTextToClipboard(str, btn, successHTML, defaultHTML) {
+          let textArea = document.createElement("textarea");
+          textArea.value = str;
+          textArea.style.position = "fixed";
+          textArea.style.left = "-999999px";
+          textArea.style.top = "-999999px";
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          try {
+            document.execCommand('copy');
+            btn.innerHTML = successHTML;
+            setTimeout(() => { btn.innerHTML = defaultHTML; }, 2000);
+          } catch (err) {
+            console.error('Fallback copy failed', err);
+          }
+          textArea.remove();
+        }
+
+        copyBtn.addEventListener('click', () => {
+          copyToClipboard(input.value, copyBtn, '<i class="fas fa-check"></i>', '<i class="fas fa-copy"></i>');
+        });
+
+        copyHtmlBtn.addEventListener('click', () => {
+          const pane = document.getElementById("preview-pane");
+          copyToClipboard(pane.innerHTML, copyHtmlBtn, '<i class="fas fa-check"></i>', '<i class="fab fa-html5"></i>');
+        });
+
+        fullscreenBtn.addEventListener('click', () => {
+          if (!document.fullscreenElement) {
+            layout.requestFullscreen().catch(err => console.warn(`Fullscreen Error: ${err.message}`));
+          } else {
+            document.exitFullscreen();
+          }
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+          if (document.fullscreenElement) {
+            layout.classList.add('is-fullscreen');
+            fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+          } else {
+            layout.classList.remove('is-fullscreen');
+            fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            resizeEditor();
+          }
+          render();
+        });
+
+        focusModeBtn.addEventListener('click', () => {
+          document.body.classList.add('focus-mode');
+          exitFocusBtn.style.display = 'block';
+          resizeEditor();
+        });
+
+        const exitFocus = () => {
+          if (document.body.classList.contains('focus-mode')) {
+            document.body.classList.remove('focus-mode');
+            exitFocusBtn.style.display = 'none';
+            resizeEditor();
+          }
+        };
+
+        exitFocusBtn.addEventListener('click', exitFocus);
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            exitFocus();
+            if (findReplaceBar.style.display !== 'none') {
+              findReplaceBar.style.display = 'none';
+              findReplaceMsg.textContent = '';
+              resizeEditor();
+              render();
+              input.focus();
+            }
+          }
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+            e.preventDefault();
+            if (findReplaceBar.style.display === 'none') {
+              findReplaceBar.style.display = 'flex';
+              let selectedText = input.value.substring(input.selectionStart, input.selectionEnd);
+              if (selectedText) findInput.value = selectedText;
+            }
+            findInput.focus();
+            findInput.select();
+            resizeEditor();
+          }
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'h') {
+            e.preventDefault();
+            if (findReplaceBar.style.display === 'none') {
+              findReplaceBar.style.display = 'flex';
+              let selectedText = input.value.substring(input.selectionStart, input.selectionEnd);
+              if (selectedText) findInput.value = selectedText;
+            }
+            replaceInput.focus();
+            replaceInput.select();
+            resizeEditor();
+          }
+        });
+
+        toggleFindReplaceBtn.addEventListener('click', () => {
+          if (findReplaceBar.style.display === 'none') {
+            findReplaceBar.style.display = 'flex';
+            let selectedText = input.value.substring(input.selectionStart, input.selectionEnd);
+            if (selectedText) findInput.value = selectedText;
+            findInput.focus();
+          } else {
+            findReplaceBar.style.display = 'none';
+            findReplaceMsg.textContent = '';
+          }
+          resizeEditor();
+          render();
+        });
+
+        closeFindReplaceBtn.addEventListener('click', () => {
+          findReplaceBar.style.display = 'none';
+          findReplaceMsg.textContent = '';
+          resizeEditor();
+          render();
+        });
+
+        clearFindReplaceBtn.addEventListener('click', () => {
+          findInput.value = '';
+          replaceInput.value = '';
+          findReplaceMsg.textContent = '';
+          findInput.focus();
+          render();
+        });
+
+        findInput.addEventListener('input', render);
+
+        caseSensitiveBtn.addEventListener('click', () => {
+          isCaseSensitive = !isCaseSensitive;
+          if (isCaseSensitive) {
+            caseSensitiveBtn.style.background = 'var(--accent)';
+            caseSensitiveBtn.style.color = '#000';
+          } else {
+            caseSensitiveBtn.style.background = '';
+            caseSensitiveBtn.style.color = '';
+          }
+          render();
+        });
+
+        regexSearchBtn.addEventListener('click', () => {
+          isRegexSearch = !isRegexSearch;
+          if (isRegexSearch) {
+            regexSearchBtn.style.background = 'var(--accent)';
+            regexSearchBtn.style.color = '#000';
+          } else {
+            regexSearchBtn.style.background = '';
+            regexSearchBtn.style.color = '';
+          }
+          render();
+        });
+
+        function getSearchRegex(global = true) {
+          const findStr = findInput.value;
+          if (!findStr) return null;
+          try {
+            const escaped = isRegexSearch ? findStr : findStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const flags = (global ? 'g' : '') + (isCaseSensitive ? '' : 'i');
+            return new RegExp(escaped, flags);
+          } catch (e) {
+            return null;
+          }
+        }
+
+        function findNext() {
+          const regex = getSearchRegex(true);
+          if (!regex) return;
+          const text = input.value;
+          let start = input.selectionEnd;
+          
+          regex.lastIndex = start;
+          let match = regex.exec(text);
+          
+          if (match && match[0].length === 0 && match.index === start) {
+            regex.lastIndex = start + 1;
+            match = regex.exec(text);
+          }
+          
+          if (!match) {
+            regex.lastIndex = 0;
+            match = regex.exec(text);
+          }
+          
+          if (match) {
+            input.focus();
+            input.selectionStart = match.index;
+            input.selectionEnd = match.index + match[0].length;
+            findReplaceMsg.textContent = 'Found occurrence.';
+            checkSelection();
+          } else {
+            findReplaceMsg.textContent = 'No matches found.';
+          }
+        }
+
+        function findPrev() {
+          const regex = getSearchRegex(true);
+          if (!regex) return;
+          const text = input.value;
+          let start = input.selectionStart;
+          
+          let match;
+          let lastMatchBeforeStart = null;
+          let lastMatchAnywhere = null;
+          
+          while ((match = regex.exec(text)) !== null) {
+            if (match[0].length === 0) regex.lastIndex++;
+            
+            if (match.index < start) {
+              lastMatchBeforeStart = match;
+            }
+            lastMatchAnywhere = match;
+          }
+          
+          let targetMatch = lastMatchBeforeStart || lastMatchAnywhere;
+          
+          if (targetMatch) {
+            input.focus();
+            input.selectionStart = targetMatch.index;
+            input.selectionEnd = targetMatch.index + targetMatch[0].length;
+            findReplaceMsg.textContent = 'Found occurrence.';
+            checkSelection();
+          } else {
+            findReplaceMsg.textContent = 'No matches found.';
+          }
+        }
+
+        findNextBtn.addEventListener('click', findNext);
+        findPrevBtn.addEventListener('click', findPrev);
+
+        findInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            if (e.shiftKey) findPrev();
+            else findNext();
+          }
+        });
+
+        replaceBtn.addEventListener('click', () => {
+          const regex = getSearchRegex(true);
+          if (!regex) return;
+          const replaceStr = replaceInput.value;
+          const text = input.value;
+          
+          regex.lastIndex = input.selectionStart;
+          let match = regex.exec(text);
+          
+          if (!match) {
+            regex.lastIndex = 0;
+            match = regex.exec(text);
+          }
+
+          if (match) {
+            if (input.selectionStart === match.index && input.selectionEnd === match.index + match[0].length) {
+              let repStr = replaceStr;
+              if (isRegexSearch) {
+                const singleRegex = getSearchRegex(false);
+                repStr = match[0].replace(singleRegex, replaceStr);
+              }
+              
+              input.focus();
+              input.selectionStart = match.index;
+              input.selectionEnd = match.index + match[0].length;
+              document.execCommand('insertText', false, repStr);
+              render();
+              findReplaceMsg.textContent = 'Replaced 1 occurrence.';
+              
+              const nextRegex = getSearchRegex(true);
+              nextRegex.lastIndex = input.selectionStart;
+              let nextMatch = nextRegex.exec(input.value);
+              if (nextMatch && nextMatch[0].length === 0 && nextMatch.index === input.selectionStart) {
+                nextRegex.lastIndex++;
+                nextMatch = nextRegex.exec(input.value);
+              }
+              if (nextMatch) {
+                input.selectionStart = nextMatch.index;
+                input.selectionEnd = nextMatch.index + nextMatch[0].length;
+              }
+            } else {
+              input.selectionStart = match.index;
+              input.selectionEnd = match.index + match[0].length;
+              findReplaceMsg.textContent = 'Found occurrence.';
+            }
+            input.focus();
+          } else {
+            findReplaceMsg.textContent = 'No matches found.';
+          }
+        });
+
+        replaceAllBtn.addEventListener('click', () => {
+          const regex = getSearchRegex(true);
+          if (!regex) return;
+          const replaceStr = replaceInput.value;
+          
+          const text = input.value;
+          const matches = text.match(regex);
+          
+          if (matches) {
+            input.focus();
+            input.selectionStart = 0;
+            input.selectionEnd = text.length;
+            document.execCommand('insertText', false, text.replace(regex, replaceStr));
+            render();
+            findReplaceMsg.textContent = `Replaced ${matches.length} occurrence(s).`;
+          } else {
+            findReplaceMsg.textContent = 'No matches found.';
+          }
+        });
+
+        render();
+        input.focus();
+      });
+    </script>
+  </body>
+</html>

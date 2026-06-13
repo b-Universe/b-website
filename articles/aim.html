@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - The AIM Framework: Audience, Idea, Marketing</title>
+    
+    <meta name="portfolio-title" content="The AIM Framework">
+    <meta name="portfolio-category" content="article">
+    <meta name="portfolio-date" content="2026-06-20">
+    <meta name="portfolio-thumbnail" content="https://placehold.co/800x600/111111/00FFFE?text=AIM+Triangle+Graph">
+    <meta name="portfolio-description" content="A deep dive into how the Audience, Idea, and Marketing framework guides the development of our sandbox RPG simulation.">
+
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <meta name="description" content="Discussing the importance of AIM (Audience, Idea, Marketing) in game development and how it applies to B.">
+    <meta name="keywords" content="B, dev blog, game development, AIM, audience, idea, marketing, sandbox, RPG">
+    
+    <meta property="og:title" content="B - The AIM Framework">
+    <meta property="og:description" content="How the AIM framework guides the development of B.">
+    <meta property="og:url" content="/articles/aim.html">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://placehold.co/800x600/111111/00FFFE?text=AIM+Triangle+Graph">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="B - The AIM Framework">
+    <meta name="twitter:description" content="How the AIM framework guides the development of B.">
+    <meta name="twitter:image" content="https://placehold.co/800x600/111111/00FFFE?text=AIM+Triangle+Graph">
+    
+    <meta name="theme-color" content="#00FFFE">
+
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+      /* Custom Technical Article Layout */
+      .tech-article-wrapper {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
+
+      .tech-section {
+        background: rgba(0, 0, 0, 0.4);
+        border-left: 4px solid var(--accent);
+        border-radius: 8px;
+        padding: 3rem;
+        margin-bottom: 3rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        transition: transform 0.3s ease;
+      }
+
+      .tech-section:hover {
+        transform: translateY(-2px);
+      }
+
+      .tech-section h2 {
+        font-size: 2.2rem;
+        color: var(--text-light);
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 0.8rem;
+      }
+
+      .tech-section p {
+        font-size: 1.15rem;
+        line-height: 1.8;
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+      }
+
+      .tech-section p:last-child {
+        margin-bottom: 0;
+      }
+
+      .placeholder-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 2.5rem 0;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.4);
+        border: 2px dashed rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+      }
+
+      .placeholder-container img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+
+      @media (max-width: 900px) {
+        .post-title {
+          font-size: 2.2rem !important;
+        }
+        .tech-section {
+          padding: 2rem;
+        }
+        .tech-section h2 {
+          font-size: 1.8rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" id="app">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+          
+            <button id="theme-toggle" class="theme-button" title="Toggle theme">
+              <i class="fa-solid fa-moon" aria-hidden="true"></i>Dark
+            </button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+          <ol>
+            <li>
+              <a href="/pages/index.html">
+                <i class="fas fa-home" aria-hidden="true"></i> Home
+              </a>
+            </li>
+            <li>
+              <a href="/pages/portfolio.html">
+                <i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio
+              </a>
+            </li>
+            <li>
+              <span class="breadcrumb-current" aria-current="page">The AIM Framework</span>
+            </li>
+          </ol>
+        </nav>
+
+        <div class="tech-article-wrapper">
+          <h1 class="post-title" style="text-align: center; margin-bottom: 2rem;">
+            The AIM Framework Applied to B
+          </h1>
+
+          <div class="tech-section">
+            <h2>Introduction to the AIM Framework</h2>
+            <p>
+              In the vast ecosystem of game development, thousands of brilliant mechanics and beautifully written codebases never see the light of day. This failure rarely stems from a lack of technical prowess; instead, it occurs when developers neglect a holistic, structural approach to their creation.
+            </p>
+            <p>
+              Enter the <strong>AIM Framework: <code>Audience</code>, <code>Idea</code>, and <code>Marketing</code></strong>.
+            </p>
+            </p>
+            <p>
+              This triad forms the essential foundation for any successful title, serving as the guiding light that dictates everything from the core server architecture to community management strategies and web presence. In this comprehensive breakdown, we'll explore how this framework acts as the blueprint for <strong>B</strong>; our persistent, shared-world sandbox RPG simulation.
+            </p>
+            
+            <div class="placeholder-container">
+              <img src="https://placehold.co/800x400/111111/00FFFE?text=AIM+Triangle+Graph+(Pending+Artist+Collaboration)" alt="AIM Triangle Graph Placeholder">
+            </div>
+          </div>
+
+          <div class="tech-section">
+            <h2>Audience: Defining the Player Base</h2>
+            <p>
+              Before writing a single line of code, we must ask: <em>Who are we building for?</em> Identifying the target demographic is the first and most critical step of the AIM framework. For <strong>B</strong>, our core players are individuals who thrive in voxel-based sandbox games, deeply appreciate rich RPG mechanics, and desire to exist within a living, breathing world simulation.
+            </p>
+            <p>
+              We must deeply understand their motivations. These users are drawn to persistent environments primarily for the thrill of exploration, the creative freedom of building within their own spaces, and the emergent storytelling that naturally occurs in social simulations. While the main world is a protected and finite shared space, players can fully customize their personal apartments and clan bases, making collaboration and organic social interaction essential.
+            </p>
+            <p>
+              This specific demographic possesses a highly refined technical appreciation. They recognize and value smooth, responsive animations and demand a technically robust engine. If the environment stutters or the combat feels sluggish, immersion is instantly broken. So, our audience's expectations directly mandate a high bar for backend performance and frontend rendering.
+            </p>
+          </div>
+
+          <div class="tech-section">
+            <h2>Idea: Core Concept and Execution</h2>
+            <p>
+              The Idea is the direct manifestation of the Audience's desires. The core gameplay mechanics of <strong>B</strong> revolve around a sophisticated sandbox RPG simulation. Players are dropped into a finite shared world space. While the main world is protected to preserve the core experience, every action taken in combat or when building in personal apartments and clan bases permanently impacts the simulation for everyone else online.
+            </p>
+            <p>
+              To execute this grand idea, standard off-the-shelf solutions were entirely insufficient. We constructed a highly specialized, custom technical foundation. At the heart of the game is an authoritative <code>Node.js</code> backend utilizing <code>Socket.io</code> for real-time synchronization. On the frontend, we leverage a complex <code>Three.js InstancedMesh</code> pipeline to render the environment smoothly. Crucially, the engine operates on a custom <code>Z-up</code> coordinate system where exactly one voxel equals 32 units, granting us pixel-perfect control over raycasting, physics, and world manipulation.
+            </p>
+            <p>
+              The Idea is also bound by a distinct visual identity. The aesthetic rules of both the game and the surrounding web interfaces heavily lean into immersive dark themes and vast space environments. This darkness is sharply contrasted by high-energy, neon rainbow accents, ensuring the project feels futuristic, vibrant, and completely unique in the indie game space.
+            </p>
+          </div>
+
+          <div class="tech-section">
+            <h2>Marketing: Positioning B in the Space</h2>
+            <p>
+              Marketing isn't merely running advertisements; it's the strategic positioning of your brand. For <strong>B</strong>, the <code>behr.dev</code> domains serve as our primary marketing tools and the direct access points for the game. Because the engine is entirely browser-based, the traditional barrier to entry (such as massive downloads or complex installations) is completely eradicated.
+            </p>
+            <p>
+              Our strategy revolves heavily around showcasing our unique technical features. We capture our audience's attention by highlighting the seamless multiplayer synchronization, the sophisticated face-culling optimization, and the distinct visual style. Dev blogs, live web portals, and transparent architecture breakdowns serve as our most powerful marketing assets.
+            </p>
+            <p>
+              Beyond the technical, the community engagement strategies are deeply intertwined with the game's simulation aspects. By fostering a rich narrative and encouraging shared-world building, player retention skyrockets. The social ecosystem within the game naturally encourages organic word-of-mouth growth as players invite friends to collaborate on massive in-game projects.
+            </p>
+          </div>
+
+          <div class="tech-section">
+            <h2>Comparing the AIM Pillars</h2>
+            <p>
+              The true power of the AIM framework lies in the synergistic intersection of its three pillars. When we analyze <strong>Audience vs. Idea</strong>, we clearly see how the desires of sandbox RPG fans directly shape our technical roadmap. We don't implement an <code>InstancedMesh</code> pipeline merely to show off coding skills; we build it because our Audience demands a lag-free experience while exploring the shared world and modifying their personal bases. The Idea is subservient to the Audience.
+            </p>
+            <p>
+              When looking at <strong>Idea vs. Marketing</strong>, the relationship is equally profound. The unique architecture and strict aesthetic inherently create our marketing materials. The game actively markets itself through its distinct visual identity and browser-based accessibility.
+            </p>
+            <p>
+              Developing a game in a vacuum is a recipe for failure. By meticulously balancing Audience, Idea, and Marketing, we ensure that every feature developed serves a purpose, every technical challenge solved enhances player retention, and the brand identity remains unmistakable. This harmony is what elevates <strong>B</strong> from a mere technical experiment into a cohesive, highly engaging simulation experience!
+            </p>
+          </div>
+
+        </div>
+
+      </main>
+
+      <footer style="margin-top: 2rem;">
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+  </body>
+</html>
