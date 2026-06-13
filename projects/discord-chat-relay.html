@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Discord Server Integration & Relay</title>
+    
+    <!-- Portfolio Metadata -->
+    <meta name="portfolio-title" content="Discord Server Integration & Relay">
+    <meta name="portfolio-category" content="project">
+    <meta name="portfolio-date" content="2026-03-15">
+    <meta name="portfolio-thumbnail" content="/assets/img/panels/discord_b.png">
+    <meta name="portfolio-description" content="A comprehensive Discord-to-Game bridge featuring live chat relay, message edit tracking, and deleted message logging using DenizenScript.">
+
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <meta name="description" content="A comprehensive Discord-to-Game bridge featuring live chat relay, message edit tracking, and deleted message logging using DenizenScript.">
+    <meta name="keywords" content="B, discord, chat relay, denizen, denizenscript, minecraft, moderation, integration">
+    
+    <meta property="og:title" content="B - Discord Server Integration & Relay">
+    <meta property="og:description" content="A comprehensive Discord-to-Game bridge featuring live chat relay and message audit tracking.">
+    <meta property="og:url" content="/projects/discord-chat-relay.html">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="/assets/img/panels/discord_b.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="B - Discord Server Integration & Relay">
+    <meta name="twitter:description" content="A comprehensive Discord-to-Game bridge featuring live chat relay and message audit tracking.">
+    <meta name="twitter:image" content="/assets/img/panels/discord_b.png">
+    
+    <meta name="theme-color" content="#00FFFE">
+
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+      .featured-image img {
+        border-radius: 8px;
+        border: 2px solid var(--accent);
+        display: block;
+        width: 100%;
+        height: auto;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+      }
+
+      .media-grid figure {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      figcaption {
+        text-align: center;
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 0.9rem;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" id="app">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+          
+            <button id="theme-toggle" class="theme-button" title="Toggle theme">
+              <i class="fa-solid fa-moon" aria-hidden="true"></i>Dark
+            </button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 1.5rem;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><a href="/projects/"><i class="fas fa-rocket" aria-hidden="true"></i> Projects</a></li>
+            <li><span class="breadcrumb-current" aria-current="page">Discord Server Integration</span></li>
+          </ol>
+        </nav>
+
+        <h1>Discord Server Integration & Relay</h1>
+
+        <!-- Concept & Chat Relay -->
+        <section class="glass-panel panel" style="margin-bottom: 2rem; padding: 2rem;">
+          <div class="panel-content" style="width: 80%; margin: 0 auto 1.5rem auto;">
+              <h2><i class="fa-solid fa-comments"></i> Bridging the Gap</h2>
+              <p>
+                Connecting a game server to Discord isn't just about logging logins and logouts; it's about creating a unified community experience. Our custom Discord Chat Relays bridges the gap between the in-game world and our Discord members, allowing for seamless two-way communication.
+              </p>
+              <p>
+                Whether you're exploring the game world or chatting from your phone on the go, the conversation stays perfectly synchronized. In-game player chat is relayed to designated Discord channels, while responses from Discord are natively formatted and broadcast back into the game!
+              </p>
+            </div>
+
+          <div style="width: 90%; margin: 0 auto;">
+            <figure class="featured-image" style="margin: 0;">
+              <img src="/assets/img/projects/discord-chat-relay/player-chatter-demo.png" alt="Player chatter demo showing game-to-discord communication">
+              <figcaption><i class="fas fa-sync-alt" aria-hidden="true"></i> Live, synchronized cross-platform chat relay.</figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <!-- Auditing & Moderation -->
+        <section class="glass-panel panel" style="margin-bottom: 2rem; padding: 2rem;">
+          <div class="panel-content" style="margin-bottom: 1.5rem;">
+            <h2><i class="fa-solid fa-shield-halved"></i> Accountability & Moderation Logs</h2>
+            <p>
+              With great communication comes the need for robust moderation. Relying strictly on default Discord logs isn't always enough, especially when users edit or delete their messages to hide toxicity or abuse.
+            </p>
+            <p>
+              Using DenizenScript, we built a comprehensive <strong>Message Audit Logger</strong>. Every time a message is modified, our system quietly flags and caches the original text. When messages are outright deleted, the bot steps in to log the exact content, author, and channel, ensuring accountability is never lost.
+            </p>
+            <p>
+              We even leveraged Discord's Context Menu Commands to create a custom <code>View_Edit</code> interaction. Moderators can right-click any message, select "Apps," and instantly receive a private, ephemeral embed detailing the entire edit history of that specific message!
+            </p>
+          </div>
+          
+          <div class="media-grid">
+            <figure class="featured-image">
+              <img src="/assets/img/projects/discord-chat-relay/discord-view-edit-message.png" alt="Discord View Edit Message App Command">
+              <figcaption><i class="fas fa-history" aria-hidden="true"></i> Accessing edit histories directly via Context Menu.</figcaption>
+            </figure>
+            <figure class="featured-image">
+              <img src="/assets/img/projects/discord-chat-relay/messages-deleted-logged.png" alt="Deleted messages preserved in the audit log">
+              <figcaption><i class="fas fa-trash-restore" aria-hidden="true"></i> Preserving deleted messages for moderator review.</figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <!-- Universal Relay Implementation -->
+        <section class="glass-panel panel" style="margin-bottom: 2rem; padding: 2rem; display: block;">
+          <div class="panel-content">
+            <h2><i class="fa-solid fa-network-wired"></i> Building a Universal Chat Relay</h2>
+            <p>
+              While our initial implementation relies heavily on DenizenScript for Minecraft, the architectural concept of a Discord Chat Relay can be adapted to almost any multiplayer game engine from <code>Source</code> and <code>Unreal</code> to custom <code>WebGL</code> environments.
+            </p>
+            <p>
+              The core mechanism relies on establishing a reliable two-way bridge. <strong>From the Game to Discord</strong>, your game server needs a way to hook into player chat events. When a message is sent, the server sanitizes the text, packages it into a JSON payload, and fires it off to a Discord Webhook or an active Bot Client connection. Webhooks are generally preferred for this direction as they allow you to dynamically swap out the avatar and username to match the in-game player perfectly, as you might have saw in the first panel!
+            </p>
+            <p>
+              <strong>From Discord to Game</strong>, the setup requires a bit more active listening. A dedicated Discord Bot runs in the background, specifically watching for <code>messageCreate</code> events in your designated relay channels. When a message arrives, the bot strips out unsupported Discord formatting (like complex embeds or unsupported emojis), translates mentions into readable text, and pushes the clean string back to the game server. This is often done via <code>WebSockets</code>, <code>RCON</code>, or a custom <code>REST API</code> endpoint exposed by the game.
+            </p>
+            <p>
+              The biggest challenge in building a universal relay isn't the networking; it's the <em>formatting</em>. A great relay ensures that a Discord user pinging <code>@Moderator</code> shows up cleanly in-game without exposing raw ID numbers, and that in-game rank and role prefixes translate gracefully into Discord roles or badges. Once you conquer the text parsing, the result is an incredibly unified community that feels connected regardless of the platform they're using!
+            </p>
+          </div>
+        </section>
+
+      </main>
+
+      <footer style="margin-top: 2rem;">
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+  </body>
+</html>
