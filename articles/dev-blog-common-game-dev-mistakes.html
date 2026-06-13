@@ -235,7 +235,7 @@
             <div class="lesson-number">05</div>
             <div class="lesson-content">
               <h2>Preloading and Memory Leaks</h2>
-              <p>If you try to load a whole giant map into memory at once, your computer is going to overload and the game will crash. This is called a memory leak.</p>
+              <p>If you try to load a whole giant map into memory at once, your computer's going to overload and the game will crash. This is called a memory leak.</p>
               <p>We fixed this in two ways; First, we use a <code>texture atlas</code>, which is one giant image with all our block textures on it. The game only has to load one file instead of hundreds! Second, we use <strong>chunk loading</strong>. The server only sends you the parts of the map that are close to you. When you walk away, your browser automatically dumps the old chunks it doesn't need anymore. This keeps the game's memory use super low.</p>
             </div>
           </section>

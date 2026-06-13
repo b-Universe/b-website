@@ -182,7 +182,7 @@
               When we initially prototyped the game, we took the easy route: the client told the server what it was doing. If you clicked an enemy, your browser would send a message to the backend saying, "I hit this monster for 50 damage." While this made development fast, it left the door wide open for script kiddies and memory editing. Any player could simply open their developer console, change a variable, and instantly deal a million damage to every entity on the map.
             </p>
             <p>
-              We have officially ripped that out and replaced it with a strict Server-Authoritative architecture. The <code>Node.js</code> backend is now the absolute boss of the game. Your client no longer dictates damage, movement speed, or ability cooldowns. Instead, your client sends an "intent" to the server (eg, "I'm trying to cast Fireball at these coordinates"). 
+              We've officially ripped that out and replaced it with a strict Server-Authoritative architecture. The <code>Node.js</code> backend is now the absolute boss of the game. Your client no longer dictates damage, movement speed, or ability cooldowns. Instead, your client sends an "intent" to the server (e.g., "I'm trying to cast Fireball at these coordinates"). 
             </p>
             <p>
               The server then verifies everything: Do you have the energy? Is the cooldown finished? Is the target within line of sight? Are you actually standing where you say you are? If the math checks out, the server executes the action and broadcasts the results to all nearby players. This completely perfectly syncs multiplayer projectiles and permanently patches out fake critical hits, speed hacks, and range exploits.
