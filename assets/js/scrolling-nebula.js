@@ -13,16 +13,16 @@
 
   // Scrolling nebula images
   const nebulaOptions = [
-    "/assets/img/nebulae1.png",
-    "/assets/img/nebulae2.png",
-    "/assets/img/nebulae3.png",
-    "/assets/img/nebulae4.png",
-    "/assets/img/nebulae5.png",
-    "/assets/img/nebulae6.png",
-    "/assets/img/nebulae7.png",
-    "/assets/img/nebulae8.png",
-    "/assets/img/nebulae9.png",
-    "/assets/img/nebulae10.png"
+    "/assets/img/bg/nebulae1.png",
+    "/assets/img/bg/nebulae2.png",
+    "/assets/img/bg/nebulae3.png",
+    "/assets/img/bg/nebulae4.png",
+    "/assets/img/bg/nebulae5.png",
+    "/assets/img/bg/nebulae6.png",
+    "/assets/img/bg/nebulae7.png",
+    "/assets/img/bg/nebulae8.png",
+    "/assets/img/bg/nebulae9.png",
+    "/assets/img/bg/nebulae10.png"
   ];
 
   function pickTwoUnique(arr) {
