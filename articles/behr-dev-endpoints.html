@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Navigating the behr.dev Network</title>
+    
+    <meta name="portfolio-title" content="Navigating the behr.dev Network">
+    <meta name="portfolio-category" content="article">
+    <meta name="portfolio-date" content="2026-06-25">
+    <meta name="portfolio-thumbnail" content="/assets/img/panels/800x400_2.png">
+    <meta name="portfolio-description" content="A comprehensive guide to the various subdomains, tools, and services hosted across the behr.dev network.">
+
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <meta name="description" content="A comprehensive guide to the various subdomains, tools, and services hosted across the behr.dev network.">
+    <meta name="keywords" content="B, behr.dev, network, subdomains, portfolio, jellyfin, webgl, routing">
+    
+    <meta property="og:title" content="B - Navigating the behr.dev Network">
+    <meta property="og:description" content="A comprehensive guide to the various subdomains, tools, and services hosted across the behr.dev network.">
+    <meta property="og:url" content="/articles/behr-dev-endpoints.html">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="/assets/img/panels/800x400_2.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="B - Navigating the behr.dev Network">
+    <meta name="twitter:description" content="A comprehensive guide to the various subdomains, tools, and services hosted across the behr.dev network.">
+    <meta name="twitter:image" content="/assets/img/panels/800x400_2.png">
+    
+    <meta name="theme-color" content="#00FFFE">
+
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+  <body>
+    <div class="wrap" id="app">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+          
+            <button id="theme-toggle" class="theme-button" title="Toggle theme">
+              <i class="fa-solid fa-moon" aria-hidden="true"></i>Dark
+            </button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px; max-width: 1000px; margin-left: auto; margin-right: auto;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><span class="breadcrumb-current" aria-current="page">The behr.dev Network</span></li>
+          </ol>
+        </nav>
+
+        <article>
+          <h1>Navigating the <code>behr.dev</code> Network</h1>
+          <p style="color: var(--muted); font-size: 1.1rem; margin-bottom: 2rem;">
+            The <code>behr.dev</code> network utilizes multiple subdomains to organize various hosted services, tools, and projects.<br><br>
+            The following is a technical breakdown of the active endpoints currently routed through the network and their respective functions.
+          </p>
+
+          <!-- Endpoints Grid -->
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            
+            <!-- Home -->
+            <section class="glass-panel panel content-card">
+              <div class="panel-content">
+                <h3><i class="fa-solid fa-house-chimney" style="color: var(--accent);"></i> <code>home.behr.dev</code></h3>
+                <p>The central hub of the network. It serves as the primary portfolio, development blog repository, and service listing page.</p>
+                <p>This entire frontend is built from scratch using plain HTML, CSS, and JS, served securely as a static site.</p>
+                <a href="https://home.behr.dev" class="theme-button cta-button" style="white-space: nowrap;"><i class="fas fa-external-link-alt" aria-hidden="true"></i> Visit Home</a>
+              </div>
+            </section>
+
+            <!-- Play -->
+            <section class="glass-panel panel content-card">
+              <div class="panel-content">
+                <h3><i class="fa-solid fa-gamepad" style="color: var(--accent);"></i> <code>play.behr.dev</code></h3>
+                <p>The front door to <strong>B</strong>. This endpoint serves the live WebGL game client.</p>
+                <p>By routing the game through its own subdomain, players can connect directly to the top-down, multiplayer voxel world straight from their browser without needing to navigate through the portfolio or download any external clients.</p>
+                <a href="https://play.behr.dev" target="_blank" class="theme-button cta-button" style="white-space: nowrap;"><i class="fas fa-external-link-alt" aria-hidden="true"></i> Launch B</a>
+              </div>
+            </section>
+
+            <!-- Wiki -->
+            <section class="glass-panel panel content-card">
+              <div class="panel-content">
+                <h3><i class="fa-solid fa-book-journal-whills" style="color: var(--accent);"></i> <code>wiki.behr.dev</code></h3>
+                <p>The dedicated documentation and lore repository for <strong>B</strong>.</p>
+                <p>Provides detailed information on specific mechanics, custom DenizenScript server interactions, and the history and lore of the world.</p>
+                <a href="https://wiki.behr.dev" target="_blank" class="theme-button cta-button" style="white-space: nowrap;"><i class="fas fa-external-link-alt" aria-hidden="true"></i> Read the Wiki</a>
+              </div>
+            </section>
+
+            <!-- Jellyfin -->
+            <section class="glass-panel panel content-card">
+              <div class="panel-content">
+                <h3><i class="fa-solid fa-tv" style="color: var(--accent);"></i> <code>jelly.behr.dev</code></h3>
+                <p>A self-hosted media streaming server powered by <strong>Jellyfin</strong>.</p>
+                <p>Running this on a subdomain allows authorized users to securely organize and stream media collections without relying on third-party subscriptions or restrictive external platforms.</p>
+                <a href="https://jelly.behr.dev" target="_blank" class="theme-button cta-button" style="white-space: nowrap;"><i class="fas fa-external-link-alt" aria-hidden="true"></i> Access Media</a>
+              </div>
+            </section>
+
+            <!-- Tiny -->
+            <section class="glass-panel panel content-card">
+              <div class="panel-content">
+                <h3><i class="fa-solid fa-link" style="color: var(--accent);"></i> <code>tiny.behr.dev</code></h3>
+                <p>A custom static URL router and link shortener.</p>
+                <p>Instead of relying on external services, long or complex URLs are routed through this subdomain to keep community and project links clean and managed under the <code>behr.dev</code> umbrella.</p>
+                <a href="https://github.com/b-Universe/tiny-b-links" target="_blank" class="theme-button cta-button" style="white-space: nowrap;"><i class="fab fa-github" aria-hidden="true"></i> View on GitHub</a>
+              </div>
+            </section>
+
+            <!-- Discord Redirect -->
+            <section class="glass-panel panel content-card">
+              <div class="panel-content">
+                <h3><i class="fa-brands fa-discord" style="color: var(--accent);"></i> <code>discord.behr.dev</code></h3>
+                <p>A simple but effective routing alias.</p>
+                <p>Instead of utilizing standard Discord invite strings that may expire or change, this subdomain acts as a permanent, clean redirect straight into the B community Discord server.</p>
+                <a href="https://discord.behr.dev" target="_blank" class="theme-button cta-button" style="white-space: nowrap;"><i class="fas fa-external-link-alt" aria-hidden="true"></i> Join Discord</a>
+              </div>
+            </section>
+
+            <!-- RustDesk -->
+            <section class="glass-panel panel content-card">
+              <div class="panel-content">
+                <h3><i class="fa-solid fa-desktop" style="color: var(--accent);"></i> <code>desk.behr.dev</code></h3>
+                <p>A self-hosted RustDesk relay and signal server running on a Raspberry Pi.</p>
+                <p>Provides secure, private remote desktop access and support functionality across devices without relying on external third-party infrastructure.</p>
+                <a href="https://rustdesk.com" target="_blank" class="theme-button cta-button" style="white-space: nowrap;"><i class="fas fa-external-link-alt" aria-hidden="true"></i> About RustDesk</a>
+              </div>
+            </section>
+
+          </div>
+
+          <!-- Behind the Scenes -->
+          <section class="glass-panel panel" style="display: block; margin-bottom: 2rem; padding: 2rem;">
+            <div class="panel-content">
+              <h2><i class="fa-solid fa-server" style="color: var(--accent);"></i> Behind the Scenes: Routing</h2>
+              <p>To make all of this work seamlessly, the infrastructure relies on a Reverse Proxy (typically Nginx or similar) sitting at the edge of the network.</p>
+              <p>DNS records point to the main server IP, where the reverse proxy intercepts incoming requests. It reads the subdomain and routes the traffic to the appropriate internal service or port. For example, <code>play.behr.dev</code> routes to the Node.js game server, while <code>home.behr.dev</code> routes to the static file server.</p>
+              <p>This architecture allows a single machine to host multiple distinct applications simultaneously and securely, providing human-readable URLs for each service.</p>
+            </div>
+          </section>
+
+        </article>
+      </main>
+
+      <footer style="margin-top: 2rem;">
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+  </body>
+</html>

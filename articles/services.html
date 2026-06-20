@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Development & Technical Services</title>
+    
+    <meta name="portfolio-title" content="Development & Technical Services">
+    <meta name="portfolio-category" content="article">
+    <meta name="portfolio-date" content="2026-06-15">
+    <meta name="portfolio-thumbnail" content="/assets/img/panels/800x400_2.png">
+    <meta name="portfolio-description" content="Technical services, automation, Discord integrations, and custom development by Bear.">
+
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <meta name="description" content="Technical services, automation, Discord integrations, and custom development by Bear.">
+    <meta name="keywords" content="B, services, freelance, developer, automation, discord, minecraft, denizen, scripting">
+    
+    <meta property="og:title" content="B - Development & Technical Services">
+    <meta property="og:description" content="Technical services, automation, Discord integrations, and custom development by Bear.">
+    <meta property="og:url" content="/articles/services.html">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="/assets/img/panels/800x400_2.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="B - Development & Technical Services">
+    <meta name="twitter:description" content="Technical services, automation, Discord integrations, and custom development by Bear.">
+    <meta name="twitter:image" content="/assets/img/panels/800x400_2.png">
+    
+    <meta name="theme-color" content="#00FFFE">
+
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+      .services-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
+
+      .post-title {
+        font-size: 2.8rem;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+      }
+
+      .intro-text {
+        font-size: 1.2rem;
+        color: var(--muted);
+        line-height: 1.7;
+        margin-bottom: 2rem;
+        text-align: left;
+      }
+
+      .service-card {
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .service-card h2, .service-card h3 {
+        margin-top: 0;
+        color: var(--text-light);
+      }
+
+      .service-card p {
+        margin-bottom: 1rem;
+        color: var(--muted);
+        line-height: 1.6;
+        font-size: 1.05rem;
+      }
+
+      .service-card p:last-child {
+        margin-bottom: 0;
+      }
+      
+      .service-card code {
+        color: var(--accent-2);
+        background: rgba(0,0,0,0.3);
+        padding: 0.2em 0.4em;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+
+      .service-card ul {
+        color: var(--muted);
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+      }
+
+      .service-card li {
+        margin-bottom: 0.5rem;
+      }
+
+      .featured-image img {
+        border-radius: 8px;
+        border: 2px solid var(--accent);
+        display: block;
+        width: 100%;
+        height: auto;
+        margin-top: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+
+      @media (max-width: 768px) {
+        .post-title {
+          font-size: 2.2rem;
+        }
+        .grid-locked {
+          grid-template-columns: 1fr !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" id="app">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+          
+            <button id="theme-toggle" class="theme-button" title="Toggle theme">
+              <i class="fa-solid fa-moon" aria-hidden="true"></i>Dark
+            </button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px; max-width: 1000px;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><span class="breadcrumb-current" aria-current="page">Services</span></li>
+          </ol>
+        </nav>
+
+        <article class="services-container">
+          <h1 class="post-title">Hi, I'm Bear.</h1>
+          <div class="intro-text">
+            <p>And, yeah, that's my real name.</p>
+            <p>If you're only here looking for my services, feel free to skip around. Otherwise, here's a little bit about me.</p>
+          </div>
+
+          <!-- About Me -->
+          <section class="glass-panel panel service-card" style="margin-bottom: 2.5rem; display: block;">
+            <div style="float: right; width: 35%; margin: 0 0 1rem 2rem;" class="featured-image">
+              <img src="/assets/img/panels/800x400_2.png" alt="B Logo">
+            </div>
+            <h2><i class="fa-solid fa-user"></i> About Me</h2>
+            <p>I've been building things as a hobby for over 16 years.</p>
+            <p>I don't really like calling myself a "full-stack developer" because those labels always feel a little weird to me. I've just spent a long time making things, breaking things, fixing things, and learning whatever I needed to learn along the way.</p>
+            <p>Over the years I've worked on websites, game servers, automation tools, backend systems, Discord integrations, Linux servers, custom game content, and plenty of strange projects that probably sounded ridiculous when they started.</p>
+            <p>Most of what I make in my free time is released under the Unlicense because I genuinely enjoy creating things that other people can use. I like helping communities build cool stuff.</p>
+            <p>A small portion of my portfolio can be found here: <a href="https://home.behr.dev/pages/portfolio.html">Check out my Portfolio</a>, or ask me about specific project you have in mind; I may have done something relevant for you to check out as well!</p>
+          </section>
+
+          <!-- Trading Services For Art -->
+          <section class="glass-panel panel service-card" style="margin-bottom: 4rem; display: block; border-color: var(--accent); box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.3);">
+            <h2 style="color: var(--accent);"><i class="fa-solid fa-handshake"></i> Trading Services For Art</h2>
+            <p>While I absolutely take paid work, there's another reason I'm posting this. My wife and I are building our own game called <strong>B</strong>.</p>
+            <p>It's a multiplayer top-down voxel game that we've been developing ourselves. We handle the programming, networking, server infrastructure, engine development, design, and all the other fun problems that come with making a game from scratch.</p>
+            <p>The biggest thing we're missing is art.</p>
+            <p>Because of that, I'm extremely interested in trading my development work for pixel art assets! If you're an artist and need a website, automation tools, Discord bots, server work, custom scripting, technical consulting, or just somebody to solve annoying technical problems, I'd be happy to work out a trade for ANY of my services!</p>
+            <p>Sometimes helping each other build cool projects is better than exchanging invoices; And I'd be more than happy to share your information as credit to our project!</p>
+          </section>
+
+          <h1 class="post-title" style="margin-top: 3rem;">What I Can Help With</h1>
+          <div class="intro-text">
+            <p>Most of my work falls into one of two categories:</p>
+            <p>Either somebody needs a custom system built, or they're tired of doing something manually and want a computer to do it instead.</p>
+            <p>I've spent years working with <code>HTML</code>, <code>CSS</code>, <code>JavaScript</code>, <code>TypeScript</code>, <code>Node.js</code>, <code>Python</code>, and various other tools, but I've been less interested in the specific technologies and more interested in solving the problem.</p>
+            <p>If there's a better way to do something, I usually enjoy finding it; And you can be there too!</p>
+          </div>
+
+          <!-- Services Grid -->
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            
+            <!-- Web & Bridges -->
+            <section class="glass-panel panel service-card">
+              <h3><i class="fa-solid fa-network-wired"></i> Websites, Games, and Making Things Talk To Each Other</h3>
+              <p>One of the things I enjoy most is connecting systems that normally don't communicate. Maybe that's a website talking to a game server; Maybe it's Discord sending information into a game. Or, maybe it's a backend service automating something behind the scenes.</p>
+              <p>Whatever the situation is, I enjoy building bridges between different platforms and making them work together. I've built everything from custom websites and dashboards to live game integrations and community management tools.</p>
+            </section>
+
+            <!-- Discord Integration -->
+            <section class="glass-panel panel service-card">
+              <h3><i class="fa-brands fa-discord"></i> Discord Integration</h3>
+              <p>A lot of communities live on Discord these days, so naturally a lot of projects end up needing Discord integration. Whether that's chat relays, moderation tools, custom commands, account linking, notifications, automation, or completely custom bot behavior, I've probably built something similar before.</p>
+              <p>Here's a writeup I wrote showcasing some <a href="https://home.behr.dev/projects/discord-chat-relay.html">Discord Chat Relay</a>!</p>
+              <div class="featured-image">
+                <img src="/assets/img/panels/discord_b.png" alt="Discord Integration">
+              </div>
+            </section>
+
+            <!-- Minecraft Development -->
+            <section class="glass-panel panel service-card" style="grid-column: 1 / -1; display: block;">
+              <h3><i class="fa-solid fa-cube"></i> Minecraft Development</h3>
+              <p>I've spent an embarrassing amount of my life working with Minecraft servers.</p>
+              <p>If you're running a server, would like one set up for you/established, or need custom mechanics, scripting, automation, backend systems, resource packs, datapacks, NPCs, or server management help, there's a Great chance I can help.</p>
+              <p>I've worked extensively with <code>Paper</code>, <code>BungeeCord</code>, <code>Citizens</code>, <code>Denizen</code>, and various custom server setups over the years. Some people build houses in Minecraft; I apparently decided to build infrastructure instead.</p>
+              <p>A common misunderstanding is that while Minecraft supports custom servers and add-ons, people often assume the experience will feel low-quality or limited. In reality, Minecraft is one of the most flexible platforms available and can be an incredible extension of an existing gaming community.</p>
+              <p>I've personally built large-scale projects from scratch, including a <a href="https://home.behr.dev/projects/minecraft-castle-wars.html">recreation of Old School RuneScape's Castle Wars minigame</a> entirely within Minecraft!</p>
+              <p>Beyond custom content, a Minecraft server can provide something many communities struggle with: <strong>long-term retention</strong>. Players naturally cycle between games, wait for updates, or simply want a change of pace. Having a community Minecraft server gives those players a familiar place to return to while still staying connected with your community, your Discord, and your events. Instead of disappearing entirely, they remain engaged with the people they've met along the way.</p>
+              <p>In my experience, a well-run Minecraft server isn't just another game server—it's often a social hub that keeps a community active between major releases, content updates, and gaming trends.</p>
+            </section>
+
+            <!-- Automation & Scripting -->
+            <section class="glass-panel panel service-card">
+              <h3><i class="fa-solid fa-robot"></i> Automation & Scripting</h3>
+              <p>This is probably my favorite category of work.</p>
+              <p>If you're doing the same thing over and over every day, there's a decent chance it can be automated. I've written tools for backups, data processing, workflow automation, window management, server administration, reporting, synchronization, and all sorts of weird niche problems that only exist because somebody said:</p>
+              <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-left: 4px solid var(--accent); margin: 1rem 0; font-style: italic;">
+                "There has to be a better way to do this..."
+              </div>
+              <p>And uh, Usually, there is. Most of this work ends up being written in <code>Python</code>, <code>AutoHotkey</code>, <code>Bash</code>, <code>Batch</code>, or whatever makes the most sense for the job. I own these skills and can create that for you.</p>
+            </section>
+
+            <!-- Server Hosting -->
+            <section class="glass-panel panel service-card">
+              <h3><i class="fa-solid fa-server"></i> Server Hosting, Linux, & Infrastructure</h3>
+              <p>I've also spent years maintaining servers and hosting environments. If you need a Linux server configured, a website deployed, a reverse proxy, backups, monitoring, security hardening, or somebody to figure out why your server suddenly decided to catch fire at 3 AM? That's all stuff I've dealt with before. I care a lot about stability. A system that works once isn't very interesting. A system that keeps working six months later is.</p>
+            </section>
+
+            <!-- Writing & Documentation -->
+            <section class="glass-panel panel service-card">
+              <h3><i class="fa-solid fa-pen-nib"></i> Writing & Documentation</h3>
+              <p>Not everything I do involves code! I've written game lore, technical documentation, design documents, wiki pages, development blogs, server documentation, and enough setup guides to last a lifetime. If you have a project that needs written content, I can help with that too. I also enjoy worldbuilding and helping people organize ideas that have been trapped inside their heads for months.</p>
+            </section>
+
+            <!-- Voice Acting -->
+            <section class="glass-panel panel service-card">
+              <h3><i class="fa-solid fa-microphone"></i> Voice Acting</h3>
+              <p>This is something I'm interested in doing more of! I have a professional microphone setup and I'm open to larping as character voices, narration, announcements, and similar projects. I'm definitely more experienced behind a keyboard than behind a microphone, but I bring a LOT of energy to the table and I'll go as far as researching and studying your content to make sure I match the theme you're looking for.</p>
+            </section>
+
+            <!-- Git & Repo Cleanup -->
+            <section class="glass-panel panel service-card" style="grid-column: 1 / -1; display: block;">
+              <h3><i class="fa-solid fa-code-branch"></i> Git, GitHub, & Repository Cleanup</h3>
+              <p>I've spent enough years working on projects to know that repositories have a natural tendency to become disasters; Branches nobody remembers creating, or Issues nobody remembers opening. Commits named things like "fixed stuff"/"actually fixed stuff"/"pls work"...</p>
+              <p>If your project has become one of those repositories, I can help clean it up and get things organized again. I can also teach you exactly how to manage your workflow, write you personalized guides, and troubleshooting methods for if anything ever does go wrong.</p>
+            </section>
+
+          </div>
+
+          <!-- Rates & How I Work -->
+          <section class="glass-panel panel service-card" style="margin-bottom: 2rem; display: block;">
+            <h2><i class="fa-solid fa-money-bill-wave"></i> Rates & How I Work</h2>
+            <p>My standard rate is <strong>$20 USD per hour</strong>. That applies to pretty much everything listed above. I try to keep my rates reasonable because I enjoy helping smaller communities, hobby projects, indie developers, and people who simply need somebody technical they can trust.</p>
+            
+            <h3 style="margin-top: 1.5rem;"><i class="fa-solid fa-briefcase"></i> The Process</h3>
+            <p>I like keeping things simple; First we talk about the project. Then we figure out exactly what you need. After that we'll agree on pricing, timelines, expectations, and what the finished result should look like.</p>
+            <p>I <strong>strongly</strong> prefer discussing project details here in our post, or documented conversation whenever possible. It protects both of us and makes sure nobody has to rely on memory later. For paid service-based work, I typically require 50% upfront and 50% upon completion.</p>
+            <p>If you're interested in working together, feel free to reach out! Even if I end up not being the right person for the job, I'm happy to point people in the right direction. I'll provide support to help you find what you need!</p>
+            
+            <h3 style="margin-top: 1.5rem;"><i class="fa-solid fa-clipboard-list"></i> A few other notes:</h3>
+            <ul style="margin-bottom: 0;">
+              <li>I do not use generative AI to write my code. If I'm building something for you, you're getting code written by me.</li>
+              <li>I primarily work in English.</li>
+              <li>I can read and write Spanish reasonably well, though speaking it is another story. Fortunately, my wife is fluent if we ever need the help.</li>
+              <li>I can also communicate in Russian and Polish if necessary.</li>
+            </ul>
+          </section>
+
+        </article>
+      </main>
+
+      <footer style="margin-top: 2rem;">
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+  </body>
+</html>

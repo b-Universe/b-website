@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Navigation Styleguide</title>
+    
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+  <body>
+    <div class="wrap">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+            <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon" aria-hidden="true"></i>Dark</button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><span><i class="fas fa-rocket" aria-hidden="true"></i> Projects</span></li>
+            <li><a href="/projects/b-website.html">B-Website</a></li>
+            <li><span class="breadcrumb-current" aria-current="page">Navigation</span></li>
+          </ol>
+        </nav>
+
+        <div class="glass-panel grid-locked">
+          
+          <!-- Breadcrumbs Showcase -->
+          <div class="panel" style="padding: 2rem; grid-column: 1 / -1;">
+            <span class="panel-label">Breadcrumb Navigation</span>
+            <p style="margin-bottom: 1.5rem;">Displays hierarchy and allows users to step backwards in the site structure.</p>
+            
+            <nav class="breadcrumbs" aria-label="Breadcrumb example" style="background: rgba(0,0,0,0.3); border: 1px solid var(--accent-2); margin: 0 auto;">
+              <ol>
+                <li><a href="#"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+                <li><a href="#"><i class="fas fa-folder" aria-hidden="true"></i> Parent Folder</a></li>
+                <li><span><i class="fas fa-lock" aria-hidden="true"></i> Unlinked Parent</span></li>
+                <li><span class="breadcrumb-current" aria-current="page">Current Page</span></li>
+              </ol>
+            </nav>
+          </div>
+
+          <!-- Main Top Navigation -->
+          <div class="panel" style="padding: 2rem; grid-column: 1 / -1;">
+            <span class="panel-label">Main Links & Anchors</span>
+            <p style="margin-bottom: 1.5rem;">The `nav a` styling used at the top of the header.</p>
+            
+            <div style="display: flex; gap: 1rem; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); padding: 2rem; border-radius: var(--radius); border: 1px solid var(--accent-2);">
+              <nav>
+                <a href="#"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+                <a href="#"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+                <a href="#"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+              </nav>
+            </div>
+          </div>
+
+        </div>
+      </main>
+
+      <footer style="margin-top: 2rem;">
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+  </body>
+</html>
