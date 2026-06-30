@@ -850,14 +850,6 @@ blockquote footer {
       .btn-light, .btn-inverse-light, .btn-outline-light { --c-base: var(--text-light); --c-text: #000; }
       .btn-dark, .btn-inverse-dark, .btn-outline-dark { --c-base: rgba(0,0,0,0.6); --c-text: var(--text-light); }
 
-      /* Temporary Migration Styles */
-      .grid-variable { align-items: stretch !important; }
-      .panel {
-        padding: 2rem;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-      }
 
       /* Normal Variation */
       .btn.btn-primary:not(.btn-social), .btn.btn-secondary:not(.btn-social), 
