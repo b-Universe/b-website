@@ -21,7 +21,9 @@
       '/portfolio-scripts/discord/discord-web-redirect.html',
       '/projects/tiny-b-links.html',
       '/projects/minecraft-castle-wars.html',
-      '/projects/live-preview-editor.html'
+      '/projects/live-preview-editor.html',
+      '/articles/tax-and-salary.html',
+      '/projects/income-tax-calculator.html'
     ];
 
     let cachedCards = [];

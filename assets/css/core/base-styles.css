@@ -38,9 +38,23 @@
   h5 { font-size: 1.1rem; }
   h6 { font-size: 1rem; }
 
-  p {
+  p, li {
     color: var(--muted);
     line-height: 1.6;
+  }
+  
+  p, ul, ol {
+    margin-bottom: 1rem;
+  }
+
+  ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+  }
+
+  ul li::marker {
+    color: var(--accent);
+    font-size: 1.1em;
   }
 
   code {
@@ -68,6 +82,19 @@
 
   code a:hover {
     text-decoration: underline;
+  }
+
+
+  select,
+  select option {
+    background-color: var(--bg);
+    color: var(--text);
+  }
+
+  .ecstatic select,
+  .ecstatic select option {
+    background-color: #1a1a1a;
+    color: #ffffff;
   }
 
   button {

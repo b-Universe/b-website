@@ -9,6 +9,7 @@
 
     /* Dark Theme (Default) - Visuals */
     --accent: rgba(0, 224, 255, 0.9);
+    --accent-rgb: 0, 224, 255;
     --accent-2: rgba(0, 200, 201, 0.6);
     --color-gradient: radial-gradient(circle, #00ff00, #00ffff, #0000ff, #8000ff, #ff00ff, #ff00a0, #ff0000, #ff8000, #ffff00, #80ff00, #00ff00);
 
@@ -34,6 +35,7 @@
   .light {
     --bg: #fdfdf0;
     --accent: rgba(255, 255, 120, 0.8);
+    --accent-rgb: 255, 255, 120;
     --accent-2: rgba(255, 255, 175, 0.8);
 
     --starfield-bg: linear-gradient(180deg, rgb(18, 16, 0), rgba(255, 230, 0, 0.1));
@@ -59,6 +61,7 @@
   .ecstatic {
     --bg: #fffbed;
     --accent: rgba(255, 230, 0, 0.9);
+    --accent-rgb: 255, 230, 0;
     --accent-2: rgba(255, 180, 0, 0.8);
     --color-rainbow-horizontal: linear-gradient(
       to right,
