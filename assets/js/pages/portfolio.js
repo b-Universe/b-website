@@ -23,7 +23,8 @@
       '/projects/minecraft-castle-wars.html',
       '/projects/live-preview-editor.html',
       '/articles/tax-and-salary.html',
-      '/projects/income-tax-calculator.html'
+      '/projects/income-tax-calculator.html',
+      '/projects/salary-calculator.html'
     ];
 
     let cachedCards = [];
