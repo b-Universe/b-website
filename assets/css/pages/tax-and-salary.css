@@ -1,0 +1,140 @@
+/* Shared CSS for Tax and Salary Calculators */
+
+.calc-section {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(var(--accent-rgb), 0.2);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.calc-header {
+  background: rgba(var(--accent-rgb), 0.15);
+  padding: 10px 15px;
+  font-weight: bold;
+  color: var(--text-light);
+  border-bottom: 1px solid rgba(var(--accent-rgb), 0.2);
+}
+
+.calc-body {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 250px 150px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (max-width: 600px) {
+  .input-row {
+    grid-template-columns: 1fr;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+}
+
+.input-label {
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+
+.input-field, select.calc-input {
+  width: 100%;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--text-light);
+  font-family: inherit;
+  outline: none;
+}
+
+.input-field:focus, select.calc-input:focus {
+  border-color: var(--text-light);
+  box-shadow: 0 0 5px rgba(var(--accent-rgb), 0.5);
+}
+
+input[type="radio"].calc-input {
+  accent-color: var(--accent);
+}
+
+.input-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.radio-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+/* Make sure .inline rows display properly when nested or side-by-side */
+.input-row.inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+/* Results panel from income tax */
+.results-panel {
+  background: rgba(var(--accent-rgb), 0.1);
+  border: 2px solid var(--accent);
+  padding: 20px;
+  border-radius: var(--radius);
+  text-align: center;
+  margin-top: 10px;
+}
+
+.results-title {
+  font-size: 1.2rem;
+  color: var(--text-light);
+  margin-bottom: 10px;
+}
+
+.results-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #4CAF50;
+  font-family: 'Consolas', monospace;
+}
+
+
+/* Layout overrides for Salary Calculator */
+#salary-form .input-row {
+  grid-template-columns: 1fr 100px;
+}
+
+#salary-form .input-row.inline {
+  grid-template-columns: 1fr auto;
+}
+
+/* Info Panels Grid */
+.info-panels-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+}
+
+@media (min-width: 800px) {
+  .info-panels-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+}

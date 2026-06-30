@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Take-Home Paycheck Calculator</title>
+    
+    <meta name="portfolio-title" content="Take-Home Paycheck Calculator">
+    <meta name="portfolio-category" content="project">
+    <meta name="portfolio-date" content="2026-06-30">
+    <meta name="portfolio-thumbnail" content="">
+    <meta name="portfolio-description" content="Determine your exact take-home pay by factoring in federal taxes, state taxes, FICA, and pre-tax deductions.">
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/pages/projects.css">
+    <link rel="stylesheet" href="/assets/css/components.css">
+  <style>
+    .mobile-center-wrapper {
+      margin-left: auto;
+    }
+    @media (max-width: 768px) {
+      .mobile-center-wrapper {
+        margin-left: 0;
+        flex-basis: 100%;
+        display: flex;
+        justify-content: center;
+        margin-top: 5px;
+      }
+    }
+  </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+      .calc-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      @media (width >= 768px) {
+        .calc-grid {
+          grid-template-columns: 350px 1fr;
+        }
+      }
+
+      
+      .input-panel {
+        background: var(--card);
+        padding: 20px;
+        border-radius: var(--radius);
+        border: 1px solid var(--accent);
+      }
+      
+      
+      
+      .input-row.inline {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      
+      
+      
+      
+      
+      
+      
+      .table-panel {
+        background: var(--card);
+        padding: 20px;
+        border-radius: var(--radius);
+        border: 1px solid var(--accent);
+      }
+      
+      .results-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      
+      .results-table th, .results-table td {
+        padding: 10px;
+        text-align: right;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      .results-table th {
+        background: rgba(var(--accent-rgb), 0.2);
+        color: var(--text-light);
+        font-weight: bold;
+      }
+      
+      .results-table th:first-child, .results-table td:first-child {
+        text-align: left;
+        font-weight: bold;
+        color: var(--text-light);
+      }
+      
+      .content-section {
+        margin-top: 40px;
+        line-height: 1.6;
+      }
+      
+      .content-section h2 {
+        margin-bottom: 15px;
+        color: var(--text-light);
+      }
+      
+      .content-section p, .content-section ul {
+        margin-bottom: 15px;
+        color: var(--text);
+      }
+      
+      .content-section ul {
+        padding-left: 20px;
+      }
+      
+      .content-section li {
+        margin-bottom: 8px;
+      }
+      
+      .related-tags {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+    </style>
+    <style>
+    .inputs-2col-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    @media (min-width: 800px) {
+      .inputs-2col-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: start;
+      }
+    }
+    
+    #results-scenario-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    @media (min-width: 992px) {
+      #results-scenario-grid.has-scenario {
+        grid-template-columns: 2fr 1fr;
+      }
+    }
+  </style>
+
+  <link rel="stylesheet" href="/assets/css/pages/tax-and-salary.css">
+</head>
+  <body>
+    <div class="wrap">
+      <canvas id="starfield"></canvas>
+            <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+            <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon" aria-hidden="true"></i>Dark</button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+      <main class="main-content">
+        <section class="content-card static-card" style="padding: 40px;">
+          <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+            <ol>
+              <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+              <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+              <li><span><i class="fas fa-rocket" aria-hidden="true"></i> Projects</span></li>
+              <li><a href="/projects/financial-calculators.html">Financial Calculators</a></li>
+              <li><span class="breadcrumb-current" aria-current="page">Take-Home Paycheck Calculator</span></li>
+            </ol>
+          </nav>
+          
+          <h1 style="margin-bottom: 20px;"><i class="fas fa-hand-holding-dollar"></i> Take-Home Paycheck Calculator</h1>
+
+          <div class="panel" style="padding: 2rem; margin-bottom: 2rem;">
+            <h2>About This Calculator</h2>
+            <p style="text-align: left; margin-bottom: 1.5rem;">This calculator estimates your net pay after federal taxes, FICA withholdings, state and local taxes, and your specific deductions are applied. It provides a detailed breakdown of your net income after factoring in 2026 federal tax brackets, standard versus itemized deductions, age bonuses, and self-employment (SECA) tax scenarios. It is fully updated to reflect the 2026 federal tax laws, including the new provisions from the One Big Beautiful Bill Act (OBBBA).</p>
+          </div>
+          
+
+                    <div class="calc-stack" style="display: flex; flex-direction: column; gap: 20px;">
+                        <div class="panel" style="padding: 2rem; margin-bottom: 2rem;">
+              <form id="thp-form">
+                <div class="inputs-2col-grid">
+                  <div class="col-left">
+                    <div class="calc-section">
+                      <div class="calc-header"><i class="fas fa-info-circle"></i> General Information</div>
+                      <div class="calc-body">
+                        <div class="input-row inline" style="margin-bottom: 5px;">
+                          <div style="flex: 1;">
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 3px;">Your job income (salary)</div>
+                            <input type="text" id="job-income" class="input-field currency-input calc-input" value="$80,000">
+                          </div>
+                          <div style="flex: 1;">
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 3px;">Pay frequency</div>
+                            <select id="pay-frequency" class="calc-input">
+                              <option value="52">Weekly</option>
+                              <option value="26" selected>Bi-weekly</option>
+                              <option value="24">Semi-monthly</option>
+                              <option value="12">Monthly</option>
+                              <option value="1">Annually</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div class="input-row" style="margin-bottom: 5px;">
+                          <div style="grid-column: 1 / -1;">
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 3px;">File status</div>
+                            <select id="file-status" class="calc-input">
+                              <option value="single" selected>Single</option>
+                              <option value="married-joint">Married Filing Jointly</option>
+                              <option value="head">Head of Household</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div class="input-row" style="margin-bottom: 5px;">
+                          <div>
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 3px;">Children (under 17)</div>
+                            <input type="number" id="children" class="input-field calc-input" value="0" min="0">
+                          </div>
+                          <div>
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 3px;">Other dependents</div>
+                            <input type="number" id="other-dependents" class="input-field calc-input" value="0" min="0">
+                          </div>
+                        </div>
+
+                        <div class="input-row">
+                          <div style="grid-column: 1 / -1;">
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 5px;">Are you age 65 or older?</div>
+                            <div style="display: flex; gap: 15px;">
+                              <label style="cursor: pointer;"><input type="radio" name="age-65" value="yes" class="calc-input"> Yes</label>
+                              <label style="cursor: pointer;"><input type="radio" name="age-65" value="no" class="calc-input" checked> No</label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="calc-section">
+                      <div class="calc-header"><i class="fas fa-plus-circle"></i> Additional Income</div>
+                      <div class="calc-body">
+                        <div class="input-row" style="margin-bottom: 5px;">
+                          <div style="grid-column: 1 / -1;">
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 3px;">Other income (interest, dividends, etc.)</div>
+                            <input type="text" id="other-income" class="input-field currency-input calc-input" value="$0">
+                          </div>
+                        </div>
+                        
+                        <div class="input-row">
+                          <div style="grid-column: 1 / -1;">
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 5px;">Are you self-employed or an independent contractor?</div>
+                            <div style="display: flex; gap: 15px;">
+                              <label style="cursor: pointer;"><input type="radio" name="self-employed" value="yes" class="calc-input"> Yes</label>
+                              <label style="cursor: pointer;"><input type="radio" name="self-employed" value="no" class="calc-input" checked> No</label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="calc-section">
+                      <div class="calc-header"><i class="fas fa-map-marker-alt"></i> State & Local Taxes</div>
+                      <div class="calc-body">
+                        <div class="input-row">
+                          <div>
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 3px;">State tax rate (%)</div>
+                            <input type="text" id="state-tax-rate" class="input-field percent-input calc-input" value="0%">
+                          </div>
+                          <div>
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 3px;">City tax rate (%)</div>
+                            <input type="text" id="city-tax-rate" class="input-field percent-input calc-input" value="0%">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-right">
+                    <div class="calc-section">
+                      <div class="calc-header"><i class="fas fa-minus-circle"></i> Deductions & Withholdings</div>
+                      <div class="calc-body">
+                        <div class="input-row">
+                          <div style="grid-column: 1 / -1;">
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 3px;">Pretax Deductions (FICA Exempt, e.g. Health/HSA)</div>
+                            <input type="text" id="pretax-fica-exempt" class="input-field currency-input calc-input" value="$0">
+                          </div>
+                        </div>
+                        <div class="input-row">
+                          <div style="grid-column: 1 / -1;">
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 3px;">Pretax Deductions (FICA Subject, e.g. 401k)</div>
+                            <input type="text" id="pretax-fica-subject" class="input-field currency-input calc-input" value="$0">
+                          </div>
+                        </div>
+                        <div class="input-row">
+                          <div style="grid-column: 1 / -1;">
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 3px;">Deductions not withheld (IRA, student loan int.)</div>
+                            <input type="text" id="deductions-not-withheld" class="input-field currency-input calc-input" value="$0">
+                          </div>
+                        </div>
+                        <div class="input-row">
+                          <div style="grid-column: 1 / -1;">
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 3px;">Itemized deductions (Mortgage int, Property tax)</div>
+                            <input type="text" id="itemized-deductions" class="input-field currency-input calc-input" value="$0">
+                          </div>
+                        </div>
+                        <div class="input-row">
+                          <div style="grid-column: 1 / -1;">
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 3px;">Qualified tips income (Max $25k deduction)</div>
+                            <input type="text" id="qualified-tips" class="input-field currency-input calc-input" value="$0">
+                          </div>
+                        </div>
+                        <div class="input-row">
+                          <div style="grid-column: 1 / -1;">
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 3px;">Qualified overtime compensation</div>
+                            <input type="text" id="qualified-overtime" class="input-field currency-input calc-input" value="$0">
+                          </div>
+                        </div>
+                        <div class="input-row">
+                          <div style="grid-column: 1 / -1;">
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 3px;">Passenger vehicle loan interest (Max $10k deduction)</div>
+                            <input type="text" id="vehicle-interest" class="input-field currency-input calc-input" value="$0">
+                          </div>
+                        </div>
+                        <div class="input-row">
+                          <div style="grid-column: 1 / -1;">
+                            <div class="input-label" style="font-size: 0.85rem; margin-bottom: 3px;">Cash gifts to charities</div>
+                            <input type="text" id="charity-cash" class="input-field currency-input calc-input" value="$0">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                  <p style="margin: 0; font-style: italic; color: var(--muted); font-size: 0.9rem; flex: 1;">Note: Values update automagically as you type.</p>
+                  <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <select id="demo-scenarios" class="calc-input" style="flex: 1; min-width: 150px;">
+                      <option value="" disabled selected>-- Select a Demo Example --</option>
+                      <option value="demo1">Standard W-2 Employee</option>
+                      <option value="demo2">High-Earner (FICA Caps & Surtaxes)</option>
+                      <option value="demo3">Self-Employed Freelancer</option>
+                      <option value="demo4">Working Family (OBBBA Provisions)</option>
+                    </select>
+                    <button type="reset" class="btn btn-outline-danger no-hue-cycle" style="margin: 0; font-size: 0.95rem; white-space: nowrap;">Clear / Reset</button>
+                  </div>
+                </div>
+              </form>
+
+            <div id="results-scenario-grid">
+              <div class="calc-section" style="height: 100%;">
+                <div class="calc-header"><i class="fas fa-list-alt"></i> Calculation Results</div>
+                <div class="calc-body">
+                  <p style="margin-bottom: 15px; font-size: 0.9rem; color: var(--muted);">Select your pay frequency to see per-pay-period results. All calculations assume 2026 tax laws.</p>
+                
+                <table class="results-table">
+                  <thead>
+                    <tr>
+                      <th>Category</th>
+                      <th>Per Pay Period</th>
+                      <th>Annually</th>
+                    </tr>
+                  </thead>
+                  <tbody id="results-body">
+                    <tr><td>Gross Pay</td><td id="res-gross-period">$0</td><td id="res-gross-annual">$0</td></tr>
+                    <tr><td>Federal Income Tax</td><td id="res-fed-period" style="color: var(--muted);">$0</td><td id="res-fed-annual" style="color: var(--muted);">$0</td></tr>
+                    <tr><td>FICA / SECA Tax</td><td id="res-fica-period" style="color: var(--muted);">$0</td><td id="res-fica-annual" style="color: var(--muted);">$0</td></tr>
+                    <tr><td>State & Local Tax</td><td id="res-state-period" style="color: var(--muted);">$0</td><td id="res-state-annual" style="color: var(--muted);">$0</td></tr>
+                    <tr><td>Pretax Deductions</td><td id="res-pretax-period" style="color: var(--muted);">$0</td><td id="res-pretax-annual" style="color: var(--muted);">$0</td></tr>
+                    <tr>
+                      <td style="font-weight: bold; font-size: 1.1em;">Take-Home Pay</td>
+                      <td id="res-takehome-period" style="font-weight: bold; font-size: 1.1em; color: var(--accent);">$0</td>
+                      <td id="res-takehome-annual" style="font-weight: bold; font-size: 1.1em; color: var(--accent);">$0</td>
+                    </tr>
+                  </tbody>
+                </table>
+                </div>
+              </div>
+
+              <div id="scenario-panel" class="calc-section" style="display: none; height: 100%;">
+                <div class="calc-header"><i class="fas fa-graduation-cap"></i> Scenario Breakdown</div>
+                <div class="calc-body">
+                  <p id="scenario-text" style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: var(--text-light);"></p>
+                </div>
+              </div>
+            </div>
+            </div> <!-- end panel -->
+          </div> <!-- end calc-stack -->
+
+          <div class="info-panels-grid">
+            
+            
+            <div class="panel" style="padding: 2rem;">
+              <h2 style="margin-top: 0;">Federal Income Tax Brackets</h2>
+              <p>The U.S. uses a progressive tax system, meaning your income is taxed in chunks at different rates. As your income goes up, only the income that falls into the higher bracket is taxed at the higher rate.</p>
+              
+              <div style="overflow-x: auto;">
+                <table class="results-table" style="font-size: 0.9rem;">
+                  <thead>
+                    <tr>
+                      <th style="text-align: left;">Tax Rate</th>
+                      <th style="text-align: left;">Single Filers</th>
+                      <th style="text-align: left;">Married Filing Jointly</th>
+                      <th style="text-align: left;">Head of Household</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td style="font-weight: bold;">10%</td><td>Up to $11,925</td><td>Up to $23,850</td><td>Up to $17,050</td></tr>
+                    <tr><td style="font-weight: bold;">12%</td><td>$11,926 to $48,475</td><td>$23,851 to $96,950</td><td>$17,051 to $64,850</td></tr>
+                    <tr><td style="font-weight: bold;">22%</td><td>$48,476 to $103,350</td><td>$96,951 to $206,700</td><td>$64,851 to $103,500</td></tr>
+                    <tr><td style="font-weight: bold;">24%</td><td>$103,351 to $197,300</td><td>$206,701 to $394,600</td><td>$103,501 to $197,250</td></tr>
+                    <tr><td style="font-weight: bold;">32%</td><td>$197,301 to $250,525</td><td>$394,601 to $501,050</td><td>$197,251 to $250,500</td></tr>
+                    <tr><td style="font-weight: bold;">35%</td><td>$250,526 to $626,350</td><td>$501,051 to $751,600</td><td>$250,501 to $626,350</td></tr>
+                    <tr><td style="font-weight: bold;">37%</td><td>Over $626,350</td><td>Over $751,600</td><td>Over $626,350</td></tr>
+                  </tbody>
+                </table>
+                </div>
+              <p style="margin-top: 15px; font-style: italic; color: var(--muted); font-size: 0.85rem;">(Note: These are estimated 2026 bracket thresholds for informational purposes).</p>
+            </div>
+            
+            <div class="panel" style="padding: 2rem;">
+              <h2 style="margin-top: 0;">FICA Taxes</h2>
+              <p>FICA taxes fund Social Security and Medicare. They are automatically withheld from your paycheck.</p>
+              <ul style="padding-left: 20px; line-height: 1.6;">
+                <li style="margin-bottom: 8px;"><strong>Social Security Tax:</strong> You pay a 6.2% tax on your earned income, but this is strictly capped. For 2026, the wage base limit is $184,500. You won't pay Social Security tax on any income you earn above this limit.</li>
+                <li style="margin-bottom: 8px;"><strong>Medicare Tax:</strong> You pay a 1.45% tax on all your earned income. There is no wage base limit for standard Medicare tax.</li>
+                <li style="margin-bottom: 8px;"><strong>Additional Medicare Tax:</strong> If you earn over $200,000 as a single filer or $250,000 as a joint filer, you'll pay an extra 0.9% Additional Medicare Tax on the income that exceeds those thresholds.</li>
+              </ul>
+            </div>
+            
+            <div class="panel" style="padding: 2rem;">
+              <h2 style="margin-top: 0;">Pretax Deductions vs. Post-Tax Deductions</h2>
+              <p>It is important to understand the difference between deductions when estimating your take-home pay.</p>
+              <ul style="padding-left: 20px; line-height: 1.6;">
+                <li style="margin-bottom: 8px;"><strong>FICA-Exempt Pretax Deductions:</strong> Things like health insurance premiums and HSA contributions are entirely tax-free. They bypass both federal income tax and FICA taxes.</li>
+                <li style="margin-bottom: 8px;"><strong>FICA-Subject Pretax Deductions:</strong> Contributions to a traditional 401(k) lower your taxable income for federal taxes, but they are still subject to Social Security and Medicare taxes.</li>
+                <li style="margin-bottom: 8px;"><strong>Deductions Not Withheld:</strong> These include things like student loan interest and traditional IRA contributions. They lower your final tax liability but aren't typically removed from your standard paycheck automatically.</li>
+              </ul>
+            </div>
+            
+            <div class="panel" style="padding: 2rem;">
+              <h2 style="margin-top: 0;">Standard vs. Itemized Deductions</h2>
+              <p>You can lower your taxable income by choosing either the standard deduction or itemized deductions. You'll want to pick whichever gives you the biggest tax break.</p>
+              <ul style="padding-left: 20px; line-height: 1.6;">
+                <li style="margin-bottom: 8px;"><strong>Standard Deduction:</strong> A flat dollar amount. For 2026, it is $16,100 for Single filers and $32,200 for Married Filing Jointly.</li>
+                <li style="margin-bottom: 8px;"><strong>Age 65 or Older:</strong> If you are 65 or older, you get an extra $6,000 added to your standard deduction.</li>
+                <li style="margin-bottom: 8px;"><strong>Charitable Gifts:</strong> Under new rules, if you take the standard deduction, you can still deduct up to $1,000 (Single) or $2,000 (Joint) for cash gifts made to tax-exempt charities.</li>
+                <li style="margin-bottom: 8px;"><strong>Itemized Deductions:</strong> If your total eligible expenses (like mortgage interest, property taxes, and large medical bills) are higher than the standard deduction, you'll itemize them instead.</li>
+              </ul>
+            </div>
+            
+            <div class="panel" style="padding: 2rem;">
+              <h2 style="margin-top: 0;">OBBBA Qualified Deductions</h2>
+              <p>The One Big Beautiful Bill Act (OBBBA) introduced several new deductions you can claim to reduce your adjusted gross income (AGI):</p>
+              <ul style="padding-left: 20px; line-height: 1.6;">
+                <li style="margin-bottom: 8px;"><strong>Tips Income:</strong> You can deduct up to $25,000 in qualified tips.</li>
+                <li style="margin-bottom: 8px;"><strong>Overtime Compensation:</strong> You can deduct up to $12,500 (Single) or $25,000 (Joint) in qualified overtime pay.</li>
+                <li style="margin-bottom: 8px;"><strong>Vehicle Loan Interest:</strong> You can deduct up to $10,000 in interest paid on a loan for a qualified personal passenger vehicle.</li>
+              </ul>
+            </div>
+            
+            <div class="panel" style="padding: 2rem;">
+              <h2 style="margin-top: 0;">Self-Employment Taxes</h2>
+              <p>If you are an independent contractor or freelancer, you don't have an employer to pay the other half of your FICA taxes. Instead, you pay the Self-Employment Contributions Act (SECA) tax.</p>
+              <ul style="padding-left: 20px; line-height: 1.6;">
+                <li style="margin-bottom: 8px;"><strong>The Rate:</strong> The SECA tax rate is 15.3%, consisting of 12.4% for Social Security and 2.9% for Medicare.</li>
+                <li style="margin-bottom: 8px;"><strong>The Calculation:</strong> This 15.3% tax is calculated on 92.35% of your net business income.</li>
+                <li style="margin-bottom: 8px;"><strong>The Deduction:</strong> To help offset the burden, you get to claim 50% of what you paid in self-employment tax as an above-the-line deduction, which lowers your Adjusted Gross Income for your federal income taxes.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="panel" style="padding: 2rem; margin-top: 2rem;">
+            <h2>More Financial Calculators</h2>
+            <div class="nav-wrapper" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
+              <a href="/projects/mortgage-calculator.html" class="navbox-btn">Mortgage</a>
+              <a href="/projects/loan-calculator.html" class="navbox-btn">Loan</a>
+              <a href="/projects/auto-loan-calculator.html" class="navbox-btn">Auto Loan</a>
+              <a href="/projects/interest-calculator.html" class="navbox-btn">Interest</a>
+              <a href="/projects/payment-calculator.html" class="navbox-btn">Payment</a>
+              <a href="/projects/retirement-calculator.html" class="navbox-btn">Retirement</a>
+              <a href="/projects/amortization-calculator.html" class="navbox-btn">Amortization</a>
+              <a href="/projects/investment-calculator.html" class="navbox-btn">Investment</a>
+              <a href="/projects/currency-calculator.html" class="navbox-btn">Currency</a>
+              <a href="/projects/inflation-calculator.html" class="navbox-btn">Inflation</a>
+              <a href="/projects/finance-calculator.html" class="navbox-btn">Finance</a>
+              <a href="/projects/mortgage-payoff-calculator.html" class="navbox-btn">Mortgage Payoff</a>
+              <a href="/projects/income-tax-calculator.html" class="navbox-btn">Income Tax</a>
+              <a href="/projects/compound-interest-calculator.html" class="navbox-btn">Compound Interest</a>
+              <a href="/projects/salary-calculator.html" class="navbox-btn">Salary</a>
+              <a href="/projects/take-home-pay-calculator.html" class="navbox-btn active">Take Home Pay</a>
+              <a href="/projects/401k-calculator.html" class="navbox-btn">401K</a>
+              <a href="/projects/interest-rate-calculator.html" class="navbox-btn">Interest Rate</a>
+              <a href="/projects/sales-tax-calculator.html" class="navbox-btn">Sales Tax</a>
+              <a href="/projects/financial-calculators.html" class="navbox-btn" >View All</a>
+            </div>
+          </div>
+          <div style="text-align: center; margin-top: 40px; margin-bottom: 20px; font-size: 0.85rem; color: var(--muted);">
+            <p style="margin: 5px 0;">Tax calculations reflect current 2025 and 2026 federal tax law.</p>
+            <p style="margin: 5px 0;" id="last-updated">Last updated: <script>document.write(new Date(document.lastModified).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }));</script></p>
+            <p style="margin: 5px 0;"><a href="/pages/privacy-policy.html" style="color: var(--muted); text-decoration: underline; font-size: 0.85em;">Privacy Notice</a></p>
+          </div>
+          </section>
+      </main>
+      <footer>
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+    
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+    <script src="/assets/js/projects/tax-and-salary/take-home-pay-calculator.js"></script>
+  </body>
+</html>

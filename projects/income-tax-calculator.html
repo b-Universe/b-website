@@ -8,10 +8,10 @@
     <meta name="portfolio-title" content="Income Tax Calculator">
     <meta name="portfolio-category" content="project">
     <meta name="portfolio-date" content="2026-06-29">
-    <meta name="portfolio-thumbnail" content="/assets/img/projects/tax-and-salary/income-tax-calculator/thumbnail.png">
+    <meta name="portfolio-thumbnail" content="">
     <meta name="portfolio-description" content="Estimate your federal tax refund or potential owed amount based on current standard deductions and tax brackets.">
     
-    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="/assets/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
@@ -25,112 +25,35 @@
         gap: 20px;
       }
       
-      .calc-section {
-        background: rgba(0, 0, 0, 0.4);
-        border: 1px solid rgba(var(--accent-rgb), 0.2);
-        border-radius: var(--radius);
-        overflow: hidden;
-      }
       
-      .calc-header {
-        background: rgba(var(--accent-rgb), 0.15);
-        padding: 10px 15px;
-        font-weight: bold;
-        color: var(--text-light);
-        border-bottom: 1px solid rgba(var(--accent-rgb), 0.2);
-      }
-      
-      .calc-body {
-        padding: 15px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      
-      .input-row {
-        display: grid;
-        grid-template-columns: 250px 150px 1fr;
-        align-items: center;
-        gap: 10px;
-      }
       
       @media (max-width: 600px) {
-        .input-row {
-          grid-template-columns: 1fr;
-          gap: 5px;
-          margin-bottom: 10px;
-        }
+        
       }
       
-      .input-label {
-        font-size: 0.9rem;
-        color: var(--text-light);
-      }
       
-      .input-field, select {
-        width: 100%;
-        padding: 6px 10px;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid var(--accent);
-        border-radius: 4px;
-        color: var(--text-light);
-        font-family: inherit;
-        outline: none;
-      }
       
-      .input-field:focus, select:focus {
-        border-color: var(--text-light);
-        box-shadow: 0 0 5px rgba(var(--accent-rgb), 0.5);
-      }
+      
+      
+      
       
       /* Style radio buttons to have a cyan border */
-      input[type="radio"] {
-        accent-color: var(--accent);
-      }
       
-      .input-note {
-        font-size: 0.8rem;
-        color: var(--muted);
-      }
       
-      .radio-group {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-      }
       
-      .radio-label {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        color: var(--text);
-      }
       
-      .results-panel {
-        background: rgba(var(--accent-rgb), 0.1);
-        border: 2px solid var(--accent);
-        padding: 20px;
-        border-radius: var(--radius);
-        text-align: center;
-        margin-top: 10px;
-      }
       
-      .results-title {
-        font-size: 1.2rem;
-        color: var(--text-light);
-        margin-bottom: 10px;
-      }
       
-      .results-value {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #4CAF50; /* Green for refund, will change to red if owe in JS */
-        font-family: 'Consolas', monospace;
-      }
+      
+      
+      
+      
+      
+      
+      
     </style>
-  </head>
+    <link rel="stylesheet" href="/assets/css/pages/tax-and-salary.css">
+</head>
   <body>
     <div class="wrap">
       <canvas id="starfield"></canvas>
@@ -148,6 +71,7 @@
           <div class="nav-wrapper">
             <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
               <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
               <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
             </nav>
             <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon" aria-hidden="true"></i>Dark</button>
@@ -157,7 +81,7 @@
       </header>
 
       <main class="main-content">
-        <div class="calculator-wrap">
+        <section class="content-card static-card" style="padding: 40px;">
           <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
             <ol>
               <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
@@ -190,7 +114,7 @@
                 <div class="input-row">
                   <div class="input-label">File Status</div>
                   <div style="grid-column: 2 / span 2;">
-                    <select id="file-status" style="width: fit-content;">
+                    <select id="file-status" class="calc-input" style="width: fit-content;">
                       <option value="single">Single</option>
                       <option value="married-joint">Married Filing Jointly</option>
                       <option value="married-separate">Married Filing Separately</option>
@@ -378,8 +302,8 @@
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap; gap: 15px;">
               <p style="margin: 0; font-style: italic; color: var(--muted); font-size: 0.9rem; flex: 1;">Note: Values update automagically as you type.</p>
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <select id="demo-scenarios" style="width: auto; max-width: 250px;">
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <select id="demo-scenarios" class="calc-input" style="flex: 1; min-width: 150px;">
                   <option value="">-- Select a Demo Example --</option>
                   <option value="demo1">Basic Single Filer</option>
                   <option value="demo2">High Deductions (Itemized)</option>
@@ -388,7 +312,7 @@
                   <option value="demo5">Single Filer (Student Loan Phase-out)</option>
                   <option value="demo6">Head of Household (Working Parent)</option>
                 </select>
-                <button type="reset" class="btn btn-outline-danger no-hue-cycle" style="margin: 0; font-size: 0.95rem;">Clear / Reset</button>
+                <button type="reset" class="btn btn-outline-danger no-hue-cycle" style="margin: 0; font-size: 0.95rem; white-space: nowrap;">Clear / Reset</button>
               </div>
             </div>
 
@@ -553,6 +477,7 @@
               <a href="/projects/income-tax-calculator.html" class="navbox-btn active">Income Tax</a>
               <a href="/projects/compound-interest-calculator.html" class="navbox-btn">Compound Interest</a>
               <a href="/projects/salary-calculator.html" class="navbox-btn">Salary</a>
+              <a href="/projects/take-home-pay-calculator.html" class="navbox-btn">Take Home Pay</a>
               <a href="/projects/401k-calculator.html" class="navbox-btn">401K</a>
               <a href="/projects/interest-rate-calculator.html" class="navbox-btn">Interest Rate</a>
               <a href="/projects/sales-tax-calculator.html" class="navbox-btn">Sales Tax</a>
@@ -560,13 +485,13 @@
             </div>
           </div>
         </div>
+        </div>
       
           <div style="text-align: center; margin-top: 40px; margin-bottom: 20px; font-size: 0.85rem; color: var(--muted);">
             <p style="margin: 5px 0;">Tax calculations reflect current 2025 and 2026 federal tax law.</p>
             <p style="margin: 5px 0;" id="last-updated">Last updated: <script>document.write(new Date(document.lastModified).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }));</script></p>
             <p style="margin: 5px 0;"><a href="/pages/privacy-policy.html" style="color: var(--muted); text-decoration: underline; font-size: 0.85em;">Privacy Notice</a></p>
-          </div>
-
+          </section>
       </main>
 
       <footer>
