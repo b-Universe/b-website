@@ -25,7 +25,8 @@
       '/articles/tax-and-salary.html',
       '/projects/income-tax-calculator.html',
       '/projects/salary-calculator.html',
-      '/projects/take-home-pay-calculator.html'
+      '/projects/take-home-pay-calculator.html',
+      '/projects/financial-calculators.html'
     ];
 
     let cachedCards = [];

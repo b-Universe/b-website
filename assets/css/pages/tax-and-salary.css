@@ -138,3 +138,25 @@ input[type="radio"].calc-input {
     gap: 2rem;
   }
 }
+
+/* Stub Project Card Overrides */
+.tool-link-card.stub-card {
+  opacity: 0.5;
+  pointer-events: none;
+  filter: grayscale(100%);
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  cursor: not-allowed;
+}
+
+.stub-note {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--accent);
+  margin-top: 5px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
