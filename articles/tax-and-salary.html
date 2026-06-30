@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Tax and Salary Tools</title>
+    
+    <meta name="portfolio-title" content="Tax and Salary Tools">
+    <meta name="portfolio-category" content="article">
+    <meta name="portfolio-date" content="2026-06-29">
+    <meta name="portfolio-thumbnail" content="/assets/img/articles/tax-and-salary/thumbnail.png">
+    <meta name="portfolio-description" content="A collection of comprehensive tools for estimating taxes, calculating salaries, and understanding take-home pay based on current brackets.">
+    
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+      .article-wrap {
+        max-width: 850px;
+        margin: 0 auto;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      
+      .tool-link-card {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 20px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(var(--accent-rgb), 0.1);
+        border-radius: var(--radius);
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.3s ease;
+      }
+      
+      .tool-link-card:hover {
+        border-color: var(--accent);
+        background: rgba(var(--accent-rgb), 0.05);
+        transform: translateY(-2px);
+      }
+      
+      .tool-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-right: 1px solid rgba(var(--accent-rgb), 0.1);
+      }
+      
+      .tool-content {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      
+      .tool-content h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: var(--text-light);
+      }
+      
+      .tool-content p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--muted);
+      }
+      
+      @media (max-width: 768px) {
+        .tool-link-card {
+          grid-template-columns: 1fr;
+        }
+        .tool-image {
+          height: 150px;
+          border-right: none;
+          border-bottom: 1px solid rgba(var(--accent-rgb), 0.1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+            <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon" aria-hidden="true"></i>Dark</button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+    
+      <main>
+        <div class="main-content article-wrap">
+          
+          <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+            <ol>
+              <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+              <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+              <li><span><i class="fas fa-book-open" aria-hidden="true"></i> Articles</span></li>
+              <li><span class="breadcrumb-current" aria-current="page">Tax and Salary Tools</span></li>
+            </ol>
+          </nav>
+
+          <section class="content-card static-card">
+            <h1>Tax and Salary Financial Tools</h1>
+            <p>Welcome to our comprehensive suite of financial estimation tools. Whether you're planning your budget, anticipating a tax return, or analyzing your take-home pay, these calculators provide quick insights based on recent tax brackets.</p>
+          </section>
+
+          <section class="content-card static-card" style="padding: 25px;">
+            <h3 style="margin-top: 0; margin-bottom: 20px;">Explore Our Calculators</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+              <a href="/projects/income-tax-calculator.html" class="tool-link-card">
+                <img src="/assets/img/projects/tax-and-salary/income-tax-calculator/thumbnail.png" alt="Income Tax Calculator" class="tool-image">
+                <div class="tool-content">
+                  <h3>Income Tax Calculator</h3>
+                  <p>Estimates your federal tax refund or potential owed amount based on standard deductions and current tax brackets.</p>
+                </div>
+              </a>
+              
+              <a href="/projects/salary-calculator.html" class="tool-link-card">
+                <div style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--accent);">
+                  <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="tool-content">
+                  <h3>Salary Calculator</h3>
+                  <p>Convert your hourly wage into a yearly salary or vice-versa, factoring in working hours and vacation days.</p>
+                </div>
+              </a>
+              
+              <a href="/projects/marriage-tax-calculator.html" class="tool-link-card">
+                <div style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--accent);">
+                  <i class="fas fa-rings-wedding"></i>
+                </div>
+                <div class="tool-content">
+                  <h3>Marriage Tax Calculator</h3>
+                  <p>Evaluate the financial impact of filing jointly versus separately to optimize your household tax burden.</p>
+                </div>
+              </a>
+              
+              <a href="/projects/estate-tax-calculator.html" class="tool-link-card">
+                <div style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--accent);">
+                  <i class="fas fa-landmark"></i>
+                </div>
+                <div class="tool-content">
+                  <h3>Estate Tax Calculator</h3>
+                  <p>Estimate potential estate taxes based on total asset value and current exemption limits.</p>
+                </div>
+              </a>
+              
+              <a href="/projects/take-home-paycheck-calculator.html" class="tool-link-card">
+                <div style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--accent);">
+                  <i class="fas fa-wallet"></i>
+                </div>
+                <div class="tool-content">
+                  <h3>Take-Home Paycheck Calculator</h3>
+                  <p>Determine your exact take-home pay by factoring in federal taxes, state taxes, FICA, and pre-tax deductions.</p>
+                </div>
+              </a>
+            </div>
+          </section>
+    
+        </div>
+      </main>
+
+      <footer>
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+  </body>
+</html>
