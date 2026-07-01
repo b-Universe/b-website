@@ -510,7 +510,7 @@
       
           <div style="text-align: center; margin-top: 40px; margin-bottom: 20px; font-size: 0.85rem; color: var(--muted);">
             <p style="margin: 5px 0;">Tax calculations reflect current 2025 and 2026 federal tax law.</p>
-            <p style="margin: 5px 0;" id="last-updated">Last updated: <script>document.write(new Date(document.lastModified).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }));</script></p>
+            <p style="margin: 5px 0;" id="last-updated">Last updated: <script>document.getElementById('last-updated').innerText = 'Last updated: ' + new Date(document.lastModified).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });</script></p>
             <p style="margin: 5px 0;"><a href="/pages/privacy-policy.html" style="color: var(--muted); text-decoration: underline; font-size: 0.85em;">Privacy Notice</a></p>
           </section>
       </main>

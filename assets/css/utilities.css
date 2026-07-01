@@ -6,4 +6,25 @@
     .hide-on-mobile-1440 { display: none !important; }
     .show-on-mobile-1440 { display: block !important; }
   }
+
+  /* Page Transition Classes */
+  main, header {
+    transition: opacity 500ms ease-in-out, transform 500ms ease-in-out;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  main.page-transitioning, header.page-transitioning {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  body {
+    transition: opacity 500ms ease-in-out;
+    opacity: 1;
+  }
+
+  body.page-leaving {
+    opacity: 0;
+  }
 }
