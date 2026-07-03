@@ -1,0 +1,536 @@
+/* Selection Components (Accordions & Form Inputs) */
+
+/* ---------------------------------
+   1. Accordions
+--------------------------------- */
+.accordion {
+  background: var(--card);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.accordion-header {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-weight: bold;
+  color: var(--text-light);
+  user-select: none;
+  background: transparent;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.accordion-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.accordion-icon {
+  transition: transform 0.3s ease;
+  color: var(--accent);
+}
+
+.accordion.active .accordion-icon {
+  transform: rotate(180deg);
+}
+
+/* Smooth Slide-down Trick using CSS Grid */
+.accordion-body-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease-out;
+}
+
+.accordion.active .accordion-body-wrapper {
+  grid-template-rows: 1fr;
+}
+
+.accordion-body {
+  overflow: hidden;
+}
+
+.accordion-content {
+  padding: 0 1.5rem 1.25rem 1.5rem;
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Accordion Variants */
+
+/* Bordered */
+.accordion-bordered {
+  background: transparent;
+  backdrop-filter: none;
+  border: 1px solid var(--accent);
+}
+.accordion-bordered .accordion-header:hover {
+  background: rgba(var(--accent-rgb), 0.1);
+}
+
+/* Filled */
+.accordion-filled {
+  background: rgba(var(--accent-rgb), 0.15);
+  border: none;
+}
+
+/* Solid Header */
+.accordion-solid-header {
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+}
+.accordion-solid-header .accordion-header {
+  background: rgba(var(--accent-rgb), 0.8);
+  color: #000;
+}
+.accordion-solid-header .accordion-header:hover {
+  background: var(--accent);
+}
+.accordion-solid-header .accordion-icon {
+  color: #000;
+}
+.accordion-solid-header.active .accordion-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Solid Content */
+.accordion-solid-content {
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+}
+.accordion-solid-content .accordion-header {
+  background: rgba(0, 0, 0, 0.4);
+}
+.accordion-solid-content .accordion-content {
+  background: rgba(var(--accent-rgb), 0.8);
+  color: #000;
+  padding-top: 1.25rem;
+}
+.accordion-solid-content .accordion-content p,
+.accordion-solid-content .accordion-content strong {
+  color: #000 !important;
+}
+
+/* Semantic Multi-Colored Modifiers */
+.accordion-info {
+  --accent: #2196F3;
+  --accent-rgb: 33, 150, 243;
+}
+.accordion-success {
+  --accent: #4CAF50;
+  --accent-rgb: 76, 175, 80;
+}
+.accordion-danger {
+  --accent: #F44336;
+  --accent-rgb: 244, 67, 54;
+}
+.accordion-warning {
+  --accent: #FFC107;
+  --accent-rgb: 255, 193, 7;
+}
+
+/* Fix text colors for Semantic Accordions */
+.accordion-info.accordion-solid-header .accordion-header,
+.accordion-success.accordion-solid-header .accordion-header,
+.accordion-danger.accordion-solid-header .accordion-header,
+.accordion-info.accordion-solid-header .accordion-icon,
+.accordion-success.accordion-solid-header .accordion-icon,
+.accordion-danger.accordion-solid-header .accordion-icon {
+  color: #fff;
+}
+.accordion-warning.accordion-solid-header .accordion-header,
+.accordion-warning.accordion-solid-header .accordion-icon {
+  color: #000;
+}
+
+.accordion-info.accordion-solid-content .accordion-content,
+.accordion-success.accordion-solid-content .accordion-content,
+.accordion-danger.accordion-solid-content .accordion-content,
+.accordion-info.accordion-solid-content .accordion-content p,
+.accordion-success.accordion-solid-content .accordion-content p,
+.accordion-danger.accordion-solid-content .accordion-content p,
+.accordion-info.accordion-solid-content .accordion-content strong,
+.accordion-success.accordion-solid-content .accordion-content strong,
+.accordion-danger.accordion-solid-content .accordion-content strong {
+  color: #fff !important;
+}
+
+.accordion-warning.accordion-solid-content .accordion-content,
+.accordion-warning.accordion-solid-content .accordion-content p,
+.accordion-warning.accordion-solid-content .accordion-content strong {
+  color: #000 !important;
+}
+
+
+/* ---------------------------------
+   2. Fancy Form Inputs & Controls
+--------------------------------- */
+
+/* Form Layouts */
+.form-group {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-light);
+  font-weight: bold;
+}
+
+.form-horizontal {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.form-horizontal .form-label {
+  margin-bottom: 0;
+}
+
+.form-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.form-inline .form-group {
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.form-inline .form-label {
+  margin-bottom: 0;
+}
+
+/* Two Column form specific */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+/* Text Inputs & Textareas */
+.fancy-input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  color: var(--text-light);
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.fancy-input:focus {
+  border-color: var(--accent);
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.3), inset 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.fancy-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.fancy-input:disabled {
+  background: rgba(0, 0, 0, 0.1);
+  color: rgba(255, 255, 255, 0.2);
+  cursor: not-allowed;
+}
+
+/* Input Sizes */
+.fancy-input-lg {
+  padding: 1.25rem 1.5rem;
+  font-size: 1.15rem;
+}
+
+.fancy-input-sm {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+/* Floating Label Variant */
+.form-floating {
+  position: relative;
+}
+
+.form-floating .fancy-input {
+  padding-top: 1.25rem;
+  padding-bottom: 0.35rem;
+}
+
+.form-floating label {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.5);
+  transition: all 0.2s ease;
+  pointer-events: none;
+  font-size: 1rem;
+}
+
+.form-floating .fancy-input:focus ~ label,
+.form-floating .fancy-input:not(:placeholder-shown) ~ label {
+  top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+
+/* Select Dropdown */
+.fancy-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%22//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2300E0FF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem top 50%;
+  background-size: 0.65rem auto;
+}
+.fancy-select option {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* File Upload */
+.fancy-file-upload {
+  display: flex;
+  align-items: center;
+}
+.fancy-file-upload input[type="file"] {
+  display: none;
+}
+.fancy-file-upload .file-name {
+  flex-grow: 1;
+  padding: 0.8rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: none;
+  border-radius: var(--radius) 0 0 var(--radius);
+  color: var(--text-light);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.fancy-file-upload .file-btn {
+  background: var(--accent);
+  color: #000;
+  border: 1px solid var(--accent);
+  padding: 0.8rem 1.5rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+.fancy-file-upload .file-btn:hover {
+  background: transparent;
+  color: var(--accent);
+}
+
+/* Input Groups */
+.input-group {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+.input-group .fancy-input {
+  border-radius: 0;
+  flex: 1 1 auto;
+}
+.input-group .fancy-input:first-child {
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+.input-group .fancy-input:last-child {
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.input-group-text {
+  display: flex;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-light);
+  font-weight: bold;
+}
+.input-group .input-group-text:first-child {
+  border-right: none;
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+.input-group .input-group-text:last-child {
+  border-left: none;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.input-group-btn {
+  background: var(--accent);
+  color: #000;
+  border: 1px solid var(--accent);
+  padding: 0.8rem 1.5rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+.input-group .input-group-btn:last-child {
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.input-group-btn:hover {
+  background: transparent;
+  color: var(--accent);
+}
+
+/* Checkboxes & Radios */
+.fancy-check-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  margin-bottom: 0.75rem;
+  color: var(--text-light);
+  user-select: none;
+}
+
+.fancy-check-wrapper input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.check-mark, .radio-mark {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.check-mark {
+  border-radius: 4px;
+}
+
+.radio-mark {
+  border-radius: 50%;
+}
+
+.fancy-check-wrapper:hover input:not(:disabled) ~ .check-mark,
+.fancy-check-wrapper:hover input:not(:disabled) ~ .radio-mark {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.fancy-check-wrapper input:checked ~ .check-mark,
+.fancy-check-wrapper input:checked ~ .radio-mark {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.5);
+}
+
+.fancy-check-wrapper input:disabled ~ .check-mark,
+.fancy-check-wrapper input:disabled ~ .radio-mark {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.fancy-check-wrapper input:disabled ~ span.check-label {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Checkmark Icon */
+.check-mark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid #000;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.fancy-check-wrapper input:checked ~ .check-mark:after {
+  display: block;
+}
+
+/* Radio Dot Icon */
+.radio-mark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  top: 4px;
+  left: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #000;
+}
+
+.fancy-check-wrapper input:checked ~ .radio-mark:after {
+  display: block;
+}
+
+/* Semantic Colored Checkboxes / Radios */
+.check-primary { --accent: #2196F3; --accent-rgb: 33, 150, 243; }
+.check-success { --accent: #4CAF50; --accent-rgb: 76, 175, 80; }
+.check-info    { --accent: #00bcd4; --accent-rgb: 0, 188, 212; }
+.check-danger  { --accent: #F44336; --accent-rgb: 244, 67, 54; }
+.check-warning { --accent: #FFC107; --accent-rgb: 255, 193, 7; }
+
+/* Toggle Switch */
+.fancy-switch {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+}
+
+.fancy-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  transition: .3s;
+}
+
+.switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--text-light);
+  transition: .3s;
+  border-radius: 50%;
+}
+
+.fancy-switch input:checked + .switch-slider {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.5);
+}
+
+.fancy-switch input:checked + .switch-slider:before {
+  transform: translateX(20px);
+  background-color: #000;
+}

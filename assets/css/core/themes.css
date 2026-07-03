@@ -24,11 +24,16 @@
     --text: #e6eef6;
     --text-light: #e6eef6;
     --text-dark: #0f172a;
-    --muted: #9aa6b2;
+    --muted: #c1c9d2;
 
     /* Header Specifics */
     --header-text: var(--text-light);
-    --header-glow: 0 0 8px var(--accent-2);
+    --header-glow: 
+      -1px -1px 0 var(--text-dark), 
+       1px -1px 0 var(--text-dark), 
+      -1px  1px 0 var(--text-dark), 
+       1px  1px 0 var(--text-dark), 
+       0 0 8px var(--accent-2);
   }
 
   /* Light Theme Overrides */

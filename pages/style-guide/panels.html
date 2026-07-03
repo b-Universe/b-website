@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Panels & Layouts Styleguide</title>
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+      /* Colcade Masonry Demo Styles */
+      .masonry-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--gap);
+        margin-bottom: 2rem;
+      }
+      .grid-col {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+            <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon" aria-hidden="true"></i>Dark</button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><span><i class="fas fa-rocket" aria-hidden="true"></i> Projects</span></li>
+            <li><a href="/projects/b-website.html">B-Website</a></li>
+            <li><span class="breadcrumb-current" aria-current="page">Panels & Layouts</span></li>
+          </ol>
+        </nav>
+
+        <h2>Grid Layouts</h2>
+        
+        <!-- All Grids Wrapper -->
+        <div class="glass-panel" style="display: flex; flex-direction: column; gap: 2rem; margin-bottom: 3rem;">
+          
+          <!-- 1 Column Display -->
+          <div class="grid-locked grid-cols-1">
+            <div class="panel panel-solid">
+              <div class="panel-header"><i class="fas fa-folder-open"></i> Interactive Tabs (1-Column Display)</div>
+              <div class="panel-body">
+                <p style="margin-bottom: 1.5rem;">Tabs use .tabs container, .tab-btn elements, and .tab-content panels. Add the .active class to reveal the desired content.</p>
+                
+                <div class="tabs">
+                  <button class="tab-btn active" data-tab="tab-1"><i class="fas fa-user"></i> Profile</button>
+                  <button class="tab-btn" data-tab="tab-2"><i class="fas fa-cog"></i> Settings</button>
+                  <button class="tab-btn" data-tab="tab-3"><i class="fas fa-shield-alt"></i> Privacy</button>
+                </div>
+                
+                <div class="sub-panel" style="border-top-left-radius: 0; border-top-right-radius: 0; border-top: none;">
+                  <div id="tab-1" class="tab-content active">
+                    <h3 style="text-align: left; margin: 0 0 10px 0;">Profile Information</h3>
+                    <p style="margin: 0; color: var(--text-light);">This is the first tab's content. It is currently active.</p>
+                  </div>
+                  <div id="tab-2" class="tab-content">
+                    <h3 style="text-align: left; margin: 0 0 10px 0;">Account Settings</h3>
+                    <p style="margin: 0; color: var(--text-light);">This is the second tab's content. Toggle it by clicking the Settings button.</p>
+                  </div>
+                  <div id="tab-3" class="tab-content">
+                    <h3 style="text-align: left; margin: 0 0 10px 0;">Privacy & Security</h3>
+                    <p style="margin: 0; color: var(--text-light);">This is the third tab's content. Toggle it by clicking the Privacy button.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2 Column Display -->
+          <div class="grid-locked grid-cols-2">
+            
+            <div class="panel" style="padding: 1.5rem;">
+              <span class="panel-label">Standard Panel (Col 1)</span>
+              <p style="margin-bottom: 1.5rem;">The default .panel applies a glassmorphic blurred background, border radius, and inset shadow. Best for general wrappers and floating cards.</p>
+              <p style="font-size: 0.9rem; color: var(--muted);">You can add padding manually via utility classes or inline styles as needed.</p>
+            </div>
+
+            <div class="panel panel-solid">
+              <div class="panel-header"><i class="fas fa-layer-group"></i> Panel Solid (Col 2)</div>
+              <div class="panel-body">
+                <p style="margin-bottom: 1rem;">The .panel-solid variant is opaque, removes the box-shadow, and disables the backdrop filter.</p>
+                <div class="sub-panel">
+                  <h4 style="margin: 0 0 10px 0; text-align: left; font-size: 1.1rem;"><i class="fas fa-level-down-alt"></i> Sub-Panel</h4>
+                  <p style="margin: 0; font-size: 0.9rem;">Sub-panels use a darker, highly transparent background to create visual depth inside existing panels.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 3 Column Display -->
+          <div class="grid-locked grid-cols-3">
+            
+            <div class="panel" style="padding: 1.5rem;">
+              <span class="panel-label">Standard Panel (Col 1)</span>
+              <p>This panel uses the standard glassmorphic effect. In a 3-column grid, these boxes will stretch to be equal height.</p>
+            </div>
+
+            <div class="panel panel-solid">
+              <div class="panel-header"><i class="fas fa-box"></i> Panel Solid (Col 2)</div>
+              <div class="panel-body">
+                <p>This is a solid panel containing a header and body.</p>
+                <div class="sub-panel">
+                  <p style="margin: 0; font-size: 0.9rem;">With a sub-panel inside to demonstrate nesting.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel" style="padding: 1.5rem;">
+              <span class="panel-label">Standard Panel (Col 3)</span>
+              <p>Another standard panel. Notice how all three panels perfectly align their bottoms thanks to the <code>.grid-locked</code> container!</p>
+            </div>
+
+          </div>
+
+        </div>
+
+        <h2>Masonry Layouts (Colcade)</h2>
+        <p style="margin-bottom: 1.5rem; color: var(--text-light);">Using the lightweight Colcade script for dynamic masonry layouts with uneven panel heights.</p>
+        
+        <div class="glass-panel" style="display: block;">
+          <div class="masonry-grid" style="margin-bottom: 0;">
+            <!-- columns -->
+            <div class="grid-col grid-col--1"></div>
+            <div class="grid-col grid-col--2"></div>
+            <div class="grid-col grid-col--3"></div>
+            <div class="grid-col grid-col--4"></div>
+            
+            <!-- items -->
+            <div class="grid-item">
+              <div class="panel" style="padding: 1.5rem; height: 180px;">
+                <span class="panel-label">Masonry A</span>
+                <p>Short block</p>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div class="panel panel-solid" style="height: 280px;">
+                <div class="panel-header">Masonry B</div>
+                <div class="panel-body"><p>Tall block displaying some content.</p></div>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div class="panel" style="padding: 1.5rem; height: 120px;">
+                <span class="panel-label">Masonry C</span>
+                <p>Very short block</p>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div class="panel panel-solid" style="height: 320px;">
+                <div class="panel-header">Masonry D</div>
+                <div class="panel-body"><p>Extra tall block for masonry cascading.</p></div>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div class="panel" style="padding: 1.5rem; height: 210px;">
+                <span class="panel-label">Masonry E</span>
+                <p>Medium block</p>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div class="panel panel-solid" style="height: 150px;">
+                <div class="panel-header">Masonry F</div>
+                <div class="panel-body"><p>Short solid block.</p></div>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div class="panel" style="padding: 1.5rem; height: 260px;">
+                <span class="panel-label">Masonry G</span>
+                <p>Standard height block.</p>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div class="panel panel-solid" style="height: 190px;">
+                <div class="panel-header">Masonry H</div>
+                <div class="panel-body"><p>Another medium block.</p></div>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div class="panel" style="padding: 1.5rem; height: 230px;">
+                <span class="panel-label">Masonry I</span>
+                <p>Cascading panel</p>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div class="panel panel-solid" style="height: 140px;">
+                <div class="panel-header">Masonry J</div>
+                <div class="panel-body"><p>Compact block</p></div>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div class="panel" style="padding: 1.5rem; height: 310px;">
+                <span class="panel-label">Masonry K</span>
+                <p>A taller standard panel to offset the grid.</p>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div class="panel panel-solid" style="height: 200px;">
+                <div class="panel-header">Masonry L</div>
+                <div class="panel-body"><p>Solid standard block</p></div>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div class="panel" style="padding: 1.5rem; height: 160px;">
+                <span class="panel-label">Masonry M</span>
+                <p>Short glass panel</p>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div class="panel panel-solid" style="height: 270px;">
+                <div class="panel-header">Masonry N</div>
+                <div class="panel-body"><p>Tall solid panel</p></div>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div class="panel" style="padding: 1.5rem; height: 220px;">
+                <span class="panel-label">Masonry O</span>
+                <p>Medium glass panel</p>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div class="panel panel-solid" style="height: 170px;">
+                <div class="panel-header">Masonry P</div>
+                <div class="panel-body"><p>Ending short block</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+      <footer style="margin-top: 2rem;">
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+    <script>
+      // Simple Tab Switching Logic for Demo
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          // Remove active from all buttons
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          // Remove active from all contents
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          
+          // Add active to clicked button
+          btn.classList.add('active');
+          // Add active to target content
+          const target = btn.getAttribute('data-tab');
+          document.getElementById(target).classList.add('active');
+        });
+      });
+    </script>
+    <script src="https://unpkg.com/colcade@0/colcade.js"></script>
+    <script>
+      // Initialize Colcade for Masonry Demo
+      if (document.querySelector('.masonry-grid')) {
+        new Colcade('.masonry-grid', {
+          columns: '.grid-col',
+          items: '.grid-item'
+        });
+      }
+    </script>
+  </body>
+</html>

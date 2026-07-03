@@ -165,7 +165,15 @@
       
       // Ignore specific links
       if (link.target === '_blank' || href.startsWith('javascript:')) return;
-      if (href.includes('#') && href.split('#')[0] === window.location.href.split('#')[0]) return;
+      if (href.includes('#') && href.split('#')[0] === window.location.href.split('#')[0]) {
+        e.preventDefault();
+        const hash = href.split('#')[1];
+        if (hash) {
+          const el = document.getElementById(hash);
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+        return;
+      }
       
       // If it's a download link or something we don't want to route, we can skip
       if (link.hasAttribute('download')) return;

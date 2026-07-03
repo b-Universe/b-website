@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Overlays Styleguide</title>
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+  <body>
+    <div class="wrap">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+            <button id="theme-toggle" class="btn btn-secondary" title="Toggle theme"><i class="fa-solid fa-moon" aria-hidden="true"></i>Dark</button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+<main class="main-content">
+  <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+    <ol>
+      <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+      <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+      <li><span><i class="fas fa-rocket" aria-hidden="true"></i> Projects</span></li>
+      <li><a href="/projects/b-website.html">B-Website</a></li>
+      <li><span class="breadcrumb-current" aria-current="page">Overlays</span></li>
+    </ol>
+  </nav>
+
+  <div class="glass-panel" style="display: flex; flex-direction: column; gap: 2rem; margin-bottom: 3rem;">
+    
+    <!-- Modals Section -->
+    <div class="grid-locked grid-cols-1">
+      <div class="panel">
+        <div class="panel-header"><i class="fas fa-window-restore"></i> Modals</div>
+        <div class="panel-body" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+          
+          <div class="sub-panel" style="display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center;">
+            <div style="width: 100%;">
+              <h4 style="margin-top: 0;">Large Modal</h4>
+              <p>Large sized modal with max-width set to <span style="color: var(--danger, #f44336);">90%</span></p>
+            </div>
+            <button class="btn btn-primary" data-toggle="modal" data-target="#modal-large" style="margin-top: 1rem;">Click for demo <i class="fas fa-play-circle"></i></button>
+          </div>
+
+          <div class="sub-panel" style="display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center;">
+            <div style="width: 100%;">
+              <h4 style="margin-top: 0;">Medium Modal</h4>
+              <p>Normal modal with default bootstrap settings</p>
+            </div>
+            <button class="btn btn-primary" data-toggle="modal" data-target="#modal-medium" style="margin-top: 1rem;">Click for demo <i class="fas fa-play-circle"></i></button>
+          </div>
+
+          <div class="sub-panel" style="display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center;">
+            <div style="width: 100%;">
+              <h4 style="margin-top: 0;">Small Modal</h4>
+              <p>Small modal with max-width set to <span style="color: var(--danger, #f44336);">300px</span></p>
+            </div>
+            <button class="btn btn-primary" data-toggle="modal" data-target="#modal-small" style="margin-top: 1rem;">Click for demo <i class="fas fa-play-circle"></i></button>
+          </div>
+
+        </div>
+        
+        <!-- Varying Modal Content row -->
+        <div class="panel-body" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; padding-top: 0;">
+          <div class="sub-panel">
+            <h4 style="margin-top: 0;">Varying Modal Content</h4>
+            <button class="btn btn-info" data-toggle="modal" data-target="#modal-varying" data-modal-title="New message to @mdo">Open modal for @mdo</button>
+          </div>
+          <div class="sub-panel">
+            <h4 style="margin-top: 0;">Varying Modal Content</h4>
+            <button class="btn btn-danger" data-toggle="modal" data-target="#modal-varying" data-modal-title="New message to @fat">Open modal for @fat</button>
+          </div>
+          <div class="sub-panel">
+            <h4 style="margin-top: 0;">Varying Modal Content</h4>
+            <button class="btn btn-warning" data-toggle="modal" data-target="#modal-varying" data-modal-title="New message to @getbootstrap">Open modal for @getbootstrap</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tooltips & Popovers Row -->
+    <div class="grid-locked grid-cols-2">
+      
+      <!-- Tooltips Panel -->
+      <div class="panel">
+        <div class="panel-header"><i class="fas fa-comment-alt"></i> Tooltips</div>
+        <div class="panel-body">
+          
+          <h4 style="margin-top: 0;">Basic Tooltip</h4>
+          <p>Basic tooltip demo that appears on hover</p>
+          <p style="margin-bottom: 1.5rem; color: var(--text-light);">Hover the below button for interactive demo</p>
+          <button class="btn btn-primary" data-tooltip="This is a basic tooltip!">Hover me</button>
+
+          <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 1.5rem 0;">
+
+          <h4>Tooltip Positions</h4>
+          <p style="margin-bottom: 1.5rem;">Add attribute <code style="color: var(--danger, #f44336);">data-placement="(position)"</code> to the element</p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button class="btn btn-secondary" data-tooltip="Tooltip on top" data-placement="top">Top Tooltip</button>
+            <button class="btn btn-secondary" data-tooltip="Tooltip on right" data-placement="right">Right Tooltip</button>
+            <button class="btn btn-secondary" data-tooltip="Tooltip on bottom" data-placement="bottom">Bottom Tooltip</button>
+            <button class="btn btn-secondary" data-tooltip="Tooltip on left" data-placement="left">Left Tooltip</button>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 1.5rem 0;">
+
+          <h4>Tooltip Colors</h4>
+          <p style="margin-bottom: 1.5rem;">Add class <code style="color: var(--danger, #f44336);">tooltip-{color}</code> to the element</p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button class="btn btn-success tooltip-success" data-tooltip="Success tooltip!">Success</button>
+            <button class="btn btn-info tooltip-info" data-tooltip="Info tooltip!">Info</button>
+            <button class="btn btn-warning tooltip-warning" data-tooltip="Warning tooltip!">Warning</button>
+            <button class="btn btn-primary tooltip-primary" data-tooltip="Primary tooltip!">Primary</button>
+            <button class="btn btn-danger tooltip-danger" data-tooltip="Danger tooltip!">Danger</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Popovers Panel -->
+      <div class="panel">
+        <div class="panel-header"><i class="fas fa-window-maximize"></i> Popovers</div>
+        <div class="panel-body">
+          
+          <h4 style="margin-top: 0;">Basic Popover</h4>
+          <p>Basic popover demo that appears on click</p>
+          <p style="margin-bottom: 1.5rem; color: var(--text-light);">Click the below button for interactive demo</p>
+          <button class="btn btn-primary" data-toggle="popover" data-popover-title="Popover Title" data-popover-content="And here's some amazing content. It's very engaging. Right?">Click me</button>
+
+          <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 1.5rem 0;">
+
+          <h4>Popover Positions</h4>
+          <p style="margin-bottom: 1.5rem;">Add attribute <code style="color: var(--danger, #f44336);">data-placement="(position)"</code> to the element</p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem;">
+            <div class="sub-panel" style="padding: 1rem; cursor: pointer;" data-toggle="popover" data-placement="top" data-popover-title="Popover top" data-popover-content="Sed posuere consectetur est at lobortis. Aenean eu leo quam.">
+              <h5 style="margin: 0 0 10px 0;">Popover top</h5>
+              <p style="font-size: 0.8rem; margin: 0; color: var(--muted);">Sed posuere consectetur est at lobortis. Aenean eu leo quam.</p>
+            </div>
+            <div class="sub-panel" style="padding: 1rem; cursor: pointer;" data-toggle="popover" data-placement="right" data-popover-title="Popover right" data-popover-content="Sed posuere consectetur est at lobortis. Aenean eu leo quam.">
+              <h5 style="margin: 0 0 10px 0;">Popover right</h5>
+              <p style="font-size: 0.8rem; margin: 0; color: var(--muted);">Sed posuere consectetur est at lobortis. Aenean eu leo quam.</p>
+            </div>
+            <div class="sub-panel" style="padding: 1rem; cursor: pointer;" data-toggle="popover" data-placement="bottom" data-popover-title="Popover bottom" data-popover-content="Sed posuere consectetur est at lobortis. Aenean eu leo quam.">
+              <h5 style="margin: 0 0 10px 0;">Popover bottom</h5>
+              <p style="font-size: 0.8rem; margin: 0; color: var(--muted);">Sed posuere consectetur est at lobortis. Aenean eu leo quam.</p>
+            </div>
+            <div class="sub-panel" style="padding: 1rem; cursor: pointer;" data-toggle="popover" data-placement="left" data-popover-title="Popover left" data-popover-content="Sed posuere consectetur est at lobortis. Aenean eu leo quam.">
+              <h5 style="margin: 0 0 10px 0;">Popover left</h5>
+              <p style="font-size: 0.8rem; margin: 0; color: var(--muted);">Sed posuere consectetur est at lobortis. Aenean eu leo quam.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Popover Colors Row -->
+    <div class="grid-locked grid-cols-1">
+      <div class="panel">
+        <div class="panel-header"><i class="fas fa-palette"></i> Popover Colors</div>
+        <div class="panel-body">
+          <p style="margin-bottom: 1.5rem;">Add attribute <code style="color: var(--danger, #f44336);">data-custom-class="popover-{color}"</code> to the element.</p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+            
+            <div class="sub-panel" style="padding: 1rem; cursor: pointer;" data-toggle="popover" data-placement="top" data-custom-class="popover-success" data-popover-title="Success" data-popover-content="Sed posuere consectetur est at lobortis. Aenean eu leo quam.">
+              <h5 style="margin: 0 0 10px 0;">Success</h5>
+              <p style="font-size: 0.8rem; margin: 0; color: var(--muted);">Sed posuere consectetur est at lobortis. Aenean eu leo quam.</p>
+            </div>
+            
+            <div class="sub-panel" style="padding: 1rem; cursor: pointer;" data-toggle="popover" data-placement="top" data-custom-class="popover-warning" data-popover-title="Warning" data-popover-content="Sed posuere consectetur est at lobortis. Aenean eu leo quam.">
+              <h5 style="margin: 0 0 10px 0;">Warning</h5>
+              <p style="font-size: 0.8rem; margin: 0; color: var(--muted);">Sed posuere consectetur est at lobortis. Aenean eu leo quam.</p>
+            </div>
+
+            <div class="sub-panel" style="padding: 1rem; cursor: pointer;" data-toggle="popover" data-placement="top" data-custom-class="popover-danger" data-popover-title="Danger" data-popover-content="Sed posuere consectetur est at lobortis. Aenean eu leo quam.">
+              <h5 style="margin: 0 0 10px 0;">Danger</h5>
+              <p style="font-size: 0.8rem; margin: 0; color: var(--muted);">Sed posuere consectetur est at lobortis. Aenean eu leo quam.</p>
+            </div>
+
+            <div class="sub-panel" style="padding: 1rem; cursor: pointer;" data-toggle="popover" data-placement="top" data-custom-class="popover-info" data-popover-title="Info" data-popover-content="Sed posuere consectetur est at lobortis. Aenean eu leo quam.">
+              <h5 style="margin: 0 0 10px 0;">Info</h5>
+              <p style="font-size: 0.8rem; margin: 0; color: var(--muted);">Sed posuere consectetur est at lobortis. Aenean eu leo quam.</p>
+            </div>
+
+            <div class="sub-panel" style="padding: 1rem; cursor: pointer;" data-toggle="popover" data-placement="top" data-custom-class="popover-primary" data-popover-title="Primary" data-popover-content="Sed posuere consectetur est at lobortis. Aenean eu leo quam.">
+              <h5 style="margin: 0 0 10px 0;">Primary</h5>
+              <p style="font-size: 0.8rem; margin: 0; color: var(--muted);">Sed posuere consectetur est at lobortis. Aenean eu leo quam.</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+      <footer style="margin-top: 2rem;">
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <!-- Modals DOM Injection -->
+    <div id="modal-large" class="modal">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Large Modal Title</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p>This is a large modal designed to fit complex content like forms or datatables. It takes up 90% of the screen width on large devices.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-medium" class="modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Medium Modal Title</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p>This is a standard medium modal with a default max-width of 500px.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-small" class="modal">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Small Modal Title</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p>This is a small modal with a max-width of 300px, perfect for quick confirmations.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="modal-varying" class="modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">New message</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-group">
+                <label class="form-label" style="display: block; margin-bottom: 0.5rem;">Recipient:</label>
+                <input type="text" class="fancy-input" id="recipient-name" value="@mdo" style="width: 100%;">
+              </div>
+              <div class="form-group" style="margin-top: 15px;">
+                <label class="form-label" style="display: block; margin-bottom: 0.5rem;">Message:</label>
+                <textarea class="fancy-input" id="message-text" rows="4" style="width: 100%;"></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Send message</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+    <script src="/assets/js/overlays.js"></script>
+  </body>
+</html>

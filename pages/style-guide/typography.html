@@ -101,6 +101,74 @@
       </p>
     </div>
 
+    <div class="panel" style="padding: 2rem;">
+      <span class="panel-label">Lists</span>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+        <div>
+          <h4>Unordered List</h4>
+          <ul>
+            <li>First list item</li>
+            <li>Second list item</li>
+            <li>Third list item with a nested list
+              <ul>
+                <li>Nested item one</li>
+                <li>Nested item two</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4>Ordered List</h4>
+          <ol>
+            <li>First list item</li>
+            <li>Second list item</li>
+            <li>Third list item with a nested list
+              <ol>
+                <li>Nested item one</li>
+                <li>Nested item two</li>
+              </ol>
+            </li>
+          </ol>
+        </div>
+        <div>
+          <h4>Icon List</h4>
+          <ul style="list-style-type: none; padding-left: 0;">
+            <li style="margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: var(--accent); margin-right: 0.5rem; width: 20px; text-align: center;"></i>Feature one</li>
+            <li style="margin-bottom: 0.5rem;"><i class="fas fa-star" style="color: var(--accent); margin-right: 0.5rem; width: 20px; text-align: center;"></i>Feature two</li>
+            <li style="margin-bottom: 0.5rem;"><i class="fas fa-bolt" style="color: var(--accent); margin-right: 0.5rem; width: 20px; text-align: center;"></i>Feature three</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Image Icon List</h4>
+          <ul style="list-style-type: none; padding-left: 0;">
+            <li style="margin-bottom: 0.5rem; display: flex; align-items: center;"><img src="https://placehold.co/20x20" alt="icon" style="margin-right: 0.5rem; border-radius: 4px;">Feature one</li>
+            <li style="margin-bottom: 0.5rem; display: flex; align-items: center;"><img src="https://placehold.co/20x20" alt="icon" style="margin-right: 0.5rem; border-radius: 4px;">Feature two</li>
+            <li style="margin-bottom: 0.5rem; display: flex; align-items: center;"><img src="https://placehold.co/20x20" alt="icon" style="margin-right: 0.5rem; border-radius: 4px;">Feature three</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="padding: 2rem;">
+      <span class="panel-label">Inline Text Styles & Code</span>
+      <p>
+        Use <mark>Highlighted Text</mark> to draw attention using the <code>&lt;mark&gt;</code> tag. <br>
+        Sometimes you need <u>underlined text</u> using the <code>&lt;u&gt;</code> tag. <br>
+        This is an example of <span class="text-muted">mute text</span> using the <code>.text-muted</code> class. <br>
+        And here is some <del>strikethrough text</del> using the <code>&lt;del&gt;</code> tag.
+      </p>
+      
+      <p style="margin-top: 1.5rem;">
+        For inline code fragments, use the <code>&lt;code&gt;</code> tag to display variable names like <code>var example = true;</code> directly in paragraphs.
+      </p>
+      
+      <p>For block-level code blocks, wrap the code in <code>&lt;pre&gt;&lt;code&gt;</code> tags:</p>
+<pre><code>function initStyleGuide() {
+  console.log("Typography styles loaded!");
+  return true;
+}</code></pre>
+    </div>
+
   </div>
 </main>
 

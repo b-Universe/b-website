@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - Selection Styleguide</title>
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+  <body>
+    <div class="wrap">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+            <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon" aria-hidden="true"></i>Dark</button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><span><i class="fas fa-rocket" aria-hidden="true"></i> Projects</span></li>
+            <li><a href="/projects/b-website.html">B-Website</a></li>
+            <li><span class="breadcrumb-current" aria-current="page">Selection UI</span></li>
+          </ol>
+        </nav>
+
+        <h2>Accordions</h2>
+        <p style="margin-bottom: 2rem; color: var(--text-light);">Animated, collapsible content panels in a variety of styles. Uses a smooth CSS-grid technique for expanding.</p>
+
+        <div class="glass-panel grid-locked grid-cols-2" style="margin-bottom: 3rem; align-items: start;">
+          
+          <!-- Default & Bordered -->
+          <div class="panel" style="padding: 1.5rem; height: auto;">
+            <h3 style="margin-top: 0;">Default Accordion</h3>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Use class <code>.accordion</code> for standard glassmorphic effect.</p>
+            
+            <div class="accordion active">
+              <div class="accordion-header">
+                How can I pay for an order I placed?
+                <i class="fas fa-chevron-down accordion-icon"></i>
+              </div>
+              <div class="accordion-body-wrapper">
+                <div class="accordion-body">
+                  <div class="accordion-content">
+                    <p>You can pay for the product you have purchased using credit cards, debit cards, or via online banking. We also provide cash-on-delivery services.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion">
+              <div class="accordion-header">
+                I can't sign in to my account
+                <i class="fas fa-chevron-down accordion-icon"></i>
+              </div>
+              <div class="accordion-body-wrapper">
+                <div class="accordion-body">
+                  <div class="accordion-content">
+                    <p>Check your spam folder for the reset password email, or contact support.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bordered Accordion -->
+          <div class="panel panel-solid" style="height: auto;">
+            <div class="panel-header"><i class="fas fa-border-all"></i> Bordered Accordions</div>
+            <div class="panel-body">
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Use class <code>.accordion-bordered</code></p>
+              
+              <div class="accordion accordion-bordered">
+                <div class="accordion-header">
+                  How can I deactivate my account?
+                  <i class="fas fa-chevron-down accordion-icon"></i>
+                </div>
+                <div class="accordion-body-wrapper">
+                  <div class="accordion-body">
+                    <div class="accordion-content">
+                      <p>If you wish to deactivate your account, you can go to the Settings page of your account. Click on Account Settings and then click on Deactivate. You can join again as and when you wish.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="accordion accordion-bordered">
+                <div class="accordion-header">
+                  I can't sign in to my account
+                  <i class="fas fa-chevron-down accordion-icon"></i>
+                </div>
+                <div class="accordion-body-wrapper">
+                  <div class="accordion-body">
+                    <div class="accordion-content">
+                      <p>Ensure your caps lock is off and try again.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filled & Solid Header -->
+          <div class="panel" style="padding: 1.5rem; height: auto;">
+            <h3 style="margin-top: 0;">Filled Accordions</h3>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Use class <code>.accordion-filled</code></p>
+            
+            <div class="accordion accordion-filled">
+              <div class="accordion-header">
+                I forgot my account password. What should I do?
+                <i class="fas fa-chevron-down accordion-icon"></i>
+              </div>
+              <div class="accordion-body-wrapper">
+                <div class="accordion-body">
+                  <div class="accordion-content">
+                    <ol style="margin: 0; padding-left: 1.5rem;">
+                      <li>Click on the 'forgot password' link.</li>
+                      <li>Enter your email address registered with us</li>
+                      <li>Click on the link sent you in the email</li>
+                      <li>Reset your password</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel" style="padding: 1.5rem; height: auto;">
+            <h3 style="margin-top: 0;">Solid Header Accordion</h3>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Use class <code>.accordion-solid-header</code></p>
+            
+            <div class="accordion accordion-solid-header active">
+              <div class="accordion-header">
+                How can I pay for an order I placed?
+                <i class="fas fa-chevron-down accordion-icon"></i>
+              </div>
+              <div class="accordion-body-wrapper">
+                <div class="accordion-body">
+                  <div class="accordion-content" style="padding-top: 1.25rem;">
+                    <p>You can pay for the product you have purchased using credit cards, debit cards, or via online banking. We also provide cash-on-delivery services.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Solid Content & Multi-Colored -->
+          <div class="panel" style="padding: 1.5rem; height: auto;">
+            <h3 style="margin-top: 0;">Solid Content Accordion</h3>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Use class <code>.accordion-solid-content</code></p>
+            
+            <div class="accordion accordion-solid-content">
+              <div class="accordion-header">
+                How can I pay for an order I placed?
+                <i class="fas fa-chevron-down accordion-icon"></i>
+              </div>
+              <div class="accordion-body-wrapper">
+                <div class="accordion-body">
+                  <div class="accordion-content">
+                    <p>You can pay for the product you have purchased using credit cards, debit cards, or via online banking. We also provide cash-on-delivery services.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel" style="padding: 1.5rem; height: auto;">
+            <h3 style="margin-top: 0;">Semantic Colored Accordions</h3>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Combine solid variants with <code>.accordion-info</code>, <code>.accordion-success</code>, <code>.accordion-danger</code>.</p>
+            
+            <div class="accordion accordion-solid-header accordion-info">
+              <div class="accordion-header">
+                General Information (Info)
+                <i class="fas fa-chevron-down accordion-icon"></i>
+              </div>
+              <div class="accordion-body-wrapper">
+                <div class="accordion-body">
+                  <div class="accordion-content" style="padding-top: 1.25rem;">
+                    <p>Helpful tips and tricks for the user.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion accordion-solid-header accordion-success">
+              <div class="accordion-header">
+                Account Verified (Success)
+                <i class="fas fa-chevron-down accordion-icon"></i>
+              </div>
+              <div class="accordion-body-wrapper">
+                <div class="accordion-body">
+                  <div class="accordion-content" style="padding-top: 1.25rem;">
+                    <p>Your action was completed successfully.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion accordion-solid-content accordion-danger">
+              <div class="accordion-header">
+                Delete Account (Danger)
+                <i class="fas fa-chevron-down accordion-icon"></i>
+              </div>
+              <div class="accordion-body-wrapper">
+                <div class="accordion-body">
+                  <div class="accordion-content">
+                    <p><strong>Warning:</strong> This action cannot be undone. Are you sure you want to permanently delete your account data?</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Form Inputs Section -->
+        <h2>Form Controls & Inputs</h2>
+        <p style="margin-bottom: 2rem; color: var(--text-light);">Sleek, responsive text inputs, dropdowns, custom checkboxes, custom radios, and toggle switches for your web apps.</p>
+
+        <!-- ROW 1: Default Form (Left), Horizontal Form (Right) -->
+        <div class="grid-locked grid-cols-2" style="margin-bottom: 2rem; align-items: start;">
+          <div class="panel panel-solid">
+            <div class="panel-header">Default Form</div>
+            <form class="panel-body" autocomplete="off" onsubmit="event.preventDefault();">
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Basic form layout</p>
+              
+              <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" class="fancy-input" placeholder="Username">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email address</label>
+                <input type="email" class="fancy-input" placeholder="Email">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="fancy-input" placeholder="Password">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" class="fancy-input" placeholder="Password">
+              </div>
+              <div class="form-group" style="margin-top: 1rem;">
+                <label class="fancy-check-wrapper check-primary">
+                  <input type="checkbox">
+                  <span class="check-mark"></span>
+                  <span class="check-label" style="font-size: 0.9rem;">Remember me</span>
+                </label>
+              </div>
+              <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                <button class="theme-button" style="background: var(--accent); color: #000;">Submit</button>
+                <button class="theme-button" type="button" style="border: 1px solid rgba(255,255,255,0.2); background: transparent; color: var(--text-light);">Cancel</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="panel panel-solid">
+            <div class="panel-header">Horizontal Form</div>
+            <form class="panel-body" autocomplete="off" onsubmit="event.preventDefault();">
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Horizontal form layout</p>
+              
+              <div class="form-horizontal">
+                <label class="form-label">Email</label>
+                <input type="text" class="fancy-input" placeholder="Username">
+              </div>
+              <div class="form-horizontal">
+                <label class="form-label">Email</label>
+                <input type="email" class="fancy-input" placeholder="Email">
+              </div>
+              <div class="form-horizontal">
+                <label class="form-label">Mobile</label>
+                <input type="text" class="fancy-input" placeholder="Mobile number">
+              </div>
+              <div class="form-horizontal">
+                <label class="form-label">Password</label>
+                <input type="password" class="fancy-input" placeholder="Password">
+              </div>
+              <div class="form-horizontal">
+                <label class="form-label">Re Password</label>
+                <input type="password" class="fancy-input" placeholder="Password">
+              </div>
+              <div class="form-horizontal" style="margin-top: 1rem;">
+                <div></div> <!-- Empty label column -->
+                <label class="fancy-check-wrapper check-primary" style="margin-bottom: 0;">
+                  <input type="checkbox">
+                  <span class="check-mark"></span>
+                  <span class="check-label" style="font-size: 0.9rem;">Remember me</span>
+                </label>
+              </div>
+              <div class="form-horizontal" style="margin-top: 1.5rem;">
+                <div></div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button class="theme-button" style="background: var(--accent); color: #000;">Submit</button>
+                  <button class="theme-button" type="button" style="border: 1px solid rgba(255,255,255,0.2); background: transparent; color: var(--text-light);">Cancel</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- ROW 2: Basic Form Elements -->
+        <div class="panel panel-solid" style="margin-bottom: 2rem;">
+          <div class="panel-header">Basic Form Elements</div>
+          <form class="panel-body" autocomplete="off" onsubmit="event.preventDefault();">
+            <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Basic form elements</p>
+            
+            <div class="form-group">
+              <label class="form-label">Name</label>
+              <input type="text" class="fancy-input" placeholder="Name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email address</label>
+              <input type="email" class="fancy-input" placeholder="Email">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" class="fancy-input" placeholder="Password">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gender</label>
+              <select class="fancy-input fancy-select">
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">File upload</label>
+              <label class="fancy-file-upload">
+                <input type="file">
+                <span class="file-name">aeaa5b78a17643c844e3333abbdfae1a.png</span>
+                <span class="file-btn">Upload</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input type="text" class="fancy-input" placeholder="Location">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Textarea</label>
+              <textarea class="fancy-input" rows="4"></textarea>
+            </div>
+            <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+              <button class="theme-button" style="background: var(--accent); color: #000;">Submit</button>
+              <button class="theme-button" type="button" style="border: 1px solid rgba(255,255,255,0.2); background: transparent; color: var(--text-light);">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ROW 3: Input Size & Select Size -->
+        <div class="grid-locked grid-cols-2" style="margin-bottom: 2rem; align-items: start;">
+          <div class="panel panel-solid">
+            <div class="panel-header">Input Size</div>
+            <div class="panel-body">
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Add classes like <code>.fancy-input-lg</code> and <code>.fancy-input-sm</code>.</p>
+              
+              <div class="form-group">
+                <label class="form-label">Large input</label>
+                <input type="text" class="fancy-input fancy-input-lg" placeholder="Username">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Default input</label>
+                <input type="text" class="fancy-input" placeholder="Username">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Small input</label>
+                <input type="text" class="fancy-input fancy-input-sm" placeholder="Username">
+              </div>
+            </div>
+          </div>
+
+          <div class="panel panel-solid">
+            <div class="panel-header">Select Size</div>
+            <div class="panel-body">
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Add classes like <code>.fancy-input-lg</code> and <code>.fancy-input-sm</code>.</p>
+              
+              <div class="form-group">
+                <label class="form-label">Large select</label>
+                <select class="fancy-input fancy-select fancy-input-lg">
+                  <option>1</option>
+                  <option>2</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Default select</label>
+                <select class="fancy-input fancy-select">
+                  <option>1</option>
+                  <option>2</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Small select</label>
+                <select class="fancy-input fancy-select fancy-input-sm">
+                  <option>1</option>
+                  <option>2</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 4: Basic Input Groups & Checkbox Controls -->
+        <div class="grid-locked grid-cols-2" style="margin-bottom: 2rem; align-items: start;">
+          <div class="panel panel-solid">
+            <div class="panel-header">Basic Input Groups</div>
+            <div class="panel-body">
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Basic b-website input groups</p>
+              
+              <div class="form-group input-group">
+                <span class="input-group-text">@</span>
+                <input type="text" class="fancy-input" placeholder="Username">
+              </div>
+              
+              <div class="form-group input-group">
+                <input type="text" class="fancy-input" placeholder="0.00">
+                <span class="input-group-text">.00</span>
+              </div>
+              
+              <div class="form-group input-group">
+                <span class="input-group-text">$</span>
+                <input type="text" class="fancy-input" placeholder="0.00">
+              </div>
+              
+              <div class="form-group input-group">
+                <input type="text" class="fancy-input" placeholder="Recipient's username">
+                <button class="input-group-btn">Search</button>
+              </div>
+              
+              <div class="form-group input-group">
+                <select class="fancy-input fancy-select" style="max-width: 150px; background-color: rgba(255,255,255,0.05); border-right: 0;">
+                  <option>Dropdown</option>
+                </select>
+                <input type="text" class="fancy-input">
+              </div>
+              
+              <div class="form-group input-group">
+                <input type="text" class="fancy-input" placeholder="Find in facebook">
+                <button class="input-group-btn"><i class="fab fa-facebook-f"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel panel-solid">
+            <div class="panel-header">Checkbox Controls</div>
+            <div class="panel-body">
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Checkbox and radio controls (default appearance is in primary color)</p>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                <div>
+                  <label class="fancy-check-wrapper check-primary"><input type="checkbox"><span class="check-mark"></span><span class="check-label">Default</span></label>
+                  <label class="fancy-check-wrapper check-primary"><input type="checkbox" checked><span class="check-mark"></span><span class="check-label">Checked</span></label>
+                  <label class="fancy-check-wrapper check-primary"><input type="checkbox" disabled><span class="check-mark"></span><span class="check-label">Disabled</span></label>
+                  <label class="fancy-check-wrapper check-primary"><input type="checkbox" disabled checked><span class="check-mark"></span><span class="check-label">Disabled checked</span></label>
+                </div>
+                <div>
+                  <label class="fancy-check-wrapper check-primary"><input type="radio" name="rd1"><span class="radio-mark"></span><span class="check-label">Default</span></label>
+                  <label class="fancy-check-wrapper check-primary"><input type="radio" name="rd1" checked><span class="radio-mark"></span><span class="check-label">Selected</span></label>
+                  <label class="fancy-check-wrapper check-primary"><input type="radio" name="rd2" disabled><span class="radio-mark"></span><span class="check-label">Disabled</span></label>
+                  <label class="fancy-check-wrapper check-primary"><input type="radio" name="rd2" disabled checked><span class="radio-mark"></span><span class="check-label">Selected and disabled</span></label>
+                </div>
+              </div>
+
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Add class <code>.check-{color}</code> for checkbox and radio controls in theme colors</p>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                  <label class="fancy-check-wrapper check-primary"><input type="checkbox" checked><span class="check-mark"></span><span class="check-label">Primary</span></label>
+                  <label class="fancy-check-wrapper check-success"><input type="checkbox" checked><span class="check-mark"></span><span class="check-label">Success</span></label>
+                  <label class="fancy-check-wrapper check-info"><input type="checkbox" checked><span class="check-mark"></span><span class="check-label">Info</span></label>
+                  <label class="fancy-check-wrapper check-danger"><input type="checkbox" checked><span class="check-mark"></span><span class="check-label">Danger</span></label>
+                  <label class="fancy-check-wrapper check-warning"><input type="checkbox" checked><span class="check-mark"></span><span class="check-label">Warning</span></label>
+                </div>
+                <div>
+                  <label class="fancy-check-wrapper check-primary"><input type="radio" name="rdc" checked><span class="radio-mark"></span><span class="check-label">Primary</span></label>
+                  <label class="fancy-check-wrapper check-success"><input type="radio" name="rdc"><span class="radio-mark"></span><span class="check-label">Success</span></label>
+                  <label class="fancy-check-wrapper check-info"><input type="radio" name="rdc"><span class="radio-mark"></span><span class="check-label">Info</span></label>
+                  <label class="fancy-check-wrapper check-danger"><input type="radio" name="rdc"><span class="radio-mark"></span><span class="check-label">Danger</span></label>
+                  <label class="fancy-check-wrapper check-warning"><input type="radio" name="rdc"><span class="radio-mark"></span><span class="check-label">Warning</span></label>
+                </div>
+              </div>
+
+              <!-- Toggle Switches included here to keep from losing them entirely -->
+              <h4 style="margin-top: 2rem; margin-bottom: 1rem;">Toggle Switches</h4>
+              <div style="display: flex; gap: 2rem;">
+                <label class="fancy-switch">
+                  <input type="checkbox" checked>
+                  <span class="switch-slider"></span>
+                  Enable Notifications
+                </label>
+                <label class="fancy-switch">
+                  <input type="checkbox">
+                  <span class="switch-slider"></span>
+                  Dark Mode
+                </label>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 5: Inline Forms -->
+        <div class="panel panel-solid" style="margin-bottom: 2rem;">
+          <div class="panel-header">Inline Forms</div>
+          <div class="panel-body">
+            <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Use the <code>.form-inline</code> class to display a series of labels, form controls, and buttons on a single horizontal row</p>
+            
+            <label class="form-label">Name</label>
+            <div class="form-inline">
+              <input type="text" class="fancy-input" placeholder="Jane Doe" style="max-width: 300px;">
+            </div>
+            
+            <label class="form-label">Username</label>
+            <div class="form-inline">
+              <div class="input-group" style="max-width: 300px;">
+                <span class="input-group-text">@</span>
+                <input type="text" class="fancy-input" placeholder="Username">
+              </div>
+            </div>
+
+            <div class="form-inline" style="margin-top: 1rem;">
+              <label class="fancy-check-wrapper check-primary" style="margin-bottom: 0;">
+                <input type="checkbox">
+                <span class="check-mark"></span>
+                <span class="check-label" style="font-size: 0.9rem;">Remember me</span>
+              </label>
+            </div>
+            
+            <button class="theme-button" style="background: var(--accent); color: #000; margin-top: 1rem;">Submit</button>
+          </div>
+        </div>
+
+        <!-- ROW 6: Horizontal Two Column -->
+        <div class="panel panel-solid" style="margin-bottom: 2rem;">
+          <div class="panel-header">Horizontal Two Column</div>
+          <div class="panel-body">
+            <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Personal info</p>
+            
+            <div class="form-grid-2">
+              <div class="form-horizontal">
+                <label class="form-label">First Name</label>
+                <input type="text" class="fancy-input">
+              </div>
+              <div class="form-horizontal">
+                <label class="form-label">Last Name</label>
+                <input type="text" class="fancy-input">
+              </div>
+              <div class="form-horizontal">
+                <label class="form-label">Gender</label>
+                <select class="fancy-input fancy-select">
+                  <option>Male</option>
+                  <option>Female</option>
+                </select>
+              </div>
+              <div class="form-horizontal">
+                <label class="form-label">Date of Birth</label>
+                <input type="text" class="fancy-input" placeholder="dd/mm/yyyy">
+              </div>
+              <div class="form-horizontal">
+                <label class="form-label">Category</label>
+                <input type="text" class="fancy-input" placeholder="Category1">
+              </div>
+              <div class="form-horizontal">
+                <label class="form-label">Membership</label>
+                <div style="display: flex; gap: 1.5rem; align-items: center;">
+                  <label class="fancy-check-wrapper check-primary" style="margin: 0;"><input type="radio" name="mem" checked><span class="radio-mark"></span><span class="check-label">Free</span></label>
+                  <label class="fancy-check-wrapper check-primary" style="margin: 0;"><input type="radio" name="mem"><span class="radio-mark"></span><span class="check-label">Professional</span></label>
+                </div>
+              </div>
+            </div>
+
+            <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem; margin-top: 1rem;">Address</p>
+            
+            <div class="form-grid-2">
+              <div class="form-horizontal">
+                <label class="form-label">Address 1</label>
+                <input type="text" class="fancy-input">
+              </div>
+              <div class="form-horizontal">
+                <label class="form-label">State</label>
+                <input type="text" class="fancy-input">
+              </div>
+              <div class="form-horizontal">
+                <label class="form-label">Address 2</label>
+                <input type="text" class="fancy-input">
+              </div>
+              <div class="form-horizontal">
+                <label class="form-label">Postcode</label>
+                <input type="text" class="fancy-input">
+              </div>
+              <div class="form-horizontal">
+                <label class="form-label">City</label>
+                <input type="text" class="fancy-input">
+              </div>
+              <div class="form-horizontal">
+                <label class="form-label">Country</label>
+                <select class="fancy-input fancy-select">
+                  <option>America</option>
+                  <option>Canada</option>
+                </select>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ROW 7: Select 2 & Typeahead -->
+        <div class="grid-locked grid-cols-2" style="margin-bottom: 3rem; align-items: start;">
+          <div class="panel panel-solid">
+            <div class="panel-header">Select 2</div>
+            <div class="panel-body">
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">Visual mockups for Advanced Selects</p>
+              
+              <div class="form-group">
+                <label class="form-label">Single select box using select 2</label>
+                <select id="select2-single" class="fancy-input fancy-select" style="background-color: rgba(0,0,0,0.2);" onchange="addSelect2Pill(this.value)">
+                  <option value="" disabled selected>Select a state to add...</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Multiple select using select 2</label>
+                <div id="select2-multiple" class="fancy-input" style="background-color: rgba(0,0,0,0.2); min-height: 48px; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; padding: 0.4rem 0.5rem;">
+                  <span style="background: var(--accent); color: #000; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; gap: 0.5rem;">Alabama <i class="fas fa-times" onclick="this.parentElement.remove()" style="cursor: pointer; opacity: 0.7;"></i></span>
+                  <span style="background: var(--accent); color: #000; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; gap: 0.5rem;">Wyoming <i class="fas fa-times" onclick="this.parentElement.remove()" style="cursor: pointer; opacity: 0.7;"></i></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel panel-solid">
+            <div class="panel-header">Typeahead</div>
+            <div class="panel-body">
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem;">A simple suggestion engine</p>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group" style="position: relative;">
+                  <label class="form-label">Basic</label>
+                  <input type="text" class="fancy-input" id="typeahead-input" placeholder="States of USA" oninput="handleTypeahead(this.value)" autocomplete="off" style="background-color: rgba(0,0,0,0.2);">
+                  <!-- Mockup dropdown -->
+                  <div id="typeahead-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--bg); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); margin-top: 0.25rem; padding: 0.5rem 0; z-index: 10;">
+                    <!-- JS will populate -->
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Bloodhound</label>
+                  <input type="text" class="fancy-input" placeholder="States of USA" style="background-color: rgba(0,0,0,0.2);">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+      <footer style="margin-top: 2rem;">
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+    <script>
+      // Accordion Logic
+      document.querySelectorAll('.accordion-header').forEach(header => {
+        header.addEventListener('click', () => {
+          const accordion = header.parentElement;
+          // Toggle active class for smooth height transition
+          accordion.classList.toggle('active');
+        });
+      });
+
+      // Data for mockups
+      const states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'];
+
+      // Populate Select 2 Single
+      const select2Single = document.getElementById('select2-single');
+      states.forEach(state => {
+        const option = document.createElement('option');
+        option.value = state;
+        option.textContent = state;
+        select2Single.appendChild(option);
+      });
+
+      // Select 2 Mockup Logic
+      function addSelect2Pill(val) {
+        if (!val) return;
+        const container = document.getElementById('select2-multiple');
+        
+        const span = document.createElement('span');
+        span.style.cssText = 'background: var(--accent); color: #000; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; gap: 0.5rem;';
+        span.innerHTML = `${val} <i class="fas fa-times" onclick="this.parentElement.remove()" style="cursor: pointer; opacity: 0.7;"></i>`;
+        
+        container.appendChild(span);
+        select2Single.selectedIndex = 0; // reset
+      }
+      
+      // Typeahead Mockup Logic
+      function handleTypeahead(val) {
+        const dropdown = document.getElementById('typeahead-dropdown');
+        dropdown.innerHTML = '';
+        if (!val) {
+          dropdown.style.display = 'none';
+          return;
+        }
+        
+        const matches = states.filter(s => s.toLowerCase().startsWith(val.toLowerCase()));
+        
+        if (matches.length > 0) {
+          dropdown.style.display = 'block';
+          matches.forEach(m => {
+            const div = document.createElement('div');
+            div.style.padding = '0.5rem 1rem';
+            div.style.cursor = 'pointer';
+            div.style.color = 'var(--text-light)';
+            
+            // Highlight matched part
+            const strong = document.createElement('strong');
+            strong.textContent = m.substring(0, val.length);
+            const span = document.createElement('span');
+            span.textContent = m.substring(val.length);
+            
+            div.appendChild(strong);
+            div.appendChild(span);
+            
+            // Hover effect
+            div.onmouseover = () => div.style.background = 'rgba(255,255,255,0.05)';
+            div.onmouseout = () => div.style.background = 'transparent';
+            
+            // Click to fill
+            div.onclick = () => {
+              document.getElementById('typeahead-input').value = m;
+              dropdown.style.display = 'none';
+            };
+            
+            dropdown.appendChild(div);
+          });
+        } else {
+          dropdown.style.display = 'none';
+        }
+      }
+    </script>
+  </body>
+</html>

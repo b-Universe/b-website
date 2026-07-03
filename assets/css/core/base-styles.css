@@ -47,14 +47,51 @@
     margin-bottom: 1rem;
   }
 
-  ul {
-    list-style-type: disc;
+  ul, ol {
     padding-left: 1.5rem;
   }
 
-  ul li::marker {
+  ul {
+    list-style-type: disc;
+  }
+  
+  ol {
+    list-style-type: decimal;
+  }
+
+  ul li::marker, ol li::marker {
     color: var(--accent);
     font-size: 1.1em;
+  }
+  
+  mark, .highlight {
+    background-color: rgba(var(--accent-rgb), 0.3);
+    color: inherit;
+    padding: 0 0.2rem;
+    border-radius: 2px;
+  }
+  
+  .text-muted {
+    color: var(--muted) !important;
+  }
+
+  pre {
+    background-color: var(--card-tooltip, #1e1e1e);
+    border: 1px solid var(--accent-2);
+    border-radius: var(--radius, 8px);
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+  
+  pre code {
+    background-color: transparent;
+    border: none;
+    color: inherit;
+    padding: 0;
+    font-size: 0.9em;
+    transform: none;
+    display: block;
   }
 
   code {

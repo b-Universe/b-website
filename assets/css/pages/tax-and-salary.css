@@ -1,27 +1,5 @@
 /* Shared CSS for Tax and Salary Calculators */
 
-.calc-section {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(var(--accent-rgb), 0.2);
-  border-radius: var(--radius);
-  overflow: hidden;
-  margin-bottom: 20px;
-}
-
-.calc-header {
-  background: rgba(var(--accent-rgb), 0.15);
-  padding: 10px 15px;
-  font-weight: bold;
-  color: var(--text-light);
-  border-bottom: 1px solid rgba(var(--accent-rgb), 0.2);
-}
-
-.calc-body {
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
 
 .input-row {
   display: grid;
