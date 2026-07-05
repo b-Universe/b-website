@@ -1,5 +1,8 @@
 /* Shared CSS for Tax and Salary Calculators */
-
+form .panel-body,
+.calc-stack .panel-body {
+  gap: 2px !important;
+}
 
 .input-row {
   display: grid;
@@ -16,24 +19,72 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .calc-panels-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .calc-col-left,
+  .calc-col-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .calc-panels-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .calc-col-left,
+  .calc-col-right {
+    display: contents;
+  }
+
+  /* Assign order for logical stacking on mobile */
+  #panel-marital {
+    order: 1;
+  }
+
+  #panel-assets {
+    order: 2;
+  }
+
+  #panel-liability {
+    order: 3;
+  }
+
+  #panel-lifetime {
+    order: 4;
+  }
+}
+
 .input-label {
   font-size: 0.9rem;
   color: var(--text-light);
 }
 
-.input-field, select.calc-input {
+.input-field,
+select.calc-input {
   width: 100%;
-  padding: 6px 10px;
+  padding: 2px 10px;
   background: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--accent);
+  border: 1px solid var(--accent) !important;
   border-radius: 4px;
   color: var(--text-light);
   font-family: inherit;
   outline: none;
 }
 
-.input-field:focus, select.calc-input:focus {
-  border-color: var(--text-light);
+.input-field:focus,
+select.calc-input:focus {
+  border-color: var(--text-light) !important;
   box-shadow: 0 0 5px rgba(var(--accent-rgb), 0.5);
 }
 
@@ -101,6 +152,11 @@ input[type="radio"].calc-input {
   grid-template-columns: 1fr auto;
 }
 
+/* Layout overrides for Estate Tax Calculator */
+#estate-tax-form .input-row {
+  grid-template-columns: 1fr 150px;
+}
+
 /* Info Panels Grid */
 .info-panels-grid {
   display: grid;
@@ -137,4 +193,31 @@ input[type="radio"].calc-input {
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 1px;
+}
+
+/* Marriage Tax Calculator Specifics */
+.calculator-results {
+  background-color: #0b0c10;
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.1), inset 0 0 20px rgba(0, 255, 255, 0.05);
+  transition: all 0.4s ease-in-out;
+}
+
+.calculator-results:hover {
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.4), inset 0 0 30px rgba(0, 255, 255, 0.2);
+}
+
+/* Return to Directory Button Wrapper */
+.mobile-center-wrapper {
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .mobile-center-wrapper {
+    margin-left: 0;
+    flex-basis: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
+  }
 }

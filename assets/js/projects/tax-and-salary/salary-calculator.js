@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const form = document.getElementById('salary-form');
   const amountInput = document.getElementById('salary-amount');
   const freqSelect = document.getElementById('salary-frequency');
@@ -14,7 +14,7 @@
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
   });
-  
+
   const formatterCurrencyCents = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -69,7 +69,7 @@
       else if (freq === 'semi-month') periods = 24;
       else if (freq === 'month') periods = 12;
       else if (freq === 'quarter') periods = 4;
-      
+
       adjYr = amount * periods;
       const unadjDay = adjYr / adjustedWorkingDays;
       unadjYr = unadjDay * totalWeekdays;
@@ -88,7 +88,7 @@
         unadjVal = unadjYr / period;
         adjVal = adjYr / period;
       }
-      
+
       document.getElementById(`res-${id}-unadj`).textContent = formatDisplay(unadjVal, isHourlyOrDaily);
       document.getElementById(`res-${id}-adj`).textContent = formatDisplay(adjVal, isHourlyOrDaily);
     };
@@ -105,12 +105,12 @@
 
   // Bind active formatters
   document.querySelectorAll('.currency-input').forEach(input => {
-    input.addEventListener('focus', function() {
+    input.addEventListener('focus', function () {
       if (this.value === '$0' || this.value === '0') {
         this.value = '';
       }
     });
-    input.addEventListener('input', function() {
+    input.addEventListener('input', function () {
       let val = this.value.replace(/[^0-9.]/g, '');
       const parts = val.split('.');
       if (parts.length > 2) {
@@ -118,16 +118,16 @@
       }
       if (val) {
         if (val.includes('.')) {
-            this.value = '$' + val; // Allow typing decimals manually without breaking
+          this.value = '$' + val; // Allow typing decimals manually without breaking
         } else {
-            this.value = '$' + parseInt(val, 10).toLocaleString('en-US');
+          this.value = '$' + parseInt(val, 10).toLocaleString('en-US');
         }
       } else {
         this.value = '';
       }
       calculate();
     });
-    input.addEventListener('blur', function() {
+    input.addEventListener('blur', function () {
       if (!this.value || this.value === '$') {
         this.value = '$0';
       } else {
@@ -138,7 +138,7 @@
   });
 
   document.querySelectorAll('.numeric-input').forEach(input => {
-    input.addEventListener('input', function() {
+    input.addEventListener('input', function () {
       this.value = this.value.replace(/[^0-9.]/g, '');
       calculate();
     });
@@ -146,7 +146,7 @@
 
   freqSelect.addEventListener('change', calculate);
 
-  form.addEventListener('reset', function(e) {
+  form.addEventListener('reset', function (e) {
     e.preventDefault(); // Stop native HTML reset that restores default values
     amountInput.value = '$0';
     freqSelect.value = 'hour';
@@ -154,7 +154,7 @@
     daysInput.value = '0';
     holidaysInput.value = '0';
     vacationInput.value = '0';
-    
+
     if (scenarioPanel) scenarioPanel.style.display = 'none';
     if (demoDropdown) demoDropdown.value = '';
     calculate();
@@ -186,9 +186,9 @@
   const scenarioText = document.getElementById('scenario-text');
 
   if (demoDropdown) {
-    demoDropdown.addEventListener('change', function() {
+    demoDropdown.addEventListener('change', function () {
       const selectedScenario = salaryScenarios[this.value];
-      
+
       if (!selectedScenario) {
         scenarioPanel.style.display = 'none';
         return;

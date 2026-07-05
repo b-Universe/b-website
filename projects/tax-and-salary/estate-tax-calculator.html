@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>B - Estate Tax Calculator (Coming Soon)</title>
+
+  <meta name="portfolio-title" content="Estate Tax Calculator">
+  <meta name="portfolio-category" content="project">
+  <meta name="portfolio-date" content="2026-06-29">
+  <meta name="portfolio-thumbnail" content="">
+  <meta name="portfolio-description"
+    content="Estimate potential estate taxes based on total asset value and current exemption limits.">
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:title" content="B - Estate Tax Calculator (Coming Soon)">
+  <meta property="og:description"
+    content="Estimate potential estate taxes based on total asset value and current exemption limits.">
+  <meta property="og:url" content="https://home.behr.dev/web_test/projects/tax-and-salary/estate-tax-calculator.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image"
+    content="https://cdn.discordapp.com/app-assets/1072200871015886868/store/1072627685811044402?size=1024">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="B - Estate Tax Calculator (Coming Soon)">
+  <meta name="twitter:description"
+    content="Estimate potential estate taxes based on total asset value and current exemption limits.">
+  <meta name="twitter:image"
+    content="https://cdn.discordapp.com/app-assets/1072200871015886868/store/1072627685811044402?size=1024">
+
+  <meta name="theme-color" content="#00FFFE">
+  <link rel="stylesheet" href="/assets/css/pages/tax-and-salary.css">
+</head>
+
+<body>
+  <div class="wrap">
+    <canvas id="starfield"></canvas>
+    <header>
+      <div class="header">
+        <a class="brand" href="/pages/index.html">
+          <div class="logo" aria-hidden="true">B</div>
+          <div class="brand-text-wrap">
+            <div class="brand-title">It's a fun place to be</div>
+          </div>
+        </a>
+        <div class="nav-wrapper">
+          <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+            <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <main class="main-content">
+      <section class="content-card static-card" style="padding: 40px; text-align: center;">
+        <h1 style="margin-bottom: 20px;"><i class="fas fa-landmark"></i> Estate Tax Calculator</h1>
+
+        <div class="panel" style="padding: 2rem; margin-bottom: 2rem; text-align: left; line-height: 1.6;">
+          <h2>About This Calculator</h2>
+          <p style="margin-bottom: 15px;">The Estate Tax Calculator estimates federal estate tax due. Many states impose
+            their own estate taxes, but they tend to be less than the federal estate tax. This calculator is mainly
+            intended for use by U.S. residents.</p>
+
+          <p
+            style="text-align: left; margin-bottom: 0; font-size: 0.9rem; color: var(--muted); border-left: 3px solid rgba(var(--accent-rgb), 0.5); padding-left: 1rem; font-style: italic;">
+            <strong>Disclaimer:</strong> This calculator provides an estimate only and should not be considered tax or
+            financial advice. Actual tax liability may vary based on additional income, deductions, credits, state
+            taxes, and individual circumstances.
+          </p>
+        </div>
+
+        <div class="panel" style="padding: 2rem; margin-bottom: 2rem;">
+          <form id="estate-tax-form">
+            <div class="calc-panels-grid">
+              <div class="calc-col-left">
+                <div class="panel panel-solid" id="panel-marital"
+                  style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 20px; ">
+                  <div class="panel-header"><i class="fas fa-info-circle"></i> Marital & State Details</div>
+                  <div class="panel-body">
+                    <div class="input-row">
+                      <div class="input-label">Marital Status</div>
+                      <div>
+                        <select id="marital-status" class="calc-input">
+                          <option value="single">Single</option>
+                          <option value="married">Married</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="input-row">
+                      <div class="input-label">State of Residence</div>
+                      <div>
+                        <select id="state-residence" class="calc-input">
+                          <option value="none">No State Estate Tax</option>
+                          <option value="CT">Connecticut</option>
+                          <option value="MA">Massachusetts</option>
+                          <option value="NY">New York</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="panel panel-solid" id="panel-assets"
+                  style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 20px; ">
+                  <div class="panel-header"><i class="fas fa-home"></i> Assets</div>
+                  <div class="panel-body">
+                    <div class="input-row">
+                      <div class="input-label">Residence & Other Real Estate</div>
+                      <div><input type="text" id="real-estate" class="input-field calc-input currency-input" value="$0">
+                      </div>
+                    </div>
+                    <div class="input-row">
+                      <div class="input-label">Stocks, Bonds, and Other Investments</div>
+                      <div><input type="text" id="investments" class="input-field calc-input currency-input" value="$0">
+                      </div>
+                    </div>
+                    <div class="input-row">
+                      <div class="input-label">Savings, CDs, and Checking Account Balance</div>
+                      <div><input type="text" id="savings" class="input-field calc-input currency-input" value="$0">
+                      </div>
+                    </div>
+                    <div class="input-row">
+                      <div class="input-label">Vehicles, Boats, and Other Properties</div>
+                      <div><input type="text" id="vehicles" class="input-field calc-input currency-input" value="$0">
+                      </div>
+                    </div>
+                    <div class="input-row">
+                      <div class="input-label">Retirement Plans</div>
+                      <div><input type="text" id="retirement" class="input-field calc-input currency-input" value="$0">
+                      </div>
+                    </div>
+                    <div class="input-row">
+                      <div class="input-label">Life Insurance Benefit</div>
+                      <div><input type="text" id="life-insurance" class="input-field calc-input currency-input"
+                          value="$0"></div>
+                    </div>
+                    <div class="input-row">
+                      <div class="input-label">Other Assets</div>
+                      <div><input type="text" id="other-assets" class="input-field calc-input currency-input"
+                          value="$0"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="calc-col-right">
+                <div class="panel panel-solid" id="panel-liability"
+                  style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 20px; ">
+                  <div class="panel-header"><i class="fas fa-file-invoice-dollar"></i> Liability, Costs, and Deductibles
+                  </div>
+                  <div class="panel-body">
+                    <div class="input-row">
+                      <div class="input-label">Debts (mortgages, loan, credit cards, etc)</div>
+                      <div><input type="text" id="debts" class="input-field calc-input currency-input" value="$0"></div>
+                    </div>
+                    <div class="input-row">
+                      <div class="input-label">Funeral, Administration, and Claims Expenses</div>
+                      <div><input type="text" id="expenses" class="input-field calc-input currency-input" value="$0">
+                      </div>
+                    </div>
+                    <div class="input-row">
+                      <div class="input-label">Charitable Contributions</div>
+                      <div><input type="text" id="charity" class="input-field calc-input currency-input" value="$0">
+                      </div>
+                    </div>
+                    <div class="input-row">
+                      <div class="input-label">Transfer to Surviving Spouse</div>
+                      <div><input type="text" id="spousal-transfer" class="input-field calc-input currency-input"
+                          value="$0"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="panel panel-solid" id="panel-lifetime"
+                  style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 20px; ">
+                  <div class="panel-header"><i class="fas fa-gift"></i> Lifetime Gifted Amount</div>
+                  <div class="panel-body">
+                    <div class="input-row">
+                      <div class="input-label">Total amount you've gifted tax free in your lifetime</div>
+                      <div><input type="text" id="lifetime-gifts" class="input-field calc-input currency-input"
+                          value="$0"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <div class="results-panel calculator-results" id="calc-results" style="margin-bottom: 30px;">
+            <h3 style="color: var(--text-light); margin-top:0;">Estimated Taxes</h3>
+            <p style="margin-bottom: 15px; font-size: 1.1rem;">
+              Estimated Federal Estate Tax: <strong id="res-federal">$0</strong><br>
+              Estimated State Estate Tax: <strong id="res-state">$0</strong><br>
+              <span style="color: var(--accent);">Total Estimated Estate Tax: <strong id="res-total"
+                  style="font-size: 1.25rem;">$0</strong></span>
+            </p>
+            <div style="font-size: 0.9rem; color: var(--muted); margin-top: 10px;">Assumes 2026 federal exemption. State
+              calculations simplified.</div>
+          </div>
+
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap; gap: 15px;">
+            <p style="margin: 0; font-style: italic; color: var(--muted); font-size: 0.9rem; flex: 1;">Note: Values
+              update automagically as you type.</p>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <select id="demo-scenarios" class="calc-input" style="flex: 1; min-width: 150px;">
+                <option value="">-- Select a Demo Example --</option>
+                <option value="demo1">High Net Worth (Married) - Shielded</option>
+                <option value="demo2">High Net Worth (Single NY) - Cliff Edge ($7.1M)</option>
+                <option value="demo3">High Net Worth (Single NY) - Over Cliff ($8M)</option>
+                <option value="demo4">The Connecticut Tax Cap</option>
+                <option value="demo5">Massachusetts Exemption Threshold</option>
+              </select>
+              <button type="reset" class="btn btn-outline-danger no-hue-cycle"
+                style="margin: 0; font-size: 0.95rem; white-space: nowrap;">Clear / Reset</button>
+            </div>
+          </div>
+
+          <!-- Scenario Explanation Panel -->
+          <div class="panel panel-solid" id="scenario-panel" style="display: none; margin-top: 20px;">
+            <div class="panel-header"><i class="fas fa-graduation-cap"></i> Scenario Breakdown</div>
+            <div class="panel-body">
+              <p id="scenario-text" style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: var(--text-light);">
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel"
+          style="margin-bottom: 2rem; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; padding: 1.5rem 2rem;">
+          <strong style="color: var(--text-light); font-size: 1.1rem;"><i class="fas fa-link"></i> Related:</strong>
+          <a href="/projects/tax-and-salary/income-tax-calculator.html" class="theme-button cta-button"
+            style="width: auto; padding: 8px 20px; font-size: 0.95rem; border-radius: 6px; white-space: nowrap;"><i
+              class="fas fa-file-invoice-dollar"></i> Income Tax</a>
+          <a href="/projects/tax-and-salary/marriage-tax-calculator.html" class="theme-button cta-button"
+            style="width: auto; padding: 8px 20px; font-size: 0.95rem; border-radius: 6px; white-space: nowrap;"><i
+              class="fas fa-ring"></i> Marriage Tax</a>
+          <div class="mobile-center-wrapper">
+            <a href="/articles/tax-and-salary.html" class="btn btn-outline-primary"
+              style="padding: 8px 15px; font-size: 0.95rem;">Return to Directory</a>
+          </div>
+        </div>
+
+        <div class="panel" style="padding: 2rem; margin-bottom: 2rem; text-align: left; line-height: 1.6;">
+          <h2 style="margin-top: 0;">Estate Tax</h2>
+          <p>An estate tax is a tax imposed on the total value of a person's estate at the time of their death. It is
+            sometimes referred to as a death tax. Although states may impose their own estate taxes in the United
+            States, this calculator only estimates federal estate taxes (and selected states). For the context of this
+            calculator, the definition of estate should not be confused with a common alternative definition, which is
+            an interest in real property.</p>
+          <p>Depending on the taxable value of an estate, relatively low-valued estates won't require the filing of
+            estate tax returns because they are below the tax exemptions threshold. For estates above the threshold,
+            only the amounts that exceed the threshold for that year are taxable. Due to the unlimited marital
+            deduction, the transfer of assets to a surviving U.S. citizen spouse is not taxable, and only assets
+            transferred to other heirs are taxable.</p>
+          <p>In the United States, most people who have funds above the exemption amount ultimately won't end up paying
+            much estate tax. The effective rate is low for several reasons. Firstly, the estate tax only applies to the
+            portion of the estate above the exemption. Secondly, there are various legal strategies that allow people to
+            shield their wealth from the federal government. For instance, parents sell parts of their assets to
+            children at discounted rates and take the tax hit themselves. Trusts, explained in detail below, are also a
+            common and viable method to reduce taxable estates.</p>
+
+          <h2 style="margin-top: 2rem;">U.S. Estate and Gift Tax Exemptions and Tax Rates</h2>
+          <div class="table-responsive" style="margin-top: 15px; margin-bottom: 15px;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem;">
+              <thead>
+                <tr>
+                  <th
+                    style="padding: 12px; border-bottom: 2px solid rgba(var(--accent-rgb), 0.5); color: var(--text-light);">
+                    Year</th>
+                  <th
+                    style="padding: 12px; border-bottom: 2px solid rgba(var(--accent-rgb), 0.5); color: var(--text-light);">
+                    Lifetime Exemption</th>
+                  <th
+                    style="padding: 12px; border-bottom: 2px solid rgba(var(--accent-rgb), 0.5); color: var(--text-light);">
+                    Tax Rates</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                  <td style="padding: 12px; color: var(--muted);">2018</td>
+                  <td style="padding: 12px;">$11.18 million</td>
+                  <td style="padding: 12px;">40%</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                  <td style="padding: 12px; color: var(--muted);">2019</td>
+                  <td style="padding: 12px;">$11.40 million</td>
+                  <td style="padding: 12px;">40%</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                  <td style="padding: 12px; color: var(--muted);">2020</td>
+                  <td style="padding: 12px;">$11.58 million</td>
+                  <td style="padding: 12px;">40%</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                  <td style="padding: 12px; color: var(--muted);">2021</td>
+                  <td style="padding: 12px;">$11.70 million</td>
+                  <td style="padding: 12px;">40%</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                  <td style="padding: 12px; color: var(--muted);">2022</td>
+                  <td style="padding: 12px;">$12.06 million</td>
+                  <td style="padding: 12px;">40%</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                  <td style="padding: 12px; color: var(--muted);">2023</td>
+                  <td style="padding: 12px;">$12.92 million</td>
+                  <td style="padding: 12px;">40%</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                  <td style="padding: 12px; color: var(--muted);">2024</td>
+                  <td style="padding: 12px;">$13.61 million</td>
+                  <td style="padding: 12px;">40%</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                  <td style="padding: 12px; color: var(--muted);">2025</td>
+                  <td style="padding: 12px;">$13.99 million</td>
+                  <td style="padding: 12px;">40%</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(var(--accent-rgb), 0.1);">
+                  <td style="padding: 12px; font-weight: bold; color: var(--text-light);">2026</td>
+                  <td style="padding: 12px; font-weight: bold; color: var(--accent);">$15.00 million (<span
+                      data-tooltip="One Big Beautiful Bill Act">OBBBA</span> Baseline)
+                  </td>
+                  <td style="padding: 12px; font-weight: bold;">40%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 style="margin-top: 2rem;">Inheritance Tax</h2>
+          <p>Upon death, a deceased person's estate is usually passed onto their heirs. An heir receives an inheritance
+            if all or part of an estate from a recently deceased person is passed onto them. An inheritance tax is
+            usually paid by the person inheriting the estate. The major difference between estate tax and inheritance
+            tax is who pays the tax. The estate tax is paid based on the deceased person's estate before the money is
+            distributed, while the inheritance tax is paid by the person inheriting the money.</p>
+          <p>While the federal government does not enforce an inheritance tax, some states enforce their own. The level
+            of taxation applied is mainly dependent on the relationship between the deceased and the heir, and the value
+            of the property received. In all states, inheritance from a spouse or domestic partner is exempt, while most
+            inheriting children pay little or no inheritance tax. More distant inheritors tend to pay higher inheritance
+            taxes.</p>
+
+          <h2 style="margin-top: 2rem;">Determining Taxable Value of an Estate</h2>
+          <p>An estate is the estimated net worth of a person, which consists of their assets less any liabilities.
+            Assets can be anything of value, such as cash, securities, real estate, insurance, trusts, annuities, and
+            business interests. The value of these items is assessed based on fair market value, which is a reasonable
+            amount at which the items can be purchased by interested buyers. The total fair market value of a person's
+            assets is called a gross estate.</p>
+          <p>After the value of the assets is determined, certain liabilities or reductions may be deducted. Common
+            liabilities include mortgages, unpaid debts, estate administration expenses, and assets passed to surviving
+            spouses or qualified charities. After accounting for liabilities, the value of lifetime taxable gifts (any
+            gifts made in 1977 or later) is added to this net amount, then reduced by the unified tax credit, resulting
+            in the taxable value of the estate.</p>
+
+          <h2 style="margin-top: 2rem;">Reducing Estate Tax</h2>
+          <p>There are several methods used to reduce estate taxes.</p>
+          <ul style="color: var(--text-light); padding-left: 20px; line-height: 1.8;">
+            <li><strong style="color: var(--accent);">Use accumulated wealth.</strong> <span
+                style="color: var(--muted);">This is the quickest way to reduce the value of an estate. It is important
+                to calculate expected life longevity and future living expenses before spending down assets.</span></li>
+            <li><strong style="color: var(--accent);">Donate to charity.</strong> <span style="color: var(--muted);">Any
+                assets gifted to a qualified 501(c)3 organization avoid federal estate taxation. There is no limit on
+                the amount that can be donated to charity.</span></li>
+            <li><strong style="color: var(--accent);">Transfer to a spouse.</strong> <span
+                style="color: var(--muted);">Dying without a legal spouse can subject assets to estate tax, but if a
+                U.S. citizen spouse inherits the assets, no estate tax is imposed due to the unlimited marital
+                deduction.</span></li>
+            <li><strong style="color: var(--accent);">Move to a new state.</strong> <span
+                style="color: var(--muted);">Including the District of Columbia, several states currently have a state
+                estate or inheritance tax. Relocating can eliminate state-level death taxes.</span></li>
+            <li><strong style="color: var(--accent);">Use an alternate valuation date.</strong> <span
+                style="color: var(--muted);">Normally, the fair market value of property in an estate is estimated on
+                the date of death. The executor may choose an alternate valuation date six months after the date of
+                death if it decreases both the gross amount of the estate and the estate tax liability.</span></li>
+          </ul>
+
+          <h2 style="margin-top: 2rem;">Annual Gift Tax Exclusion</h2>
+          <p>The Gift Tax Exclusion allows any individual to gift a set amount each year ($19,000 for 2026) to as many
+            individuals as they desire without incurring a gift tax. Once more than this set amount is gifted to a
+            single individual in a year, a gift tax return is mandated. A gift can be anything of value, such as cash,
+            investments, real estate, or jewelry. Certain types of gifts are exempt from the gift tax entirely:</p>
+          <ul style="color: var(--muted); padding-left: 20px; line-height: 1.8;">
+            <li>Charitable gifts.</li>
+            <li>Gifts to spouses.</li>
+            <li>Gifts to political organizations.</li>
+            <li>Educational expense gifts concerning tuition paid directly to the institution.</li>
+            <li>Medical expense gifts paid directly to the medical facility.</li>
+          </ul>
+
+          <h2 style="margin-top: 2rem;">Unified Credit</h2>
+          <p>The unified credit combines both the federal gift tax and estate tax into one system. It prevents taxpayers
+            from giving away their entire estate during their lifetimes to avoid estate taxes.</p>
+          <p>If gifts exceed the annual gift tax exclusion, the excess amount counts against the lifetime gift tax
+            exclusion. This reduces the unified credit available upon death. Any portion of the unified credit that is
+            unused can be passed to a surviving spouse through portability.</p>
+          <p><strong style="color: var(--accent);">Example:</strong> A person gives away $2,000,000 in taxable gifts
+            during their lifetime and dies in 2026 when the individual federal estate tax exemption is $15,000,000.
+            Their remaining federal estate tax exemption drops to $13,000,000.</p>
+
+          <h2 style="margin-top: 2rem;">Estate Planning & Trusts</h2>
+          <p>A typical first step to estate planning is to take inventory of all assets. The next step is gathering
+            documents, which usually includes a will dictating asset distribution. While a will provides instructions,
+            it doesn't avoid probate. All assets must go through the state's probate process before distribution, which
+            incurs legal, executor, and court fees.</p>
+          <p>If there are sufficient assets, the use of trusts is often recommended. A trust is a fiduciary arrangement
+            that allows a third party, or trustee, to distribute assets according to agreed-upon conditions. It can
+            protect heirs from creditors and offer tax protection.</p>
+          <p>There are two primary types of trusts: testamentary trusts and living trusts. Testamentary trusts are
+            created by a will and take effect when the grantor dies. Living trusts are created and take effect during
+            the grantor's lifetime. Living trusts allow the transfer of assets to beneficiaries after death without
+            going through the public probate process.</p>
+        </div>
+        <div class="panel"
+          style="margin-bottom: 2rem; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; padding: 1.5rem 2rem;">
+          <strong style="color: var(--text-light); font-size: 1.1rem;"><i class="fas fa-link"></i> Related:</strong>
+          <a href="/projects/tax-and-salary/marriage-tax-calculator.html" class="theme-button cta-button"
+            style="width: auto; padding: 8px 20px; font-size: 0.95rem; border-radius: 6px; white-space: nowrap;"><i
+              class="fas fa-ring"></i> Marriage Tax</a>
+          <a href="/projects/tax-and-salary/income-tax-calculator.html" class="theme-button cta-button"
+            style="width: auto; padding: 8px 20px; font-size: 0.95rem; border-radius: 6px; white-space: nowrap;"><i
+              class="fas fa-file-invoice-dollar"></i> Income Tax</a>
+          <div class="mobile-center-wrapper">
+            <a href="/articles/tax-and-salary.html" class="btn btn-outline-primary"
+              style="padding: 8px 15px; font-size: 0.95rem;">Return to Directory</a>
+          </div>
+        </div>
+  </div>
+  </section>
+  </main>
+  <footer>
+    © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+  </footer>
+  </div>
+  <script src="/assets/js/scrolling-nebula.js"></script>
+  <script src="/assets/js/global.js"></script>
+  <script src="/assets/js/projects/tax-and-salary/estate-tax-calculator.js"></script>
+</body>
+
+</html>

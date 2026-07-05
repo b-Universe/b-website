@@ -1,6 +1,6 @@
-(function() {
+(function () {
   const form = document.getElementById('thp-form');
-  
+
   const inputs = {
     jobIncome: document.getElementById('job-income'),
     payFreq: document.getElementById('pay-frequency'),
@@ -68,41 +68,41 @@
     const is65 = getRadioValue('age-65') === 'yes';
     const otherIncome = parseCurrency(inputs.otherIncome.value);
     const isSelfEmployed = getRadioValue('self-employed') === 'yes';
-    
+
     const ficaExempt = parseCurrency(inputs.pretaxFicaExempt.value);
     const ficaSubject = parseCurrency(inputs.pretaxFicaSubject.value);
     const notWithheld = parseCurrency(inputs.deductionsNotWithheld.value);
     const itemized = parseCurrency(inputs.itemizedDeductions.value);
-    
+
     const tips = Math.min(25000, parseCurrency(inputs.qualifiedTips.value));
     const maxOvertime = status === 'single' || status === 'head' ? 12500 : 25000;
     const overtime = Math.min(maxOvertime, parseCurrency(inputs.qualifiedOvertime.value));
     const vehicle = Math.min(10000, parseCurrency(inputs.vehicleInterest.value));
     const charity = parseCurrency(inputs.charityCash.value);
-    
+
     const stateRate = parsePercent(inputs.stateTaxRate.value);
     const cityRate = parsePercent(inputs.cityTaxRate.value);
 
     // 2. FICA / SECA Tax
     let ficaTax = 0;
     let secaDeduction = 0;
-    
+
     // For FICA, we only tax job income minus FICA-exempt deductions
     let ficaWageBase = Math.max(0, jobIncome - ficaExempt);
-    
+
     if (isSelfEmployed) {
       // SECA logic: 15.3% on 92.35% of net business income
       let netEarnings = ficaWageBase * 0.9235;
-      
+
       // Social Security portion (12.4%) capped at $184,500
       let ssTaxable = Math.min(184500, netEarnings);
       let ssTax = ssTaxable * 0.124;
-      
+
       // Medicare portion (2.9%) unlimited
       let medTax = netEarnings * 0.029;
-      
+
       ficaTax = ssTax + medTax;
-      
+
       // 50% above-the-line deduction for SECA
       secaDeduction = ficaTax * 0.5;
     } else {
@@ -112,7 +112,7 @@
       let medTax = ficaWageBase * 0.0145;
       ficaTax = ssTax + medTax;
     }
-    
+
     // Additional Medicare Tax (0.9% over $200k/$250k)
     let addlMedThreshold = status === 'married-joint' ? 250000 : 200000;
     if (ficaWageBase > addlMedThreshold) {
@@ -127,14 +127,14 @@
     let standardDed = 16100;
     if (status === 'married-joint') standardDed = 32200;
     else if (status === 'head') standardDed = 24150;
-    
+
     if (is65) {
       standardDed += 6000;
     }
 
     let finalDeduction = standardDed;
     let takingStandard = true;
-    
+
     if (itemized > standardDed) {
       finalDeduction = itemized;
       takingStandard = false;
@@ -182,7 +182,7 @@
     let fedTax = 0;
     let remaining = taxableIncome;
     let prevLimit = 0;
-    
+
     for (let b of brackets) {
       let band = b.upTo - prevLimit;
       if (remaining > band) {
@@ -211,24 +211,24 @@
     // Update UI
     results.grossAnnual.textContent = formatDisplay(grossAnnual);
     results.grossPeriod.textContent = formatDisplay(grossAnnual / freq);
-    
+
     results.fedAnnual.textContent = formatDisplay(fedTax);
     results.fedPeriod.textContent = formatDisplay(fedTax / freq);
-    
+
     results.ficaAnnual.textContent = formatDisplay(ficaTax);
     results.ficaPeriod.textContent = formatDisplay(ficaTax / freq);
-    
+
     results.stateAnnual.textContent = formatDisplay(stateLocalTax);
     results.statePeriod.textContent = formatDisplay(stateLocalTax / freq);
-    
+
     results.pretaxAnnual.textContent = formatDisplay(pretaxTotal);
     results.pretaxPeriod.textContent = formatDisplay(pretaxTotal / freq);
-    
+
     results.takehomeAnnual.textContent = formatDisplay(takeHomeAnnual);
     results.takehomePeriod.textContent = formatDisplay(takeHomeAnnual / freq);
   }
 
-  
+
   const takeHomeScenarios = {
     demo1: {
       inputs: {
@@ -329,7 +329,7 @@
   const scenarioText = document.getElementById('scenario-text');
 
   if (demoDropdown) {
-    demoDropdown.addEventListener('change', function() {
+    demoDropdown.addEventListener('change', function () {
       const selectedScenario = takeHomeScenarios[this.value];
       if (!selectedScenario) {
         scenarioPanel.style.display = 'none';
@@ -365,7 +365,7 @@
   });
 
   document.querySelectorAll('.currency-input').forEach(input => {
-    input.addEventListener('blur', function() {
+    input.addEventListener('blur', function () {
       let val = this.value.replace(/[^0-9.]/g, '');
       if (val === '') {
         this.value = '$0';
@@ -379,8 +379,8 @@
       this.value = '$' + val.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
       calculate();
     });
-    
-    input.addEventListener('focus', function() {
+
+    input.addEventListener('focus', function () {
       if (this.value === '$0' || this.value === '$0.00' || this.value === '0') {
         this.value = '';
       }
@@ -388,7 +388,7 @@
   });
 
   document.querySelectorAll('.percent-input').forEach(input => {
-    input.addEventListener('blur', function() {
+    input.addEventListener('blur', function () {
       let val = this.value.replace(/[^0-9.]/g, '');
       if (val === '') {
         this.value = '0%';
@@ -402,8 +402,8 @@
       this.value = val + '%';
       calculate();
     });
-    
-    input.addEventListener('focus', function() {
+
+    input.addEventListener('focus', function () {
       if (this.value === '0%' || this.value === '0') {
         this.value = '';
       }
@@ -412,34 +412,34 @@
 
   // Standard numeric inputs
   [inputs.children, inputs.otherDependents].forEach(input => {
-    input.addEventListener('focus', function() {
+    input.addEventListener('focus', function () {
       if (this.value === '0') this.value = '';
     });
-    input.addEventListener('blur', function() {
+    input.addEventListener('blur', function () {
       if (this.value.trim() === '') this.value = '0';
       calculate();
     });
   });
 
-  form.addEventListener('reset', function(e) {
+  form.addEventListener('reset', function (e) {
     e.preventDefault();
-    
+
     document.querySelectorAll('.currency-input').forEach(i => i.value = '$0');
     document.querySelectorAll('.percent-input').forEach(i => i.value = '0%');
     inputs.children.value = '0';
     inputs.otherDependents.value = '0';
-    
-    
+
+
     if (scenarioPanel) scenarioPanel.style.display = 'none';
-        document.getElementById('results-scenario-grid').classList.remove('has-scenario');
+    document.getElementById('results-scenario-grid').classList.remove('has-scenario');
     if (demoDropdown) demoDropdown.value = '';
     inputs.jobIncome.value = '$80,000';
     inputs.payFreq.value = '26';
     inputs.fileStatus.value = 'single';
-    
+
     document.querySelector('input[name="age-65"][value="no"]').checked = true;
     document.querySelector('input[name="self-employed"][value="no"]').checked = true;
-    
+
     calculate();
   });
 

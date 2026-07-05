@@ -3,3 +3,6 @@
 assets/champagne.md
 assets/js/champagne.md
 notes.txt
+node_modules/
+package.json
+package-lock.json

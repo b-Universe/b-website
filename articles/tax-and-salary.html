@@ -124,7 +124,7 @@
         </div>
       </header>
     
-      <main>
+            <main>
         <div class="main-content article-wrap">
           
           <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
@@ -136,76 +136,136 @@
             </ol>
           </nav>
 
-          <section class="content-card static-card">
-            <h1>Tax and Salary Financial Tools</h1>
-            <p>Welcome to our comprehensive suite of financial estimation tools. Whether you're planning your budget, anticipating a tax return, or analyzing your take-home pay, these calculators provide quick insights based on recent tax brackets.</p>
-            <div style="margin-top: 15px;">
-              <a href="/projects/financial-calculators.html" class="btn btn-primary" style="margin-top: 5px; gap: 8px;">
-                <i class="fas fa-arrow-right"></i> View All Financial Calculators
-              </a>
-            </div>
+                    <section class="content-card static-card" style="padding: 3rem 2rem; border-bottom: 3px solid var(--accent); background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.05) 0%, rgba(0,0,0,0) 100%);">
+            <h1 style="font-size: 2.5rem; margin-top: 0; margin-bottom: 1rem; color: var(--text-light);">Building Tax Tools That Actually Work</h1>
+            <p style="font-size: 1.1rem; line-height: 1.6; color: var(--muted); margin-bottom: 0;">
+              The U.S. tax code is complicated. Turning that into code means you need to know how the math actually works. I build financial tools that handle the hard parts so the user doesn't have to.
+            </p>
           </section>
 
-          <section class="content-card static-card" style="padding: 25px;">
-            <h3 style="margin-top: 0; margin-bottom: 20px;">Explore Our Calculators</h3>
+          <div class="panel" style="padding: 2rem; margin-top: 2rem;">
+            <h2 style="margin-top: 0; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(var(--accent-rgb), 0.2); padding-bottom: 0.5rem;"><i class="fas fa-graduation-cap" style="color: var(--accent);"></i> How The U.S. Tax System Works in Code</h2>
+            <p style="line-height: 1.6; margin-bottom: 1.5rem;">
+              A lot of people think taxes are just a flat percentage, but they aren't. If a script doesn't handle the edge cases, the numbers won't be right. Here are a few things I focus on:
+            </p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 1.5rem;">
+              <div class="panel panel-solid" style="padding: 1.5rem;">
+                <h3 style="margin-top: 0; color: var(--text-light); font-size: 1.1rem;">Marginal vs. Effective Rates</h3>
+                <p style="font-size: 0.95rem; color: var(--muted); margin-bottom: 0;">
+                  The U.S. uses a progressive tax system. You aren't taxed at one flat rate. Your income is split into brackets. When you earn more, only the money in the higher bracket gets the higher tax. A good script has to loop through these brackets to find the real average tax rate.
+                </p>
+              </div>
+              <div class="panel panel-solid" style="padding: 1.5rem;">
+                <h3 style="margin-top: 0; color: var(--text-light); font-size: 1.1rem;">FICA and The Social Security Cap</h3>
+                <p style="font-size: 0.95rem; color: var(--muted); margin-bottom: 0;">
+                  Payroll taxes have Social Security and Medicare. Medicare is a flat 1.45%, plus a 0.9% surtax for high earners. But Social Security is 6.2% only up to a hard cap, which is $184,500 for 2026. A good paycheck calculator can't ignore these caps.
+                </p>
+              </div>
+            </div>
+
+            <h3 style="margin-top: 2rem; color: var(--text-light);">State Quirks and The New York Cliff</h3>
+            <p style="line-height: 1.6;">
+              State laws make things a lot harder. For example, New York has an Estate Tax Cliff. If an estate goes over the New York exemption (about $7.35M) by more than 5%, it loses the whole exemption and gets taxed on everything.
+            </p>
+            <p style="line-height: 1.6; margin-bottom: 0;">
+              Hard-coding a flat rate is easy. Writing code that knows exactly when to phase out an exemption and when to drop it entirely is what makes a calculator actually useful.
+            </p>
+          </div>
+
+          <section class="content-card static-card" style="padding: 25px; margin-top: 2rem;">
+            <h2 style="margin-top: 0; margin-bottom: 20px; text-align: center;">Interactive Demonstrations</h2>
+            <p style="text-align: center; color: var(--muted); margin-bottom: 30px;">
+              I've built a suite of calculators to demonstrate these concepts in action. These tools are powered by complex backend logic that handles federal brackets, state-specific rules, <span data-tooltip="Federal Insurance Contributions Act">FICA</span> caps, and standard deductions automatically.
+            </p>
             
             <div style="display: flex; flex-direction: column; gap: 15px;">
-              <a href="/projects/income-tax-calculator.html" class="tool-link-card">
+              <a href="/projects/tax-and-salary/income-tax-calculator.html" class="tool-link-card">
                 <div style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--accent);">
                   <i class="fas fa-file-invoice-dollar"></i>
                 </div>
                 <div class="tool-content">
                   <h3>Income Tax Calculator</h3>
-                  <p>Estimates your federal tax refund or potential owed amount based on standard deductions and current tax brackets.</p>
+                  <p>Estimates federal tax refunds or owed amounts by precisely navigating standard deductions and current progressive brackets.</p>
                 </div>
               </a>
               
-              <a href="/projects/salary-calculator.html" class="tool-link-card">
+              <a href="/projects/tax-and-salary/salary-calculator.html" class="tool-link-card">
                 <div style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--accent);">
                   <i class="fas fa-money-bill-wave"></i>
                 </div>
                 <div class="tool-content">
                   <h3>Salary Calculator</h3>
-                  <p>Convert your hourly wage into a yearly salary or vice-versa, factoring in working hours and vacation days.</p>
+                  <p>Converts hourly wages into annual salaries (and vice-versa) while programmatically factoring in paid time off and holidays.</p>
                 </div>
               </a>
               
-              <a href="/projects/take-home-pay-calculator.html" class="tool-link-card">
+              <a href="/projects/tax-and-salary/take-home-pay-calculator.html" class="tool-link-card">
                 <div style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--accent);">
                   <i class="fas fa-wallet"></i>
                 </div>
                 <div class="tool-content">
                   <h3>Take-Home Paycheck Calculator</h3>
-                  <p>Calculate your net take-home pay based on 2026 federal tax brackets, FICA taxes, state taxes, and standard/itemized deductions.</p>
+                  <p>A granular net-pay tool that factors in 2026 federal brackets, <span data-tooltip="Federal Insurance Contributions Act">FICA</span> limits, standard/itemized deductions, and state formulas.</p>
                 </div>
               </a>
               
-
-              <a href="/projects/marriage-tax-calculator.html" class="tool-link-card stub-card">
+              <a href="/projects/tax-and-salary/marriage-tax-calculator.html" class="tool-link-card">
                 <div style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--accent);">
                   <i class="fas fa-ring"></i>
                 </div>
                 <div class="tool-content">
                   <h3>Marriage Tax Calculator</h3>
-                  <span class="stub-note">(Under Construction)</span>
-                  <p>Evaluate the financial impact of filing jointly versus separately to optimize your household tax burden.</p>
+                  <p>Evaluates the financial impact of filing jointly vs. separately to dynamically optimize a household's tax burden.</p>
                 </div>
               </a>
               
-              <a href="/projects/estate-tax-calculator.html" class="tool-link-card stub-card">
+              <a href="/projects/tax-and-salary/estate-tax-calculator.html" class="tool-link-card">
                 <div style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--accent);">
                   <i class="fas fa-landmark"></i>
                 </div>
                 <div class="tool-content">
                   <h3>Estate Tax Calculator</h3>
-                  <span class="stub-note">(Under Construction)</span>
-                  <p>Estimate potential estate taxes based on total asset value and current exemption limits.</p>
+                  <p>Handles extreme state-level edge cases like the NY Cliff, the CT Cap, and the MA Threshold to project asset taxation accurately.</p>
                 </div>
               </a>
-              
-              
             </div>
           </section>
+
+          <div class="panel" style="padding: 2.5rem; margin-top: 2rem; border-top: 3px solid var(--accent); background: linear-gradient(0deg, rgba(var(--accent-rgb), 0.05) 0%, rgba(0,0,0,0) 100%);">
+            <h2 style="margin-top: 0; text-align: center; color: var(--text-light);">Looking for Custom Financial Software?</h2>
+            <p style="text-align: center; color: var(--muted); max-width: 600px; margin: 0 auto 2rem auto; line-height: 1.6;">
+              As an independent contractor, I specialize in translating complex accounting logic into lightweight, reliable, and aesthetically pleasing software.
+            </p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 2rem;">
+              <div class="panel panel-solid" style="padding: 1.5rem; text-align: center;">
+                <i class="fas fa-code" style="font-size: 2rem; color: var(--accent); margin-bottom: 1rem;"></i>
+                <h4 style="margin: 0 0 0.5rem 0;">Custom Calculators</h4>
+                <p style="font-size: 0.85rem; color: var(--muted); margin: 0;">Interactive, client-facing web tools for wealth management firms and <span data-tooltip="Certified Public Accountants">CPAs</span>.</p>
+              </div>
+              <div class="panel panel-solid" style="padding: 1.5rem; text-align: center;">
+                <i class="fas fa-cogs" style="font-size: 2rem; color: var(--accent); margin-bottom: 1rem;"></i>
+                <h4 style="margin: 0 0 0.5rem 0;">Logic Translation</h4>
+                <p style="font-size: 0.85rem; color: var(--muted); margin: 0;">Turning dense legal tax requirements into clean, maintainable backend code.</p>
+              </div>
+              <div class="panel panel-solid" style="padding: 1.5rem; text-align: center;">
+                <i class="fas fa-desktop" style="font-size: 2rem; color: var(--accent); margin-bottom: 1rem;"></i>
+                <h4 style="margin: 0 0 0.5rem 0;">UI/UX Modernization</h4>
+                <p style="font-size: 0.85rem; color: var(--muted); margin: 0;">Upgrading clunky spreadsheets and outdated forms into modern web apps.</p>
+              </div>
+            </div>
+            
+            <div style="text-align: center;">
+              <p style="margin-bottom: 1.5rem; font-weight: bold; color: var(--text-light);">Let's discuss your project.</p>
+              <!-- Email obfuscation link will be injected here by JS -->
+              <div id="contact-container" style="display: inline-block;">
+                <noscript>
+                  <p style="color: var(--muted); font-size: 0.9rem;">Please enable JavaScript to view my email address.</p>
+                </noscript>
+              </div>
+            </div>
+          </div>
     
         </div>
       </main>
@@ -217,5 +277,30 @@
 
     <script src="/assets/js/scrolling-nebula.js"></script>
     <script src="/assets/js/global.js"></script>
+    <script>
+      (function() {
+        const initContact = () => {
+          const container = document.getElementById('contact-container');
+          if (container && !container.hasAttribute('data-initialized')) {
+            container.setAttribute('data-initialized', 'true');
+            const user = 'business';
+            const domain = 'behr.dev';
+            const a = document.createElement('a');
+            a.href = `mailto:${user}@${domain}`;
+            a.className = 'btn btn-primary';
+            a.style.padding = '10px 25px';
+            a.style.fontSize = '1.1rem';
+            a.innerHTML = `<i class="fas fa-envelope"></i> Email Me`;
+            container.innerHTML = '';
+            container.appendChild(a);
+          }
+        };
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initContact);
+        } else {
+          initContact();
+        }
+      })();
+    </script>
   </body>
 </html>

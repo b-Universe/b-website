@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const scenarioData = {
     demo1: {
       inputs: {
@@ -121,7 +121,7 @@
         'college-student-4': '$0',
         'other-deductibles': '$0'
       },
-      text: '<strong>Joint Filers (Senior & Dependents):</strong> This demonstrates unique age-based rules and credits under 2025 laws. Since both filers are over 65, they unlock an additional $12,000 senior standard deduction bonus. Additionally, their two young dependents trigger a $4,400 Child Tax Credit, wiping out their tax liability.'
+      text: '<strong>Joint Filers (Senior & Dependents):</strong> This demonstrates unique age-based rules and credits. Since the primary filer is over 65, they unlock an additional senior standard deduction. Additionally, their two young dependents trigger a $4,400 Child Tax Credit, wiping out their tax liability and generating a refund.'
     },
     demo4: {
       inputs: {
@@ -203,7 +203,7 @@
         'college-student-4': '$0',
         'other-deductibles': '$0'
       },
-      text: '<strong>Single Filer (Student Loan Phase-out):</strong> Intended for moderate-to-high earning graduates. While student loan interest deductions can reduce tax obligations up to $2,500, this incentive phases out entirely once a single person\'s wages hit or cross the $100,000 ceiling under 2025 regulations.'
+      text: '<strong>Single Filer (Student Loan Phase-out):</strong> Intended for moderate-to-high earning graduates. While student loan interest deductions can reduce tax obligations up to $2,500, this incentive phases out entirely once a single person\'s wages hit or cross the $100,000 ceiling under 2026 regulations.'
     },
     demo6: {
       inputs: {
@@ -289,7 +289,7 @@
     }
   };
 
-  const form = document.getElementById('tax-form');
+  const form = document.getElementById('income-tax-form');
   const resultTitle = document.querySelector('.results-title');
   const resultValue = document.getElementById('final-result');
   const currencyInputs = document.querySelectorAll('.currency-input');
@@ -298,7 +298,7 @@
 
   // Toggle Biz Fields
   bizRadios.forEach(radio => {
-    radio.addEventListener('change', function() {
+    radio.addEventListener('change', function () {
       if (this.value === 'yes') {
         bizFields.style.display = 'block';
       } else {
@@ -312,13 +312,13 @@
       attachCurrencyListeners(input);
       return;
     }
-    input.addEventListener('focus', function() {
+    input.addEventListener('focus', function () {
       if (this.value === '$0' || this.value === '0') {
         this.value = '';
       }
     });
 
-    input.addEventListener('input', function() {
+    input.addEventListener('input', function () {
       let val = this.value.replace(/[^0-9]/g, '');
       if (val) {
         this.value = '$' + parseInt(val, 10).toLocaleString('en-US');
@@ -327,7 +327,7 @@
       }
     });
 
-    input.addEventListener('blur', function() {
+    input.addEventListener('blur', function () {
       if (!this.value || this.value === '$') {
         this.value = '$0';
       }
@@ -336,20 +336,20 @@
 
   const percentInputs = document.querySelectorAll('.percent-input');
   percentInputs.forEach(input => {
-    input.addEventListener('focus', function() {
+    input.addEventListener('focus', function () {
       if (this.value === '0%' || this.value === '0') {
         this.value = '';
       }
     });
 
-    input.addEventListener('input', function() {
+    input.addEventListener('input', function () {
       let val = this.value.replace(/[^0-9.]/g, '');
       // Prevent multiple decimals
       const parts = val.split('.');
       if (parts.length > 2) {
         val = parts[0] + '.' + parts.slice(1).join('');
       }
-      
+
       if (val !== '') {
         this.value = val + '%';
       } else {
@@ -357,7 +357,7 @@
       }
     });
 
-    input.addEventListener('blur', function() {
+    input.addEventListener('blur', function () {
       if (!this.value || this.value === '%') {
         this.value = '0%';
       } else if (!this.value.endsWith('%')) {
@@ -377,7 +377,7 @@
     const fileStatus = document.getElementById('file-status').value;
     const taxYear = document.querySelector('input[name="tax-year"]:checked').value;
     const age = parseInt(document.getElementById('age').value) || 0;
-    
+
     // Standard deductions
     let standardDeduction = 0;
     if (taxYear === '2025') {
@@ -389,15 +389,15 @@
       else if (fileStatus === 'head') standardDeduction = 24150;
       else standardDeduction = 32200;
     }
-    
+
     if (age >= 65) {
       if (fileStatus === 'married-joint' || fileStatus === 'widow') {
-        standardDeduction += 12000;
+        standardDeduction += 1650;
       } else {
-        standardDeduction += 6000;
+        standardDeduction += 2050;
       }
     }
-    
+
     // Parse Incomes
     const wages = parseCurrency(document.getElementById('wages').value);
     const ssIncome = parseCurrency(document.getElementById('ss-income').value);
@@ -410,14 +410,14 @@
     const otherIncome = parseCurrency(document.getElementById('other-income').value);
     const hasBiz = document.querySelector('input[name="has-biz"]:checked').value;
     const bizIncome = hasBiz === 'yes' ? parseCurrency(document.getElementById('business-income').value) : 0;
-    
+
     // Parse Withholdings & Estimated
     const federalWithheld = parseCurrency(document.getElementById('federal-withheld').value);
     const stateWithheld = parseCurrency(document.getElementById('state-withheld').value);
     const localWithheld = parseCurrency(document.getElementById('local-withheld').value);
     const estimatedTaxPaid = hasBiz === 'yes' ? parseCurrency(document.getElementById('estimated-tax-paid').value) : 0;
     const totalPayments = federalWithheld + estimatedTaxPaid;
-    
+
     // Parse Deductions
     const ira = parseCurrency(document.getElementById('ira-contrib').value);
     const realEstateTax = parseCurrency(document.getElementById('real-estate-tax').value);
@@ -428,13 +428,13 @@
     const otherDeductibles = parseCurrency(document.getElementById('other-deductibles').value);
     const tipsIncome = parseCurrency(document.getElementById('tips-income').value);
     const overtimeIncome = parseCurrency(document.getElementById('overtime-income').value);
-    
+
     // Dependents & Credits
     const youngDep = parseInt(document.getElementById('young-dep').value) || 0;
     const otherDep = parseInt(document.getElementById('other-dep').value) || 0;
     const childCareExpense = parseCurrency(document.getElementById('child-care-expense').value);
 
-    
+
     // Self-Employment Tax Logic
     let seTax = 0;
     let seDeduction = 0;
@@ -443,74 +443,110 @@
       seTax = netEarnings * 0.153;
       seDeduction = seTax * 0.5;
     }
-    
+
     // OBBBA Deductions
     const tipsDeduction = Math.min(tipsIncome, 25000);
     const overtimeLimit = (fileStatus === 'married-joint') ? 25000 : 12500;
     const overtimeDeduction = Math.min(overtimeIncome, overtimeLimit);
     const obbbaTotal = tipsDeduction + overtimeDeduction;
-    
+
     // Itemized Deductions
     const totalSalt = stateWithheld + localWithheld + realEstateTax;
     const saltCap = (taxYear === '2025') ? 40000 : 40400;
     const allowedSalt = Math.min(totalSalt, saltCap);
-    
+
     const allowedCarLoan = Math.min(carLoanInt, 10000);
     const totalItemized = allowedSalt + mortgageInt + charitableDonations + allowedCarLoan + otherDeductibles + obbbaTotal;
     const finalDeduction = Math.max(standardDeduction, totalItemized);
-    
+
     // Student Loan Interest Phase-out
     let allowedStudentLoanInt = Math.min(studentLoanInt, 2500);
-    const magi = wages + bizIncome + ordinaryDividends + shortTermGains + otherIncome; 
+    const magi = wages + bizIncome + ordinaryDividends + shortTermGains + otherIncome;
     const slLimit = (fileStatus === 'married-joint') ? 200000 : 100000;
     const slPhaseOutStart = (fileStatus === 'married-joint') ? 170000 : 85000;
-    
+
     if (magi >= slLimit) {
       allowedStudentLoanInt = 0;
     } else if (magi > slPhaseOutStart) {
       const reduction = (magi - slPhaseOutStart) / (slLimit - slPhaseOutStart);
       allowedStudentLoanInt = allowedStudentLoanInt * (1 - reduction);
     }
-    
+
     // Ordinary Income
     let ordinaryIncome = wages + ssIncome + interestIncome + ordinaryDividends + passiveIncomes + shortTermGains + otherIncome + bizIncome;
     let taxableOrdinary = ordinaryIncome - finalDeduction - ira - allowedStudentLoanInt - seDeduction;
     if (taxableOrdinary < 0) taxableOrdinary = 0;
-    
+
     // Progressive Tax Brackets (2025/2026 approximated closely)
     let taxOwed = 0;
-    const bracketsSingle = [
-      { rate: 0.10, upTo: 11925 },
-      { rate: 0.12, upTo: 48475 },
-      { rate: 0.22, upTo: 103350 },
-      { rate: 0.24, upTo: 197300 },
-      { rate: 0.32, upTo: 250525 },
-      { rate: 0.35, upTo: 626350 },
-      { rate: 0.37, upTo: Infinity }
-    ];
-    const bracketsJoint = [
-      { rate: 0.10, upTo: 23850 },
-      { rate: 0.12, upTo: 96950 },
-      { rate: 0.22, upTo: 206700 },
-      { rate: 0.24, upTo: 394600 },
-      { rate: 0.32, upTo: 501050 },
-      { rate: 0.35, upTo: 751600 },
-      { rate: 0.37, upTo: Infinity }
-    ];
-    const bracketsHead = [
-      { rate: 0.10, upTo: 17000 },
-      { rate: 0.12, upTo: 64850 },
-      { rate: 0.22, upTo: 103350 },
-      { rate: 0.24, upTo: 197300 },
-      { rate: 0.32, upTo: 250525 },
-      { rate: 0.35, upTo: 626350 },
-      { rate: 0.37, upTo: Infinity }
-    ];
-    
-    let brackets = bracketsSingle;
-    if (fileStatus === 'married-joint' || fileStatus === 'widow') brackets = bracketsJoint;
-    else if (fileStatus === 'head') brackets = bracketsHead;
-    
+    let brackets = [];
+
+    if (taxYear === '2025') {
+      const bracketsSingle2025 = [
+        { rate: 0.10, upTo: 11925 },
+        { rate: 0.12, upTo: 48475 },
+        { rate: 0.22, upTo: 103350 },
+        { rate: 0.24, upTo: 197300 },
+        { rate: 0.32, upTo: 250525 },
+        { rate: 0.35, upTo: 626350 },
+        { rate: 0.37, upTo: Infinity }
+      ];
+      const bracketsJoint2025 = [
+        { rate: 0.10, upTo: 23850 },
+        { rate: 0.12, upTo: 96950 },
+        { rate: 0.22, upTo: 206700 },
+        { rate: 0.24, upTo: 394600 },
+        { rate: 0.32, upTo: 501050 },
+        { rate: 0.35, upTo: 751600 },
+        { rate: 0.37, upTo: Infinity }
+      ];
+      const bracketsHead2025 = [
+        { rate: 0.10, upTo: 17000 },
+        { rate: 0.12, upTo: 64850 },
+        { rate: 0.22, upTo: 103350 },
+        { rate: 0.24, upTo: 197300 },
+        { rate: 0.32, upTo: 250525 },
+        { rate: 0.35, upTo: 626350 },
+        { rate: 0.37, upTo: Infinity }
+      ];
+
+      if (fileStatus === 'married-joint' || fileStatus === 'widow') brackets = bracketsJoint2025;
+      else if (fileStatus === 'head') brackets = bracketsHead2025;
+      else brackets = bracketsSingle2025;
+    } else {
+      const bracketsSingle2026 = [
+        { rate: 0.10, upTo: 12400 },
+        { rate: 0.12, upTo: 50400 },
+        { rate: 0.22, upTo: 105700 },
+        { rate: 0.24, upTo: 201775 },
+        { rate: 0.32, upTo: 256225 },
+        { rate: 0.35, upTo: 640600 },
+        { rate: 0.37, upTo: Infinity }
+      ];
+      const bracketsJoint2026 = [
+        { rate: 0.10, upTo: 24800 },
+        { rate: 0.12, upTo: 100800 },
+        { rate: 0.22, upTo: 211400 },
+        { rate: 0.24, upTo: 403550 },
+        { rate: 0.32, upTo: 512450 },
+        { rate: 0.35, upTo: 768700 },
+        { rate: 0.37, upTo: Infinity }
+      ];
+      const bracketsHead2026 = [
+        { rate: 0.10, upTo: 17700 },
+        { rate: 0.12, upTo: 67450 },
+        { rate: 0.22, upTo: 105700 },
+        { rate: 0.24, upTo: 201750 },
+        { rate: 0.32, upTo: 256200 },
+        { rate: 0.35, upTo: 640600 },
+        { rate: 0.37, upTo: Infinity }
+      ];
+
+      if (fileStatus === 'married-joint' || fileStatus === 'widow') brackets = bracketsJoint2026;
+      else if (fileStatus === 'head') brackets = bracketsHead2026;
+      else brackets = bracketsSingle2026;
+    }
+
     let remaining = taxableOrdinary;
     let previousLimit = 0;
     for (let b of brackets) {
@@ -524,25 +560,25 @@
         break;
       }
     }
-    
+
     // Capital Gains & Qualified Dividends Tax
     const prefIncome = longTermGains + qualifiedDividends;
     if (prefIncome > 0) {
       const limit0 = (fileStatus === 'married-joint') ? 96700 : 48350;
       const limit15 = (fileStatus === 'married-joint') ? 600050 : 553850;
-      
+
       let prefTax = 0;
       // Calculate how much falls into each bucket, stacked on top of ordinary income
       let stack = taxableOrdinary;
       let remainingPref = prefIncome;
-      
+
       if (stack < limit0) {
         let roomIn0 = limit0 - stack;
         let amtIn0 = Math.min(roomIn0, remainingPref);
         remainingPref -= amtIn0;
         stack += amtIn0;
       }
-      
+
       if (remainingPref > 0 && stack < limit15) {
         let roomIn15 = limit15 - stack;
         let amtIn15 = Math.min(roomIn15, remainingPref);
@@ -550,47 +586,61 @@
         remainingPref -= amtIn15;
         stack += amtIn15;
       }
-      
+
       if (remainingPref > 0) {
         prefTax += remainingPref * 0.20;
       }
       taxOwed += prefTax;
     }
-    
+
     // Add SE Tax
     taxOwed += seTax;
-    
+
     // Tax credits
     let childCredit = youngDep * 2200;
     let otherCredit = otherDep * 500;
-    
+
     // Child Care Credit (up to $3000/person max $6000)
     let allowedChildCare = Math.min(childCareExpense, (youngDep + otherDep) * 3000);
     allowedChildCare = Math.min(allowedChildCare, 6000);
     let childCareCredit = allowedChildCare * 0.20; // Approx 20% credit
-    
+
     let collegeCredit = 0;
     const collegeInputs = document.querySelectorAll('.college-input');
     collegeInputs.forEach(input => {
       const val = parseCurrency(input.value);
       collegeCredit += Math.min(val, 2500);
     });
-    
-    let totalCredits = childCredit + otherCredit + childCareCredit + collegeCredit;
-    taxOwed -= totalCredits;
-    if (taxOwed < 0) taxOwed = 0; 
-    
+
+    const nonRefundableCredits = otherCredit + childCareCredit + collegeCredit;
+    taxOwed -= nonRefundableCredits;
+    if (taxOwed < 0) taxOwed = 0;
+
+    const appliedChildCredit = Math.min(taxOwed, childCredit);
+    taxOwed -= appliedChildCredit;
+
+    const leftoverChildCredit = childCredit - appliedChildCredit;
+    let refundableChildCredit = 0;
+
+    if (leftoverChildCredit > 0 && youngDep > 0) {
+      const maxACTC = youngDep * 1700;
+      const earnedIncome = wages + bizIncome;
+      const earnedIncomeLimit = Math.max(0, (earnedIncome - 2500) * 0.15);
+      const potentialACTC = Math.min(leftoverChildCredit, maxACTC);
+      refundableChildCredit = Math.min(potentialACTC, earnedIncomeLimit);
+    }
+
     // Final Result
-    const refundOrOwe = totalPayments - taxOwed;
-    
+    const refundOrOwe = (totalPayments + refundableChildCredit) - taxOwed;
+
     if (refundOrOwe >= 0) {
       resultTitle.textContent = "Estimated Tax Refund";
-      resultValue.style.color = "#4CAF50"; 
-      resultValue.textContent = '$' + refundOrOwe.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      resultValue.style.color = "#4CAF50";
+      resultValue.textContent = '$' + refundOrOwe.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     } else {
       resultTitle.textContent = "Estimated Tax Owed";
-      resultValue.style.color = "#dd0000"; 
-      resultValue.textContent = '$' + Math.abs(refundOrOwe).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      resultValue.style.color = "#dd0000";
+      resultValue.textContent = '$' + Math.abs(refundOrOwe).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
   }
 
@@ -610,21 +660,21 @@
 
   // Dynamic College Education Fields
   const collegeContainer = document.getElementById('college-expenses-container');
-  
+
   function attachCurrencyListeners(input) {
-    input.addEventListener('focus', function() {
+    input.addEventListener('focus', function () {
       if (this.value === '$0' || this.value === '0') {
         this.value = '';
       }
     });
-    input.addEventListener('input', function() {
+    input.addEventListener('input', function () {
       let val = this.value.replace(/[^0-9]/g, '');
       if (val) {
         this.value = '$' + parseInt(val, 10).toLocaleString('en-US');
       } else {
         this.value = '';
       }
-      
+
       // Auto-add next row if this is the last one and value > 0
       if (this.classList.contains('college-input')) {
         const row = this.closest('.college-student-row');
@@ -635,7 +685,7 @@
         }
       }
     });
-    input.addEventListener('blur', function() {
+    input.addEventListener('blur', function () {
       if (!this.value || this.value === '$') {
         this.value = '$0';
       }
@@ -646,7 +696,7 @@
   function addCollegeRow() {
     const rows = collegeContainer.querySelectorAll('.college-student-row');
     const newIndex = rows.length + 1;
-    
+
     // Update previous row's buttons
     const lastRow = rows[rows.length - 1];
     lastRow.querySelector('.add-student-btn').style.display = 'none';
@@ -664,16 +714,16 @@
       </div>
       <div class="input-note student-label-note">Student ${newIndex}</div>
     `;
-    
+
     collegeContainer.appendChild(newRow);
-    
+
     // Attach listeners
     const newInput = newRow.querySelector('.college-input');
     attachCurrencyListeners(newInput);
-    
+
     // Attach button listeners
     newRow.querySelector('.add-student-btn').addEventListener('click', addCollegeRow);
-    newRow.querySelector('.remove-student-btn').addEventListener('click', function() {
+    newRow.querySelector('.remove-student-btn').addEventListener('click', function () {
       newRow.remove();
       updateCollegeRows();
       calculateTax();
@@ -687,10 +737,10 @@
       row.dataset.index = index;
       row.querySelector('.student-label-note').textContent = `Student ${index}`;
       row.querySelector('.college-input').id = `college-student-${index}`;
-      
+
       const addBtn = row.querySelector('.add-student-btn');
       const remBtn = row.querySelector('.remove-student-btn');
-      
+
       if (index === 1) {
         row.querySelector('.input-label').textContent = 'College Education Expense';
         remBtn.style.display = 'none';
@@ -698,7 +748,7 @@
         row.querySelector('.input-label').textContent = '';
         remBtn.style.display = 'inline-flex';
       }
-      
+
       if (index === rows.length) {
         addBtn.style.display = 'inline-flex';
       } else {
@@ -709,16 +759,16 @@
 
   // Initialize first row buttons
   const firstRowAdd = collegeContainer.querySelector('.add-student-btn');
-  if(firstRowAdd) firstRowAdd.addEventListener('click', addCollegeRow);
+  if (firstRowAdd) firstRowAdd.addEventListener('click', addCollegeRow);
 
   const demoDropdown = document.getElementById('demo-scenarios');
   const scenarioPanel = document.getElementById('scenario-panel');
   const scenarioText = document.getElementById('scenario-text');
 
   if (demoDropdown) {
-    demoDropdown.addEventListener('change', function() {
+    demoDropdown.addEventListener('change', function () {
       const selectedScenario = scenarioData[this.value];
-      
+
       if (!selectedScenario) {
         scenarioPanel.style.display = 'none';
         return;
@@ -745,7 +795,7 @@
     });
   }
 
-  form.addEventListener('reset', function() {
+  form.addEventListener('reset', function () {
     if (scenarioPanel) scenarioPanel.style.display = 'none';
     if (demoDropdown) demoDropdown.value = '';
     setTimeout(() => {

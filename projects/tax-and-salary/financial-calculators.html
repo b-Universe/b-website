@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>B - Financial Calculators Directory</title>
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <meta name="portfolio-title" content="Financial Calculators">
+  <meta name="portfolio-category" content="project">
+  <meta name="portfolio-date" content="2026-06-29">
+  <meta name="portfolio-thumbnail" content="">
+  <meta name="portfolio-description"
+    content="A hub for various financial calculators including Mortgage, Loan, Retirement, Taxes, and more.">
+  <meta name="description" content="It's a fun place to be - Explore my projects, concept ideas, and blogs here!">
+  <meta name="keywords" content="free, B, minecraft, ai, vr, scriping, denizen, technology, gaming">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:title" content="Financial Calculators Directory">
+  <meta property="og:description"
+    content="A hub for various financial calculators including Mortgage, Loan, Retirement, Taxes, and more.">
+  <meta property="og:url" content="https://home.behr.dev/web_test">
+  <meta property="og:type" content="website">
+  <meta property="og:image"
+    content="https://cdn.discordapp.com/app-assets/1072200871015886868/store/1072627685811044402?size=1024">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Financial Calculators Directory">
+  <meta name="twitter:description"
+    content="A hub for various financial calculators including Mortgage, Loan, Retirement, Taxes, and more.">
+  <meta name="twitter:image"
+    content="https://cdn.discordapp.com/app-assets/1072200871015886868/store/1072627685811044402?size=1024">
+
+  <meta name="theme-color" content="#00FFFE">
+
+  <!-- CSS Imports -->
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/pages/tax-and-salary.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    xintegrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    .tool-link-card:hover {
+      border-color: var(--accent) !important;
+      background: rgba(var(--accent-rgb), 0.08) !important;
+      transform: translateY(-3px) !important;
+      box-shadow: 0 5px 15px rgba(var(--accent-rgb), 0.2) !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <canvas id="starfield"></canvas>
+
+    <header>
+      <div class="header">
+        <a class="brand" href="/pages/index.html">
+          <div class="logo" aria-hidden="true">B</div>
+          <div class="brand-text-wrap">
+            <div class="brand-title">It's a fun place to be</div>
+            <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+          </div>
+        </a>
+
+        <div class="nav-wrapper">
+          <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+            <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+            <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i
+                class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+            <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"
+                aria-hidden="true"></i>Github</a>
+          </nav>
+
+          <button id="theme-toggle" class="theme-button" title="Toggle theme">
+            <i class="fa-solid fa-moon" aria-hidden="true"></i>Dark
+          </button>
+          <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="main-content">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><span><i class="fas fa-rocket" aria-hidden="true"></i> Projects</span></li>
+            <li><span class="breadcrumb-current" aria-current="page">Financial Calculators</span></li>
+          </ol>
+        </nav>
+
+        <section class="content-card static-card" style="padding: 2rem; margin-bottom: 2rem;">
+          <h1>Financial Calculators Directory</h1>
+          <p>Welcome to the financial calculators directory. Select a tool below to run your numbers and estimate
+            important financial metrics.</p>
+          <div style="margin-top: 15px;">
+            <a href="/articles/tax-and-salary.html" class="btn btn-primary" style="margin-top: 5px; gap: 8px;">
+              <i class="fas fa-arrow-right"></i> View Tax and Salary Tools
+            </a>
+
+          </div>
+        </section>
+
+        <div class="panel"
+          style="padding: 2rem; background: transparent; border: none; padding-left: 0; padding-right: 0; box-shadow: none;">
+
+
+          <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px;">
+            <a href="/projects/mortgage-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-home"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Mortgage
+                  Calculator</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Estimate your monthly
+                  mortgage payments including principal and interest.</p>
+              </div>
+            </a>
+
+            <a href="/projects/loan-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-hand-holding-usd"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Loan
+                  Calculator</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Calculate monthly
+                  payments and total interest for personal loans.</p>
+              </div>
+            </a>
+
+            <a href="/projects/auto-loan-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-car"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Auto Loan
+                  Calculator</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Estimate your monthly
+                  auto loan payments to budget for your next car.</p>
+              </div>
+            </a>
+
+            <a href="/projects/interest-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-percent"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Interest
+                  Calculator</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Calculate simple or
+                  compound interest for loans and savings.</p>
+              </div>
+            </a>
+
+            <a href="/projects/payment-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-money-check-alt"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Payment
+                  Calculator</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Determine fixed monthly
+                  payment amounts for various loan types.</p>
+              </div>
+            </a>
+
+            <a href="/projects/retirement-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-piggy-bank"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Retirement
+                  Calculator</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Plan for your future by
+                  calculating required retirement savings.</p>
+              </div>
+            </a>
+
+            <a href="/projects/amortization-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-chart-area"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">
+                  Amortization Calculator</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Generate an amortization
+                  schedule to track your loan balance over time.</p>
+              </div>
+            </a>
+
+            <a href="/projects/investment-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Investment
+                  Calculator</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Project the future value
+                  of your investments based on expected returns.</p>
+              </div>
+            </a>
+
+            <a href="/projects/currency-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-exchange-alt"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Currency
+                  Calculator</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Convert between various
+                  international currencies based on exchange rates.</p>
+              </div>
+            </a>
+
+            <a href="/projects/inflation-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-arrow-up"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Inflation
+                  Calculator</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Calculate the impact of
+                  inflation on purchasing power over time.</p>
+              </div>
+            </a>
+
+            <a href="/projects/finance-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-chart-pie"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Finance
+                  Calculator</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Analyze general
+                  financial metrics and personal finance goals.</p>
+              </div>
+            </a>
+
+            <a href="/projects/mortgage-payoff-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-house-damage"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Mortgage
+                  Payoff</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">See how making extra
+                  payments can help you pay off your mortgage faster.</p>
+              </div>
+            </a>
+
+            <a href="/projects/tax-and-salary/income-tax-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-file-invoice-dollar"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Income Tax
+                </h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Estimates your federal
+                  tax refund or owed amount based on current brackets.</p>
+              </div>
+            </a>
+
+            <a href="/projects/compound-interest-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-coins"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Compound
+                  Interest</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Project the future value
+                  of your investments and savings over time.</p>
+              </div>
+            </a>
+
+            <a href="/projects/tax-and-salary/salary-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-money-bill-wave"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Salary
+                  Calculator</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Convert your hourly wage
+                  into a yearly salary or vice-versa.</p>
+              </div>
+            </a>
+
+            <a href="/projects/tax-and-salary/take-home-pay-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-wallet"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Take-Home
+                  Pay</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Determine your exact
+                  take-home pay by factoring in all taxes.</p>
+              </div>
+            </a>
+
+            <a href="/projects/401k-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-chart-bar"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">401K
+                  Calculator</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Estimate your 401k
+                  growth and future retirement income.</p>
+              </div>
+            </a>
+
+            <a href="/projects/interest-rate-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-percentage"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Interest
+                  Rate</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Calculate the real
+                  interest rate or APY on a loan or investment.</p>
+              </div>
+            </a>
+
+            <a href="/projects/sales-tax-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-receipt"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Sales Tax
+                  Calculator</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Calculate total costs
+                  after applying state and local sales taxes.</p>
+              </div>
+            </a>
+
+            <a href="/projects/tax-and-salary/marriage-tax-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-ring"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Marriage
+                  Tax Calculator</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Evaluate the financial
+                  impact of filing jointly versus separately to optimize your household tax burden.</p>
+              </div>
+            </a>
+
+            <a href="/projects/tax-and-salary/estate-tax-calculator.html" class="tool-link-card"
+              style="display: flex; flex-direction: column; text-decoration: none; background: rgba(0,0,0,0.2); border: 1px solid var(--accent); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
+              <div
+                style="background: rgba(var(--accent-rgb), 0.1); width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--accent);">
+                <i class="fas fa-landmark"></i>
+              </div>
+              <div style="padding: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">Estate Tax
+                  Calculator</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.4;">Estimate potential
+                  estate taxes based on total asset value and current exemption limits.</p>
+              </div>
+            </a>
+          </div>
+
+        </div>
+
+
+
+      </div>
+    </main>
+
+    <footer>
+      © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+    </footer>
+  </div>
+
+  <script src="/assets/js/scrolling-nebula.js"></script>
+  <script src="/assets/js/global.js"></script>
+</body>
+
+</html>
