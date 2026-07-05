@@ -136,7 +136,7 @@
             </ol>
           </nav>
 
-                    <section class="content-card static-card" style="padding: 3rem 2rem; border-bottom: 3px solid var(--accent); background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.05) 0%, rgba(0,0,0,0) 100%);">
+                    <section class="panel" style="padding: 3rem 2rem; border-bottom: 3px solid var(--accent); background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.05) 0%, rgba(0,0,0,0) 100%);">
             <h1 style="font-size: 2.5rem; margin-top: 0; margin-bottom: 1rem; color: var(--text-light);">Building Tax Tools That Actually Work</h1>
             <p style="font-size: 1.1rem; line-height: 1.6; color: var(--muted); margin-bottom: 0;">
               The U.S. tax code is complicated. Turning that into code means you need to know how the math actually works. I build financial tools that handle the hard parts so the user doesn't have to.
@@ -173,7 +173,7 @@
             </p>
           </div>
 
-          <section class="content-card static-card" style="padding: 25px; margin-top: 2rem;">
+          <section class="panel" style="padding: 25px; margin-top: 2rem;">
             <h2 style="margin-top: 0; margin-bottom: 20px; text-align: center;">Interactive Demonstrations</h2>
             <p style="text-align: center; color: var(--muted); margin-bottom: 30px;">
               I've built a suite of calculators to demonstrate these concepts in action. These tools are powered by complex backend logic that handles federal brackets, state-specific rules, <span data-tooltip="Federal Insurance Contributions Act">FICA</span> caps, and standard deductions automatically.
@@ -275,8 +275,32 @@
       </footer>
     </div>
 
+    <!-- Contact Modal -->
+    <div id="contact-modal" class="modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title"><i class="fas fa-envelope" style="color: var(--accent); margin-right: 8px;"></i> Contact Me</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body" style="text-align: center; padding: 2.5rem 2rem;">
+            <p style="margin-bottom: 1.5rem; color: var(--text-light); font-size: 1.1rem;">You can reach me directly at:</p>
+            <div style="background: rgba(var(--accent-rgb), 0.1); border: 1px dashed rgba(var(--accent-rgb), 0.4); padding: 1.25rem; border-radius: var(--radius); margin-bottom: 1.5rem; transition: all 0.2s;">
+              <a id="modal-email-link" href="#" style="font-size: 1.3rem; font-weight: bold; color: var(--accent); text-decoration: none; letter-spacing: 0.5px;">Click to reveal</a>
+            </div>
+            <p style="font-size: 0.95rem; color: var(--muted); margin: 0; line-height: 1.5;">I am currently accepting new clients for custom financial software, script integrations, and UI/UX overhauls. I typically respond within 24-48 hours.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <a id="modal-email-btn" href="#" class="btn btn-primary" style="display: none;">Open Email App</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="/assets/js/scrolling-nebula.js"></script>
     <script src="/assets/js/global.js"></script>
+    <script src="/assets/js/overlays.js"></script>
     <script>
       (function() {
         const initContact = () => {
@@ -285,14 +309,31 @@
             container.setAttribute('data-initialized', 'true');
             const user = 'business';
             const domain = 'behr.dev';
-            const a = document.createElement('a');
-            a.href = `mailto:${user}@${domain}`;
-            a.className = 'btn btn-primary';
-            a.style.padding = '10px 25px';
-            a.style.fontSize = '1.1rem';
-            a.innerHTML = `<i class="fas fa-envelope"></i> Email Me`;
+            
+            // Setup the modal trigger button
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-primary';
+            btn.setAttribute('data-toggle', 'modal');
+            btn.setAttribute('data-target', '#contact-modal');
+            btn.style.padding = '10px 25px';
+            btn.style.fontSize = '1.1rem';
+            btn.innerHTML = `<i class="fas fa-envelope"></i> Email Me`;
             container.innerHTML = '';
-            container.appendChild(a);
+            container.appendChild(btn);
+
+            // Populate the modal with the obfuscated email
+            const emailAddress = `${user}@${domain}`;
+            const emailLink = document.getElementById('modal-email-link');
+            const emailBtn = document.getElementById('modal-email-btn');
+            
+            if (emailLink) {
+              emailLink.textContent = emailAddress;
+              emailLink.href = `mailto:${emailAddress}`;
+            }
+            if (emailBtn) {
+              emailBtn.href = `mailto:${emailAddress}`;
+              emailBtn.style.display = 'inline-block';
+            }
           }
         };
         if (document.readyState === 'loading') {

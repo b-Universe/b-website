@@ -37,6 +37,153 @@
     content="https://cdn.discordapp.com/app-assets/1072200871015886868/store/1072627685811044402?size=1024">
 
   <meta name="theme-color" content="#00FFFE">
+      <style>
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      row-gap: 5px;
+      column-gap: 10px;
+      align-items: center;
+    }
+
+    .empty-corner {
+      display: none;
+    }
+
+    .label-col {
+      grid-column: 1 / -1;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: -5px;
+      margin-top: 5px;
+    }
+
+    @media (width >= 768px) {
+      .calc-grid {
+        grid-template-columns: 250px 1fr 1fr;
+        row-gap: 5px;
+        column-gap: 20px;
+      }
+      .empty-corner {
+        display: block;
+      }
+      .label-col {
+        grid-column: auto;
+        margin-bottom: 0;
+        margin-top: 0;
+      }
+    }
+
+    .header-col-s1 {
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+      padding: 12px;
+      background: rgba(0, 150, 255, 0.2);
+      border-radius: var(--radius);
+      color: #fff;
+    }
+
+    .header-col-s2 {
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+      padding: 12px;
+      background: rgba(0, 255, 150, 0.15);
+      border-radius: var(--radius);
+      color: #fff;
+    }
+    
+    .panel-header {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--accent);
+      background: rgba(var(--accent-rgb), 0.1);
+      padding: 12px 15px;
+      margin: 0;
+      border-top-left-radius: var(--radius);
+      border-top-right-radius: var(--radius);
+      border-bottom: 1px solid rgba(var(--accent-rgb), 0.2);
+      grid-column: 1 / -1;
+    }
+
+    .panel-body {
+      padding: 20px;
+    }
+    
+    .input-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: normal;
+      display: block;
+      margin-top: 4px;
+    }
+    
+    .calc-input {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    /* Spouse 1 Specific Styles */
+    .s1-input {
+      background: rgba(0, 150, 255, 0.1) !important;
+      border: 1px solid rgba(0, 150, 255, 0.3) !important;
+      color: var(--text-light);
+    }
+    .s1-input:focus {
+      border-color: rgba(0, 150, 255, 0.8) !important;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0, 150, 255, 0.2);
+    }
+
+    /* Spouse 2 Specific Styles */
+    .s2-input {
+      background: rgba(0, 255, 150, 0.08) !important;
+      border: 1px solid rgba(0, 255, 150, 0.3) !important;
+      color: var(--text-light);
+    }
+    .s2-input:focus {
+      border-color: rgba(0, 255, 150, 0.8) !important;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0, 255, 150, 0.2);
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      height: 100%;
+    }
+
+    .radio-block {
+      padding: 8px 12px;
+      border-radius: var(--radius);
+      justify-content: center;
+    }
+    .s1-radio.radio-block {
+      background: rgba(0, 150, 255, 0.2);
+    }
+    .s2-radio.radio-block {
+      background: rgba(0, 255, 150, 0.15);
+    }
+
+    .radio-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    /* For inputs inside radio groups like select or specific containers, ensure they take full width */
+    .s1-col, .s2-col {
+      width: 100%;
+    }
+  </style>
 </head>
 
 <body>
@@ -58,33 +205,268 @@
       </div>
     </header>
     <main class="main-content">
-      <section class="content-card static-card" style="padding: 40px; text-align: center;">
-        <h1><i class="fas fa-rings-wedding"></i> Marriage Tax Calculator</h1>
-        <p>This calculator is currently under development. Please check back later!</p>
-        <a href="/articles/tax-and-salary.html" class="portfolio-tag article-tag"
-          style="display: inline-block; margin-top: 20px; text-decoration: none;">Return to Hub</a>
-        <div class="panel"
-          style="margin-bottom: 2rem; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; padding: 1.5rem 2rem;">
-          <strong style="color: var(--text-light); font-size: 1.1rem;"><i class="fas fa-link"></i> Related:</strong>
-          <a href="/projects/tax-and-salary/income-tax-calculator.html" class="theme-button cta-button"
-            style="width: auto; padding: 8px 20px; font-size: 0.95rem; border-radius: 6px; white-space: nowrap;"><i
-              class="fas fa-file-invoice-dollar"></i> Income Tax</a>
-          <a href="/projects/tax-and-salary/take-home-pay-calculator.html" class="theme-button cta-button"
-            style="width: auto; padding: 8px 20px; font-size: 0.95rem; border-radius: 6px; white-space: nowrap;"><i
-              class="fas fa-calculator"></i> Take Home Pay</a>
-          <div class="mobile-center-wrapper">
-            <a href="/articles/tax-and-salary.html" class="btn btn-outline-primary"
-              style="padding: 8px 15px; font-size: 0.95rem;">Return to Directory</a>
+        <section class="content-card static-card" style="padding: 40px;">
+          <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+            <ol>
+              <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+              <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+              <li><span><i class="fas fa-rocket" aria-hidden="true"></i> Projects</span></li>
+              <li><a href="/articles/tax-and-salary.html">Tax &amp; Salary Tools</a></li>
+              <li><span class="breadcrumb-current" aria-current="page">Marriage Tax Calculator</span></li>
+            </ol>
+          </nav>
+          
+          <h1 style="margin-bottom: 20px;"><i class="fas fa-rings-wedding"></i> Marriage Tax Calculator</h1>
+          
+          <div class="panel" style="padding: 2rem; margin-bottom: 2rem;">
+            <h2>About This Calculator</h2>
+            <p style="text-align: left; margin-bottom: 1.5rem;">Evaluate the financial impact of filing jointly versus separately to optimize your household tax burden. This tool models 2026 tax law, including the standard deduction, progressive tax brackets, <abbr title="State and Local Tax">SALT</abbr> deduction limits, and child care credits, to illustrate the marriage penalty or bonus for your specific situation.</p>
+            <p style="text-align: left; margin-bottom: 0; font-size: 0.9rem; color: var(--muted); border-left: 3px solid rgba(var(--accent-rgb), 0.5); padding-left: 1rem; font-style: italic;"><strong>Disclaimer:</strong> This calculator provides an estimate only and should not be considered tax or legal advice. Actual tax liability may vary based on additional income, deductions, credits, state taxes, and individual circumstances.</p>
+          </div>
+
+                    <div class="panel" style="padding: 2rem; margin-bottom: 2rem; background: transparent; border: none;">
+            <form id="marriage-tax-form">
+              <div class="calc-grid" style="margin-bottom: 15px;">
+                <div class="empty-corner"></div>
+                <div class="header-col-s1">Spouse 1</div>
+                <div class="header-col-s2">Spouse 2</div>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- Income Section -->
+                <div class="panel panel-solid">
+                  <div class="panel-header"><i class="fas fa-dollar-sign"></i> Income & Capital Gains</div>
+                  <div class="panel-body calc-grid">
+                    <div class="label-col">Salary + Business Income</div>
+                    <div class="s1-col"><input type="text" id="s1-wages" class="calc-input s1-input currency-input" value="$0"></div>
+                    <div class="s2-col"><input type="text" id="s2-wages" class="calc-input s2-input currency-input" value="$0"></div>
+
+                    <div class="label-col">Interest + Dividends Income</div>
+                    <div class="s1-col"><input type="text" id="s1-interest" class="calc-input s1-input currency-input" value="$0"></div>
+                    <div class="s2-col"><input type="text" id="s2-interest" class="calc-input s2-input currency-input" value="$0"></div>
+
+                    <div class="label-col">Rental, Royalty, Passive Income</div>
+                    <div class="s1-col"><input type="text" id="s1-passive" class="calc-input s1-input currency-input" value="$0"></div>
+                    <div class="s2-col"><input type="text" id="s2-passive" class="calc-input s2-input currency-input" value="$0"></div>
+
+                    <div class="label-col">Short Term Capital Gain</div>
+                    <div class="s1-col"><input type="text" id="s1-st-gains" class="calc-input s1-input currency-input" value="$0"></div>
+                    <div class="s2-col"><input type="text" id="s2-st-gains" class="calc-input s2-input currency-input" value="$0"></div>
+
+                    <div class="label-col">Long Term Capital Gain</div>
+                    <div class="s1-col"><input type="text" id="s1-lt-gains" class="calc-input s1-input currency-input" value="$0"></div>
+                    <div class="s2-col"><input type="text" id="s2-lt-gains" class="calc-input s2-input currency-input" value="$0"></div>
+
+                    <div class="label-col">Qualified Dividends</div>
+                    <div class="s1-col"><input type="text" id="s1-qual-div" class="calc-input s1-input currency-input" value="$0"></div>
+                    <div class="s2-col"><input type="text" id="s2-qual-div" class="calc-input s2-input currency-input" value="$0"></div>
+                  </div>
+                </div>
+
+                <!-- Adjustments Section -->
+                <div class="panel panel-solid">
+                  <div class="panel-header"><i class="fas fa-sliders-h"></i> Adjustments to Income</div>
+                  <div class="panel-body calc-grid">
+                    <div class="label-col">401K, <abbr title="Individual Retirement Account">IRA</abbr>... Savings<div class="input-note">Max $7,500 under 50</div></div>
+                    <div class="s1-col"><input type="text" id="s1-retirement" class="calc-input s1-input currency-input" value="$0"></div>
+                    <div class="s2-col"><input type="text" id="s2-retirement" class="calc-input s2-input currency-input" value="$0"></div>
+
+                    <div class="label-col">Student Loan Interest<div class="input-note">Max $2,500</div></div>
+                    <div class="s1-col"><input type="text" id="s1-student-loan" class="calc-input s1-input currency-input" value="$0"></div>
+                    <div class="s2-col"><input type="text" id="s2-student-loan" class="calc-input s2-input currency-input" value="$0"></div>
+                  </div>
+                </div>
+
+                <!-- Filing Info -->
+                <div class="panel panel-solid">
+                  <div class="panel-header"><i class="fas fa-file-invoice"></i> Filing Information (Before Marriage)</div>
+                  <div class="panel-body calc-grid">
+                    <div class="label-col">File Status (Before Marriage)</div>
+                    <div class="s1-col">
+                      <select id="s1-status" class="calc-input s1-input">
+                        <option value="Single">Single</option>
+                        <option value="Head">Head of Household</option>
+                        <option value="MFS">Married Filing Separately</option>
+                      </select>
+                    </div>
+                    <div class="s2-col">
+                      <select id="s2-status" class="calc-input s2-input">
+                        <option value="Single">Single</option>
+                        <option value="Head">Head of Household</option>
+                        <option value="MFS">Married Filing Separately</option>
+                      </select>
+                    </div>
+
+                    <div class="label-col">No. of Dependents</div>
+                    <div class="s1-col"><input type="number" id="s1-dependents" class="calc-input s1-input" value="0" min="0"></div>
+                    <div class="s2-col"><input type="number" id="s2-dependents" class="calc-input s2-input" value="0" min="0"></div>
+
+                    <div class="label-col">Self-Employed?</div>
+                    <div class="s1-col">
+                      <div class="radio-group s1-radio">
+                        <label class="radio-label"><input type="radio" name="s1-self-employed" value="yes"> yes</label>
+                        <label class="radio-label"><input type="radio" name="s1-self-employed" value="no" checked> no</label>
+                      </div>
+                    </div>
+                    <div class="s2-col">
+                      <div class="radio-group s2-radio">
+                        <label class="radio-label"><input type="radio" name="s2-self-employed" value="yes"> yes</label>
+                        <label class="radio-label"><input type="radio" name="s2-self-employed" value="no" checked> no</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Deductions -->
+                <div class="panel panel-solid">
+                  <div class="panel-header"><i class="fas fa-minus-circle"></i> Deductions</div>
+                  <div class="panel-body calc-grid">
+                    <div class="label-col">Use Standard Deduction?</div>
+                    <div class="s1-col">
+                      <div class="radio-group s1-radio radio-block">
+                        <label class="radio-label"><input type="radio" name="s1-use-standard" value="yes" checked> yes</label>
+                        <label class="radio-label"><input type="radio" name="s1-use-standard" value="no"> no</label>
+                      </div>
+                    </div>
+                    <div class="s2-col">
+                      <div class="radio-group s2-radio radio-block">
+                        <label class="radio-label"><input type="radio" name="s2-use-standard" value="yes" checked> yes</label>
+                        <label class="radio-label"><input type="radio" name="s2-use-standard" value="no"> no</label>
+                      </div>
+                    </div>
+
+                    <div class="label-col" style="padding-left: 20px;">Mortgage Interest</div>
+                    <div class="s1-col"><input type="text" id="s1-mortgage" class="calc-input s1-input currency-input" value="$0"></div>
+                    <div class="s2-col"><input type="text" id="s2-mortgage" class="calc-input s2-input currency-input" value="$0"></div>
+
+                    <div class="label-col" style="padding-left: 20px;">Charitable Donations</div>
+                    <div class="s1-col"><input type="text" id="s1-charity" class="calc-input s1-input currency-input" value="$0"></div>
+                    <div class="s2-col"><input type="text" id="s2-charity" class="calc-input s2-input currency-input" value="$0"></div>
+
+                    <div class="label-col" style="padding-left: 20px;">State+City Tax Rate (%)</div>
+                    <div class="s1-col">
+                      <div style="display: flex; align-items: center; gap: 5px;">
+                        <input type="number" id="s1-salt-rate" class="calc-input s1-input" value="5" min="0" step="0.1"> %
+                      </div>
+                    </div>
+                    <div class="s2-col">
+                      <div style="display: flex; align-items: center; gap: 5px;">
+                        <input type="number" id="s2-salt-rate" class="calc-input s2-input" value="5" min="0" step="0.1"> %
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Credits -->
+                <div class="panel panel-solid">
+                  <div class="panel-header"><i class="fas fa-hand-holding-usd"></i> Credits</div>
+                  <div class="panel-body calc-grid">
+                    <div class="label-col">Child Care Expenses<div class="input-note">Max $3,000 for 1, $6,000 for 2+ dependents</div></div>
+                    <div class="s1-col"><input type="text" id="s1-child-care" class="calc-input s1-input currency-input" value="$0"></div>
+                    <div class="s2-col"><input type="text" id="s2-child-care" class="calc-input s2-input currency-input" value="$0"></div>
+                  </div>
+                </div>
+
+                <!-- Results -->
+                <div class="panel panel-solid calculator-results" id="calc-results" style="text-align: center; padding: 2rem;">
+                  <h2 style="margin-top:0; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; font-weight: 900;">Tax Neutral</h2>
+                  <p style="margin-bottom: 10px; font-size: 1.1rem; color: var(--text-light);">
+                    Combined Tax if Single: <strong>$0</strong><br>
+                    Tax if Married Filing Jointly: <strong>$0</strong>
+                  </p>
+                  <p style="color: var(--text); font-weight: bold;">Your tax liability is approximately the same.</p>
+                </div>
+              </div>
+            </form>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap; gap: 15px;">
+              <p style="margin: 0; font-style: italic; color: var(--muted); font-size: 0.9rem; flex: 1;">Note: Values update automagically as you type.</p>
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <select id="demo-scenarios" class="calc-input" style="flex: 1; min-width: 150px; background: rgba(0,0,0,0.3);">
+                  <option value="">-- Select a Demo Example --</option>
+                  <option value="demo1">Demo 1: Single-Income Bonus</option>
+                  <option value="demo2">Demo 2: Average Earner Parity</option>
+                  <option value="demo3">Demo 3: High-Income Penalty</option>
+                </select>
+                <button type="reset" form="marriage-tax-form" class="btn btn-outline-danger no-hue-cycle" style="margin: 0; font-size: 0.95rem; white-space: nowrap;">Clear / Reset</button>
+              </div>
+            </div>
+
+            <div class="panel panel-solid" id="scenario-panel" style="display: none; margin-top: 20px;">
+              <div class="panel-header"><i class="fas fa-graduation-cap"></i> Scenario Breakdown</div>
+              <div class="panel-body">
+                <p id="scenario-text" style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: var(--text-light);"></p>
+              </div>
+            </div>
+            
+          </div>
+          <div class="panel" style="padding: 2rem; margin-bottom: 2rem; text-align: left; line-height: 1.6;">
+            <p style="margin-bottom: 25px;">Tax laws generally become more complicated after marriage, but marriage can present some opportunities to save additional money (compared to being single), particularly for those in single-income marriages or marriages in which there is a large difference between the income of the spouses. Depending on the specific situation of the couple, dual-income married couples can experience the opposite effect, paying more in taxes than they would as single, otherwise equivalent, individuals, or as a couple with only a single income.</p>
+
+            <h2 style="font-size: 1.4rem; margin-top: 15px; margin-bottom: 10px;">Benefits of Filing Jointly as Married Spouses</h2>
+            <p style="margin-bottom: 10px;">Spouses usually choose to file their taxes jointly once married. The following are examples of some benefits that come with filing jointly:</p>
+            <ol style="margin-bottom: 25px; padding-left: 20px;">
+              <li style="margin-bottom: 8px;">Spouses filing separately miss out on certain tax benefits (earned income credit, education tax credits, student loan interest deduction, credit for the elderly and disabled, etc.). Those who file jointly retain access to these deductions, which can result in substantial tax savings.</li>
+              <li style="margin-bottom: 8px;">Filing jointly is usually better when the income disparity between spouses is high because this usually results in being placed into a lower tax bracket.</li>
+              <li style="margin-bottom: 8px;">Contributors must have earned income in order to contribute to IRAs, but filing jointly allows for a spousal <abbr title="Individual Retirement Account">IRA</abbr>, which authorizes a non-working or stay-at-home spouse to contribute to retirement even though they didn't earn income during the year.</li>
+              <li style="margin-bottom: 8px;">Marriage can help wealthy spouses protect their assets should they die. Federal tax law allows assets to be transferred to a widow or widower without being subject to the federal estate tax.</li>
+            </ol>
+
+            <h2 style="font-size: 1.4rem; margin-top: 15px; margin-bottom: 10px;">Married Filing Separately</h2>
+            <p style="margin-bottom: 25px;">Although married couples typically choose to file their tax returns jointly, some may choose to file them separately. However, because this can be financially beneficial in only very rare cases, married couples usually opt to file jointly. The calculator doesn't show results for this filing option.</p>
+
+            <h2 style="font-size: 1.4rem; margin-top: 15px; margin-bottom: 10px;">The Marriage Penalty</h2>
+            <p style="margin-bottom: 25px;">In some situations, married couples end up paying more in taxes than single, otherwise equivalent, individuals. This is referred to as the marriage penalty in the United States. This penalty can be significant if both individuals in the marriage have very high incomes since filing jointly can result in being subject to a higher tax bracket than the equivalent, combined income of two single people. Furthermore, having a lower joint income doesn't necessarily shield a couple from marriage penalties. As a result of their combined incomes being subject to additional restrictions, it's possible for two married individuals with lower incomes to be disqualified from receiving tax credits they would otherwise receive. There are other conditions under which marriage results in a tax penalty. However, situations can and often do change, and while marriage may result in short-term tax penalties, it can potentially have long-term tax benefits. While there are exceptions and multiple factors are involved, generally speaking, married couples with a sole source of income benefit from filing jointly, while dual-income couples may suffer marriage penalties.</p>
+          </div>
+          
+          <div class="panel" style="padding: 2rem; margin-top: 2rem;">
+          <h2>More Financial Calculators</h2>
+          <div class="nav-wrapper" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
+            <a href="#" class="navbox-btn" style="pointer-events: none; opacity: 0.3;" title="Coming Soon">Mortgage</a>
+            <a href="#" class="navbox-btn" style="pointer-events: none; opacity: 0.3;" title="Coming Soon">Loan</a>
+            <a href="#" class="navbox-btn" style="pointer-events: none; opacity: 0.3;" title="Coming Soon">Auto Loan</a>
+            <a href="#" class="navbox-btn" style="pointer-events: none; opacity: 0.3;" title="Coming Soon">Interest</a>
+            <a href="#" class="navbox-btn" style="pointer-events: none; opacity: 0.3;" title="Coming Soon">Payment</a>
+            <a href="#" class="navbox-btn" style="pointer-events: none; opacity: 0.3;"
+              title="Coming Soon">Retirement</a>
+            <a href="#" class="navbox-btn" style="pointer-events: none; opacity: 0.3;"
+              title="Coming Soon">Amortization</a>
+            <a href="#" class="navbox-btn" style="pointer-events: none; opacity: 0.3;"
+              title="Coming Soon">Investment</a>
+            <a href="#" class="navbox-btn" style="pointer-events: none; opacity: 0.3;" title="Coming Soon">Currency</a>
+            <a href="#" class="navbox-btn" style="pointer-events: none; opacity: 0.3;" title="Coming Soon">Inflation</a>
+            <a href="#" class="navbox-btn" style="pointer-events: none; opacity: 0.3;" title="Coming Soon">Finance</a>
+            <a href="#" class="navbox-btn" style="pointer-events: none; opacity: 0.3;" title="Coming Soon">Mortgage
+              Payoff</a>
+            <a href="/projects/tax-and-salary/income-tax-calculator.html" class="navbox-btn">Income Tax</a>
+            <a href="#" class="navbox-btn" style="pointer-events: none; opacity: 0.3;" title="Coming Soon">Compound
+              Interest</a>
+            <a href="/projects/tax-and-salary/salary-calculator.html" class="navbox-btn">Salary</a>
+            <a href="/projects/tax-and-salary/take-home-pay-calculator.html" class="navbox-btn">Take Home Pay</a>
+            <a href="#" class="navbox-btn" style="pointer-events: none; opacity: 0.3;" title="Coming Soon">401K</a>
+            <a href="#" class="navbox-btn" style="pointer-events: none; opacity: 0.3;" title="Coming Soon">Interest
+              Rate</a>
+            <a href="#" class="navbox-btn" style="pointer-events: none; opacity: 0.3;" title="Coming Soon">Sales Tax</a>
+            <a href="/projects/tax-and-salary/marriage-tax-calculator.html" class="navbox-btn active">Marriage Tax</a>
+            <a href="/projects/tax-and-salary/estate-tax-calculator.html" class="navbox-btn">Estate Tax</a>
+            <a href="/articles/tax-and-salary.html" class="navbox-btn">View All</a>
           </div>
         </div>
-      </section>
-    </main>
+
+          <div style="text-align: center; margin-top: 40px; margin-bottom: 20px; font-size: 0.85rem; color: var(--muted);">
+            <p style="margin: 5px 0;">Tax calculations reflect current 2025 and 2026 federal tax law.</p>
+            <p style="margin: 5px 0;" id="last-updated">Last updated: <script>document.getElementById('last-updated').innerText = 'Last updated: ' + new Date(document.lastModified).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });</script></p>
+            <p style="margin: 5px 0;"><a href="/pages/privacy-policy.html" style="color: var(--muted); text-decoration: underline; font-size: 0.85em;">Privacy Notice</a></p>
+          </div>
+        </section>
+      </main>
     <footer>
       © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
     </footer>
   </div>
   <script src="/assets/js/scrolling-nebula.js"></script>
   <script src="/assets/js/global.js"></script>
+  <script src="/assets/js/projects/tax-and-salary/marriage-tax-calculator.js"></script>
 </body>
 
 </html>

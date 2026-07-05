@@ -1,5 +1,5 @@
-document.addEventListener('DOMContentLoaded', () => {
-
+(function() {
+  function initOverlays() {
   // --- Modals Logic ---
   
   const modalTriggers = document.querySelectorAll('[data-toggle="modal"]');
@@ -217,4 +217,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-});
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initOverlays);
+  } else {
+    initOverlays();
+  }
+})();

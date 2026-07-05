@@ -129,7 +129,7 @@
     else if (status === 'head') standardDed = 24150;
 
     if (is65) {
-      standardDed += 6000;
+      standardDed += (status === 'married-joint') ? 1650 : 2050;
     }
 
     let finalDeduction = standardDed;
@@ -148,30 +148,30 @@
 
     // 5. Federal Progressive Brackets
     const bracketsSingle = [
-      { rate: 0.10, upTo: 11925 },
-      { rate: 0.12, upTo: 48475 },
-      { rate: 0.22, upTo: 103350 },
-      { rate: 0.24, upTo: 197300 },
-      { rate: 0.32, upTo: 250525 },
-      { rate: 0.35, upTo: 626350 },
+      { rate: 0.10, upTo: 12400 },
+      { rate: 0.12, upTo: 50400 },
+      { rate: 0.22, upTo: 105700 },
+      { rate: 0.24, upTo: 201775 },
+      { rate: 0.32, upTo: 256225 },
+      { rate: 0.35, upTo: 640600 },
       { rate: 0.37, upTo: Infinity }
     ];
     const bracketsJoint = [
-      { rate: 0.10, upTo: 23850 },
-      { rate: 0.12, upTo: 96950 },
-      { rate: 0.22, upTo: 206700 },
-      { rate: 0.24, upTo: 394600 },
-      { rate: 0.32, upTo: 501050 },
-      { rate: 0.35, upTo: 751600 },
+      { rate: 0.10, upTo: 24800 },
+      { rate: 0.12, upTo: 100800 },
+      { rate: 0.22, upTo: 211400 },
+      { rate: 0.24, upTo: 403550 },
+      { rate: 0.32, upTo: 512450 },
+      { rate: 0.35, upTo: 768700 },
       { rate: 0.37, upTo: Infinity }
     ];
     const bracketsHead = [
-      { rate: 0.10, upTo: 17000 },
-      { rate: 0.12, upTo: 64850 },
-      { rate: 0.22, upTo: 103350 },
-      { rate: 0.24, upTo: 197300 },
-      { rate: 0.32, upTo: 250525 },
-      { rate: 0.35, upTo: 626350 },
+      { rate: 0.10, upTo: 17700 },
+      { rate: 0.12, upTo: 67450 },
+      { rate: 0.22, upTo: 105700 },
+      { rate: 0.24, upTo: 201750 },
+      { rate: 0.32, upTo: 256200 },
+      { rate: 0.35, upTo: 640600 },
       { rate: 0.37, upTo: Infinity }
     ];
 

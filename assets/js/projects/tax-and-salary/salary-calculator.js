@@ -6,7 +6,9 @@
   const daysInput = document.getElementById('days-per-week');
   const holidaysInput = document.getElementById('holidays-per-year');
   const vacationInput = document.getElementById('vacation-days');
-  const allInputs = document.querySelectorAll('.calc-input');
+  const demoDropdown = document.getElementById('demo-scenarios');
+  const scenarioPanel = document.getElementById('scenario-panel');
+  const scenarioText = document.getElementById('scenario-text');
 
   const formatterCurrency = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -44,7 +46,7 @@
     const vacation = parseFloat(vacationInput.value) || 0;
 
     const workingWeeks = 52;
-    const totalWeekdays = 260; // 52 * 5
+    const totalWeekdays = workingWeeks * daysPerWeek;
     const adjustedWorkingDays = totalWeekdays - holidays - vacation;
     const hoursPerDay = hoursPerWeek / daysPerWeek;
 
@@ -150,8 +152,8 @@
     e.preventDefault(); // Stop native HTML reset that restores default values
     amountInput.value = '$0';
     freqSelect.value = 'hour';
-    hoursInput.value = '0';
-    daysInput.value = '0';
+    hoursInput.value = '40';
+    daysInput.value = '5';
     holidaysInput.value = '0';
     vacationInput.value = '0';
 
@@ -169,7 +171,7 @@
     },
     demo2: {
       inputs: { 'salary-amount': '85000.00', 'salary-frequency': 'year', 'hours-per-week': 40, 'days-per-week': 5, 'holidays-per-year': 11, 'vacation-days': 20 },
-      text: '<strong>Mid-Level Corporate Salary:</strong> Locks the fixed salary as the adjusted baseline ($85,000). The engine then reverse-engineers a higher unadjusted rate ($96,446.81) to show true working-hour value.'
+      text: '<strong>Mid-Level Corporate Salary:</strong> Locks the fixed salary as the adjusted baseline ($85,000). The engine then reverse-engineers a higher unadjusted rate ($96,507) to show true working-hour value.'
     },
     demo3: {
       inputs: { 'salary-amount': '18.50', 'salary-frequency': 'hour', 'hours-per-week': 24, 'days-per-week': 3, 'holidays-per-year': 0, 'vacation-days': 5 },
@@ -181,9 +183,6 @@
     }
   };
 
-  const demoDropdown = document.getElementById('demo-scenarios');
-  const scenarioPanel = document.getElementById('scenario-panel');
-  const scenarioText = document.getElementById('scenario-text');
 
   if (demoDropdown) {
     demoDropdown.addEventListener('change', function () {

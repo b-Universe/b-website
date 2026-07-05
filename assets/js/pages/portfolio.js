@@ -22,10 +22,11 @@
       '/projects/minecraft-castle-wars.html',
       '/projects/live-preview-editor.html',
       '/articles/tax-and-salary.html',
-      '/projects/income-tax-calculator.html',
-      '/projects/salary-calculator.html',
-      '/projects/take-home-pay-calculator.html',
-      '/projects/financial-calculators.html'
+      '/projects/tax-and-salary/income-tax-calculator.html',
+      '/projects/tax-and-salary/salary-calculator.html',
+      '/projects/tax-and-salary/take-home-pay-calculator.html',
+      '/projects/tax-and-salary/marriage-tax-calculator.html',
+      '/projects/tax-and-salary/estate-tax-calculator.html'
     ];
 
     let cachedCards = [];
