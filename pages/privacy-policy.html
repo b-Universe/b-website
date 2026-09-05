@@ -3,90 +3,80 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Privacy Notice</title>
-    
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <meta name="description" content="Privacy Notice">
-    
-    <!-- CSS Imports -->
-    <link rel="stylesheet" href="/assets/css/styles.css">
+    <title>B Remastered Privacy Policy</title>
+    <meta name="description" content="Privacy Policy for B Remastered and B Launcher." />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/assets/css/styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-      .privacy-container {
-        max-width: 800px;
-        margin: 40px auto;
-        padding: 40px;
-      }
-      .privacy-container h1 {
-        margin-bottom: 20px;
-      }
-      .privacy-container h2 {
-        margin-top: 30px;
-        margin-bottom: 15px;
-        font-size: 1.5rem;
-      }
-      .privacy-container p {
-        line-height: 1.6;
-        margin-bottom: 15px;
-        color: var(--text-light);
-      }
+      .legal-container { max-width: 50rem; margin: 2.5rem auto; padding: 2.5rem; }
+      .legal-container h1 { margin: 0 0 0.5rem; }
+      .legal-container h2 { margin: 2rem 0 0.7rem; font-size: 1.35rem; }
+      .legal-container p, .legal-container li { color: var(--text-light); line-height: 1.7; }
+      .legal-container ul { padding-left: 1.25rem; }
+      .legal-updated { color: var(--text-muted); margin: 0; }
     </style>
   </head>
   <body>
     <div class="wrap">
       <canvas id="starfield"></canvas>
-      
       <header>
         <div class="header">
           <a class="brand" href="/pages/index.html">
             <div class="logo" aria-hidden="true">B</div>
             <div class="brand-text-wrap">
-              <div class="brand-title">Privacy Notice</div>
-              <div class="brand-subtitle">Information concerning data collection</div>
+              <div class="brand-title">B Remastered</div>
+              <div class="brand-subtitle">It’s a fun place to be!</div>
             </div>
           </a>
-          
           <div class="nav-wrapper">
             <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/play/"><i class="fas fa-gamepad" aria-hidden="true"></i>Play B</a>
               <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
-              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
-              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+              <a href="https://discord.behr.dev/" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord" aria-hidden="true"></i>Discord</a>
             </nav>
-          
-            <button id="theme-toggle" class="theme-button" title="Toggle theme">
-              <i class="fa-solid fa-moon" aria-hidden="true"></i>Dark
-            </button>
+            <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon" aria-hidden="true"></i>Dark</button>
             <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
           </div>
         </div>
       </header>
-    
       <main>
         <div class="main-content">
-          <div class="glass-panel panel privacy-container">
-            <h1>Privacy Notice</h1>
-            <p><strong>Last Updated:</strong> June 30, 2026</p>
-            
-            <h2>1. Information We Do Not Collect</h2>
-            <p>We believe in maintaining your privacy. Our tools, including the Income Tax Calculator, are designed to operate entirely within your local browser. <strong>We do not collect, store, transmit, or save any sensitive personal or financial information.</strong> Any data you enter into our forms or calculators remains securely on your own device and is erased the moment you leave or refresh the page.</p>
-            
-            <h2>2. Automatically Collected Information</h2>
-            <p>Like most standard websites, our hosting providers may automatically log basic, non-identifying technical information such as your IP address, browser type, referring URLs, and operating system for routing and security purposes. This data is not linked to any personal identifiers.</p>
-            
-            <h2>3. Cookies and Local Storage</h2>
-            <p>We may use your browser's Local Storage exclusively to save non-sensitive aesthetic preferences, such as your selected theme (e.g., Light, Dark, or Ecstatic mode), so that your experience is persistent across visits. We do not use tracking cookies or third-party advertising trackers.</p>
-            
-            <h2>4. Third-Party Links</h2>
-            <p>Our website may contain links to external sites (such as GitHub, Discord, or PayPal). We are not responsible for the privacy practices or the content of these external sites. We encourage you to review their respective privacy policies.</p>
-            
-            <h2>5. Changes to This Notice</h2>
-            <p>We reserve the right to update this Privacy Notice at any time. Any changes will be posted on this page with an updated revision date.</p>
-          </div>
+          <article class="glass-panel panel legal-container">
+            <h1>Privacy Policy</h1>
+            <p class="legal-updated">Last updated September 5, 2026</p>
+            <p>This Privacy Policy explains how B Remastered, the B Launcher, and related B services (collectively, “B”) handle information when you play, create an account, or link Discord.</p>
+
+            <h2>Information We Collect</h2>
+            <p>We collect the information needed to operate B and keep the service safe:</p>
+            <ul>
+              <li><strong>Account information:</strong> username, optional email address, and a password stored only as a salted, memory-hard derived-key hash.</li>
+              <li><strong>Game information:</strong> characters, progression, settings, social relationships, alliance and party activity, moderation history, and other information created through play.</li>
+              <li><strong>Technical information:</strong> IP address, browser or launcher details, connection diagnostics, and security or error logs.</li>
+              <li><strong>Discord information:</strong> only if you choose to link Discord, we store the Discord user ID, username or display name, avatar reference, and the time of linking.</li>
+            </ul>
+
+            <h2>How We Use Information</h2>
+            <p>We use information to provide accounts and gameplay, save your progress, support social features, prevent abuse, investigate technical problems, enforce our rules, and communicate service or security notices. We do not sell personal information or use it for third-party advertising.</p>
+
+            <h2>Where Information Is Shared</h2>
+            <p>Information is shared only when necessary to run B. This includes hosting and infrastructure providers, Discord when you choose its linking flow, and authorities where disclosure is required by law or needed to protect players, B, or the public. Other players may see the public in-game information you choose or create, such as character names, alliance membership, and chat messages.</p>
+
+            <h2>Cookies and Local Storage</h2>
+            <p>B may use browser storage for game sessions, settings, and interface preferences. The B Launcher may use operating-system-protected storage for credentials only when you choose Remember Password. B does not use advertising trackers.</p>
+
+            <h2>Retention and Security</h2>
+            <p>We keep account and game information while it is needed to operate B, resolve disputes, enforce our rules, or meet legal obligations. We use reasonable safeguards, including password hashing, but no online service can promise absolute security.</p>
+
+            <h2>Your Choices</h2>
+            <p>You may choose not to provide an optional email address, may unlink Discord when that feature is available, and may request help with account information through the <a href="https://discord.behr.dev/" target="_blank" rel="noopener noreferrer">B Discord</a>. We may need to verify that a request comes from the account owner before acting on it.</p>
+
+            <h2>Children and Changes</h2>
+            <p>B is not directed at children under 13, and we do not knowingly collect their personal information. We may update this policy as B evolves; the updated date above will change when we do.</p>
+          </article>
         </div>
       </main>
     </div>
-
-    <!-- Script Imports -->
     <script src="/assets/js/global.js"></script>
   </body>
 </html>
