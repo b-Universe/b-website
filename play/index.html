@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Play B | B Universe</title>
+    <meta name="description" content="Enter B Remastered in your browser or with B Launcher for Windows." />
+    <meta name="theme-color" content="#061217" />
+    <meta property="og:title" content="Play B Remastered" />
+    <meta property="og:description" content="Play in your browser or download B Launcher for Windows." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://behr.dev/play/" />
+    <meta property="og:image" content="https://behr.dev/assets/img/bicon.png" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+      :root {
+        --play-bg: #03080c;
+        --play-surface: rgba(5, 19, 26, 0.88);
+        --play-line: rgba(15, 213, 237, 0.48);
+        --play-accent: #12d5ed;
+        --play-accent-soft: #75eaf6;
+        --play-text: #f0f8fa;
+        --play-muted: #b6c9cf;
+      }
+
+      body {
+        background: radial-gradient(circle at 50% -20%, rgba(18, 213, 237, 0.18), transparent 40rem), var(--play-bg);
+        color: var(--play-text);
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        overflow-x: hidden;
+        padding: 0;
+      }
+
+      #starfield {
+        inset: 0;
+        pointer-events: none;
+        position: fixed;
+        z-index: 0;
+      }
+
+      .shooting-stars { inset: 0; overflow: hidden; pointer-events: none; position: fixed; z-index: 0; }
+      .shooting-star {
+        background: linear-gradient(90deg, transparent, rgba(117, 234, 246, 0.95), #fff);
+        border-radius: 999px;
+        box-shadow: 0 0 0.45rem rgba(117, 234, 246, 0.9);
+        height: 2px;
+        opacity: 0;
+        position: absolute;
+        transform-origin: right center;
+        width: var(--trail);
+      }
+
+      .shooting-star.fly { animation: shooting-star var(--duration) linear forwards; }
+      @keyframes shooting-star {
+        0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(var(--angle)); }
+        8% { opacity: 0.9; }
+        78% { opacity: 0.72; }
+        100% { opacity: 0; transform: translate3d(var(--travel-x), var(--travel-y), 0) rotate(var(--angle)); }
+      }
+
+      .play-page {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        margin: 0 auto;
+        max-width: 68rem;
+        flex: 1;
+        min-height: 0;
+        padding: 2rem 1.25rem 0;
+        position: relative;
+        z-index: 1;
+      }
+
+      .play-intro {
+        align-items: center;
+        display: grid;
+        gap: 1rem;
+        justify-items: center;
+        padding: 1rem 0 0.5rem;
+        text-align: center;
+      }
+
+      .play-intro img {
+        filter: drop-shadow(0 0 1.7rem rgba(18, 213, 237, 0.55));
+        height: clamp(5.5rem, 15vw, 8.5rem);
+        width: clamp(5.5rem, 15vw, 8.5rem);
+      }
+
+      .eyebrow {
+        color: var(--play-accent-soft);
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        margin: 0.5rem 0 0;
+        text-transform: capitalize;
+      }
+
+      h1 {
+        font-size: clamp(2.3rem, 7vw, 4.6rem);
+        line-height: 1;
+        margin: 0;
+        text-shadow: 0 0 1.5rem rgba(18, 213, 237, 0.3);
+      }
+
+      .choice-title {
+        color: var(--play-accent-soft);
+        font-size: clamp(1.05rem, 2.3vw, 1.35rem);
+        font-weight: 700;
+        margin: 0;
+      }
+
+      .intro-copy {
+        color: var(--play-muted);
+        font-size: clamp(1rem, 2vw, 1.18rem);
+        line-height: 1.6;
+        margin: 0;
+        max-width: 43rem;
+      }
+
+      .entry-options {
+        display: grid;
+        gap: 1.25rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .entry-card {
+        background: linear-gradient(145deg, rgba(9, 33, 42, 0.95), var(--play-surface));
+        border: 1px solid var(--play-line);
+        border-radius: 0.8rem;
+        box-shadow: 0 0 1.5rem rgba(0, 0, 0, 0.28), inset 0 1px rgba(255, 255, 255, 0.05);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 22rem;
+        overflow: hidden;
+        padding: clamp(1.5rem, 4vw, 2.4rem);
+        position: relative;
+        text-align: center;
+      }
+
+      .entry-card:hover {
+        border-color: var(--play-accent);
+        box-shadow: 0 0 2.2rem rgba(18, 213, 237, 0.16), inset 0 1px rgba(255, 255, 255, 0.05);
+      }
+
+      .entry-card::before {
+        background: url('/assets/img/play/ringed-planet.png') center / contain no-repeat;
+        content: '';
+        filter: brightness(0) invert(1) sepia(1) saturate(2.8) hue-rotate(140deg) blur(2.8px);
+        height: 46rem;
+        mask-image: radial-gradient(ellipse 58% 58% at 50% 50%, #000 38%, rgba(0, 0, 0, 0.72) 58%, transparent 84%);
+        opacity: 0.16;
+        pointer-events: none;
+        position: absolute;
+        top: -12.7rem;
+        width: 46rem;
+      }
+
+      .browser-card::before { opacity: 0; right: 5.2rem; transform: scaleX(-1); }
+      .launcher-card::before {
+        background: none;
+        color: #75eaf6;
+        content: '\f17a';
+        filter: blur(3.5px);
+        font-family: 'Font Awesome 6 Brands';
+        font-size: 32rem;
+        height: auto;
+        left: -3rem;
+        line-height: 1;
+        mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, #000 34%, rgba(0, 0, 0, 0.72) 57%, transparent 86%);
+        opacity: 0;
+        top: -7rem;
+        transform: none;
+        width: auto;
+      }
+      .entry-card > * { position: relative; z-index: 1; }
+
+      .card-icon {
+        align-items: center;
+        background: rgba(18, 213, 237, 0.1);
+        border: 1px solid rgba(18, 213, 237, 0.5);
+        border-radius: 0.65rem;
+        color: var(--play-accent);
+        display: inline-flex;
+        font-size: 1.4rem;
+        height: 3rem;
+        justify-content: center;
+        width: 3rem;
+      }
+
+      .entry-card h2 {
+        font-size: 1.65rem;
+        margin: 1.25rem 0 0.6rem;
+      }
+
+      .entry-card p {
+        color: var(--play-muted);
+        line-height: 1.55;
+        margin: 0;
+      }
+
+      .benefits {
+        color: #dbeef1;
+        display: grid;
+        font-size: 0.94rem;
+        gap: 0.55rem;
+        list-style: none;
+        margin: 1.5rem 0 1.8rem;
+        padding: 0;
+        text-align: center;
+      }
+
+      .benefits i {
+        color: var(--play-accent);
+        margin-right: 0.55rem;
+      }
+
+      .entry-action {
+        align-items: center;
+        background: var(--play-accent);
+        border: 1px solid var(--play-accent-soft);
+        border-radius: 0.5rem;
+        color: #021216;
+        display: inline-flex;
+        font-weight: 900;
+        gap: 0.65rem;
+        justify-content: center;
+        margin-top: auto;
+        min-height: 3.1rem;
+        padding: 0.7rem 1rem;
+        text-decoration: none;
+      }
+
+      .entry-action:hover,
+      .entry-action:focus-visible {
+        background: #8bf1fb;
+        color: #000;
+      }
+
+      .entry-action.secondary {
+        background: transparent;
+        color: var(--play-accent-soft);
+      }
+
+      .entry-action.secondary:hover,
+      .entry-action.secondary:focus-visible {
+        background: rgba(18, 213, 237, 0.12);
+        color: #fff;
+      }
+
+      .entry-action.launcher-download {
+        animation: launcher-signal 9s linear infinite;
+        background: linear-gradient(110deg, #12d5ed 0%, #12d5ed 38%, #9bf6fd 50%, #12d5ed 62%, #12d5ed 100%);
+        background-size: 250% 100%;
+        box-shadow: 0 0 0 1px rgba(117, 234, 246, 0.8), 0 0 1.1rem rgba(18, 213, 237, 0.42);
+      }
+
+      @keyframes launcher-signal {
+        from { background-position: 100% 0; box-shadow: 0 0 0 1px rgba(117, 234, 246, 0.5), 0 0 0.8rem rgba(18, 213, 237, 0.3); }
+        50% { box-shadow: 0 0 0 1px rgba(155, 246, 253, 1), 0 0 1.5rem rgba(18, 213, 237, 0.58); }
+        to { background-position: -150% 0; box-shadow: 0 0 0 1px rgba(117, 234, 246, 0.5), 0 0 0.8rem rgba(18, 213, 237, 0.3); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .entry-action.launcher-download { animation: none; }
+      }
+
+      .play-footer {
+        color: #81979e;
+        font-size: 0.86rem;
+        line-height: 1.5;
+        margin: 0;
+        text-align: center;
+      }
+
+      .play-footer a { color: var(--play-accent-soft); }
+      .account-security { color: #81979e; font-size: 0.76rem; line-height: 1.5; margin: auto auto 0; max-width: 42rem; text-align: center; }
+      body > footer { margin-top: 0; }
+
+      .discord-invite {
+        align-items: center;
+        background: rgba(88, 101, 242, 0.1);
+        border: 1px solid rgba(136, 148, 255, 0.58);
+        border-radius: 0.7rem;
+        display: grid;
+        gap: 1rem;
+        padding: 1rem 1.2rem;
+      }
+
+      .create-account-action { grid-template-columns: minmax(9.8rem, 10.8rem) minmax(0, 1fr); }
+      .link-discord-action { grid-template-columns: minmax(0, 1fr) minmax(9.8rem, 10.8rem); }
+
+      .discord-invite > div { text-align: center; }
+      .discord-invite strong { color: #cbd1ff; display: block; }
+      .discord-invite span { color: var(--play-muted); display: block; font-size: 0.9rem; }
+      .discord-invite .entry-action { background: #5865f2; border-color: #8f98ff; color: #fff; margin: 0; min-height: 2.65rem; white-space: nowrap; width: 100%; }
+      .discord-invite .entry-action:hover, .discord-invite .entry-action:focus-visible { background: #727cff; }
+
+      .account-actions { display: grid; gap: 1.25rem; grid-template-columns: 1fr 1fr; }
+      .account-actions .discord-invite { min-height: 5.2rem; }
+      .account-actions .entry-action { align-self: center; }
+      .account-modal { align-items: center; background: rgba(0, 5, 8, 0.78); display: none; inset: 0; justify-content: center; padding: 1.25rem; position: fixed; z-index: 10; }
+      .account-modal.open { animation: modal-in 240ms ease-out; display: flex; }
+      body > header, .play-page, body > footer { transition: filter 240ms ease, opacity 240ms ease, transform 240ms ease; }
+      body:has(.account-modal.open) > header, body:has(.account-modal.open) .play-page, body:has(.account-modal.open) > footer { filter: blur(3px); opacity: 0.18; transform: scale(0.99); }
+      .account-modal-card { background: #081b22; border: 1px solid var(--play-accent); border-radius: 0.9rem; box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.55); max-width: 29rem; padding: 2rem; width: min(100%, 29rem); }
+      .account-modal-card > * { transition: opacity 150ms ease, transform 150ms ease; }
+      .account-modal-card.is-switching > * { opacity: 0; transform: translateY(0.4rem); }
+      .account-modal-card h2 { margin: 0 0 0.45rem; }
+      .account-modal-card p { color: var(--play-muted); line-height: 1.5; }
+      .account-modal-card label { color: #d8eef2; display: grid; font-size: 0.9rem; gap: 0.35rem; margin-top: 0.8rem; }
+      .account-modal-card input { background: #041116; border: 1px solid #37616b; border-radius: 0.4rem; color: #fff; font: inherit; padding: 0.7rem; }
+      .password-field { display: block; position: relative; }
+      .password-field input { box-sizing: border-box; padding-right: 3rem; width: 100%; }
+      .password-visibility { background: transparent; border: 0; color: var(--play-accent-soft); cursor: pointer; inset: 0 0 0 auto; padding: 0 0.9rem; position: absolute; }
+      .account-modal-card .email-skip { align-items: center; color: var(--play-muted); display: flex; font-size: 0.88rem; gap: 0.55rem; margin-top: 0.65rem; }
+      .account-modal-card .email-skip input { accent-color: var(--play-accent); padding: 0; }
+      .modal-actions { display: flex; gap: 0.7rem; margin: 1.25rem 0 1rem; }
+      .modal-actions button { cursor: pointer; flex: 1; }
+      .modal-actions #account-cancel { flex: 0.62; }
+      .modal-actions #account-submit { flex: 1.38; }
+      .modal-message { color: #ffcf7e !important; min-height: 1.4rem; }
+      .account-switch { background: none; border: 0; color: var(--play-accent-soft); cursor: pointer; font: inherit; padding: 0; text-decoration: underline; }
+      .account-modal-card > p:has(.account-switch) { text-align: center; }
+      .account-guest-preview { color: var(--play-muted); font-size: 0.84rem; margin: 0.8rem 0 0; text-align: center; }
+      .account-guest-preview a { color: var(--play-accent-soft); }
+      #account-email-field[hidden], #account-email-skip[hidden], #account-guest-preview[hidden] { display: none; }
+      @keyframes modal-in { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: scale(1); } }
+
+      @media (max-width: 42rem) {
+        .play-page { gap: 1.5rem; }
+        .entry-options { grid-template-columns: 1fr; }
+        .entry-card { min-height: auto; }
+        .discord-invite { grid-template-columns: 1fr; }
+        .account-actions { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="starfield" aria-hidden="true"></canvas>
+    <div class="shooting-stars" aria-hidden="true"></div>
+    <header>
+      <div class="header">
+        <a class="brand" href="/pages/index.html">
+          <div class="logo" aria-hidden="true">B</div>
+          <div class="brand-text-wrap">
+            <div class="brand-title">It's a fun place to be</div>
+            <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+          </div>
+        </a>
+        <div class="nav-wrapper">
+          <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+            <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+            <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+            <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+          </nav>
+          <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon" aria-hidden="true"></i>Dark</button>
+          <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+        </div>
+      </div>
+    </header>
+    <main class="play-page">
+      <section class="play-intro" aria-labelledby="play-title">
+        <img src="/assets/img/bicon.png" alt="B Remastered" />
+        <p class="eyebrow">B Remastered</p>
+        <p class="choice-title">Pick the way you want to play!</p>
+        <p class="intro-copy">Jump in right from your browser,</br>or use the b Launcher for the full Windows experience!</p>
+      </section>
+
+      <section class="entry-options" aria-label="Ways to play B Remastered">
+        <article class="entry-card browser-card">
+          <span class="card-icon" aria-hidden="true"><i class="fa-solid fa-globe"></i></span>
+          <h2>Play In Browser</h2>
+                <p>Jump in right from your browser. It is the easiest way to play B on Windows, macOS, Linux, phones, and tablets with a capable browser.</p>
+          <ul class="benefits">
+            <li><i class="fa-solid fa-check"></i>No download required</li>
+            <li><i class="fa-solid fa-check"></i>Use your existing B account</li>
+            <li><i class="fa-solid fa-check"></i>Available wherever you play</li>
+          </ul>
+          <a class="entry-action secondary" href="https://play.behr.dev/">
+            Play B In Browser <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+          </a>
+        </article>
+
+        <article class="entry-card launcher-card">
+          <span class="card-icon" aria-hidden="true"><i class="fa-brands fa-windows"></i></span>
+          <h2>Get the b Launcher</h2>
+          <p>The b Launcher keeps the game in its own window, with news, guides, server status, and updates all in one place.</p>
+          <ul class="benefits">
+            <li><i class="fa-solid fa-check"></i>Player Guide and Developer Handbook</li>
+            <li><i class="fa-solid fa-check"></i>Native window and launcher settings</li>
+            <li><i class="fa-solid fa-check"></i>Server status and update notices</li>
+          </ul>
+          <a class="entry-action launcher-download" href="https://github.com/b-Universe/b-launcher/releases/latest">
+            Download the b Launcher <i class="fa-solid fa-download" aria-hidden="true"></i>
+          </a>
+        </article>
+      </section>
+
+      <section class="account-actions" aria-label="Account actions">
+        <div class="discord-invite create-account-action">
+          <button class="entry-action" type="button" data-account-flow="account">Create Account</button>
+          <div><strong><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Create a B Account</strong><span>Now only for the low price of <strong>Free!</strong></span></div>
+        </div>
+        <div class="discord-invite link-discord-action">
+          <div><strong><i class="fa-brands fa-discord" aria-hidden="true"></i> Link Your Discord</strong><span>Connect Discord to your B account</br>for Discord-powered features!</span></div>
+          <button class="entry-action" type="button" data-account-flow="discord">Link Discord</button>
+        </div>
+      </section>
+
+      <p class="play-footer">Want to look around first? <a href="https://play.behr.dev/">Try B as a guest at play.behr.dev</a>!</p>
+      <p class="account-security">Passwords are never stored in plain text;<br/>assword security uses a memory-hard, 256-bit derived-key hash.</p>
+    </main>
+    <footer>© <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley</footer>
+    <section id="account-modal" class="account-modal" aria-modal="true" aria-labelledby="account-modal-title" role="dialog">
+      <form id="account-form" class="account-modal-card">
+        <h2 id="account-modal-title">Create Your B Account</h2>
+        <p id="account-modal-copy" hidden></p>
+        <label><span id="account-username-label">Username</span><input id="account-username" required autocomplete="username" /></label>
+        <label id="account-email-field">Email <span>(Optional)</span><input id="account-email" type="email" autocomplete="email" /></label>
+        <label id="account-email-skip" class="email-skip"><input id="account-skip-email" type="checkbox" /> No thanks, skip welcome email</label>
+        <label>Password <span class="password-field"><input id="account-password" required type="password" autocomplete="current-password" /><button id="account-password-visibility" class="password-visibility" type="button" aria-label="Show password"><i class="fa-solid fa-eye" aria-hidden="true"></i></button></span></label>
+        <p id="account-modal-message" class="modal-message" aria-live="polite"></p>
+        <div class="modal-actions"><button class="entry-action secondary" id="account-cancel" type="button">Cancel</button><button class="entry-action" id="account-submit" type="submit">Create Account</button></div>
+        <p><button id="account-switch" class="account-switch" type="button">Already have an account? Sign in!</button></p>
+        <p id="account-guest-preview" class="account-guest-preview">Want to look around first? <a href="https://play.behr.dev/">Try B as a guest at play.behr.dev</a>!</p>
+      </form>
+    </section>
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+    <script>
+      (() => {
+        const modal = document.getElementById('account-modal');
+        const form = document.getElementById('account-form');
+        const title = document.getElementById('account-modal-title');
+        const copy = document.getElementById('account-modal-copy');
+        const emailField = document.getElementById('account-email-field');
+        const emailSkip = document.getElementById('account-email-skip');
+        const usernameLabel = document.getElementById('account-username-label');
+        const guestPreview = document.getElementById('account-guest-preview');
+        const message = document.getElementById('account-modal-message');
+        const submit = document.getElementById('account-submit');
+        const switcher = document.getElementById('account-switch');
+        let mode = 'register'; let intent = 'account';
+        const applyMode = (next) => { mode = next; const login = mode === 'login'; title.textContent = login ? 'Sign In To B' : 'Create Your B Account'; usernameLabel.textContent = login ? 'Username / Email' : 'Username'; copy.hidden = true; emailField.hidden = login; emailSkip.hidden = login; guestPreview.hidden = login; submit.innerHTML = login && intent === 'discord' ? '<i class="fa-brands fa-discord" aria-hidden="true"></i> Continue To Discord' : (login ? 'Sign In' : 'Create Account'); switcher.textContent = login ? 'Need an account? Sign up!' : 'Already have an account? Sign in!'; switcher.closest('p').hidden = !login && intent === 'account'; message.textContent = ''; };
+        const setMode = (next, animate = false) => { if (!animate || mode === next) return applyMode(next); form.classList.add('is-switching'); window.setTimeout(() => { applyMode(next); requestAnimationFrame(() => form.classList.remove('is-switching')); }, 160); };
+        document.querySelectorAll('[data-account-flow]').forEach((button) => button.addEventListener('click', () => { intent = button.dataset.accountFlow; setMode(intent === 'discord' ? 'login' : 'register'); modal.classList.add('open'); document.getElementById('account-username').focus(); }));
+        document.getElementById('account-cancel').addEventListener('click', () => modal.classList.remove('open'));
+        document.getElementById('account-password-visibility').addEventListener('click', (event) => { const password = document.getElementById('account-password'); const visible = password.type === 'text'; password.type = visible ? 'password' : 'text'; event.currentTarget.setAttribute('aria-label', visible ? 'Show password' : 'Hide password'); event.currentTarget.innerHTML = `<i class="fa-solid fa-eye${visible ? '' : '-slash'}" aria-hidden="true"></i>`; });
+        switcher.addEventListener('click', () => setMode(mode === 'login' ? 'register' : 'login', true));
+        form.addEventListener('submit', async (event) => { event.preventDefault(); message.textContent = ''; submit.disabled = true; const username = document.getElementById('account-username').value.trim(); const password = document.getElementById('account-password').value; try { if (mode === 'register') { const email = document.getElementById('account-skip-email').checked ? '' : document.getElementById('account-email').value.trim(); const response = await fetch('https://play.behr.dev/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Account creation failed.'); setMode('login'); message.textContent = 'Your account is ready. Sign in to continue.'; return; } const response = await fetch('https://play.behr.dev/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ identifier: username, password }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Sign-in failed.'); if (intent === 'discord') { const tokenResponse = await fetch('https://play.behr.dev/api/discord/link-token', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionToken: data.sessionToken }) }); const tokenData = await tokenResponse.json(); if (!tokenResponse.ok) throw new Error(tokenData.error || 'Discord linking could not begin.'); window.location.assign(`https://play.behr.dev/api/discord/login?token=${encodeURIComponent(tokenData.token)}`); return; } window.location.assign('https://play.behr.dev/'); } catch (error) { message.textContent = error.message; } finally { submit.disabled = false; } });
+      })();
+
+      (() => {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const sky = document.querySelector('.shooting-stars');
+        const launch = () => {
+          const star = document.createElement('span');
+          const angle = [-28, -18, 18, 28, 150, 162][Math.floor(Math.random() * 6)];
+          const distance = 26 + Math.random() * 34;
+          const radians = angle * Math.PI / 180;
+          star.className = 'shooting-star';
+          star.style.left = `${8 + Math.random() * 84}%`;
+          star.style.top = `${4 + Math.random() * 68}%`;
+          star.style.setProperty('--angle', `${angle}deg`);
+          star.style.setProperty('--trail', `${4 + Math.random() * 7}rem`);
+          star.style.setProperty('--duration', `${0.75 + Math.random() * 0.85}s`);
+          star.style.setProperty('--travel-x', `${Math.cos(radians) * distance}vw`);
+          star.style.setProperty('--travel-y', `${Math.sin(radians) * distance}vw`);
+          sky.appendChild(star);
+          requestAnimationFrame(() => star.classList.add('fly'));
+          star.addEventListener('animationend', () => star.remove(), { once: true });
+        };
+        launch();
+        window.setInterval(() => { launch(); if (Math.random() > 0.86) window.setTimeout(launch, 450 + Math.random() * 900); }, 6400);
+      })();
+    </script>
+  </body>
+</html>
