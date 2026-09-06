@@ -448,7 +448,9 @@
         const submit = document.getElementById('account-submit');
         const switcher = document.getElementById('account-switch');
         const readAccountResponse = async (response) => {
-          if ((response.headers.get('content-type') || '').includes('application/json')) return response.json();
+          if ((response.headers.get('content-type') || '').includes('application/json')) {
+            try { return await response.json(); } catch {}
+          }
           return { error: response.status >= 500 ? 'B is temporarily unavailable. Please try again shortly.' : 'The B account service returned an unexpected response.' };
         };
         let mode = 'register'; let intent = 'account';
@@ -458,7 +460,41 @@
         document.getElementById('account-cancel').addEventListener('click', () => modal.classList.remove('open'));
         document.getElementById('account-password-visibility').addEventListener('click', (event) => { const password = document.getElementById('account-password'); const visible = password.type === 'text'; password.type = visible ? 'password' : 'text'; event.currentTarget.setAttribute('aria-label', visible ? 'Show password' : 'Hide password'); event.currentTarget.innerHTML = `<i class="fa-solid fa-eye${visible ? '' : '-slash'}" aria-hidden="true"></i>`; });
         switcher.addEventListener('click', () => setMode(mode === 'login' ? 'register' : 'login', true));
-        form.addEventListener('submit', async (event) => { event.preventDefault(); message.textContent = ''; submit.disabled = true; const username = document.getElementById('account-username').value.trim(); const password = document.getElementById('account-password').value; try { if (mode === 'register') { const email = document.getElementById('account-skip-email').checked ? '' : document.getElementById('account-email').value.trim(); const response = await fetch('https://play.behr.dev/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) }); const data = await readAccountResponse(response); if (!response.ok) throw new Error(data.error || 'Account creation failed.'); setMode('login'); message.textContent = 'Your account is ready. Sign in to continue.'; return; } const response = await fetch('https://play.behr.dev/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ identifier: username, password }) }); const data = await readAccountResponse(response); if (!response.ok) throw new Error(data.error || 'Sign-in failed.'); if (intent === 'discord') { const tokenResponse = await fetch('https://play.behr.dev/api/discord/link-token', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionToken: data.sessionToken }) }); const tokenData = await readAccountResponse(tokenResponse); if (!tokenResponse.ok) throw new Error(tokenData.error || 'Discord linking could not begin.'); window.location.assign(`https://play.behr.dev/api/discord/login?token=${encodeURIComponent(tokenData.token)}`); return; } window.location.assign('https://play.behr.dev/'); } catch (error) { message.textContent = error.message; } finally { submit.disabled = false; } });
+        form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          message.textContent = '';
+          submit.disabled = true;
+          const username = document.getElementById('account-username').value.trim();
+          const password = document.getElementById('account-password').value;
+          try {
+            if (mode === 'register') {
+              const email = document.getElementById('account-skip-email').checked ? '' : document.getElementById('account-email').value.trim();
+              const response = await fetch('https://play.behr.dev/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) });
+              const data = await readAccountResponse(response);
+              if (!response.ok) throw new Error(data.error || 'Account creation failed.');
+              setMode('login');
+              message.textContent = 'Your account is ready. Sign in to continue.';
+              return;
+            }
+            const response = await fetch('https://play.behr.dev/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ identifier: username, password }) });
+            const data = await readAccountResponse(response);
+            if (!response.ok) throw new Error(data.error || 'Sign-in failed.');
+            if (intent === 'discord') {
+              if (!data.sessionToken) throw new Error('Account session could not be established. Please try signing in again.');
+              const tokenResponse = await fetch('https://play.behr.dev/api/discord/link-token', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionToken: data.sessionToken }) });
+              const tokenData = await readAccountResponse(tokenResponse);
+              if (!tokenResponse.ok) throw new Error(tokenData.error || 'Discord linking could not begin.');
+              if (!tokenData.token) throw new Error('Discord link token was not returned. Please try again.');
+              window.location.assign(`https://play.behr.dev/api/discord/login?token=${encodeURIComponent(tokenData.token)}`);
+              return;
+            }
+            window.location.assign('https://play.behr.dev/');
+          } catch (error) {
+            message.textContent = error.message;
+          } finally {
+            submit.disabled = false;
+          }
+        });
       })();
 
       (() => {
