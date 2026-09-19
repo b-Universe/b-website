@@ -1,8 +1,24 @@
-/old
-/assets/css/highlight/styles
-assets/champagne.md
-assets/js/champagne.md
-notes.txt
+# Dependencies
 node_modules/
-package.json
-package-lock.json
+*package.json
+*package-lock.json
+
+# Local / temporary files
+notes.txt
+projects/tracker-state.json
+
+# Old files
+/old/
+
+# Generated / external assets
+/assets/css/highlight/styles/
+/assets/champagne.md
+/assets/js/champagne.md
+
+# Minecraft Dialog Generator
+/projects/minecraft-dialog-generator/DenizenVSCode/
+/projects/minecraft-dialog-generator/src/
+/projects/minecraft-dialog-generator/.oxlintrc.json
+
+# Executables
+*.exe
