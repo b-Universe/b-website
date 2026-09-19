@@ -7,6 +7,7 @@
       '/articles/aim.html',
       '/articles/dev-blog-common-game-dev-mistakes.html',
       '/articles/behr-dev-endpoints.html',
+      '/articles/dev-blog-5-ui.html',
       '/articles/dev-blog-4-security-speed.html',
       '/articles/dev-blog-3-webgl-landscape-multiplayer.html',
       '/articles/dev-blog-2-elevation-webgl-multiplayer.html',
