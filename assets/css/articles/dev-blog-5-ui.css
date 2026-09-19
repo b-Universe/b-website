@@ -1,0 +1,5427 @@
+:root {
+  --accent-gui-picked: #00e0ff;
+  --accent-gui-picked-rgb: 0, 224, 255;
+  --accent-gui-secondary: #00c8c9;
+  --accent-gui-secondary-rgb: 0, 200, 201;
+}
+
+/* ==========================================================================
+   Global HUD Windows Dynamic Skinning Engine via --accent-gui-picked
+   Ensures Email, Friends, Party, Target, Pet, Alliance, Chat, Nav, Map, etc.
+   faithfully and fully reflect the Accent 1 color on headers and interior borders.
+   ========================================================================== */
+.mock-window,
+.mock-window .panel-inner,
+#demo-status-window,
+#demo-status-window .panel-inner,
+.mock-chat-card,
+.mock-party-card,
+.mock-target-card,
+.mock-friends-card,
+.mock-email-card,
+.mock-pet-card,
+.mock-alliance-card,
+.mock-badge-card,
+.mock-nav-card,
+.mock-map-card,
+.mock-operative-card,
+.mock-mission-card,
+.mock-settings-card {
+  border-color: var(--accent-gui-picked, #00e0ff) !important;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.9), 0 0 16px rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.3) !important;
+}
+
+/* Dynamic HUD Window Headers (Gradient & Bottom Border) */
+.mock-window .status-header,
+#demo-status-window .status-header,
+.mock-chat-card .status-header,
+.mock-party-card .dockable-header,
+.mock-target-card .dockable-header,
+.mock-friends-card .dockable-header,
+.mock-email-card .dockable-header,
+.mock-pet-card .dockable-header,
+.mock-alliance-card .dockable-header,
+.mock-nav-card .dockable-header,
+.mock-map-card .dockable-header,
+.mock-operative-card .dockable-header,
+.mock-mission-card .dockable-header,
+.mock-nav-card .nav-dock-header,
+.mock-map-card .map-dock-header,
+.mock-settings-card .settings-header {
+  background: linear-gradient(to bottom, rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.2), rgba(0, 0, 0, 0.4)) !important;
+  border-bottom: 1.5px solid var(--accent-gui-picked, #00e0ff) !important;
+}
+
+/* Dynamic Window Header Titles */
+.mock-window .status-header h2,
+#demo-status-window .status-header h2,
+.mock-window .status-title,
+.mock-party-card .dockable-title,
+.mock-target-card .dockable-title,
+.mock-friends-card .dockable-title,
+.mock-email-card .dockable-title,
+.mock-pet-card .dockable-title,
+.mock-alliance-card .dockable-title,
+.mock-nav-card .dockable-title,
+.mock-map-card .dockable-title,
+.mock-operative-card .dockable-title,
+.mock-mission-card .dockable-title,
+.mock-settings-card .settings-title {
+  color: var(--accent-gui-picked, #00e0ff) !important;
+  text-shadow: 0 0 10px rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.6) !important;
+}
+
+/* Dynamic Status Window Elements */
+.mock-window .mock-level-badge,
+#demo-status-window .mock-level-badge {
+  border-color: var(--accent-gui-picked, #00e0ff) !important;
+  color: var(--accent-gui-picked, #00e0ff) !important;
+  box-shadow: 0 0 6px rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.3) !important;
+}
+.mock-window .nav-btn,
+#demo-status-window .nav-btn {
+  border: 1px solid rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.35) !important;
+  color: #c5e4ec !important;
+}
+.mock-window .nav-btn:hover,
+#demo-status-window .nav-btn:hover {
+  background: var(--accent-gui-picked, #00e0ff) !important;
+  border-color: var(--accent-gui-picked, #00e0ff) !important;
+  color: #0b0e14 !important;
+  box-shadow: 0 0 8px var(--accent-gui-picked, #00e0ff) !important;
+}
+
+/* Dynamic Window Controls */
+.mock-party-card .collapse-btn,
+.mock-target-card .collapse-btn,
+.mock-friends-card .collapse-btn,
+.mock-email-card .collapse-btn,
+.mock-pet-card .collapse-btn,
+.mock-alliance-card .collapse-btn,
+.mock-nav-card .collapse-btn,
+.mock-map-card .collapse-btn,
+.mock-mission-card .collapse-btn,
+.mock-chat-card .chat-control-btn,
+.mock-settings-card .settings-control-btn:not(.close-btn) {
+  color: var(--accent-gui-picked, #00e0ff) !important;
+}
+
+.mock-party-card .dock-toggle,
+.mock-target-card .dock-toggle,
+.mock-friends-card .dock-toggle,
+.mock-email-card .dock-toggle,
+.mock-pet-card .dock-toggle,
+.mock-alliance-card .dock-toggle,
+.mock-nav-card .dock-toggle,
+.mock-map-card .dock-toggle,
+.mock-mission-card .dock-toggle {
+  border: 2px solid var(--accent-gui-picked, #00e0ff) !important;
+  background: var(--accent-gui-picked, #00e0ff) !important;
+  box-shadow: 0 0 8px var(--accent-gui-picked, #00e0ff) !important;
+}
+
+/* Dynamic Header Badges & Action Buttons via --accent-gui-secondary */
+.mock-party-card .party-count-badge,
+.mock-friends-card .friends-count-badge,
+.mock-email-card .email-count-badge,
+.mock-pet-card .pet-count-badge {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+  background: rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.12) !important;
+  border: 1px solid rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.45) !important;
+}
+
+.mock-party-card .party-header-btn:not(.danger),
+.mock-target-card .btn-target-actions,
+.mock-pet-card .pet-header-btn:not(.danger),
+.mock-chat-card .nav-btn {
+  background: rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.15) !important;
+  border: 1px solid var(--accent-gui-secondary, #00c8c9) !important;
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+.mock-party-card .party-header-btn:not(.danger):hover,
+.mock-target-card .btn-target-actions:hover,
+.mock-pet-card .pet-header-btn:not(.danger):hover,
+.mock-chat-card .nav-btn:hover,
+.mock-chat-card .nav-btn.active {
+  background: var(--accent-gui-secondary, #00c8c9) !important;
+  color: #0b0e14 !important;
+  box-shadow: 0 0 8px var(--accent-gui-secondary, #00c8c9) !important;
+}
+
+/* Dynamic Interior Tab Bars & Active Tab Pills */
+.mock-friends-card .friends-tab-bar,
+.mock-email-card .email-tab-bar,
+.mock-alliance-card .alliance-tab-bar,
+.mock-chat-card .chat-tab-row {
+  border-bottom: 1px solid rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.25) !important;
+}
+
+.mock-friends-card .friends-tab-btn:hover,
+.mock-email-card .email-tab-btn:hover,
+.mock-alliance-card .alliance-tab-btn:hover,
+.mock-chat-card .chat-tab-btn:hover {
+  background: rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.08) !important;
+}
+
+.mock-friends-card .friends-tab-btn.active,
+.mock-email-card .email-tab-btn.active,
+.mock-alliance-card .alliance-tab-btn.active {
+  color: var(--accent-gui-picked, #00e0ff) !important;
+  border-bottom-color: var(--accent-gui-picked, #00e0ff) !important;
+  background: rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.15) !important;
+  text-shadow: 0 0 8px rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.5) !important;
+}
+
+.mock-chat-card .chat-tab-btn.active {
+  background: var(--accent-gui-picked, #00e0ff) !important;
+  border-color: var(--accent-gui-picked, #00e0ff) !important;
+  color: #05080e !important;
+}
+.mock-chat-card .chat-tab-btn.tab-action {
+  color: var(--accent-gui-picked, #00e0ff) !important;
+}
+
+/* Dynamic Interior Action Buttons & Toolbars */
+.mock-friends-card .friends-action-btn,
+.mock-email-card .email-btn:not(.danger),
+.mock-alliance-card .alliance-btn-action:not(.danger) {
+  background: rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.12) !important;
+  border: 1px solid var(--accent-gui-picked, #00e0ff) !important;
+  color: var(--accent-gui-picked, #00e0ff) !important;
+}
+.mock-friends-card .friends-action-btn:hover,
+.mock-email-card .email-btn:not(.danger):hover,
+.mock-alliance-card .alliance-btn-action:not(.danger):hover {
+  background: var(--accent-gui-picked, #00e0ff) !important;
+  color: #05080e !important;
+  box-shadow: 0 0 6px var(--accent-gui-picked, #00e0ff) !important;
+}
+
+.mock-friends-card .friends-input:focus,
+.mock-alliance-card .alliance-search-input:focus {
+  border-color: var(--accent-gui-picked, #00e0ff) !important;
+  box-shadow: 0 0 6px rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.4) !important;
+}
+
+/* Dynamic Table Headers & Interior Headers via --accent-gui-secondary */
+.mock-friends-card .friends-header-row,
+.mock-email-card .email-header-row,
+.mock-alliance-card .alliance-table thead,
+.mock-alliance-card .alliance-th-sortable {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+  border-bottom: 1.5px solid rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.35) !important;
+}
+
+/* Party Window Interior Styling */
+.mock-party-card .party-member-card {
+  border-left: 3px solid var(--accent-gui-picked, #00e0ff) !important;
+}
+.mock-party-card .party-member-card:hover {
+  border-color: var(--accent-gui-picked, #00e0ff) !important;
+  box-shadow: 0 0 8px rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.25) !important;
+}
+.mock-party-card .party-member-card.leader {
+  border-left: 3px solid #ffd700 !important;
+}
+
+/* Email Window Interior Styling */
+.mock-email-card .email-row:hover {
+  background: rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.08) !important;
+}
+.mock-email-card .email-row.selected {
+  background: rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.16) !important;
+  border-left: 3px solid var(--accent-gui-picked, #00e0ff) !important;
+}
+.mock-email-card .unread-badge {
+  background: var(--accent-gui-picked, #00e0ff) !important;
+  box-shadow: 0 0 6px var(--accent-gui-picked, #00e0ff) !important;
+}
+
+/* Alliance Window Interior Styling */
+.mock-alliance-card .alliance-row.selected {
+  background: rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.15) !important;
+  border-left: 3px solid var(--accent-gui-picked, #00e0ff) !important;
+}
+.mock-alliance-card .alliance-section-title {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+  border-bottom: 1px solid rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.25) !important;
+}
+
+/* Pet Command Window Interior Styling */
+.mock-pet-card .pet-status-pill.mobile {
+  background: rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.15) !important;
+  border: 1px solid var(--accent-gui-secondary, #00c8c9) !important;
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+.mock-pet-card .pet-cmd-btn:hover {
+  border-color: var(--accent-gui-picked, #00e0ff) !important;
+  background: rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.2) !important;
+}
+.mock-pet-card .pet-cmd-btn.active:not(.stance-passive):not(.stance-defensive):not(.stance-aggressive) {
+  background: var(--accent-gui-picked, #00e0ff) !important;
+  color: #080c14 !important;
+  border-color: var(--accent-gui-picked, #00e0ff) !important;
+  box-shadow: 0 0 8px rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.5) !important;
+}
+.mock-pet-card .pet-toggle-btn:hover {
+  border-color: var(--accent-gui-picked, #00e0ff) !important;
+}
+.mock-pet-card .pet-toggle-btn.active {
+  background: rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.18) !important;
+  border-color: var(--accent-gui-picked, #00e0ff) !important;
+  color: var(--accent-gui-picked, #00e0ff) !important;
+}
+.mock-pet-card .pet-card:hover {
+  border-color: var(--accent-gui-picked, #00e0ff) !important;
+  box-shadow: 0 2px 10px rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.2) !important;
+}
+.mock-pet-card .pet-role-badge {
+  border-color: var(--accent-gui-picked, #00e0ff) !important;
+  color: var(--accent-gui-picked, #00e0ff) !important;
+}
+.mock-pet-card .pet-chained-tag {
+  color: var(--accent-gui-picked, #00e0ff) !important;
+}
+.mock-pet-card .pet-buff-chip {
+  background: rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.12) !important;
+  border: 1px solid rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.35) !important;
+  color: var(--accent-gui-picked, #00e0ff) !important;
+}
+.mock-pet-card .pet-action-btn:hover {
+  background: var(--accent-gui-picked, #00e0ff) !important;
+  border-color: var(--accent-gui-picked, #00e0ff) !important;
+  color: #080c14 !important;
+}
+.mock-pet-card .pet-action-btn.active {
+  background: var(--accent-gui-picked, #00e0ff) !important;
+  border-color: var(--accent-gui-picked, #00e0ff) !important;
+  color: #080c14 !important;
+}
+
+/* Dynamic Scrollbars Across All Mock Windows */
+.mock-chat-card .chat-log-body,
+.mock-friends-card .friends-list-body,
+.mock-email-card .email-inbox-pane,
+.mock-alliance-card .alliance-table-container,
+.mock-operative-card .ms-col-list,
+.mock-operative-card .ms-col-detail,
+.mock-mission-card .ms-col-list,
+.mock-mission-card .ms-col-detail,
+.mock-settings-card .settings-body,
+.mock-settings-card .keybinds-table-wrap {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-gui-picked, #00e0ff) transparent !important;
+}
+
+.mock-chat-card *::-webkit-scrollbar-thumb,
+.mock-party-card *::-webkit-scrollbar-thumb,
+.mock-target-card *::-webkit-scrollbar-thumb,
+.mock-friends-card *::-webkit-scrollbar-thumb,
+.mock-email-card *::-webkit-scrollbar-thumb,
+.mock-pet-card *::-webkit-scrollbar-thumb,
+.mock-alliance-card *::-webkit-scrollbar-thumb,
+.mock-operative-card *::-webkit-scrollbar-thumb,
+.mock-mission-card *::-webkit-scrollbar-thumb,
+.mock-nav-card *::-webkit-scrollbar-thumb,
+.mock-map-card *::-webkit-scrollbar-thumb,
+.mock-settings-card *::-webkit-scrollbar-thumb {
+  background: var(--accent-gui-picked, #00e0ff) !important;
+}
+
+/* ==========================================================================
+   Global HUD Windows Secondary Accent Theming Engine via --accent-gui-secondary
+   Dynamic auxiliary skinning for interior titles, group boxes, setting labels,
+   and secondary accents across all 15 HUD windows.
+   ========================================================================== */
+
+/* 1. Settings Window Secondary Theming */
+.mock-settings-card .settings-group-title,
+.mock-settings-card .settings-label-wrap > span:first-child,
+.mock-settings-card .settings-item-row > span:first-child,
+.mock-settings-card .keybind-table th,
+.mock-settings-card .keybind-section-row td,
+.mock-settings-card .settings-info-icon {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+.mock-settings-card .settings-group-box {
+  border-color: rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.3) !important;
+}
+.mock-settings-card .settings-group-title {
+  border-bottom-color: rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.25) !important;
+  text-shadow: 0 0 8px rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.3) !important;
+}
+.mock-settings-card .keybind-table th {
+  border-bottom-color: rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.35) !important;
+}
+.mock-settings-card .keybind-chip[data-slot$="-s"] {
+  border-color: var(--accent-gui-secondary, #00c8c9) !important;
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+
+/* 2. Status Window Secondary Theming */
+#demo-status-window .vital-label,
+.mock-window .vital-label {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+  text-shadow: 0 0 6px rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.3) !important;
+}
+#demo-status-window .nav-btn,
+.mock-window .nav-btn {
+  border-color: rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.45) !important;
+}
+#demo-status-window .exp-segments .exp-segment {
+  border-right-color: rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.45) !important;
+}
+
+/* 3. Party Window Secondary Theming */
+.mock-party-card .party-vital-label {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+.mock-party-card .party-member-meta {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+
+/* 4. Target Window Secondary Theming */
+.mock-target-card .target-subtitle {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+  text-shadow: 0 0 6px rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.3) !important;
+}
+.mock-target-card .target-vital-label {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+.mock-target-card .chip-shield {
+  border-color: var(--accent-gui-secondary, #00c8c9) !important;
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+
+/* 5. Pet Command Window Secondary Theming */
+.mock-pet-card .pet-global-label {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+  text-shadow: 0 0 6px rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.3) !important;
+}
+.mock-pet-card .pet-vital-label {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+.mock-pet-card .pet-card-meta {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+
+/* 6. Friends Window Secondary Theming */
+.mock-friends-card .friend-row > div:nth-child(3) {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+
+/* 7. Email Window Secondary Theming */
+.mock-email-card .email-pill {
+  border: 1px solid var(--accent-gui-secondary, #00c8c9) !important;
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+  background: rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.12) !important;
+}
+.mock-email-card .email-footer-preview {
+  border-top: 1px solid rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.3) !important;
+}
+.mock-email-card .email-footer-preview strong {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+
+/* 8. Alliance Window Secondary Theming */
+.mock-alliance-card .alliance-stat-label,
+.mock-alliance-card .alliance-motd-bar > span:first-child,
+.mock-alliance-card .dockable-title > span:last-child,
+#demo-alliance-stat-faction-policy {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+
+/* 9. Nav Window Secondary Theming */
+#demo-nav-zone-label,
+.mock-nav-card .nav-status-indicator {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+  border: 1px solid rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.5) !important;
+  background: rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.12) !important;
+  text-shadow: 0 0 6px rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.3) !important;
+}
+#demo-nav-compass-badge,
+.mock-nav-card .nav-compass-badge {
+  border-color: var(--accent-gui-secondary, #00c8c9) !important;
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+
+/* 10. Map Window Secondary Theming */
+.mock-map-card .map-zone-title,
+.mock-map-card .map-filters-menu-header,
+.mock-map-card .map-section-label,
+.mock-map-card .map-scale-ruler-label {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+.mock-map-card .map-zone-title {
+  text-shadow: 0 0 6px rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.3) !important;
+}
+.mock-map-card .map-filters-menu-header {
+  border-bottom: 1px solid rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.3) !important;
+}
+.mock-map-card .map-waypoint-dialog-header {
+  border-bottom: 1.5px solid var(--accent-gui-secondary, #00c8c9) !important;
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+.mock-map-card .map-scale-ruler-track {
+  border-color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+
+/* 11. NPC Contacts Window Secondary Theming */
+.mock-operative-card #demo-contact-subnav .ms-sub-tab-btn.active,
+.mock-operative-card .contact-trust-label,
+.mock-operative-card #demo-c-detail-sub,
+.mock-operative-card .contact-call-box > div:first-child {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+.mock-operative-card #demo-contact-subnav .ms-sub-tab-btn.active {
+  border-bottom-color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+.mock-operative-card .contact-trust-fill {
+  background: linear-gradient(90deg, rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.7), var(--accent-gui-secondary, #00c8c9)) !important;
+}
+
+/* 12. Mission Operations Window Secondary Theming */
+.mock-mission-card #demo-mission-subnav .ms-sub-tab-btn.active,
+.mock-mission-card .mission-dossier-card > div[style*="Objectives"],
+.mock-mission-card .mission-notoriety-box > div:first-child,
+.mock-mission-card .notoriety-setting-label,
+#demo-label-team-scale,
+#demo-label-level-offset,
+.mock-mission-card .mission-dossier-card strong {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+.mock-mission-card #demo-mission-subnav .ms-sub-tab-btn.active {
+  border-bottom-color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+
+/* 13. Investigation Clues Window Secondary Theming */
+.mock-mission-card #demo-clues-subnav .ms-sub-tab-btn.active,
+#demo-clue-arc,
+.mock-mission-card .clue-card-meta {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+.mock-mission-card #demo-clues-subnav .ms-sub-tab-btn.active {
+  border-bottom-color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+.mock-mission-card .clue-transcript-box {
+  border-color: rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.35) !important;
+}
+
+/* 14. Badges & Accolades Window Secondary Theming */
+.mock-badge-card .badge-title-selector > span:first-child,
+.mock-badge-card .badge-player-preview,
+.mock-badge-card .badge-cat-btn.active,
+.mock-badge-card .placeholder-badge,
+.mock-badge-card .badge-progress-label span:first-child {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+.mock-badge-card .badge-cat-btn.active {
+  border-bottom-color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+.mock-badge-card .placeholder-badge {
+  border-color: rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.5) !important;
+}
+.mock-badge-card .badge-progress-fill {
+  background: var(--accent-gui-secondary, #00c8c9) !important;
+}
+
+/* 15. Chat Window Secondary Theming */
+.mock-chat-card .chat-channel-tag.tag-gen,
+.mock-chat-card .chat-reply-quote .reply-target,
+.mock-chat-card .chat-reply-quote .reply-spine svg,
+.mock-chat-card .chat-mention {
+  color: var(--accent-gui-secondary, #00c8c9) !important;
+}
+.mock-chat-card .chat-mention {
+  border: 1px solid rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.5) !important;
+  background: rgba(var(--accent-gui-secondary-rgb, 0, 200, 201), 0.1) !important;
+}
+
+/* ==========================================================================
+   Row 3: Settings Panel & Real-Time Theming Engine Styles
+   ========================================================================== */
+.settings-showcase-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  width: 100%;
+}
+@media (max-width: 1200px) {
+  .settings-showcase-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.mock-settings-card {
+  background: rgba(8, 12, 20, 0.98);
+  border: 1.5px solid var(--accent-gui-picked, #00e0ff);
+  border-radius: 6px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.9), 0 0 16px rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.3);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 530px;
+  font-family: 'Consolas', monospace;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.mock-settings-card .settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: linear-gradient(to bottom, rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.2), rgba(0, 0, 0, 0.4));
+  border-bottom: 1.5px solid var(--accent-gui-picked, #00e0ff);
+  user-select: none;
+}
+
+.mock-settings-card .settings-title {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--accent-gui-picked, #00e0ff);
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 10px rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.6);
+}
+
+.mock-settings-card .settings-window-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mock-settings-card .settings-control-btn {
+  background: transparent;
+  border: none;
+  color: var(--accent-gui-picked, #00e0ff);
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 2px;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.mock-settings-card .settings-control-btn.close-btn {
+  color: #dde7ee;
+}
+
+.mock-settings-card .settings-control-btn:hover {
+  transform: scale(1.2);
+  color: #ffffff;
+}
+
+.mock-settings-card .settings-control-btn.close-btn:hover {
+  color: #ff4444;
+}
+
+/* Settings Tab Row */
+.mock-settings-card .settings-tabs-row {
+  display: flex;
+  background: rgba(0, 0, 0, 0.6);
+  border-bottom: 1.5px solid var(--accent-gui-picked, #00e0ff);
+  padding: 6px 10px 0;
+  gap: 6px;
+}
+
+.mock-settings-card .settings-tab-btn {
+  font-family: 'Consolas', monospace;
+  font-size: 0.82rem;
+  font-weight: bold;
+  padding: 7px 16px;
+  color: #8899aa;
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mock-settings-card .settings-tab-btn:hover {
+  color: #ffffff;
+}
+
+.mock-settings-card .settings-tab-btn.active {
+  color: var(--accent-gui-picked, #00e0ff);
+  background: #080c14;
+  border: 2px solid #ffffff;
+  border-bottom-color: #080c14;
+  margin-bottom: -1.5px;
+  text-shadow: 0 0 8px rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.5);
+}
+
+/* Settings Body & Panels */
+.mock-settings-card .settings-body {
+  padding: 14px;
+  min-height: 380px;
+  max-height: 480px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.mock-settings-card .settings-panel-view {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.mock-settings-card .settings-panel-view.hidden {
+  display: none !important;
+}
+
+/* Group Boxes */
+.mock-settings-card .settings-group-box {
+  background: rgba(6, 10, 18, 0.7);
+  border: 1px solid rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.25);
+  border-radius: 4px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mock-settings-card .settings-group-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--accent-gui-picked, #00e0ff);
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.15);
+  padding-bottom: 5px;
+  margin-bottom: 2px;
+}
+
+.mock-settings-card .settings-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  color: #e2e8f0;
+  padding: 3px 0;
+}
+
+.mock-settings-card .settings-label-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mock-settings-card .settings-info-icon {
+  color: var(--accent-gui-picked, #00e0ff);
+  font-size: 0.82rem;
+  cursor: help;
+  display: inline-flex;
+  align-items: center;
+}
+
+.mock-settings-card .settings-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-gui-picked, #00e0ff);
+  cursor: pointer;
+}
+
+.mock-settings-card .settings-color-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mock-settings-card .settings-swatch-wrap {
+  position: relative;
+  width: 68px;
+  height: 24px;
+  border-radius: 3px;
+  border: 2px solid #ffffff;
+  cursor: pointer;
+  box-sizing: border-box;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+  transition: transform 0.15s, box-shadow 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mock-settings-card .settings-swatch-wrap:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px #ffffff;
+}
+
+.mock-settings-card .settings-color-picker-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.mock-settings-card .settings-btn-reset {
+  background: transparent;
+  border: 1px solid var(--accent-gui-picked, #00e0ff);
+  color: #ffffff;
+  padding: 3px 10px;
+  font-family: 'Consolas', monospace;
+  font-size: 0.74rem;
+  font-weight: bold;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mock-settings-card .settings-btn-reset:hover {
+  background: var(--accent-gui-picked, #00e0ff);
+  color: #080c14;
+  box-shadow: 0 0 8px var(--accent-gui-picked, #00e0ff);
+}
+
+.mock-settings-card .settings-preset-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.2);
+}
+
+.mock-settings-card .settings-preset-label {
+  font-size: 0.68rem;
+  color: #8899aa;
+}
+
+.mock-settings-card .settings-preset-dot,
+.mock-settings-card .settings-preset-dot-secondary {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.mock-settings-card .settings-preset-dot:hover,
+.mock-settings-card .settings-preset-dot-secondary:hover {
+  transform: scale(1.3);
+  border-color: #ffffff;
+}
+
+.mock-settings-card .settings-select {
+  background: #060a12;
+  border: 1px solid var(--accent-gui-picked, #00e0ff);
+  color: #ffffff;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-family: 'Consolas', monospace;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+/* Keybinds Table */
+.mock-settings-card .keybinds-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  color: #8899aa;
+  margin-bottom: 6px;
+}
+
+.mock-settings-card .keybinds-table-wrap {
+  max-height: 340px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mock-settings-card .keybind-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.mock-settings-card .keybind-table th {
+  text-align: left;
+  color: var(--accent-gui-picked, #00e0ff);
+  font-weight: bold;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.25);
+}
+
+.mock-settings-card .keybind-section-row td {
+  color: var(--accent-gui-picked, #00e0ff);
+  font-weight: 800;
+  font-size: 0.78rem;
+  padding: 8px 8px 4px;
+  letter-spacing: 0.5px;
+}
+
+.mock-settings-card .keybind-data-row td {
+  padding: 4px 8px;
+  color: #e2e8f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.mock-settings-card .keybind-chip {
+  background: rgba(13, 20, 34, 0.85);
+  border: 1px solid rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.4);
+  color: var(--accent-gui-picked, #00e0ff);
+  padding: 3px 10px;
+  border-radius: 3px;
+  font-family: 'Consolas', monospace;
+  font-size: 0.74rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  transition: all 0.15s ease;
+}
+
+.mock-settings-card .keybind-chip:hover {
+  background: rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.2);
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.mock-settings-card .keybind-chip.listening {
+  border-color: #f1c40f !important;
+  background: rgba(241, 196, 15, 0.25) !important;
+  color: #f1c40f !important;
+  animation: pulseListening 0.8s infinite alternate;
+}
+
+@keyframes pulseListening {
+  0% { box-shadow: 0 0 4px #f1c40f; }
+  100% { box-shadow: 0 0 12px #f1c40f; }
+}
+
+.mock-settings-card .settings-resize-grip {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  cursor: nwse-resize;
+  background: linear-gradient(135deg, transparent 50%, rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.6) 50%);
+}
+
+@media (max-width: 1200px) {
+  .grid-locked {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .post-title {
+    font-size: 2.2rem !important;
+  }
+  .mock-window,
+  .mock-party-card,
+  .mock-target-card,
+  .mock-settings-card {
+    max-width: 100% !important;
+  }
+}
+
+/* Dev Blog Alternating Layout & Placeholder Cards */
+.blog-placeholder-card {
+  border: 2px dashed rgba(0, 224, 255, 0.3);
+  background: rgba(11, 14, 20, 0.5);
+  border-radius: 8px;
+  padding: 2rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 180px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+.blog-placeholder-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 16px rgba(0, 224, 255, 0.2);
+  transform: translateY(-2px);
+}
+.placeholder-badge {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  background: rgba(0, 224, 255, 0.1);
+  border: 1px solid rgba(0, 224, 255, 0.3);
+  padding: 3px 9px;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+}
+.placeholder-title {
+  font-size: 1.2rem;
+  color: var(--text-light);
+  margin: 0 0 0.45rem 0;
+  font-weight: 600;
+}
+.placeholder-desc {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0;
+  max-width: 360px;
+  line-height: 1.45;
+}
+
+/* Game Remastered HUD Showcase Framework */
+.mock-window-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.mock-window {
+  width: 100%;
+  max-width: 375px;
+  margin: 0 auto;
+  font-family: 'Consolas', 'Courier New', monospace;
+  color: #e0e0e0;
+  box-sizing: border-box;
+}
+.mock-window .panel-inner {
+  background: rgba(11, 14, 20, 0.92);
+  border: 1.5px solid var(--accent-gui-picked, #00e0ff);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.9), 0 0 16px rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.3);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.mock-window .status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 8px;
+  background: linear-gradient(to bottom, rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.2), rgba(0, 0, 0, 0.4));
+  border-bottom: 1.5px solid var(--accent-gui-picked, #00e0ff);
+  font-weight: bold;
+  user-select: none;
+}
+.mock-window .status-header h2 {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--accent-gui-picked, #00e0ff);
+  font-weight: bold;
+  text-shadow: 0 0 4px rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.3) !important;
+}
+.mock-window .header-info {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.mock-level-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--accent-gui-picked, #00e0ff);
+  color: var(--accent-gui-picked, #00e0ff);
+  font-weight: bold;
+  font-size: 0.72rem;
+  border-radius: 3px;
+  min-width: 22px;
+  height: 20px;
+  box-shadow: 0 0 6px rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.3);
+  box-sizing: border-box;
+}
+.mock-window .header-menu {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+.mock-window .nav-btn {
+  font-family: monospace;
+  font-size: 0.62rem;
+  background: transparent;
+  border: 1px solid rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.35);
+  color: #c5e4ec;
+  padding: 1px 4px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.mock-window .nav-btn:hover {
+  background: var(--accent-gui-picked, #00e0ff);
+  border-color: var(--accent-gui-picked, #00e0ff);
+  color: #0b0e14;
+  box-shadow: 0 0 6px var(--accent-gui-picked, #00e0ff);
+}
+.mock-window .status-vitals {
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mock-window .vital-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mock-window .vital-label {
+  width: 60px;
+  font-size: 0.65rem;
+  text-align: right;
+  color: #94a3b8;
+  font-weight: 600;
+}
+.mock-window .vital-value {
+  min-width: 62px;
+  font-family: Consolas, monospace;
+  font-size: 0.58rem;
+  color: #d5e9f2;
+  text-align: right;
+  white-space: nowrap;
+}
+.mock-window .bar-track {
+  flex-grow: 1;
+  height: 8px;
+  background: #090c12;
+  border: 1px solid #334155;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.mock-window .bar-fill {
+  height: 100%;
+  transition: width 0.08s linear;
+}
+
+/* Dynamic HUD Fills (Green Gradient for Health) */
+.health-fill-green {
+  background: linear-gradient(90deg, #00b050, #00ff88, #22c55e);
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+}
+.energy-fill-cyan {
+  background: #00e0ff;
+  box-shadow: 0 0 8px #00e0ff;
+}
+.battery-fill-yellow {
+  background: #ffff00;
+  box-shadow: 0 0 8px #ffff00;
+}
+.exp-fill-purple {
+  background: #9b59b6;
+  box-shadow: 0 0 8px #9b59b6;
+}
+
+.mock-window .exp-wrapper {
+  display: flex;
+  flex-grow: 1;
+  gap: 6px;
+  align-items: center;
+}
+.mock-window .exp-segments {
+  display: flex;
+  gap: 1px;
+  height: 8px;
+  width: 48px;
+  flex-shrink: 0;
+}
+.mock-window #demo-status-xp-fill {
+  transition: none;
+}
+.mock-window .exp-segment {
+  flex-grow: 1;
+  background: #0c0f17;
+  border: 1px solid #334155;
+  border-radius: 1px;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+}
+.mock-window .exp-segment.filled {
+  background: #9b59b6;
+  border-color: #ba68c8;
+  box-shadow: 0 0 6px rgba(186, 104, 200, 0.85);
+}
+.mock-window .exp-segment.pop {
+  animation: exp-seg-pop 0.35s ease-out;
+}
+@keyframes exp-seg-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.35); box-shadow: 0 0 10px #e056fd; }
+  100% { transform: scale(1); }
+}
+
+/* Floating Buffs */
+.status-buffs-floating {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.buff-icon {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.62rem;
+  font-weight: bold;
+  border-radius: 2px;
+  border: 1px solid;
+  cursor: default;
+}
+.buff-positive {
+  border-color: #00e0ff;
+  color: #00e0ff;
+  background: rgba(0, 224, 255, 0.1);
+  box-shadow: inset 0 0 4px rgba(0, 224, 255, 0.2);
+}
+.buff-negative {
+  border-color: #ff00ff;
+  color: #ff00ff;
+  background: rgba(255, 0, 255, 0.12);
+  box-shadow: inset 0 0 4px rgba(255, 0, 255, 0.25);
+}
+
+/* Mock Chat Window Showcase */
+.mock-chat-card {
+  background: rgba(10, 14, 22, 0.96);
+  border: 1px solid #00e0ff;
+  border-radius: 6px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.9), 0 0 12px rgba(0, 224, 255, 0.25);
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 470px;
+  margin: 0 auto;
+  font-family: Consolas, 'Courier New', monospace;
+  position: relative;
+}
+.mock-chat-card .status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 10px;
+  background: rgba(0, 224, 255, 0.08);
+  border-bottom: 1px solid rgba(0, 224, 255, 0.25);
+}
+.mock-chat-card .header-menu {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.mock-chat-card .header-info {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.mock-chat-card .nav-btn {
+  font-family: Consolas, monospace;
+  font-size: 0.72rem;
+  background: transparent;
+  border: 1px solid rgba(0, 224, 255, 0.35);
+  color: #c5e4ec;
+  padding: 2px 7px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.mock-chat-card .nav-btn:hover,
+.mock-chat-card .nav-btn.active {
+  background: rgba(0, 224, 255, 0.2);
+  border-color: #00e0ff;
+  color: #fff;
+  box-shadow: 0 0 6px rgba(0, 224, 255, 0.4);
+}
+.mock-chat-card .chat-control-btn {
+  background: transparent;
+  border: none;
+  color: #00e0ff;
+  font-weight: bold;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+.mock-chat-card .chat-control-btn:hover {
+  color: #fff;
+  transform: scale(1.15);
+}
+.mock-chat-card .chat-tab-row {
+  display: flex;
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(0, 224, 255, 0.25);
+  padding: 6px 8px 0;
+  gap: 4px;
+  align-items: flex-end;
+}
+.mock-chat-card .chat-tab-btn {
+  font-family: Consolas, monospace;
+  font-size: 0.72rem;
+  padding: 4px 8px;
+  background: rgba(15, 23, 36, 0.8);
+  border: 1px solid rgba(0, 224, 255, 0.25);
+  border-bottom: none;
+  color: #94a3b8;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.mock-chat-card .chat-tab-btn:hover {
+  color: #fff;
+  background: rgba(0, 224, 255, 0.15);
+}
+.mock-chat-card .chat-tab-btn.active {
+  background: #00e0ff;
+  border-color: #00e0ff;
+  color: #05080e;
+  font-weight: bold;
+}
+.mock-chat-card .chat-tab-btn.tab-action {
+  padding: 4px 7px;
+  color: #00e0ff;
+  font-weight: bold;
+}
+.mock-chat-card .chat-log-body {
+  padding: 10px 12px;
+  font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #05080e;
+  min-height: 220px;
+  max-height: 260px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #00e0ff transparent;
+}
+.mock-chat-card .chat-log-body::-webkit-scrollbar {
+  width: 3px;
+}
+.mock-chat-card .chat-log-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.mock-chat-card .chat-log-body::-webkit-scrollbar-thumb {
+  background: #00e0ff;
+  border-radius: 3px;
+}
+.mock-chat-card .chat-log-body::-webkit-scrollbar-thumb:hover {
+  background: #39ff14;
+}
+.mock-chat-card .chat-msg {
+  line-height: 1.4;
+}
+.mock-chat-card .chat-discord-badge {
+  color: #5865f2;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 4px;
+  font-size: 0.78rem;
+  vertical-align: middle;
+}
+.mock-chat-card .chat-channel-tag {
+  font-weight: bold;
+  margin-right: 5px;
+}
+.mock-chat-card .tag-sys { color: #f6c85f; }
+.mock-chat-card .tag-gen { color: #72e5f2; }
+.mock-chat-card .tag-loc { color: #dbe8ed; }
+.mock-chat-card .tag-alliance { color: #b996ff; }
+.mock-chat-card .tag-social { color: #8af6cb; }
+.mock-chat-card .tag-party { color: #8af6cb; }
+.mock-chat-card .tag-combat { color: #ff9d4d; }
+.mock-chat-card .tag-warn { color: #ff9d4d; }
+.mock-chat-card .tag-hit { color: #ffe45c; }
+.mock-chat-card .tag-dmg { color: #ffcc45; }
+.mock-chat-card .tag-taken { color: #ff5050; }
+.mock-chat-card .tag-heal { color: #57ff57; }
+.mock-chat-card .tag-pet { color: #ffaa00; }
+.mock-chat-card .tag-reward { color: #ffe45c; }
+.mock-chat-card .tag-help { color: #8bea8b; }
+.mock-chat-card .chat-sender { color: #f1f5f9; font-weight: 600; margin-right: 4px; }
+.mock-chat-card .chat-text { color: #cbd5e1; }
+
+/* Reply to Message Formatting */
+.mock-chat-card .chat-reply-quote {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  color: #94a3b8;
+  padding: 2px 8px 2px 4px;
+  margin-bottom: 2px;
+  margin-left: 2px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+  width: fit-content;
+  max-width: 95%;
+  background: rgba(0, 224, 255, 0.08);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.mock-chat-card .chat-reply-quote:hover {
+  background: rgba(0, 224, 255, 0.18);
+  color: #f1f5f9;
+}
+.mock-chat-card .reply-spine {
+  color: #00e0ff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 4px;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+.mock-chat-card .chat-reply-quote:hover .reply-spine {
+  color: #39ff14;
+}
+.mock-chat-card .reply-spine svg {
+  display: block;
+}
+.mock-chat-card .reply-target {
+  color: #00e0ff;
+  font-weight: 600;
+}
+.mock-chat-card .reply-snippet {
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Coin Shine Glare Effect on Hover */
+.mock-chat-card .chat-reply-quote::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.75) 50%, transparent 100%);
+  transform: skewX(-25deg);
+  pointer-events: none;
+}
+.mock-chat-card .chat-reply-quote:hover::after {
+  animation: coin-glare 0.6s ease-out forwards;
+}
+@keyframes coin-glare {
+  0% { left: -120%; }
+  100% { left: 220%; }
+}
+
+/* Player Mention Badge & HUD-Scaled Tooltip */
+.mock-chat-card .chat-mention {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0, 224, 255, 0.15);
+  border: 1px solid rgba(0, 224, 255, 0.45);
+  color: #00e0ff;
+  border-radius: 3px;
+  padding: 0 4px;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+}
+.mock-chat-card .chat-mention:hover {
+  background: rgba(0, 224, 255, 0.35);
+  color: #fff;
+  box-shadow: 0 0 6px rgba(0, 224, 255, 0.5);
+}
+/* Suppress global [data-tooltip] inside mock chat to prevent collisions */
+.mock-chat-card [data-tooltip]::before,
+.mock-chat-card [data-tooltip]::after {
+  display: none !important;
+  content: none !important;
+}
+.mock-chat-card .chat-mention::before {
+  content: attr(data-chat-tooltip);
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: rgba(11, 14, 20, 0.98);
+  border: 1px solid #00e0ff;
+  color: #e2e8f0;
+  font-size: 0.65rem;
+  font-family: Consolas, monospace;
+  font-weight: normal;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.9), 0 0 6px rgba(0, 224, 255, 0.25);
+  z-index: 120;
+}
+.mock-chat-card .chat-mention:hover::before {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Chat Wiki Link */
+.mock-chat-card .chat-link {
+  color: #00e0ff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+.mock-chat-card .chat-link:hover {
+  color: #39ff14;
+}
+.mock-chat-card .chat-composer-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(10, 14, 22, 0.95);
+  border-top: 1px solid rgba(0, 224, 255, 0.2);
+  position: relative;
+}
+.mock-chat-card .channel-bubble {
+  appearance: none;
+  font-family: Consolas, monospace;
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border: 1.5px solid #00e0ff;
+  border-radius: 12px;
+  cursor: pointer;
+  user-select: none;
+  background: rgba(0, 224, 255, 0.08);
+  color: #00e0ff;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.mock-chat-card .channel-bubble:hover,
+.mock-chat-card .channel-bubble.menu-open {
+  background: rgba(0, 224, 255, 0.22);
+  box-shadow: 0 0 8px rgba(0, 224, 255, 0.4);
+}
+.mock-chat-card .channel-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 10px;
+  margin-bottom: 8px;
+  background: rgba(11, 14, 20, 0.98);
+  border: 1px solid #00e0ff;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  min-width: 130px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.9), 0 0 10px rgba(0, 224, 255, 0.3);
+  z-index: 100;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.mock-chat-card .channel-menu.hidden {
+  display: none;
+}
+.mock-chat-card .channel-option {
+  appearance: none;
+  width: 100%;
+  background: transparent;
+  text-align: left;
+  font-family: Consolas, monospace;
+  border: none;
+  border-bottom: 1px solid rgba(0, 224, 255, 0.12);
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  color: #cbd5e1;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.mock-chat-card .channel-option:hover {
+  background: rgba(0, 224, 255, 0.2);
+  color: #fff;
+}
+.mock-chat-card .channel-option.active {
+  color: #00e0ff;
+  font-weight: bold;
+  background: rgba(0, 224, 255, 0.1);
+}
+.mock-chat-card .channel-option:last-child {
+  border-bottom: none;
+}
+.mock-chat-card .chat-input-wrap {
+  flex-grow: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.mock-chat-card .chat-input-mock {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #334155;
+  border-radius: 3px;
+  padding: 5px 22px 5px 8px;
+  color: #e2e8f0;
+  font-family: Consolas, monospace;
+  font-size: 0.72rem;
+  outline: none;
+  box-sizing: border-box;
+}
+.mock-chat-card .chat-input-mock::placeholder {
+  color: #64748b;
+}
+.mock-chat-card .chat-input-mock:focus {
+  border-color: #00e0ff;
+  box-shadow: 0 0 5px rgba(0, 224, 255, 0.3);
+}
+.mock-chat-card .chat-resize-grip {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+  background: linear-gradient(135deg, transparent 0%, transparent 40%, rgba(0, 224, 255, 0.4) 40%, rgba(0, 224, 255, 0.4) 55%, transparent 55%, transparent 70%, rgba(0, 224, 255, 0.4) 70%, rgba(0, 224, 255, 0.4) 85%, transparent 85%);
+}
+
+/* Mock Party Window (Faithful Recreation of Actual Game Client) */
+.mock-party-card {
+  background: #090d16;
+  border: 1.5px solid #00e0ff;
+  border-radius: 6px;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 224, 255, 0.25);
+  overflow: hidden;
+  width: 100%;
+  max-width: 375px;
+  margin: 0 auto;
+  font-family: 'Consolas', monospace;
+  box-sizing: border-box;
+}
+.mock-party-card .dockable-header {
+  display: flex;
+  align-items: center;
+  padding: 5px 8px;
+  background: linear-gradient(to bottom, rgba(0, 224, 255, 0.15), rgba(0, 200, 201, 0.28));
+  border-bottom: 1.5px solid #00e0ff;
+  user-select: none;
+}
+.mock-party-card .dockable-title {
+  font-family: 'Consolas', monospace;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #00e0ff;
+  letter-spacing: 0.5px;
+}
+.mock-party-card .party-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  margin-right: 6px;
+}
+.mock-party-card .party-count-badge {
+  font-family: 'Consolas', monospace;
+  font-size: 0.72rem;
+  color: #00e0ff;
+  font-weight: bold;
+  background: rgba(0, 224, 255, 0.1);
+  border: 1px solid rgba(0, 224, 255, 0.4);
+  padding: 1px 5px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+}
+.mock-party-card .party-header-btn {
+  background: rgba(0, 224, 255, 0.15);
+  border: 1px solid #00e0ff;
+  color: #00e0ff;
+  font-family: 'Consolas', monospace;
+  font-size: 0.7rem;
+  padding: 1px 5px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.mock-party-card .party-header-btn:hover {
+  background: #00e0ff;
+  color: #0b0e14;
+  box-shadow: 0 0 8px #00e0ff;
+}
+.mock-party-card .party-header-btn.danger {
+  border-color: #ff4444;
+  color: #ff8888;
+  background: rgba(255, 68, 68, 0.15);
+}
+.mock-party-card .party-header-btn.danger:hover {
+  background: #ff4444;
+  color: #fff;
+  box-shadow: 0 0 8px #ff4444;
+}
+.mock-party-card .window-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-family: 'Consolas', monospace;
+}
+.mock-party-card .collapse-btn {
+  cursor: pointer;
+  color: #00e0ff;
+  font-weight: bold;
+  font-size: 1rem;
+  line-height: 1;
+  user-select: none;
+}
+.mock-party-card .collapse-btn:hover {
+  color: #fff;
+}
+.mock-party-card .dock-toggle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #00e0ff;
+  background: #00e0ff;
+  box-shadow: 0 0 8px #00e0ff;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+}
+.mock-party-card .dock-toggle:hover {
+  box-shadow: 0 0 12px #00e0ff;
+}
+.mock-party-card .close-btn {
+  font-size: 1rem;
+  line-height: 1;
+  font-family: 'Consolas', monospace;
+  cursor: pointer;
+  color: #dde7ee;
+  font-weight: bold;
+  user-select: none;
+  transition: color 0.15s;
+}
+.mock-party-card .close-btn:hover {
+  color: #fff;
+}
+.mock-party-card .party-list {
+  padding: 3px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #090d16;
+}
+.mock-party-card .party-member-card {
+  position: relative;
+  background: rgba(14, 18, 28, 0.95);
+  border: 1px solid #2a3548;
+  border-left: 3px solid #00e0ff;
+  border-radius: 4px;
+  padding: 4px 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: border-color 0.2s, background 0.2s;
+  box-sizing: border-box;
+}
+.mock-party-card .party-member-card:hover {
+  border-color: #00e0ff;
+  background: rgba(18, 24, 38, 0.98);
+}
+.mock-party-card .party-member-card.leader {
+  border-left: 3px solid #ffd700;
+}
+.mock-party-card .party-member-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.76rem;
+}
+.mock-party-card .party-member-name-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.mock-party-card .party-leader-star {
+  color: #ffd700;
+  font-size: 0.8rem;
+  text-shadow: 0 0 4px rgba(255, 215, 0, 0.6);
+}
+.mock-party-card .party-role-badge {
+  font-family: 'Consolas', monospace;
+  font-size: 0.65rem;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-weight: bold;
+}
+.mock-party-card .party-role-badge.archetype-controller {
+  background: rgba(180, 100, 255, 0.2);
+  border: 1px solid #b464ff;
+  color: #d299ff;
+}
+.mock-party-card .party-role-badge.archetype-blaster {
+  background: rgba(255, 100, 100, 0.2);
+  border: 1px solid #ff6464;
+  color: #ff8888;
+}
+.mock-party-card .party-role-badge.archetype-scrapper {
+  background: rgba(255, 170, 0, 0.2);
+  border: 1px solid #ffaa00;
+  color: #ffbb33;
+}
+.mock-party-card .party-role-badge.archetype-defender {
+  background: rgba(0, 230, 150, 0.2);
+  border: 1px solid #00e696;
+  color: #00e696;
+}
+.mock-party-card .party-member-name {
+  color: #f1f5f9;
+  font-weight: 700;
+  font-family: 'Consolas', monospace;
+}
+.mock-party-card .party-member-meta {
+  font-family: 'Consolas', monospace;
+  font-size: 0.72rem;
+  color: #8899aa;
+}
+.mock-party-card .party-vitals {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.mock-party-card .party-vital-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 11.2px;
+  line-height: 11.2px;
+}
+.mock-party-card .party-vital-label {
+  width: 18px;
+  font-family: 'Consolas', monospace;
+  font-size: 0.58rem;
+  line-height: 11.2px;
+  color: #778899;
+}
+.mock-party-card .party-vital-track {
+  flex-grow: 1;
+  height: 6px;
+  background: #10141e;
+  border: 1px solid #222d3d;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.mock-party-card .party-vital-fill {
+  height: 100%;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+.mock-party-card .party-vital-fill.health-100 {
+  background: linear-gradient(90deg, #00b050, #00ff88, #22c55e);
+  box-shadow: 0 0 4px rgba(0, 255, 136, 0.5);
+}
+.mock-party-card .party-vital-fill.health-yellow {
+  background: linear-gradient(90deg, #e67e22, #f1c40f, #ffeb3b);
+  box-shadow: 0 0 4px rgba(241, 196, 15, 0.5);
+}
+.mock-party-card .party-vital-fill.health-red {
+  background: linear-gradient(90deg, #b71c1c, #ff1744, #ff5252);
+  box-shadow: 0 0 4px rgba(255, 23, 68, 0.6);
+}
+.mock-party-card .party-vital-fill.energy {
+  background: #00e0ff;
+  box-shadow: 0 0 4px rgba(0, 224, 255, 0.5);
+}
+.mock-party-card .party-vital-fill.battery {
+  background: #ffff00;
+  box-shadow: 0 0 4px rgba(255, 255, 0, 0.6);
+}
+.mock-party-card .party-vital-value {
+  width: 31px;
+  text-align: right;
+  font-family: 'Consolas', monospace;
+  font-size: 0.58rem;
+  line-height: 11.2px;
+  color: #aabbcc;
+}
+
+/* Mock Target Window */
+.mock-target-card {
+  background: #090d16;
+  border: 1.5px solid #00e0ff;
+  border-radius: 6px;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 224, 255, 0.25);
+  overflow: hidden;
+  width: 100%;
+  max-width: 375px;
+  margin: 0 auto;
+  font-family: 'Consolas', monospace;
+  box-sizing: border-box;
+}
+.mock-target-card .dockable-header {
+  display: flex;
+  align-items: center;
+  padding: 5px 8px;
+  background: linear-gradient(to bottom, rgba(0, 224, 255, 0.15), rgba(0, 200, 201, 0.28));
+  border-bottom: 1.5px solid #00e0ff;
+  user-select: none;
+}
+.mock-target-card .dockable-title {
+  font-family: 'Consolas', monospace;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #00e0ff;
+  letter-spacing: 0.5px;
+}
+.mock-target-card .target-header-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  margin-right: 6px;
+}
+.mock-target-card .btn-target-actions {
+  background: rgba(0, 224, 255, 0.15);
+  border: 1px solid #00e0ff;
+  color: #00e0ff;
+  font-family: 'Consolas', monospace;
+  font-size: 0.7rem;
+  padding: 1px 5px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.mock-target-card .btn-target-actions:hover {
+  background: #00e0ff;
+  color: #0b0e14;
+  box-shadow: 0 0 8px #00e0ff;
+}
+.mock-target-card .window-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.mock-target-card .collapse-btn {
+  cursor: pointer;
+  color: #00e0ff;
+  font-weight: bold;
+  font-size: 1rem;
+  line-height: 1;
+}
+.mock-target-card .dock-toggle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #00e0ff;
+  background: #00e0ff;
+  box-shadow: 0 0 8px #00e0ff;
+}
+.mock-target-card .close-btn {
+  font-size: 1rem;
+  color: #dde7ee;
+  cursor: pointer;
+  font-weight: bold;
+}
+.mock-target-card .target-body {
+  padding: 5px 8px;
+  background: #090d16;
+}
+.mock-target-card .target-entity-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+.mock-target-card .target-name {
+  color: #ff5252;
+  font-weight: bold;
+  font-size: 0.85rem;
+  text-shadow: 0 0 6px rgba(255, 82, 82, 0.4);
+}
+.mock-target-card .target-meta-badges {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.mock-target-card .alignment-badge {
+  font-family: Consolas, monospace;
+  font-size: 0.62rem;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-weight: bold;
+}
+.mock-target-card .alignment-badge.hostile {
+  background: rgba(255, 68, 68, 0.2);
+  border: 1px solid #ff4444;
+  color: #ff8888;
+}
+.mock-target-card .target-subtitle {
+  font-size: 0.65rem;
+  color: #f1c40f;
+  font-style: italic;
+  margin-bottom: 4px;
+}
+.mock-target-card .target-vitals {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.mock-target-card .target-vital-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 11.2px;
+  line-height: 11.2px;
+  box-sizing: border-box;
+}
+.mock-target-card .target-vital-label {
+  width: 18px;
+  font-family: 'Consolas', monospace;
+  color: var(--accent-gui-picked, #00e0ff);
+  font-weight: bold;
+  font-size: 0.58rem;
+  line-height: 11.2px;
+}
+.mock-target-card .target-vital-track {
+  flex-grow: 1;
+  height: 6px;
+  background: #0a0e17;
+  border: 1px solid #1e2838;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.mock-target-card .target-vital-fill {
+  height: 100%;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+.mock-target-card .target-vital-fill.health {
+  background: linear-gradient(90deg, #00b050, #00ff88, #22c55e);
+  box-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+}
+.mock-target-card .target-vital-fill.energy {
+  background: linear-gradient(90deg, #0088cc, #00d0ff);
+  box-shadow: 0 0 5px rgba(0, 208, 255, 0.5);
+}
+.mock-target-card .target-vital-fill.battery {
+  background: #ffff00;
+  box-shadow: 0 0 5px rgba(255, 255, 0, 0.6);
+}
+.mock-target-card .target-vital-value {
+  width: 31px;
+  text-align: right;
+  font-family: 'Consolas', monospace;
+  color: #aabbcc;
+  font-size: 0.58rem;
+  line-height: 11.2px;
+}
+.mock-target-card .target-status-chips {
+  display: flex;
+  gap: 3px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.mock-target-card .target-chip {
+  font-size: 0.6rem;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-family: Consolas, monospace;
+}
+.mock-target-card .target-chip.chip-emp {
+  background: rgba(0, 224, 255, 0.15);
+  border: 1px solid #00e0ff;
+  color: #00e0ff;
+}
+.mock-target-card .target-chip.chip-stun {
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid #ffd700;
+  color: #ffd700;
+}
+.mock-target-card .target-chip.chip-shield {
+  background: rgba(180, 100, 255, 0.15);
+  border: 1px solid #b464ff;
+  color: #d299ff;
+}
+
+/* Mock Friends Window (Height-Reduced ~280px) */
+.mock-friends-card {
+  background: #090d16;
+  border: 1.5px solid #00e0ff;
+  border-radius: 6px;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 224, 255, 0.25);
+  overflow: hidden;
+  width: 100%;
+  max-width: 480px;
+  height: 280px;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  font-family: 'Consolas', monospace;
+  box-sizing: border-box;
+}
+.mock-friends-card .dockable-header {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  background: linear-gradient(to bottom, rgba(0, 224, 255, 0.15), rgba(0, 200, 201, 0.28));
+  border-bottom: 1.5px solid #00e0ff;
+  user-select: none;
+  flex-shrink: 0;
+}
+.mock-friends-card .dockable-title {
+  font-family: 'Consolas', monospace;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #00e0ff;
+  letter-spacing: 0.5px;
+}
+.mock-friends-card .friends-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  margin-right: 10px;
+}
+.mock-friends-card .friends-count-badge {
+  font-size: 0.72rem;
+  color: #00e0ff;
+  font-weight: bold;
+  background: rgba(0, 224, 255, 0.1);
+  border: 1px solid rgba(0, 224, 255, 0.4);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+.mock-friends-card .window-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.mock-friends-card .collapse-btn {
+  cursor: pointer;
+  color: #00e0ff;
+  font-weight: bold;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.mock-friends-card .dock-toggle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #00e0ff;
+  background: #00e0ff;
+  box-shadow: 0 0 8px #00e0ff;
+}
+.mock-friends-card .close-btn {
+  font-size: 1.1rem;
+  color: #dde7ee;
+  cursor: pointer;
+  font-weight: bold;
+}
+.mock-friends-card .friends-tab-bar {
+  display: flex;
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(0, 224, 255, 0.2);
+  flex-shrink: 0;
+}
+.mock-friends-card .friends-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #8899aa;
+  font-family: 'Consolas', monospace;
+  font-size: 0.72rem;
+  padding: 5px 2px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+.mock-friends-card .friends-tab-btn:hover {
+  color: #fff;
+  background: rgba(0, 224, 255, 0.08);
+}
+.mock-friends-card .friends-tab-btn.active {
+  color: #00e0ff;
+  border-bottom-color: #00e0ff;
+  background: rgba(0, 224, 255, 0.12);
+  font-weight: bold;
+}
+.mock-friends-card .friends-toolbar {
+  display: flex;
+  gap: 5px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid #1a2233;
+  flex-shrink: 0;
+}
+.mock-friends-card .friends-input {
+  flex-grow: 1;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #233044;
+  color: #fff;
+  font-family: 'Consolas', monospace;
+  font-size: 0.7rem;
+  padding: 3px 6px;
+  border-radius: 3px;
+  outline: none;
+}
+.mock-friends-card .friends-input:focus {
+  border-color: #00e0ff;
+}
+.mock-friends-card .friends-action-btn {
+  background: rgba(0, 224, 255, 0.12);
+  border: 1px solid #00e0ff;
+  color: #00e0ff;
+  font-family: 'Consolas', monospace;
+  font-size: 0.7rem;
+  padding: 2px 7px;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.mock-friends-card .friends-action-btn:hover {
+  background: #00e0ff;
+  color: #05080e;
+}
+.mock-friends-card .friends-header-row {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 2fr) minmax(0, 1fr) minmax(0, 2.2fr);
+  padding: 4px 8px;
+  align-items: center;
+  background: #0d1420;
+  border-bottom: 1px solid rgba(0, 224, 255, 0.25);
+  font-size: 0.68rem;
+  font-weight: bold;
+  color: #00e0ff;
+  flex-shrink: 0;
+}
+.mock-friends-card .friends-list-body {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  scrollbar-width: thin;
+  scrollbar-color: #00e0ff transparent;
+}
+.mock-friends-card .friends-list-body::-webkit-scrollbar {
+  width: 3px;
+}
+.mock-friends-card .friends-list-body::-webkit-scrollbar-thumb {
+  background: #00e0ff;
+  border-radius: 3px;
+}
+.mock-friends-card .friend-item-wrapper {
+  border-bottom: 1px solid #141c2b;
+}
+.mock-friends-card .friend-row {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 2fr) minmax(0, 1fr) minmax(0, 2.2fr);
+  padding: 4px 8px;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.72rem;
+  transition: background 0.15s;
+}
+.mock-friends-card .friend-row:hover {
+  background: rgba(0, 224, 255, 0.08);
+}
+.mock-friends-card .friend-item-wrapper.selected .friend-row {
+  background: rgba(0, 224, 255, 0.15);
+  border-left: 3px solid #00e0ff;
+}
+.mock-friends-card .friend-actions-bar {
+  display: none;
+  gap: 4px;
+  padding: 3px 8px 4px 28px;
+  background: rgba(0, 0, 0, 0.4);
+  border-top: 1px dashed #1e2838;
+}
+.mock-friends-card .friend-item-wrapper.selected .friend-actions-bar {
+  display: flex;
+}
+.mock-friends-card .status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin: auto;
+}
+.mock-friends-card .status-dot.online {
+  background: #00e0ff;
+  box-shadow: 0 0 6px #00e0ff;
+}
+.mock-friends-card .status-dot.pending {
+  background: #f1c40f;
+  box-shadow: 0 0 6px #f1c40f;
+}
+.mock-friends-card .status-dot.offline {
+  background: #64748b;
+  opacity: 0.6;
+}
+
+/* Mock Friends Window (Enlarged ~400px with Perks Tab) */
+.mock-friends-card {
+  background: #090d16;
+  border: 1.5px solid #00e0ff;
+  border-radius: 6px;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 224, 255, 0.25);
+  overflow: hidden;
+  width: 100%;
+  max-width: 480px;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  font-family: 'Consolas', monospace;
+  box-sizing: border-box;
+}
+.mock-friends-card .dockable-header {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  background: linear-gradient(to bottom, rgba(0, 224, 255, 0.15), rgba(0, 200, 201, 0.28));
+  border-bottom: 1.5px solid #00e0ff;
+  user-select: none;
+  flex-shrink: 0;
+}
+.mock-friends-card .dockable-title {
+  font-family: 'Consolas', monospace;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #00e0ff;
+  letter-spacing: 0.5px;
+}
+.mock-friends-card .friends-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  margin-right: 10px;
+}
+.mock-friends-card .friends-count-badge {
+  font-size: 0.72rem;
+  color: #00e0ff;
+  font-weight: bold;
+  background: rgba(0, 224, 255, 0.1);
+  border: 1px solid rgba(0, 224, 255, 0.4);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+.mock-friends-card .window-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.mock-friends-card .collapse-btn {
+  cursor: pointer;
+  color: #00e0ff;
+  font-weight: bold;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.mock-friends-card .dock-toggle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #00e0ff;
+  background: #00e0ff;
+  box-shadow: 0 0 8px #00e0ff;
+}
+.mock-friends-card .close-btn {
+  font-size: 1.1rem;
+  color: #dde7ee;
+  cursor: pointer;
+  font-weight: bold;
+}
+.mock-friends-card .friends-tab-bar {
+  display: flex;
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(0, 224, 255, 0.2);
+  flex-shrink: 0;
+}
+.mock-friends-card .friends-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #8899aa;
+  font-family: 'Consolas', monospace;
+  font-size: 0.72rem;
+  padding: 5px 2px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+.mock-friends-card .friends-tab-btn:hover {
+  color: #fff;
+  background: rgba(0, 224, 255, 0.08);
+}
+.mock-friends-card .friends-tab-btn.active {
+  color: #00e0ff;
+  border-bottom-color: #00e0ff;
+  background: rgba(0, 224, 255, 0.12);
+  font-weight: bold;
+}
+.mock-friends-card .friends-toolbar {
+  display: flex;
+  gap: 5px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid #1a2233;
+  flex-shrink: 0;
+}
+.mock-friends-card .friends-input {
+  flex-grow: 1;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #233044;
+  color: #fff;
+  font-family: 'Consolas', monospace;
+  font-size: 0.7rem;
+  padding: 3px 6px;
+  border-radius: 3px;
+  outline: none;
+}
+.mock-friends-card .friends-input:focus {
+  border-color: #00e0ff;
+}
+.mock-friends-card .friends-action-btn {
+  background: rgba(0, 224, 255, 0.12);
+  border: 1px solid #00e0ff;
+  color: #00e0ff;
+  font-family: 'Consolas', monospace;
+  font-size: 0.7rem;
+  padding: 2px 7px;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.mock-friends-card .friends-action-btn:hover {
+  background: #00e0ff;
+  color: #05080e;
+}
+.mock-friends-card .friends-header-row {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 2fr) minmax(0, 1fr) minmax(0, 2.2fr);
+  padding: 4px 8px;
+  align-items: center;
+  background: #0d1420;
+  border-bottom: 1px solid rgba(0, 224, 255, 0.25);
+  font-size: 0.68rem;
+  font-weight: bold;
+  color: #00e0ff;
+  flex-shrink: 0;
+}
+.mock-friends-card .friends-list-body {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  scrollbar-width: thin;
+  scrollbar-color: #00e0ff transparent;
+}
+.mock-friends-card .friends-list-body::-webkit-scrollbar {
+  width: 3px;
+}
+.mock-friends-card .friends-list-body::-webkit-scrollbar-thumb {
+  background: #00e0ff;
+  border-radius: 3px;
+}
+.mock-friends-card .friend-item-wrapper {
+  border-bottom: 1px solid #141c2b;
+}
+.mock-friends-card .friend-row {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 2fr) minmax(0, 1fr) minmax(0, 2.2fr);
+  padding: 4px 8px;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.72rem;
+  transition: background 0.15s;
+}
+.mock-friends-card .friend-row:hover {
+  background: rgba(0, 224, 255, 0.08);
+}
+.mock-friends-card .friend-item-wrapper.selected .friend-row {
+  background: rgba(0, 224, 255, 0.15);
+  border-left: 3px solid #00e0ff;
+}
+.mock-friends-card .friend-actions-bar {
+  display: none;
+  gap: 4px;
+  padding: 3px 8px 4px 28px;
+  background: rgba(0, 0, 0, 0.4);
+  border-top: 1px dashed #1e2838;
+}
+.mock-friends-card .friend-item-wrapper.selected .friend-actions-bar {
+  display: flex;
+}
+.mock-friends-card .status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin: auto;
+}
+.mock-friends-card .status-dot.online {
+  background: #00e0ff;
+  box-shadow: 0 0 6px #00e0ff;
+}
+.mock-friends-card .status-dot.pending {
+  background: #f1c40f;
+  box-shadow: 0 0 6px #f1c40f;
+}
+.mock-friends-card .status-dot.offline {
+  background: #64748b;
+  opacity: 0.6;
+}
+
+/* Friends Perks Tab Body Styling */
+.mock-friends-card .friends-perks-body {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.25);
+  scrollbar-width: thin;
+  scrollbar-color: #00e0ff transparent;
+}
+.mock-friends-card .friend-perk-partner-label {
+  color: #00e0ff;
+  font-family: 'Consolas', monospace;
+  font-size: 0.72rem;
+}
+.mock-friends-card .friend-perk-rule {
+  color: #8899aa;
+  line-height: 1.35;
+  font-size: 0.68rem;
+}
+.mock-friends-card .friend-perk-card {
+  border: 1px solid rgba(0, 224, 255, 0.35);
+  background: linear-gradient(135deg, rgba(0, 224, 255, 0.08), rgba(7, 12, 22, 0.85));
+  border-radius: 5px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mock-friends-card .friend-perk-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  color: #00e0ff;
+  font-size: 0.76rem;
+}
+.mock-friends-card .friend-perk-heading span {
+  color: #ffd700;
+  font-size: 0.7rem;
+}
+.mock-friends-card .friend-perk-progress {
+  display: flex;
+  gap: 12px;
+  font-size: 0.68rem;
+  color: #8899aa;
+}
+.mock-friends-card .friend-perk-choice {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  border: 1px solid #233044;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  font-size: 0.7rem;
+}
+.mock-friends-card .friend-perk-choice.selected {
+  border-color: #00e0ff;
+  background: rgba(0, 224, 255, 0.1);
+}
+.mock-friends-card .friend-perk-choice div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mock-friends-card .friend-perk-choice small {
+  color: #8899aa;
+  font-size: 0.64rem;
+}
+.mock-friends-card .friend-perk-tiers {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+.mock-friends-card .friend-perk-tiers span {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 6px;
+  border-left: 2px solid #334455;
+  color: #72808f;
+  font-size: 0.66rem;
+  background: rgba(0, 0, 0, 0.2);
+}
+.mock-friends-card .friend-perk-tiers span.unlocked {
+  border-left-color: #00e0ff;
+  color: #dceaf0;
+  background: rgba(0, 224, 255, 0.06);
+}
+.mock-friends-card .friend-perk-tiers span.current {
+  border-color: #00e0ff;
+  box-shadow: inset 0 0 0 1px rgba(0, 224, 255, 0.4);
+  background: rgba(0, 224, 255, 0.12);
+  color: #fff;
+}
+.mock-friends-card .friend-perk-tiers span b {
+  color: #00e0ff;
+  font-size: 0.68rem;
+}
+.mock-friends-card .friend-perk-tiers span small {
+  font-size: 0.6rem;
+  color: #8899aa;
+}
+
+/* Mock Email Window (Enlarged ~400px) */
+.mock-email-card {
+  background: #090d16;
+  border: 1.5px solid #00e0ff;
+  border-radius: 6px;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 224, 255, 0.25);
+  overflow: hidden;
+  width: 100%;
+  max-width: 480px;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  font-family: 'Consolas', monospace;
+  box-sizing: border-box;
+}
+.mock-email-card .dockable-header {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  background: linear-gradient(to bottom, rgba(0, 224, 255, 0.15), rgba(0, 200, 201, 0.28));
+  border-bottom: 1.5px solid #00e0ff;
+  user-select: none;
+  flex-shrink: 0;
+}
+.mock-email-card .dockable-title {
+  font-family: 'Consolas', monospace;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #00e0ff;
+  letter-spacing: 0.5px;
+}
+.mock-email-card .email-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  margin-right: 10px;
+}
+.mock-email-card .email-count-badge {
+  font-size: 0.72rem;
+  color: #00e0ff;
+  font-weight: bold;
+  background: rgba(0, 224, 255, 0.1);
+  border: 1px solid rgba(0, 224, 255, 0.4);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+.mock-email-card .window-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.mock-email-card .collapse-btn {
+  cursor: pointer;
+  color: #00e0ff;
+  font-weight: bold;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.mock-email-card .dock-toggle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #00e0ff;
+  background: #00e0ff;
+  box-shadow: 0 0 8px #00e0ff;
+}
+.mock-email-card .close-btn {
+  font-size: 1.1rem;
+  color: #dde7ee;
+  cursor: pointer;
+  font-weight: bold;
+}
+.mock-email-card .email-tab-bar {
+  display: flex;
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(0, 224, 255, 0.2);
+  flex-shrink: 0;
+}
+.mock-email-card .email-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #8899aa;
+  font-family: 'Consolas', monospace;
+  font-size: 0.72rem;
+  padding: 5px 2px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+.mock-email-card .email-tab-btn:hover {
+  color: #fff;
+  background: rgba(0, 224, 255, 0.08);
+}
+.mock-email-card .email-tab-btn.active {
+  color: #00e0ff;
+  border-bottom-color: #00e0ff;
+  background: rgba(0, 224, 255, 0.12);
+  font-weight: bold;
+}
+.mock-email-card .email-toolbar {
+  display: flex;
+  padding: 4px 8px;
+  border-bottom: 1px solid #1a2233;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  align-items: center;
+  flex-shrink: 0;
+}
+.mock-email-card .email-btn {
+  background: rgba(0, 224, 255, 0.12);
+  border: 1px solid #00e0ff;
+  color: #00e0ff;
+  font-family: 'Consolas', monospace;
+  font-size: 0.7rem;
+  padding: 2px 7px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mock-email-card .email-btn:hover {
+  background: #00e0ff;
+  color: #05080e;
+}
+.mock-email-card .email-btn.danger {
+  border-color: #ff4444;
+  color: #ff8888;
+  background: rgba(255, 68, 68, 0.12);
+}
+.mock-email-card .email-btn.danger:hover {
+  background: #ff4444;
+  color: #fff;
+}
+.mock-email-card .email-pill {
+  border: 1px solid #233044;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: #f1c40f;
+  font-size: 0.65rem;
+  margin-left: auto;
+}
+.mock-email-card .email-header-row {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1.2fr) minmax(0, 2fr) 60px 24px;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #0d1420;
+  border-bottom: 1px solid rgba(0, 224, 255, 0.25);
+  font-size: 0.68rem;
+  font-weight: bold;
+  color: #00e0ff;
+  align-items: center;
+  flex-shrink: 0;
+}
+.mock-email-card .email-inbox-pane {
+  flex: 1;
+  overflow-y: auto;
+  background: rgba(8, 12, 22, 0.7);
+  scrollbar-width: thin;
+  scrollbar-color: #00e0ff transparent;
+}
+.mock-email-card .email-inbox-pane::-webkit-scrollbar {
+  width: 3px;
+}
+.mock-email-card .email-inbox-pane::-webkit-scrollbar-thumb {
+  background: #00e0ff;
+  border-radius: 3px;
+}
+.mock-email-card .email-row {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1.2fr) minmax(0, 2fr) 60px 24px;
+  gap: 4px;
+  padding: 5px 8px;
+  border-bottom: 1px solid #141c2b;
+  cursor: pointer;
+  font-size: 0.72rem;
+  align-items: center;
+  transition: background 0.15s;
+}
+.mock-email-card .email-row > div,
+.mock-email-card .email-header-row > div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mock-email-card .email-row:hover {
+  background: rgba(0, 224, 255, 0.08);
+}
+.mock-email-card .email-row.selected {
+  background: rgba(0, 224, 255, 0.16);
+  border-left: 3px solid #00e0ff;
+}
+.mock-email-card .email-row.unread {
+  color: #fff;
+  font-weight: bold;
+}
+.mock-email-card .email-row.read {
+  color: #8899aa;
+}
+.mock-email-card .unread-badge {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00e0ff;
+  box-shadow: 0 0 5px #00e0ff;
+  margin: auto;
+  display: none;
+}
+.mock-email-card .email-row.unread .unread-badge {
+  display: block;
+}
+.mock-email-card .email-footer-preview {
+  padding: 7px 10px;
+  background: #070a12;
+  border-top: 1px solid #1e2838;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+/* Mock Pet Window (Controller Tactical Suite) */
+.mock-pet-card {
+  background: #090d16;
+  border: 1.5px solid #00e0ff;
+  border-radius: 6px;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 224, 255, 0.25);
+  overflow: hidden;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  font-family: 'Consolas', monospace;
+  box-sizing: border-box;
+}
+.mock-pet-card .dockable-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: linear-gradient(to bottom, rgba(0, 224, 255, 0.15), rgba(0, 200, 201, 0.28));
+  border-bottom: 1.5px solid #00e0ff;
+  user-select: none;
+}
+.mock-pet-card .dockable-title {
+  font-family: 'Consolas', monospace;
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: #00e0ff;
+  letter-spacing: 0.5px;
+}
+.mock-pet-card .pet-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  margin-right: 10px;
+}
+.mock-pet-card .pet-header-btn {
+  background: rgba(0, 224, 255, 0.1);
+  border: 1px solid rgba(0, 224, 255, 0.4);
+  color: #00e0ff;
+  font-family: 'Consolas', monospace;
+  font-size: 0.64rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.mock-pet-card .pet-header-btn:hover {
+  background: #00e0ff;
+  color: #0b0e14;
+  box-shadow: 0 0 6px #00e0ff;
+}
+.mock-pet-card .pet-header-btn.active {
+  background: rgba(0, 224, 255, 0.3);
+  border-color: #00e0ff;
+  color: #ffffff;
+  box-shadow: 0 0 6px rgba(0, 224, 255, 0.4);
+}
+.mock-pet-card .pet-count-badge {
+  font-family: 'Consolas', monospace;
+  font-size: 0.72rem;
+  color: #00e0ff;
+  font-weight: bold;
+  background: rgba(0, 224, 255, 0.12);
+  border: 1px solid rgba(0, 224, 255, 0.4);
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+.mock-pet-card .window-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.mock-pet-card .collapse-btn {
+  cursor: pointer;
+  color: #00e0ff;
+  font-weight: bold;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.mock-pet-card .collapse-btn:hover {
+  color: #ffffff;
+}
+.mock-pet-card .dock-toggle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #00e0ff;
+  background: #00e0ff;
+  box-shadow: 0 0 8px #00e0ff;
+}
+.mock-pet-card .close-btn {
+  font-size: 1.1rem;
+  color: #dde7ee;
+  cursor: pointer;
+  font-weight: bold;
+}
+.mock-pet-card .close-btn:hover {
+  color: #ff4444;
+}
+.mock-pet-card .pet-body {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(8, 12, 20, 0.85);
+}
+.mock-pet-card .pet-global-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: rgba(12, 17, 28, 0.95);
+  border: 1px solid #1e2838;
+  border-radius: 4px;
+  padding: 6px 8px;
+}
+.mock-pet-card .pet-global-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.mock-pet-card .pet-global-label {
+  font-family: 'Consolas', monospace;
+  font-size: 0.72rem;
+  font-weight: bold;
+  color: #a0c0e0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mock-pet-card .pet-status-pill {
+  font-size: 0.6rem;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-family: 'Consolas', monospace;
+  font-weight: normal;
+}
+.mock-pet-card .pet-status-pill.anchored {
+  background: rgba(255, 170, 0, 0.2);
+  border: 1px solid #ffaa00;
+  color: #ffbb33;
+}
+.mock-pet-card .pet-status-pill.mobile {
+  background: rgba(0, 224, 255, 0.15);
+  border: 1px solid #00e0ff;
+  color: #00e0ff;
+}
+.mock-pet-card .pet-cmd-cluster {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.mock-pet-card .pet-cmd-btn {
+  background: rgba(20, 28, 44, 0.9);
+  border: 1px solid #2a3a52;
+  color: #b0c4de;
+  font-family: 'Consolas', monospace;
+  font-size: 0.68rem;
+  padding: 2px 7px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.mock-pet-card .pet-cmd-btn:hover {
+  border-color: #00e0ff;
+  color: #fff;
+  background: rgba(0, 224, 255, 0.2);
+}
+.mock-pet-card .pet-cmd-btn.active {
+  background: #00e0ff;
+  color: #080c14;
+  border-color: #00e0ff;
+  font-weight: bold;
+  box-shadow: 0 0 8px rgba(0, 224, 255, 0.5);
+}
+.mock-pet-card .pet-cmd-btn.stance-passive.active {
+  background: #3498db;
+  border-color: #3498db;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+}
+.mock-pet-card .pet-cmd-btn.stance-defensive.active {
+  background: #2ecc71;
+  border-color: #2ecc71;
+  color: #080c14;
+  box-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
+}
+.mock-pet-card .pet-cmd-btn.stance-aggressive.active {
+  background: #e74c3c;
+  border-color: #e74c3c;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+}
+.mock-pet-card .pet-subsystems-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 4px;
+  border-top: 1px solid #162030;
+}
+.mock-pet-card .pet-toggle-btn {
+  flex: 1;
+  background: rgba(16, 22, 34, 0.8);
+  border: 1px solid #243248;
+  color: #8899aa;
+  font-family: 'Consolas', monospace;
+  font-size: 0.62rem;
+  padding: 3px 5px;
+  border-radius: 2px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+.mock-pet-card .pet-toggle-btn:hover {
+  border-color: #00e0ff;
+  color: #d0e0f0;
+}
+.mock-pet-card .pet-toggle-btn.active {
+  background: rgba(0, 224, 255, 0.18);
+  border-color: #00e0ff;
+  color: #00e0ff;
+  font-weight: bold;
+}
+.mock-pet-card .pet-card {
+  position: relative;
+  background: rgba(15, 20, 32, 0.92);
+  border: 1px solid #2a3548;
+  border-left: 3px solid #3498db;
+  border-radius: 4px;
+  padding: 7px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+.mock-pet-card .pet-card:hover {
+  border-color: #00e0ff;
+  background: rgba(20, 30, 50, 0.98);
+  box-shadow: 0 2px 10px rgba(0, 224, 255, 0.15);
+}
+.mock-pet-card .pet-card.tier-t2 {
+  border-left-color: #3498db;
+}
+.mock-pet-card .pet-card.tier-t1 {
+  border-left-color: #2ecc71;
+}
+.mock-pet-card .pet-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+}
+.mock-pet-card .pet-card-name-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #f0f4f8;
+}
+.mock-pet-card .pet-tier-badge {
+  font-family: 'Consolas', monospace;
+  font-size: 0.65rem;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-weight: bold;
+}
+.mock-pet-card .pet-tier-badge.t2 {
+  background: rgba(52, 152, 219, 0.25);
+  border: 1px solid #3498db;
+  color: #85c1e9;
+}
+.mock-pet-card .pet-tier-badge.t1 {
+  background: rgba(46, 204, 113, 0.25);
+  border: 1px solid #2ecc71;
+  color: #82e0aa;
+}
+.mock-pet-card .pet-role-badge {
+  font-family: 'Consolas', monospace;
+  font-size: 0.65rem;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-weight: bold;
+  background: rgba(0, 180, 255, 0.15);
+  border: 1px solid #00e0ff;
+  color: #00e0ff;
+}
+.mock-pet-card .pet-card-name {
+  font-size: 0.82rem;
+  color: #f0f4f8;
+  font-weight: bold;
+}
+.mock-pet-card .pet-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Consolas', monospace;
+  font-size: 0.72rem;
+  color: #8899aa;
+}
+.mock-pet-card .pet-strength-shift {
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+.mock-pet-card .pet-strength-shift.shift-pos {
+  color: #f39c12;
+  background: rgba(243, 156, 18, 0.15);
+  border: 1px solid rgba(243, 156, 18, 0.4);
+}
+.mock-pet-card .pet-strength-shift.shift-zero {
+  color: #bdc3c7;
+  background: rgba(189, 195, 199, 0.15);
+  border: 1px solid rgba(189, 195, 199, 0.3);
+}
+.mock-pet-card .pet-vitals {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 2px;
+}
+.mock-pet-card .pet-vital-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 11.2px;
+  line-height: 11.2px;
+  box-sizing: border-box;
+}
+.mock-pet-card .pet-vital-label {
+  width: 18px;
+  font-family: 'Consolas', monospace;
+  font-size: 0.58rem;
+  line-height: 11.2px;
+  color: #778899;
+  font-weight: bold;
+}
+.mock-pet-card .pet-vital-track {
+  flex-grow: 1;
+  height: 6px;
+  background: #10141e;
+  border: 1px solid #222d3d;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.mock-pet-card .pet-vital-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+.mock-pet-card .pet-vital-fill.health {
+  background: linear-gradient(90deg, #00b050, #00ff88, #22c55e);
+  box-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+}
+.mock-pet-card .pet-vital-fill.energy {
+  background: linear-gradient(90deg, #0088ff, #00d4ff);
+  box-shadow: 0 0 5px rgba(0, 212, 255, 0.4);
+}
+.mock-pet-card .pet-vital-fill.battery {
+  background: linear-gradient(90deg, #ffd700, #ffaa00);
+  box-shadow: 0 0 5px rgba(255, 170, 0, 0.4);
+}
+.mock-pet-card .pet-vital-value {
+  width: 31px;
+  text-align: right;
+  font-family: 'Consolas', monospace;
+  font-size: 0.58rem;
+  line-height: 11.2px;
+  color: #aabbcc;
+}
+.mock-pet-card .pet-role-tag-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.66rem;
+  font-family: 'Consolas', monospace;
+  margin-top: 2px;
+}
+.mock-pet-card .pet-chained-tag {
+  color: #00e0ff;
+  font-weight: 500;
+}
+.mock-pet-card .pet-chained-tag.bodyguard {
+  color: #2ecc71;
+  font-weight: bold;
+}
+.mock-pet-card .pet-chained-tag.screening {
+  color: #f39c12;
+}
+.mock-pet-card .pet-card-buffs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+.mock-pet-card .pet-buff-chip {
+  background: rgba(0, 224, 255, 0.12);
+  border: 1px solid rgba(0, 224, 255, 0.35);
+  color: #00e0ff;
+  font-family: 'Consolas', monospace;
+  font-size: 0.6rem;
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+.mock-pet-card .pet-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+}
+.mock-pet-card .pet-action-btn {
+  background: rgba(20, 28, 44, 0.85);
+  border: 1px solid #2a3a52;
+  color: #8fa0b5;
+  font-family: 'Consolas', monospace;
+  font-size: 0.66rem;
+  padding: 2px 7px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.mock-pet-card .pet-action-btn:hover {
+  background: #00e0ff;
+  color: #080c14;
+  border-color: #00e0ff;
+}
+.mock-pet-card .pet-action-btn.active {
+  background: #00e0ff;
+  color: #080c14;
+  font-weight: bold;
+}
+
+/* Mock Alliance Window (Full Size Panel ~600px height, 100% width) */
+.mock-alliance-card {
+  background: #090d16;
+  border: 1.5px solid #00e0ff;
+  border-radius: 6px;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.95), 0 0 20px rgba(0, 224, 255, 0.25);
+  overflow: hidden;
+  width: 100%;
+  margin: 0 auto;
+  font-family: 'Consolas', monospace;
+  box-sizing: border-box;
+}
+.mock-alliance-card .dockable-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: linear-gradient(to bottom, rgba(0, 224, 255, 0.15), rgba(0, 200, 201, 0.28));
+  border-bottom: 1.5px solid #00e0ff;
+  user-select: none;
+}
+.mock-alliance-card .dockable-title {
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: #00e0ff;
+  letter-spacing: 0.5px;
+}
+.mock-alliance-card .window-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.mock-alliance-card .collapse-btn {
+  cursor: pointer;
+  color: #00e0ff;
+  font-weight: bold;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.mock-alliance-card .dock-toggle {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #00e0ff;
+  background: #00e0ff;
+  box-shadow: 0 0 10px #00e0ff;
+}
+.mock-alliance-card .close-btn {
+  font-size: 1.15rem;
+  color: #dde7ee;
+  cursor: pointer;
+  font-weight: bold;
+}
+.mock-alliance-card .alliance-motd-bar {
+  display: flex;
+  align-items: center;
+  background: rgba(8, 12, 22, 0.95);
+  border-bottom: 1px solid rgba(0, 224, 255, 0.25);
+  padding: 4px 10px;
+  gap: 10px;
+}
+.mock-alliance-card .alliance-motd-banner {
+  flex-grow: 1;
+  color: var(--accent-gui-picked, #00e0ff);
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 0.76rem;
+  position: relative;
+  display: block;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 8px, #000 calc(100% - 8px), transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8px, #000 calc(100% - 8px), transparent 100%);
+  cursor: default;
+}
+.mock-alliance-card .marquee-text {
+  display: inline-block;
+  white-space: nowrap;
+  padding-left: 100%;
+  animation: alliance-motd-scroll var(--motd-duration, 24s) linear infinite;
+  will-change: transform;
+  letter-spacing: 0.03em;
+  text-shadow: 0 0 8px rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.35);
+}
+.mock-alliance-card .alliance-motd-banner:hover .marquee-text,
+.mock-alliance-card .marquee-text:hover {
+  animation-play-state: paused;
+}
+@keyframes alliance-motd-scroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mock-alliance-card .marquee-text {
+    animation: none !important;
+    padding-left: 0 !important;
+  }
+}
+.mock-alliance-card .motd-edit-btn {
+  background: rgba(var(--accent-gui-picked-rgb, 0, 224, 255), 0.12);
+  border: 1px solid var(--accent-gui-picked, #00e0ff);
+  color: var(--accent-gui-picked, #00e0ff);
+  font-family: 'Consolas', monospace;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.mock-alliance-card .motd-edit-btn:hover {
+  background: var(--accent-gui-picked, #00e0ff);
+  color: #05080e;
+}
+.mock-alliance-card .alliance-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 0.74rem;
+  color: #aabbcc;
+  background: rgba(12, 18, 30, 0.85);
+  border-bottom: 1px solid #1a2233;
+}
+.mock-alliance-card .alliance-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mock-alliance-card .alliance-stat-label {
+  color: #667788;
+  font-size: 0.65rem;
+}
+.mock-alliance-card .alliance-stat-highlight {
+  color: #00e0ff;
+  font-weight: bold;
+}
+.mock-alliance-card .alliance-tab-bar {
+  display: flex;
+  background: rgba(0, 0, 0, 0.6);
+  border-bottom: 1px solid rgba(0, 224, 255, 0.25);
+}
+.mock-alliance-card .alliance-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #8899aa;
+  font-family: 'Consolas', monospace;
+  font-size: 0.78rem;
+  padding: 8px 6px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.mock-alliance-card .alliance-tab-btn:hover {
+  color: #fff;
+  background: rgba(0, 224, 255, 0.08);
+}
+.mock-alliance-card .alliance-tab-btn.active {
+  color: #00e0ff;
+  border-bottom-color: #00e0ff;
+  background: rgba(0, 224, 255, 0.12);
+  font-weight: bold;
+}
+.mock-alliance-card .alliance-main-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 290px;
+  max-height: 380px;
+  overflow: hidden;
+}
+.mock-alliance-card .alliance-tab-panel {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
+  height: 100%;
+}
+.mock-alliance-card .alliance-tab-panel.hidden {
+  display: none !important;
+}
+.mock-alliance-card .alliance-roster-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.35);
+  border-bottom: 1px solid #1a2233;
+  flex-shrink: 0;
+}
+.mock-alliance-card .alliance-search-input {
+  width: 250px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #334455;
+  color: #fff;
+  font-family: 'Consolas', monospace;
+  font-size: 0.74rem;
+  padding: 4px 8px;
+  border-radius: 3px;
+  outline: none;
+}
+.mock-alliance-card .alliance-search-input:focus {
+  border-color: #00e0ff;
+}
+.mock-alliance-card .alliance-roster-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.mock-alliance-card .alliance-btn-action {
+  background: rgba(0, 224, 255, 0.12);
+  border: 1px solid #00e0ff;
+  color: #fff;
+  font-family: 'Consolas', monospace;
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.mock-alliance-card .alliance-btn-action:hover:not(:disabled) {
+  background: #00e0ff;
+  color: #0b0e14;
+  box-shadow: 0 0 6px #00e0ff;
+}
+.mock-alliance-card .alliance-btn-action:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: #445566;
+  color: #778899;
+}
+.mock-alliance-card .alliance-btn-action.danger:hover:not(:disabled) {
+  background: #ff4444;
+  color: #fff;
+  box-shadow: 0 0 6px #ff4444;
+}
+.mock-alliance-card .alliance-table-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  background: rgba(8, 12, 22, 0.9);
+  scrollbar-width: thin;
+  scrollbar-color: #00e0ff transparent;
+}
+.mock-alliance-card .alliance-table-container::-webkit-scrollbar {
+  width: 4px;
+}
+.mock-alliance-card .alliance-table-container::-webkit-scrollbar-thumb {
+  background: #00e0ff;
+}
+.mock-alliance-card .alliance-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+.mock-alliance-card .alliance-table thead {
+  position: sticky;
+  top: 0;
+  background: rgba(14, 20, 36, 0.98);
+  border-bottom: 1px solid rgba(0, 224, 255, 0.25);
+  z-index: 10;
+}
+.mock-alliance-card .alliance-th-sortable {
+  padding: 6px 8px;
+  text-align: left;
+  color: #00e0ff;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.mock-alliance-card .alliance-row {
+  border-bottom: 1px solid #141c2b;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.mock-alliance-card .alliance-row:hover {
+  background: rgba(0, 224, 255, 0.08);
+}
+.mock-alliance-card .alliance-row.selected {
+  background: rgba(0, 224, 255, 0.18);
+  border-left: 3px solid #00e0ff;
+}
+.mock-alliance-card .alliance-row td {
+  padding: 5px 8px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.mock-alliance-card .alliance-settings-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px;
+  overflow-y: auto;
+  height: 100%;
+  box-sizing: border-box;
+}
+.mock-alliance-card .alliance-section-card {
+  background: rgba(12, 18, 32, 0.9);
+  border: 1px solid #223348;
+  border-radius: 4px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mock-alliance-card .alliance-section-title {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #00e0ff;
+  border-bottom: 1px solid rgba(0, 224, 255, 0.2);
+  padding-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mock-alliance-card .alliance-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.mock-alliance-card .alliance-form-label {
+  font-size: 0.68rem;
+  color: #8899aa;
+}
+.mock-alliance-card .alliance-form-input {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #334455;
+  color: #fff;
+  font-family: 'Consolas', monospace;
+  font-size: 0.72rem;
+  padding: 4px 6px;
+  border-radius: 3px;
+  outline: none;
+}
+.mock-alliance-card .alliance-form-textarea {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #334455;
+  color: #cbd5e1;
+  font-family: 'Consolas', monospace;
+  font-size: 0.72rem;
+  padding: 4px 6px;
+  border-radius: 3px;
+  resize: vertical;
+  outline: none;
+}
+.mock-alliance-card .alliance-form-select {
+  background: #090d16;
+  border: 1px solid #334455;
+  color: #fff;
+  font-family: 'Consolas', monospace;
+  font-size: 0.72rem;
+  padding: 3px 6px;
+  border-radius: 3px;
+  outline: none;
+}
+.mock-alliance-card .alliance-ranks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 6px;
+}
+.mock-alliance-card .alliance-rank-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid #1e2838;
+  padding: 3px 6px;
+  border-radius: 3px;
+}
+.mock-alliance-card .alliance-rank-index {
+  font-size: 0.65rem;
+  color: #00e0ff;
+  font-weight: bold;
+  width: 44px;
+}
+.mock-alliance-card .alliance-rank-name-input {
+  flex-grow: 1;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #fff;
+  font-family: 'Consolas', monospace;
+  font-size: 0.7rem;
+  padding: 1px 4px;
+}
+.mock-alliance-card .alliance-rank-name-input:focus {
+  border-color: #00e0ff;
+  background: rgba(0, 0, 0, 0.5);
+}
+.mock-alliance-card .alliance-rank-meta {
+  font-size: 0.62rem;
+  color: #778899;
+}
+.mock-alliance-card .alliance-permissions-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.7rem;
+}
+.mock-alliance-card .alliance-permissions-table th {
+  background: rgba(14, 20, 36, 0.98);
+  border-bottom: 1px solid rgba(0, 224, 255, 0.25);
+  padding: 5px 6px;
+  text-align: center;
+  color: #00e0ff;
+}
+.mock-alliance-card .alliance-permissions-table th:first-child {
+  text-align: left;
+}
+.mock-alliance-card .alliance-permissions-table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid #141c2b;
+  text-align: center;
+}
+.mock-alliance-card .alliance-permissions-table td:first-child {
+  text-align: left;
+}
+.mock-alliance-card .perm-action-name {
+  color: #fff;
+  font-weight: 500;
+}
+.mock-alliance-card .perm-action-desc {
+  color: #778899;
+  font-size: 0.62rem;
+}
+.mock-alliance-card .perm-bubble {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid #445566;
+  background: transparent;
+  cursor: pointer;
+  display: inline-block;
+  transition: all 0.15s ease;
+}
+.mock-alliance-card .perm-bubble.granted {
+  background: #00e0ff;
+  border-color: #00e0ff;
+  box-shadow: 0 0 6px rgba(0, 224, 255, 0.6);
+}
+.mock-alliance-card .alliance-perk-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid #1e2838;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+.mock-alliance-card .alliance-footer-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 12px;
+  background: #070a12;
+  border-top: 1px solid #1e2838;
+  font-size: 0.68rem;
+  color: #8899aa;
+}
+.mock-alliance-card .alliance-motd-input-box {
+  display: flex;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(10, 15, 28, 0.98);
+  border-bottom: 1px solid #00e0ff;
+  align-items: center;
+}
+.mock-alliance-card .currency-vault {
+  color: #00e696;
+  font-weight: bold;
+}
+.mock-alliance-card .currency-prestige {
+  color: #f7931a;
+  font-weight: bold;
+}
+.mock-alliance-card .governance-scope-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid #1a2638;
+  border-radius: 3px;
+  padding: 6px 8px;
+  margin-top: 3px;
+}
+.mock-alliance-card .governance-scope-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  color: #ccddee;
+}
+.mock-alliance-card .alliance-name-checker {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.mock-alliance-card .name-status-badge {
+  font-size: 0.68rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.mock-alliance-card .name-status-badge.available {
+  background: rgba(0, 230, 150, 0.15);
+  border: 1px solid #00e696;
+  color: #00e696;
+}
+.mock-alliance-card .name-status-badge.cooldown {
+  background: rgba(255, 187, 0, 0.15);
+  border: 1px solid #ffbb00;
+  color: #ffbb00;
+}
+.mock-alliance-card .perm-row-disabled {
+  opacity: 0.45;
+  background: rgba(0, 0, 0, 0.2);
+}
+.mock-alliance-card .perm-bubble.disabled {
+  border-color: #334455 !important;
+  background: #0d141e !important;
+  cursor: not-allowed !important;
+  opacity: 0.35;
+}
+.mock-alliance-card .perm-disabled-badge {
+  font-size: 0.58rem;
+  color: #8899aa;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid #334455;
+  padding: 0 4px;
+  border-radius: 2px;
+}
+.mock-alliance-card .alliance-perk-catalog {
+  display: grid;
+  gap: 6px;
+}
+.mock-alliance-card .alliance-perk-catalog-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(0, 224, 255, 0.14);
+  border-radius: 3px;
+}
+.mock-alliance-card .alliance-perk-catalog-row strong {
+  color: #fff;
+  font-size: 0.72rem;
+}
+.mock-alliance-card .alliance-perk-catalog-row p {
+  margin: 2px 0 0;
+  color: #8899aa;
+  font-size: 0.65rem;
+}
+.mock-alliance-card .alliance-perk-tier-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.mock-alliance-card .alliance-perk-tier-list span {
+  padding: 2px 5px;
+  color: #00e0ff;
+  border: 1px solid rgba(0, 224, 255, 0.3);
+  border-radius: 3px;
+  font-size: 0.65rem;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   Mock Navigator Window (#nav-window Parity)
+   ========================================================================== */
+.mock-nav-card {
+  width: 100%;
+  max-width: 480px;
+  background: rgba(10, 14, 23, 0.96);
+  border: 1.5px solid #00e0ff;
+  box-shadow: 0 0 20px rgba(0, 224, 255, 0.3), inset 0 0 12px rgba(0, 224, 255, 0.06);
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+  user-select: none;
+  font-family: 'Consolas', monospace;
+  overflow: hidden;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+.mock-nav-card .dockable-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: linear-gradient(to bottom, rgba(0, 224, 255, 0.15), rgba(0, 200, 201, 0.28));
+  border-bottom: 1.5px solid #00e0ff;
+}
+.mock-nav-card .dockable-title {
+  font-family: 'Consolas', monospace;
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: #00e0ff;
+  letter-spacing: 0.5px;
+}
+.mock-nav-card .window-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-left: auto;
+}
+.mock-nav-card .collapse-btn {
+  cursor: pointer;
+  color: #00e0ff;
+  font-weight: bold;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.mock-nav-card .collapse-btn:hover {
+  color: #ffffff;
+}
+.mock-nav-card .dock-toggle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #00e0ff;
+  background: #00e0ff;
+  box-shadow: 0 0 8px #00e0ff;
+}
+.mock-nav-card .close-btn {
+  font-size: 1.1rem;
+  color: #dde7ee;
+  cursor: pointer;
+  font-weight: bold;
+}
+.mock-nav-card .close-btn:hover {
+  color: #ff4444;
+}
+.mock-nav-card .nav-dock-body {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  gap: 10px;
+  background: rgba(8, 12, 20, 0.9);
+}
+.mock-nav-card .nav-compass-container {
+  width: 100%;
+  height: 44px;
+  background: radial-gradient(ellipse at center, rgba(0, 224, 255, 0.12) 0%, rgba(5, 8, 15, 0.95) 100%);
+  border: 1px solid rgba(0, 224, 255, 0.4);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.85);
+  cursor: grab;
+}
+.mock-nav-card .nav-compass-container:active {
+  cursor: grabbing;
+}
+.mock-nav-card #demo-nav-compass-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.mock-nav-card .nav-compass-needle-center {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid #00e0ff;
+  filter: drop-shadow(0 0 5px #00e0ff);
+  pointer-events: none;
+  z-index: 2;
+}
+.mock-nav-card .nav-compass-badge {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Consolas', monospace;
+  font-size: 0.68rem;
+  font-weight: bold;
+  color: #00e0ff;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 1px 7px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 224, 255, 0.35);
+  pointer-events: none;
+  z-index: 2;
+  letter-spacing: 0.5px;
+}
+.mock-nav-card .nav-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.mock-nav-card .nav-dock-buttons {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+}
+.mock-nav-card .nav-hub-btn {
+  flex: 1;
+  background: rgba(0, 224, 255, 0.08);
+  border: 1px solid rgba(0, 224, 255, 0.3);
+  color: #cbd5e1;
+  font-family: 'Consolas', monospace;
+  font-size: 0.72rem;
+  padding: 5px 3px;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+.mock-nav-card .nav-hub-btn:hover {
+  background: rgba(0, 224, 255, 0.2);
+  border-color: #00e0ff;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(0, 224, 255, 0.4);
+  transform: translateY(-1px);
+}
+.mock-nav-card .nav-hub-btn.active {
+  background: rgba(0, 224, 255, 0.35);
+  border-color: #00e0ff;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(0, 224, 255, 0.6), inset 0 0 6px rgba(0, 224, 255, 0.3);
+}
+.mock-nav-card .nav-hub-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  width: 80%;
+  height: 2px;
+  background: #fff;
+  box-shadow: 0 0 6px #fff;
+}
+.mock-nav-card .nav-btn-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+.mock-nav-card .nav-btn-label {
+  font-size: 0.66rem;
+  letter-spacing: 0.5px;
+  font-weight: bold;
+}
+.mock-nav-card .nav-status-indicator {
+  font-family: 'Consolas', monospace;
+  font-size: 0.72rem;
+  color: #00e0ff;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 5px 9px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 224, 255, 0.3);
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+/* ==========================================================================
+   Mock Zone Map Window (#map-window Parity)
+   ========================================================================== */
+.mock-map-card {
+  width: 100%;
+  max-width: 100%;
+  background: rgba(10, 14, 23, 0.96);
+  border: 1.5px solid #00e0ff;
+  box-shadow: 0 0 25px rgba(0, 224, 255, 0.35), inset 0 0 15px rgba(0, 224, 255, 0.08);
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+  user-select: none;
+  font-family: 'Consolas', monospace;
+  overflow: hidden;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+.mock-map-card .dockable-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: linear-gradient(to bottom, rgba(0, 224, 255, 0.15), rgba(0, 200, 201, 0.28));
+  border-bottom: 1.5px solid #00e0ff;
+}
+.mock-map-card .dockable-title {
+  font-family: 'Consolas', monospace;
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: #00e0ff;
+  letter-spacing: 0.5px;
+}
+.mock-map-card .window-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-left: auto;
+}
+.mock-map-card .collapse-btn {
+  cursor: pointer;
+  color: #00e0ff;
+  font-weight: bold;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.mock-map-card .collapse-btn:hover {
+  color: #ffffff;
+}
+.mock-map-card .dock-toggle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #00e0ff;
+  background: #00e0ff;
+  box-shadow: 0 0 8px #00e0ff;
+}
+.mock-map-card .close-btn {
+  font-size: 1.1rem;
+  color: #dde7ee;
+  cursor: pointer;
+  font-weight: bold;
+}
+.mock-map-card .close-btn:hover {
+  color: #ff4444;
+}
+.mock-map-card .dockable-content {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.mock-map-card .map-container {
+  display: flex;
+  flex-direction: column;
+  background: #080c14;
+  position: relative;
+}
+.mock-map-card .map-toolbar {
+  flex-shrink: 0;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  background: rgba(13, 20, 36, 0.95);
+  border-bottom: 1px solid rgba(0, 224, 255, 0.2);
+  gap: 10px;
+  position: relative;
+  z-index: 20;
+}
+.mock-map-card .map-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mock-map-card .map-zone-title {
+  font-family: 'Consolas', monospace;
+  font-size: 0.76rem;
+  color: #00e0ff;
+  font-weight: bold;
+  background: rgba(0, 224, 255, 0.08);
+  padding: 4px 10px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 224, 255, 0.25);
+  white-space: nowrap;
+}
+.mock-map-card .map-filters-dropdown-wrapper {
+  position: relative;
+}
+.mock-map-card .map-filters-toggle-btn {
+  background: rgba(0, 224, 255, 0.1);
+  border: 1px solid rgba(0, 224, 255, 0.35);
+  color: #00e0ff;
+  font-size: 0.74rem;
+  font-family: 'Consolas', monospace;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.mock-map-card .map-filters-toggle-btn:hover {
+  background: rgba(0, 224, 255, 0.25);
+  color: #fff;
+  border-color: #00e0ff;
+}
+.mock-map-card .map-label-toggle-btn {
+  background: rgba(0, 224, 255, 0.08);
+  border: 1px solid rgba(0, 224, 255, 0.25);
+  color: #a0b0c0;
+  font-size: 0.72rem;
+  font-family: 'Consolas', monospace;
+  padding: 5px 9px;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.mock-map-card .map-label-toggle-btn:hover,
+.mock-map-card .map-label-toggle-btn.active {
+  background: rgba(0, 224, 255, 0.2);
+  color: #fff;
+  border-color: #00e0ff;
+}
+.mock-map-card .map-filters-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 220px;
+  background: rgba(10, 16, 28, 0.98);
+  border: 1px solid #00e0ff;
+  border-radius: 4px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 224, 255, 0.25);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 50;
+}
+.mock-map-card .map-filters-menu.hidden {
+  display: none !important;
+}
+.mock-map-card .map-filters-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 224, 255, 0.2);
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+  font-size: 0.72rem;
+  font-weight: bold;
+  color: #00e0ff;
+}
+.mock-map-card .map-filters-quick-actions {
+  display: flex;
+  gap: 4px;
+}
+.mock-map-card .map-filters-quick-btn {
+  background: transparent;
+  border: none;
+  color: #8899aa;
+  font-size: 0.68rem;
+  cursor: pointer;
+  padding: 0 3px;
+  font-family: 'Consolas', monospace;
+}
+.mock-map-card .map-filters-quick-btn:hover {
+  color: #fff;
+}
+.mock-map-card .map-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 5px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  user-select: none;
+}
+.mock-map-card .map-filter-item:hover {
+  background: rgba(0, 224, 255, 0.15);
+  color: #fff;
+}
+.mock-map-card .map-filter-item input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: #00e0ff;
+}
+.mock-map-card .map-viewport {
+  position: relative;
+  height: 480px;
+  cursor: grab;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, #0d1424 0%, #060911 100%);
+}
+.mock-map-card .map-viewport:active {
+  cursor: grabbing;
+}
+.mock-map-card .map-viewport.dropping-waypoint-active {
+  cursor: crosshair !important;
+}
+.mock-map-card #demo-map-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.mock-map-card .map-distance-scale-overlay {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  background: rgba(6, 10, 18, 0.88);
+  border: 1px solid rgba(0, 224, 255, 0.35);
+  padding: 4px 10px;
+  border-radius: 4px;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  z-index: 10;
+}
+.mock-map-card .map-scale-ruler-track {
+  height: 4px;
+  border-left: 2px solid #00e0ff;
+  border-right: 2px solid #00e0ff;
+  border-bottom: 2px solid #00e0ff;
+  transition: width 0.15s ease-out;
+}
+.mock-map-card .map-scale-ruler-label {
+  font-family: 'Consolas', monospace;
+  font-size: 0.68rem;
+  color: #00e0ff;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.mock-map-card .demo-map-tooltip {
+  position: absolute;
+  bottom: 14px;
+  left: 16px;
+  background: rgba(8, 14, 26, 0.95);
+  border: 1px solid #00e0ff;
+  border-radius: 4px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 224, 255, 0.25);
+  z-index: 20;
+  pointer-events: none;
+  max-width: 280px;
+  transition: opacity 0.2s ease;
+}
+.mock-map-card .demo-map-tooltip.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+.mock-map-card .demo-tooltip-title {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #fff;
+}
+.mock-map-card .demo-tooltip-cat {
+  font-size: 0.66rem;
+  color: #00e0ff;
+}
+.mock-map-card .demo-tooltip-desc {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  line-height: 1.35;
+  margin-top: 3px;
+}
+
+/* Floating Waypoint Customizer Dialog (#demo-map-waypoint-dialog) */
+.mock-map-card .map-waypoint-floating-dialog {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #0d0d1a;
+  border: 1.5px solid #00e0ff;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.95), 0 0 18px rgba(0, 224, 255, 0.35);
+  border-radius: 5px;
+  width: 320px;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto !important;
+  font-family: 'Consolas', monospace;
+}
+.mock-map-card .map-waypoint-floating-dialog.hidden {
+  display: none !important;
+}
+.mock-map-card .map-waypoint-dialog-header {
+  padding: 6px 12px;
+  background: linear-gradient(to bottom, rgba(0, 224, 255, 0.22), rgba(0, 200, 201, 0.35));
+  border-bottom: 1px solid #00e0ff;
+  color: #00e0ff;
+  font-weight: bold;
+  font-size: 0.84rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: grab;
+  user-select: none;
+}
+.mock-map-card .map-waypoint-dialog-header:active {
+  cursor: grabbing;
+}
+.mock-map-card .map-waypoint-dialog-header .close-btn {
+  font-size: 1.1rem;
+  line-height: 14px;
+  cursor: pointer;
+  color: #ddd;
+  transition: color 0.15s;
+}
+.mock-map-card .map-waypoint-dialog-header .close-btn:hover {
+  color: #ff4444;
+}
+.mock-map-card .map-waypoint-dialog-body {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(10, 14, 24, 0.98);
+}
+.mock-map-card .map-section-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #8899aa;
+  letter-spacing: 0.4px;
+  margin-bottom: -4px;
+}
+.mock-map-card .map-edit-input {
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(0, 224, 255, 0.4);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 3px;
+  font-family: 'Consolas', monospace;
+  font-size: 0.8rem;
+  outline: none;
+}
+.mock-map-card .map-edit-input:focus {
+  border-color: #00e0ff;
+  box-shadow: 0 0 8px rgba(0, 224, 255, 0.5);
+}
+.mock-map-card .map-icon-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 224, 255, 0.15);
+}
+.mock-map-card .map-icon-btn {
+  background: rgba(0, 224, 255, 0.08);
+  border: 1px solid rgba(0, 224, 255, 0.25);
+  border-radius: 3px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.15s;
+  box-sizing: border-box;
+}
+.mock-map-card .map-icon-btn:hover,
+.mock-map-card .map-icon-btn.selected {
+  background: rgba(0, 224, 255, 0.3);
+  border-color: #00e0ff;
+  box-shadow: 0 0 6px #00e0ff;
+  transform: scale(1.1);
+}
+.mock-map-card .map-color-selector {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 224, 255, 0.15);
+}
+.mock-map-card .map-color-chip {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+.mock-map-card .map-color-chip:hover {
+  transform: scale(1.2);
+}
+.mock-map-card .map-color-chip.selected {
+  border-color: #ffffff;
+  transform: scale(1.25);
+  box-shadow: 0 0 8px currentColor;
+}
+.mock-map-card .map-selected-color-badge {
+  font-size: 0.68rem;
+  font-family: 'Consolas', monospace;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 1px solid #ff0055;
+  color: #ff0055;
+  background: rgba(255, 0, 85, 0.15);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+.mock-map-card .map-edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.mock-map-card .btn-save-wp {
+  flex: 1;
+  background: rgba(0, 224, 255, 0.15);
+  border: 1px solid #00e0ff;
+  color: #00e0ff;
+  padding: 6px 10px;
+  font-family: 'Consolas', monospace;
+  font-size: 0.74rem;
+  font-weight: bold;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.mock-map-card .btn-save-wp:hover {
+  background: #00e0ff;
+  color: #05080e;
+}
+.mock-map-card .btn-delete-wp {
+  flex: 1;
+  background: rgba(255, 0, 85, 0.15);
+  border: 1px solid #ff0055;
+  color: #ff3377;
+  padding: 6px 10px;
+  font-family: 'Consolas', monospace;
+  font-size: 0.74rem;
+  font-weight: bold;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.mock-map-card .btn-delete-wp:hover {
+  background: #ff0055;
+  color: #ffffff;
+}
+
+.mock-map-card .map-footer {
+  flex-shrink: 0;
+  height: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 12px;
+  background: rgba(10, 14, 23, 0.98);
+  border-top: 1px solid rgba(0, 224, 255, 0.25);
+  gap: 10px;
+  z-index: 25;
+}
+.mock-map-card .map-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+}
+.mock-map-card .map-coords {
+  font-family: 'Consolas', monospace;
+  font-size: 0.72rem;
+  color: #00e0ff;
+  font-weight: bold;
+}
+.mock-map-card .map-zoom-status {
+  font-family: 'Consolas', monospace;
+  font-size: 0.72rem;
+  color: #8899aa;
+}
+.mock-map-card .map-footer-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mock-map-card .map-btn {
+  background: rgba(0, 224, 255, 0.1);
+  border: 1px solid rgba(0, 224, 255, 0.3);
+  color: #00e0ff;
+  font-size: 0.72rem;
+  font-family: 'Consolas', monospace;
+  font-weight: bold;
+  padding: 4px 9px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.mock-map-card .map-btn:hover {
+  background: rgba(0, 224, 255, 0.25);
+  color: #fff;
+  box-shadow: 0 0 6px #00e0ff;
+}
+.mock-map-card .map-btn.active {
+  background: rgba(255, 0, 85, 0.25);
+  border-color: #ff0055;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
+  animation: pulseWaypointBtn 1.2s infinite alternate;
+}
+
+/* ==========================================================================
+   Row 12: Field Operative Suite (3-Column Layout: Contacts, Missions, Clues)
+   ========================================================================== */
+.mission-suite-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: stretch;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+@media (max-width: 1200px) {
+  .mission-suite-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.mock-operative-card,
+.mock-mission-card {
+  background: rgba(10, 14, 23, 0.98);
+  border: 1.5px solid #00e0ff;
+  border-radius: 6px;
+  box-shadow: 0 0 20px rgba(0, 224, 255, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+  height: 520px;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  box-sizing: border-box;
+}
+.mock-operative-card .dockable-header,
+.mock-mission-card .dockable-header,
+.mock-badge-card .dockable-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: linear-gradient(to bottom, rgba(0, 224, 255, 0.15), rgba(0, 200, 201, 0.28));
+  border-bottom: 1.5px solid #00e0ff;
+}
+.mock-operative-card .dockable-title,
+.mock-mission-card .dockable-title,
+.mock-badge-card .dockable-title {
+  font-family: 'Consolas', monospace;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #00e0ff;
+  letter-spacing: 0.5px;
+}
+.mock-operative-card .window-controls,
+.mock-mission-card .window-controls,
+.mock-badge-card .window-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-left: auto;
+}
+.mock-operative-card .collapse-btn,
+.mock-mission-card .collapse-btn,
+.mock-badge-card .collapse-btn {
+  cursor: pointer;
+  color: #00e0ff;
+  font-weight: bold;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.mock-operative-card .collapse-btn:hover,
+.mock-mission-card .collapse-btn:hover,
+.mock-badge-card .collapse-btn:hover {
+  color: #ffffff;
+}
+.mock-operative-card .dock-toggle,
+.mock-mission-card .dock-toggle,
+.mock-badge-card .dock-toggle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #00e0ff;
+  background: #00e0ff;
+  box-shadow: 0 0 8px #00e0ff;
+}
+.mock-operative-card .close-btn,
+.mock-mission-card .close-btn,
+.mock-badge-card .close-btn {
+  font-size: 1.1rem;
+  color: #dde7ee;
+  cursor: pointer;
+  font-weight: bold;
+}
+.mock-operative-card .close-btn:hover,
+.mock-mission-card .close-btn:hover,
+.mock-badge-card .close-btn:hover {
+  color: #ff4444;
+}
+.mock-mission-card .ms-main-tabs {
+  display: flex;
+  background: rgba(8, 12, 20, 0.95);
+  border-bottom: 1px solid rgba(0, 224, 255, 0.3);
+}
+.mock-mission-card .ms-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #8899aa;
+  font-family: 'Consolas', monospace;
+  font-size: 0.82rem;
+  padding: 9px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+.mock-mission-card .ms-tab-btn:hover {
+  color: #ffffff;
+  background: rgba(0, 224, 255, 0.08);
+}
+.mock-mission-card .ms-tab-btn.active {
+  color: #00e0ff;
+  border-bottom-color: #00e0ff;
+  background: rgba(0, 224, 255, 0.15);
+  text-shadow: 0 0 8px rgba(0, 224, 255, 0.6);
+}
+.mock-mission-card .ms-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  height: 100%;
+}
+.mock-mission-card .ms-panel.hidden {
+  display: none !important;
+}
+
+/* Contacts Sub-pane */
+.mock-mission-card .ms-sub-nav {
+  display: flex;
+  background: rgba(13, 20, 36, 0.8);
+  border-bottom: 1px solid rgba(0, 224, 255, 0.2);
+  padding: 0 8px;
+  gap: 4px;
+}
+.mock-mission-card .ms-sub-tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #8899aa;
+  font-family: 'Consolas', monospace;
+  font-size: 0.74rem;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.mock-mission-card .ms-sub-tab-btn:hover {
+  color: #fff;
+}
+.mock-mission-card .ms-sub-tab-btn.active {
+  color: #00e0ff;
+  border-bottom-color: #00e0ff;
+  font-weight: bold;
+}
+.mock-mission-card .ms-col-layout,
+.mock-mission-card .ms-split-layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+.mock-operative-card .ms-col-list,
+.mock-mission-card .ms-col-list,
+.mock-mission-card .ms-list-column {
+  max-height: 185px;
+  overflow-y: auto;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(8, 13, 24, 0.6);
+  border-bottom: 1px solid rgba(0, 224, 255, 0.2);
+  flex-shrink: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #00e0ff transparent;
+}
+.mock-operative-card .ms-col-detail,
+.mock-mission-card .ms-col-detail,
+.mock-mission-card .ms-detail-column {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(10, 14, 22, 0.95);
+  scrollbar-width: thin;
+  scrollbar-color: #00e0ff transparent;
+}
+.mock-operative-card .ms-col-list::-webkit-scrollbar,
+.mock-operative-card .ms-col-detail::-webkit-scrollbar,
+.mock-mission-card .ms-col-list::-webkit-scrollbar,
+.mock-mission-card .ms-list-column::-webkit-scrollbar,
+.mock-mission-card .ms-col-detail::-webkit-scrollbar,
+.mock-mission-card .ms-detail-column::-webkit-scrollbar,
+.mock-mission-card .clue-transcript-box::-webkit-scrollbar,
+.mock-mission-card .mission-checklist::-webkit-scrollbar,
+.mock-mission-card .police-band-list::-webkit-scrollbar {
+  width: 3px;
+}
+.mock-operative-card .ms-col-list::-webkit-scrollbar-track,
+.mock-operative-card .ms-col-detail::-webkit-scrollbar-track,
+.mock-mission-card .ms-col-list::-webkit-scrollbar-track,
+.mock-mission-card .ms-list-column::-webkit-scrollbar-track,
+.mock-mission-card .ms-col-detail::-webkit-scrollbar-track,
+.mock-mission-card .ms-detail-column::-webkit-scrollbar-track,
+.mock-mission-card .clue-transcript-box::-webkit-scrollbar-track,
+.mock-mission-card .mission-checklist::-webkit-scrollbar-track,
+.mock-mission-card .police-band-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.mock-operative-card .ms-col-list::-webkit-scrollbar-thumb,
+.mock-operative-card .ms-col-detail::-webkit-scrollbar-thumb,
+.mock-mission-card .ms-col-list::-webkit-scrollbar-thumb,
+.mock-mission-card .ms-list-column::-webkit-scrollbar-thumb,
+.mock-mission-card .ms-col-detail::-webkit-scrollbar-thumb,
+.mock-mission-card .ms-detail-column::-webkit-scrollbar-thumb,
+.mock-mission-card .clue-transcript-box::-webkit-scrollbar-thumb,
+.mock-mission-card .mission-checklist::-webkit-scrollbar-thumb,
+.mock-mission-card .police-band-list::-webkit-scrollbar-thumb {
+  background: #00e0ff;
+  border-radius: 3px;
+}
+.mock-operative-card .ms-col-list::-webkit-scrollbar-thumb:hover,
+.mock-operative-card .ms-col-detail::-webkit-scrollbar-thumb:hover,
+.mock-mission-card .ms-col-list::-webkit-scrollbar-thumb:hover,
+.mock-mission-card .ms-list-column::-webkit-scrollbar-thumb:hover,
+.mock-mission-card .ms-col-detail::-webkit-scrollbar-thumb:hover,
+.mock-mission-card .ms-detail-column::-webkit-scrollbar-thumb:hover,
+.mock-mission-card .clue-transcript-box::-webkit-scrollbar-thumb:hover,
+.mock-mission-card .mission-checklist::-webkit-scrollbar-thumb:hover,
+.mock-mission-card .police-band-list::-webkit-scrollbar-thumb:hover {
+  background: #39ff14;
+}
+.mock-operative-card .ms-col-list::-webkit-scrollbar-button,
+.mock-operative-card .ms-col-detail::-webkit-scrollbar-button,
+.mock-mission-card .ms-col-list::-webkit-scrollbar-button,
+.mock-mission-card .ms-list-column::-webkit-scrollbar-button,
+.mock-mission-card .ms-col-detail::-webkit-scrollbar-button,
+.mock-mission-card .ms-detail-column::-webkit-scrollbar-button,
+.mock-mission-card .clue-transcript-box::-webkit-scrollbar-button,
+.mock-mission-card .mission-checklist::-webkit-scrollbar-button,
+.mock-mission-card .police-band-list::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+.mock-mission-card .contact-card {
+  background: rgba(16, 24, 42, 0.85);
+  border: 1px solid rgba(0, 224, 255, 0.2);
+  border-radius: 4px;
+  padding: 9px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mock-mission-card .contact-card:hover {
+  border-color: #00e0ff;
+  background: rgba(0, 224, 255, 0.08);
+  box-shadow: 0 0 10px rgba(0, 224, 255, 0.2);
+}
+.mock-mission-card .contact-card.selected {
+  border-color: #00e0ff;
+  background: rgba(0, 224, 255, 0.16);
+  box-shadow: 0 0 12px rgba(0, 224, 255, 0.35);
+}
+.mock-mission-card .contact-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mock-mission-card .contact-name-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mock-mission-card .contact-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(0, 224, 255, 0.15);
+  border: 1px solid #00e0ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+.mock-mission-card .contact-name {
+  font-weight: bold;
+  color: #fff;
+  font-size: 0.85rem;
+}
+.mock-mission-card .contact-role {
+  font-size: 0.7rem;
+  color: #8899aa;
+}
+.mock-mission-card .status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #39ff14;
+  box-shadow: 0 0 6px #39ff14;
+}
+.mock-mission-card .status-dot.offline {
+  background: #667788;
+  box-shadow: none;
+}
+.mock-mission-card .contact-trust-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 2px;
+}
+.mock-mission-card .contact-trust-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: #8899aa;
+  font-family: 'Consolas', monospace;
+}
+.mock-mission-card .contact-trust-track {
+  height: 5px;
+  background: #080c14;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid #1c2738;
+}
+.mock-mission-card .contact-trust-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00e0ff, #39ff14);
+  border-radius: 3px;
+}
+.mock-mission-card .contact-call-box {
+  background: #060a12;
+  border: 1px solid rgba(0, 224, 255, 0.4);
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #d1d5db;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: inset 0 0 10px rgba(0, 224, 255, 0.1);
+}
+.mock-mission-card .contact-radio-wave {
+  display: inline-block;
+  color: #39ff14;
+  font-weight: bold;
+  animation: radioBlink 1.1s infinite alternate;
+}
+.mock-mission-card .contact-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+.mock-mission-card .contact-btn {
+  flex: 1;
+  background: rgba(0, 224, 255, 0.12);
+  border: 1px solid #00e0ff;
+  color: #00e0ff;
+  font-family: 'Consolas', monospace;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 6px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+.mock-mission-card .contact-btn:hover:not(:disabled) {
+  background: #00e0ff;
+  color: #060a12;
+  box-shadow: 0 0 8px #00e0ff;
+}
+.mock-mission-card .contact-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #445566;
+  color: #8899aa;
+}
+.mock-mission-card .contact-btn.danger {
+  border-color: #ff0055;
+  color: #ff0055;
+  background: rgba(255, 0, 85, 0.1);
+}
+.mock-mission-card .contact-btn.danger:hover {
+  background: #ff0055;
+  color: #fff;
+  box-shadow: 0 0 8px #ff0055;
+}
+
+/* Mission Dossier & Notoriety & Police Band */
+.mock-mission-card .mission-dossier-card {
+  background: rgba(16, 24, 42, 0.85);
+  border: 1px solid rgba(0, 224, 255, 0.25);
+  border-radius: 4px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mock-mission-card .mission-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mock-mission-card .mission-title {
+  font-size: 1.05rem;
+  font-weight: bold;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  letter-spacing: 0.5px;
+}
+.mock-mission-card .mission-meta-chips {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.mock-mission-card .mission-chip {
+  font-size: 0.7rem;
+  background: rgba(0, 224, 255, 0.12);
+  border: 1px solid #00e0ff;
+  color: #00e0ff;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-family: 'Consolas', monospace;
+  font-weight: bold;
+}
+.mock-mission-card .mission-desc {
+  font-size: 0.8rem;
+  color: #c0cad4;
+  line-height: 1.45;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px 10px;
+  border-radius: 3px;
+  border-left: 2px solid #00e0ff;
+}
+.mock-mission-card .mission-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(0, 224, 255, 0.15);
+  padding: 10px;
+  border-radius: 4px;
+}
+.mock-mission-card .mission-task-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #d1d5db;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 3px;
+  transition: background 0.15s ease;
+}
+.mock-mission-card .mission-task-item:hover {
+  background: rgba(0, 224, 255, 0.08);
+}
+.mock-mission-card .mission-task-item.completed {
+  color: #39ff14;
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+.mock-mission-card .mission-task-check {
+  font-family: 'Consolas', monospace;
+  font-weight: bold;
+  color: #00e0ff;
+  font-size: 0.9rem;
+}
+.mock-mission-card .mission-task-item.completed .mission-task-check {
+  color: #39ff14;
+}
+.mock-mission-card .mission-notoriety-box {
+  background: rgba(16, 24, 42, 0.85);
+  border: 1px solid rgba(0, 224, 255, 0.25);
+  border-radius: 4px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.mock-mission-card .notoriety-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 3px;
+  border: 1px solid rgba(0, 224, 255, 0.1);
+}
+.mock-mission-card .notoriety-setting-label {
+  font-size: 0.78rem;
+  color: #e0e8f0;
+  font-weight: 600;
+}
+.mock-mission-card .notoriety-slider {
+  accent-color: #00e0ff;
+  cursor: pointer;
+  width: 130px;
+}
+.mock-mission-card .police-band-call-card {
+  background: rgba(16, 24, 42, 0.9);
+  border: 1px solid rgba(255, 0, 85, 0.3);
+  border-radius: 4px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.mock-mission-card .police-band-call-card:hover {
+  border-color: #ff0055;
+  box-shadow: 0 0 10px rgba(255, 0, 85, 0.25);
+}
+
+/* Clues & Forensic Evidence */
+.mock-mission-card .clues-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(8, 12, 20, 0.85);
+  border-bottom: 1px solid rgba(0, 224, 255, 0.15);
+}
+.mock-mission-card .clues-search-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 224, 255, 0.3);
+  color: #fff;
+  font-size: 0.76rem;
+  padding: 5px 10px;
+  border-radius: 3px;
+  outline: none;
+  font-family: 'Consolas', monospace;
+}
+.mock-mission-card .clues-search-input:focus {
+  border-color: #00e0ff;
+  box-shadow: 0 0 6px rgba(0, 224, 255, 0.4);
+}
+.mock-mission-card .clue-item-card {
+  background: rgba(16, 24, 42, 0.85);
+  border: 1px solid rgba(0, 224, 255, 0.15);
+  border-radius: 3px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.mock-mission-card .clue-item-card:hover {
+  border-color: #00e0ff;
+  background: rgba(0, 224, 255, 0.1);
+}
+.mock-mission-card .clue-item-card.selected {
+  border-color: #00e0ff;
+  background: rgba(0, 224, 255, 0.18);
+  box-shadow: 0 0 8px rgba(0, 224, 255, 0.3);
+}
+.mock-mission-card .clue-card-title {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #fff;
+}
+.mock-mission-card .clue-card-meta {
+  font-size: 0.68rem;
+  color: #8899aa;
+  font-family: 'Consolas', monospace;
+}
+.mock-mission-card .clue-transcript-box {
+  background: #060a12;
+  border: 1px solid rgba(0, 224, 255, 0.2);
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #d1d5db;
+  font-family: 'Consolas', monospace;
+  border-left: 3px solid #00e0ff;
+}
+.mock-mission-card .clue-souvenir-ribbon {
+  background: linear-gradient(90deg, rgba(241, 196, 15, 0.2), transparent);
+  border: 1px solid #f1c40f;
+  color: #f1c40f;
+  padding: 6px 10px;
+  border-radius: 3px;
+  font-size: 0.74rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+.mock-mission-card .audio-visualizer {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 20px;
+}
+@keyframes audioWaveAnim {
+  0%, 100% { height: 4px; }
+  50% { height: 18px; }
+}
+.mock-mission-card .audio-wave-bar {
+  width: 3px;
+  height: 12px;
+  background: #39ff14;
+  border-radius: 2px;
+  animation: audioWaveAnim 0.8s infinite ease-in-out;
+}
+.mock-mission-card .audio-wave-bar:nth-child(2) { animation-delay: 0.15s; }
+.mock-mission-card .audio-wave-bar:nth-child(3) { animation-delay: 0.3s; }
+.mock-mission-card .audio-wave-bar:nth-child(4) { animation-delay: 0.45s; }
+.mock-mission-card .audio-wave-bar:nth-child(5) { animation-delay: 0.6s; }
+
+/* ==========================================================================
+   Row 13: Badges Window (Accolades, Exploration, & Title Mastery)
+   ========================================================================== */
+.mock-badge-card {
+  background: rgba(10, 14, 23, 0.98);
+  border: 1px solid #00e0ff;
+  border-radius: 6px;
+  box-shadow: 0 0 20px rgba(0, 224, 255, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+  min-height: 560px;
+  max-height: 640px;
+  transition: box-shadow 0.3s ease;
+}
+.mock-badge-card .badge-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(13, 20, 36, 0.95);
+  border-bottom: 1px solid rgba(0, 224, 255, 0.2);
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.mock-badge-card .badge-title-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #e0e8f0;
+}
+.mock-badge-card .badge-title-dropdown {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid #00e0ff;
+  color: #f1c40f;
+  font-weight: bold;
+  font-size: 0.78rem;
+  font-family: 'Consolas', monospace;
+  padding: 4px 8px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+.mock-badge-card .badge-player-preview {
+  font-family: 'Consolas', monospace;
+  font-size: 0.74rem;
+  color: #39ff14;
+  background: rgba(57, 255, 20, 0.1);
+  border: 1px solid rgba(57, 255, 20, 0.3);
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+.mock-badge-card .badge-category-bar {
+  display: flex;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(8, 12, 20, 0.95);
+  border-bottom: 1px solid rgba(0, 224, 255, 0.15);
+  overflow-x: auto;
+}
+.mock-badge-card .badge-cat-btn {
+  background: transparent;
+  border: 1px solid rgba(0, 224, 255, 0.2);
+  color: #8899aa;
+  font-size: 0.74rem;
+  font-family: 'Consolas', monospace;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+.mock-badge-card .badge-cat-btn:hover {
+  color: #fff;
+  border-color: #00e0ff;
+  background: rgba(0, 224, 255, 0.1);
+}
+.mock-badge-card .badge-cat-btn.active {
+  background: rgba(0, 224, 255, 0.25);
+  border-color: #00e0ff;
+  color: #fff;
+  box-shadow: 0 0 6px rgba(0, 224, 255, 0.35);
+}
+.mock-badge-card .badge-grid-pane {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: #00e0ff transparent;
+}
+.mock-badge-card .badge-grid-pane::-webkit-scrollbar {
+  width: 3px;
+}
+.mock-badge-card .badge-grid-pane::-webkit-scrollbar-thumb {
+  background: #00e0ff;
+  border-radius: 3px;
+}
+.mock-badge-card .badge-grid-pane {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+  align-content: start;
+  background: rgba(10, 14, 22, 0.9);
+}
+.mock-badge-card .badge-card {
+  background: rgba(16, 24, 42, 0.9);
+  border-radius: 4px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  cursor: pointer;
+}
+.mock-badge-card .badge-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 224, 255, 0.35);
+}
+.mock-badge-card .badge-card.platinum {
+  border: 1px solid #00e0ff;
+  box-shadow: 0 0 8px rgba(0, 224, 255, 0.3);
+}
+.mock-badge-card .badge-card.gold {
+  border: 1px solid #f1c40f;
+  box-shadow: 0 0 8px rgba(241, 196, 15, 0.25);
+}
+.mock-badge-card .badge-card.silver {
+  border: 1px solid #a0b0c0;
+  box-shadow: 0 0 6px rgba(160, 176, 192, 0.2);
+}
+.mock-badge-card .badge-card.bronze {
+  border: 1px solid #cd7f32;
+  box-shadow: 0 0 6px rgba(205, 127, 50, 0.2);
+}
+.mock-badge-card .badge-card.mystery {
+  filter: grayscale(100%) opacity(0.5);
+  box-shadow: none;
+}
+.mock-badge-card .badge-card.mystery:hover {
+  filter: grayscale(80%) opacity(0.85);
+}
+.mock-badge-card .badge-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mock-badge-card .badge-icon-frame {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid #00e0ff;
+  flex-shrink: 0;
+}
+.mock-badge-card .badge-card.gold .badge-icon-frame {
+  border-color: #f1c40f;
+}
+.mock-badge-card .badge-card.silver .badge-icon-frame {
+  border-color: #a0b0c0;
+}
+.mock-badge-card .badge-card.bronze .badge-icon-frame {
+  border-color: #cd7f32;
+}
+.mock-badge-card .badge-card-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+.mock-badge-card .badge-card-cat {
+  font-size: 0.68rem;
+  color: #8899aa;
+  font-family: 'Consolas', monospace;
+}
+.mock-badge-card .badge-card-desc {
+  font-size: 0.76rem;
+  color: #cbd5e1;
+  line-height: 1.35;
+}
+.mock-badge-card .badge-reward-pill {
+  font-size: 0.7rem;
+  color: #39ff14;
+  background: rgba(57, 255, 20, 0.08);
+  border: 1px solid rgba(57, 255, 20, 0.25);
+  padding: 3px 8px;
+  border-radius: 3px;
+  margin-top: 2px;
+  font-weight: 500;
+  font-family: 'Consolas', monospace;
+}
+.mock-badge-card .badge-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+}
+.mock-badge-card .badge-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: #8899aa;
+  font-family: 'Consolas', monospace;
+}
+.mock-badge-card .badge-progress-track {
+  height: 5px;
+  background: #080c14;
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid #1c2738;
+}
+.mock-badge-card .badge-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00e0ff, #f1c40f);
+  border-radius: 2px;
+}
+
+@media (max-width: 1200px) {
+  .mock-mission-card .ms-split-layout {
+    flex-direction: column !important;
+  }
+  .mock-mission-card .ms-list-column {
+    width: 100% !important;
+    max-height: 200px;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(0, 224, 255, 0.2);
+  }
+  .mock-badge-card .badge-grid-pane {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
