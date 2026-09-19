@@ -1,0 +1,404 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>B - Image Resizer & Compressor</title>
+
+  <meta name="portfolio-title" content="Image Resizer & Compressor">
+  <meta name="portfolio-category" content="project">
+  <meta name="portfolio-date" content="2026-09-17">
+  <meta name="portfolio-thumbnail" content="">
+  <meta name="portfolio-description" content="A client-side utility for resizing images.">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:title" content="B - Image Resizer & Compressor">
+  <meta property="og:description" content="A client-side utility for resizing images.">
+  <meta property="og:url" content="https://home.behr.dev/projects/image-resizer.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://home.behr.dev/assets/img/128x128.png">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="B - Image Resizer & Compressor">
+  <meta name="twitter:description" content="A client-side utility for resizing images.">
+  <meta name="twitter:image" content="https://home.behr.dev/assets/img/128x128.png">
+  <meta name="theme-color" content="#00FFFE">
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    .drop-zone {
+      border: 2px dashed var(--accent);
+      border-radius: var(--radius);
+      padding: 4rem 2rem;
+      text-align: center;
+      background: rgba(0, 255, 254, 0.05);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      margin-bottom: 2rem;
+    }
+    .drop-zone.dragover {
+      background: rgba(0, 255, 254, 0.15);
+      border-color: #fff;
+    }
+    .drop-zone i {
+      font-size: 4rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+    .drop-zone h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.5rem;
+    }
+    .drop-zone p {
+      color: var(--muted);
+      margin: 0;
+    }
+    #file-input {
+      display: none;
+    }
+    .status-box {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.05);
+      display: none;
+    }
+    .status-box.error {
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      color: #ff6b6b;
+      display: block;
+    }
+    
+    #workspace {
+      display: none;
+      margin-top: 2rem;
+    }
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .col {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .source-preview-container {
+      text-align: center;
+      background: rgba(0,0,0,0.2);
+      padding: 1rem;
+      border-radius: var(--radius);
+    }
+    #source-preview {
+      max-width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.5rem 1rem;
+      margin-top: 1rem;
+      text-align: left;
+    }
+    .info-label {
+      color: var(--muted);
+      font-weight: bold;
+    }
+    
+    .controls-panel {
+      background: rgba(255,255,255,0.05);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+    }
+    
+    .control-group {
+      margin-bottom: 1rem;
+    }
+    .control-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--accent);
+    }
+    .control-group input[type="number"] {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: white;
+      padding: 0.5rem;
+      border-radius: var(--radius);
+      width: 100px;
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .checkbox-group input {
+      cursor: pointer;
+    }
+    .checkbox-group label {
+      display: inline;
+      margin: 0;
+      cursor: pointer;
+      color: inherit;
+    }
+    
+    .presets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .btn {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: var(--radius);
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 1rem;
+    }
+    .btn:hover {
+      background: #00cccc;
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    
+    #results {
+      margin-top: 2rem;
+    }
+    .result-card {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .result-preview {
+      width: 128px;
+      height: 128px;
+      object-fit: contain;
+      background: repeating-conic-gradient(rgba(255,255,255,0.1) 0% 25%, transparent 0% 50%) 50% / 20px 20px;
+    }
+    .result-info {
+      flex: 1;
+    }
+    .result-info div {
+      margin-bottom: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <canvas id="starfield"></canvas>
+    <header>
+      <div class="header">
+        <a class="brand" href="/pages/index.html">
+          <div class="logo" aria-hidden="true">B</div>
+          <div class="brand-text-wrap">
+            <div class="brand-title">It's a fun place to be</div>
+            <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+          </div>
+        </a>
+
+        <div class="nav-wrapper">
+          <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+            <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+            <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i
+                class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+            <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"
+                aria-hidden="true"></i>Github</a>
+          </nav>
+          <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon"
+              aria-hidden="true"></i>Dark</button>
+          <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">?</button>
+        </div>
+      </div>
+    </header>
+    <main class="main-content">
+      <section class="content-card static-card" style="padding: 40px;">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><a href="/projects/"><i class="fas fa-rocket" aria-hidden="true"></i> Projects</a></li>
+            <li><span class="breadcrumb-current" aria-current="page">Image Resizer & Compressor</span></li>
+          </ol>
+        </nav>
+
+        <h1 style="font-size: 3.5rem; margin-top: 1rem;">
+          Image Resizer & Compressor
+        </h1>
+        <p style="color: var(--muted); font-size: 1.1rem; margin-bottom: 2rem;">
+          Resize your images locally in your browser without uploading them to any server.
+        </p>
+        
+        <div class="drop-zone" id="drop-zone" tabindex="0" role="button" aria-label="Upload Image">
+          <i class="fas fa-file-image"></i>
+          <h3>Drag & Drop Image Here</h3>
+          <p>or click to browse from your device</p>
+          <input type="file" id="file-input" accept="image/*">
+        </div>
+        
+        <div id="status-box" class="status-box"></div>
+        
+        <div id="workspace">
+          <div class="flex-row">
+            <div class="col">
+              <div class="source-preview-container">
+                <img id="source-preview" alt="Source Preview">
+                <div class="info-grid">
+                  <span class="info-label">Filename:</span>
+                  <span id="info-filename">-</span>
+                  
+                  <span class="info-label">Dimensions:</span>
+                  <span id="info-dimensions">-</span>
+                  
+                  <span class="info-label">File Size:</span>
+                  <span id="info-filesize">-</span>
+                </div>
+              </div>
+              <div style="margin-top: 1rem; text-align: center;">
+                <button class="btn btn-secondary" id="btn-clear"><i class="fas fa-times"></i> Clear Image</button>
+              </div>
+            </div>
+            
+            <div class="col">
+              <div class="controls-panel">
+                <h3>Resize Controls</h3>
+                
+                                <div class="checkbox-group" style="margin-bottom: 1rem;">
+                  <input type="checkbox" id="check-generate-custom" checked>
+                  <label for="check-generate-custom" style="font-weight: bold;">Generate Custom Size</label>
+                </div>
+                
+                <div class="control-group" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+                  <div>
+                    <label>Width (px)</label>
+                    <input type="number" id="input-width" min="1" step="1">
+                  </div>
+                  <div>
+                    <label>Height (px)</label>
+                    <input type="number" id="input-height" min="1" step="1">
+                  </div>
+                  <div>
+                    <button class="btn btn-secondary" id="btn-add-preset" type="button" style="padding: 0.5rem 1rem;"><i class="fas fa-plus"></i> Add to Presets</button>
+                  </div>
+                </div>
+                
+                                <div class="control-group" style="margin-top: 1rem;">
+                  <label>Aspect Ratio (Custom Size)</label>
+                  <select id="select-aspect-ratio" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.5rem; border-radius: var(--radius); width: 100%;">
+                    <option value="original">Original</option>
+                    <option value="1:1">1:1 Square</option>
+                    <option value="4:3">4:3</option>
+                    <option value="3:2">3:2</option>
+                    <option value="16:9">16:9</option>
+                    <option value="9:16">9:16</option>
+                    <option value="custom">Custom (Unlock)</option>
+                  </select>
+                </div>
+                
+                <div class="control-group" style="margin-top: 1rem;">
+                  <label>Fit Mode</label>
+                  <select id="select-fit-mode" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.5rem; border-radius: var(--radius); width: 100%;">
+                    <option value="contain">Contain (Preserve whole image)</option>
+                    <option value="cover">Cover / Crop (Fill dimensions)</option>
+                    <option value="stretch">Stretch (Distort to fill)</option>
+                  </select>
+                </div>
+
+                <div class="control-group" id="group-crop-align" style="display: none; margin-top: 1rem;">
+                  <label>Crop Alignment</label>
+                  <select id="select-crop-align" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.5rem; border-radius: var(--radius); width: 100%;">
+                    <option value="center">Center</option>
+                    <option value="top">Top</option>
+                    <option value="bottom">Bottom</option>
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                  </select>
+                </div>
+                <div class="control-group" style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+                  <label>Output Format</label>
+                  <select id="select-format" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.5rem; border-radius: var(--radius); width: 100%;">
+                    <option value="image/png">PNG (Lossless, Transparent)</option>
+                    <option value="image/jpeg">JPEG (Lossy)</option>
+                    <option value="image/webp" id="option-webp">WebP</option>
+                  </select>
+                </div>
+
+                <div class="control-group" id="group-quality" style="display: none; margin-top: 1rem;">
+                  <label>Quality: <span id="label-quality-val">90%</span></label>
+                  <input type="range" id="input-quality" min="0" max="100" value="90" style="width: 100%;">
+                </div>
+
+                <div class="control-group" id="group-jpeg-bg" style="display: none; margin-top: 1rem;">
+                  <label>JPEG Background Color</label>
+                  <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input type="color" id="input-jpeg-bg" value="#ffffff" style="background: none; border: none; cursor: pointer; height: 30px; width: 40px; padding: 0;">
+                    <span style="color: var(--muted); font-size: 0.9rem;">(Transparency flattened)</span>
+                  </div>
+                </div>
+                
+                <div class="control-group" style="margin-top: 1.5rem;">
+                  <label>Preset Sizes</label>
+                  <div class="presets-grid" id="presets-container">
+                    <!-- Checkboxes populated via JS -->
+                  </div>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                  <button class="btn" id="btn-generate"><i class="fas fa-cog"></i> Generate Images</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+                    <div id="results-header" style="display: none; justify-content: space-between; align-items: center; margin-top: 2rem; margin-bottom: 1rem;">
+            <h2 style="margin: 0;">Results</h2>
+            <button class="btn" id="btn-download-all"><i class="fas fa-file-archive"></i> Download All (ZIP)</button>
+          </div>
+          <div id="results"></div>
+        </div>
+
+      </section>
+    </main>
+    <footer>
+      &copy; <span id="year"></span> B - Built with &hearts; and plain HTML/CSS/JS by Bear Riley
+    </footer>
+  </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="/assets/js/scrolling-nebula.js"></script>
+  <script src="/assets/js/global.js"></script>
+  <script src="/assets/js/projects/image-resizer.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

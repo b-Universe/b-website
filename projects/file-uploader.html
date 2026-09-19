@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - File Uploader</title>
+    
+    <meta name="portfolio-title" content="File Uploader">
+    <meta name="portfolio-category" content="project">
+    <meta name="portfolio-date" content="2026-08-03">
+    <meta name="portfolio-thumbnail" content="/assets/img/favicon.ico">
+    <meta name="portfolio-description" content="A temporary drop box to securely send files directly to the server.">
+
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+      .drop-zone {
+        border: 2px dashed var(--accent);
+        border-radius: var(--radius);
+        padding: 4rem 2rem;
+        text-align: center;
+        background: rgba(0, 255, 254, 0.05);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        margin-bottom: 2rem;
+      }
+      .drop-zone.dragover {
+        background: rgba(0, 255, 254, 0.15);
+        border-color: #fff;
+      }
+      .drop-zone i {
+        font-size: 4rem;
+        color: var(--accent);
+        margin-bottom: 1rem;
+      }
+      .drop-zone h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.5rem;
+      }
+      .drop-zone p {
+        color: var(--muted);
+        margin: 0;
+      }
+      #file-input {
+        display: none;
+      }
+      .status-box {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: var(--radius);
+        background: rgba(255, 255, 255, 0.05);
+        display: none;
+      }
+      .status-box.success {
+        background: rgba(0, 220, 120, 0.1);
+        border: 1px solid rgba(0, 220, 120, 0.3);
+        color: #00dc78;
+        display: block;
+      }
+      .status-box.error {
+        background: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        color: #ff6b6b;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <canvas id="starfield"></canvas>
+      
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">B</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">It's a fun place to be</div>
+              <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+          
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+            </nav>
+            <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon" aria-hidden="true"></i>Dark</button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 0;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><a href="/projects/"><i class="fas fa-rocket" aria-hidden="true"></i> Projects</a></li>
+            <li><span class="breadcrumb-current" aria-current="page">File Uploader</span></li>
+          </ol>
+        </nav>
+
+        <h1 style="font-size: 3.5rem; margin-top: 1rem;">
+          File Drop Box
+        </h1>
+        <p style="color: var(--muted); font-size: 1.1rem; margin-bottom: 2rem;">
+          Securely send files directly to my server. Only available when enabled.
+        </p>
+
+        <section class="glass-panel panel" style="display: block;">
+          <div class="drop-zone" id="drop-zone">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <h3>Drag & Drop Files Here</h3>
+            <p>or click to browse from your device</p>
+            <input type="file" id="file-input">
+          </div>
+          
+          <div id="status-box" class="status-box"></div>
+        </section>
+      </main>
+
+      <footer>
+        © <span id="year"></span> B - Built with ❤️ and plain HTML/CSS/JS by Bear Riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+    <script>
+      const dropZone = document.getElementById('drop-zone');
+      const fileInput = document.getElementById('file-input');
+      const statusBox = document.getElementById('status-box');
+      
+      const API_URL = 'https://panel.behr.dev/api/public-upload';
+
+      dropZone.addEventListener('click', () => fileInput.click());
+
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+      });
+
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+          handleFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      fileInput.addEventListener('change', () => {
+        if (fileInput.files.length) {
+          handleFile(fileInput.files[0]);
+        }
+      });
+
+      function handleFile(file) {
+        if (file.size > 100 * 1024 * 1024) {
+          showStatus('File too large. Maximum size is 100MB.', 'error');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          showStatus('Uploading...', '');
+          statusBox.className = 'status-box';
+          statusBox.style.display = 'block';
+          
+          try {
+            const ext = file.name.split('.').pop() || 'bin';
+            const base64Data = e.target.result;
+            
+            const response = await fetch(API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                data: base64Data, 
+                ext: ext,
+                filename: file.name
+              })
+            });
+            
+            const data = await response.json();
+            if (response.ok) {
+              showStatus('✅ File uploaded successfully!', 'success');
+            } else {
+              showStatus('❌ Upload failed: ' + (data.error || 'Server error'), 'error');
+            }
+          } catch (error) {
+            showStatus('❌ Upload failed: Network error or server offline', 'error');
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function showStatus(message, type) {
+        statusBox.textContent = message;
+        statusBox.className = 'status-box ' + type;
+      }
+    </script>
+  </body>
+</html>
