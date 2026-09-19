@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>b - silky spawners</title>
+
+    <meta name="portfolio-title" content="silky spawners" />
+    <meta name="portfolio-category" content="script" />
+    <meta name="portfolio-date" content="2026-09-04" />
+    <meta name="portfolio-description" content="a small denizen script that lets silk touch pickaxes drop the spawner they mine." />
+
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="description" content="a small denizen script that lets silk touch pickaxes drop the spawner they mine." />
+    <meta name="keywords" content="minecraft, denizen, denizenscript, silk touch, spawner, script" />
+    <meta property="og:title" content="b - silky spawners" />
+    <meta property="og:description" content="a small denizen script that lets silk touch pickaxes drop the spawner they mine." />
+    <meta property="og:url" content="/scripts/silky-spawners.html" />
+    <meta property="og:type" content="article" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="b - silky spawners" />
+    <meta name="twitter:description" content="a small denizen script that lets silk touch pickaxes drop the spawner they mine." />
+    <meta name="theme-color" content="#00fffe" />
+
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <link rel="stylesheet" href="/assets/css/denizen/behrry-dark.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+  <body>
+    <div class="wrap">
+      <canvas id="starfield"></canvas>
+
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">b</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">it's a fun place to be</div>
+              <div class="brand-subtitle">explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>github</a>
+            </nav>
+            <button id="theme-toggle" class="theme-button" title="toggle theme"><i class="fa-solid fa-moon" aria-hidden="true"></i>dark</button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <nav class="breadcrumbs" aria-label="breadcrumb" style="margin-bottom: 1.5rem;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> portfolio</a></li>
+            <li><span><i class="fas fa-scroll" aria-hidden="true"></i> scripts</span></li>
+            <li><span class="breadcrumb-current" aria-current="page">silky spawners</span></li>
+          </ol>
+        </nav>
+
+        <section class="glass-panel panel" style="display: block; padding: 2rem;">
+          <span class="panel-label">denizen script</span>
+          <h1>silky spawners</h1>
+          <div class="panel-content" style="max-width: 800px; margin: 0 auto;">
+            <p>
+              spawners are usually a one-way block. once one is mined, it is gone. this small script changes that for players using a silk touch pickaxe.
+            </p>
+            <p>
+              when a player breaks a spawner, the script checks the tool in their hand. if it has silk touch, the spawner drops as an item instead of breaking normally. the dropped item keeps the type of creature the spawner made, so a zombie spawner stays a zombie spawner.
+            </p>
+            <blockquote class="panel-note">
+              <p>this is made for a server that uses denizen and supports spawner items. test it on a backup world first, especially if players can trade or sell spawners.</p>
+            </blockquote>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem;">
+              <a class="btn btn-primary btn-icon-prepend" href="/portfolio-scripts/denizenscript/silky_spawners.dsc" download><i class="fas fa-download" aria-hidden="true"></i>download script</a>
+              <a class="btn btn-outline-primary btn-icon-prepend" href="/portfolio-scripts/denizenscript/silky_spawners.dsc" target="_blank" rel="noopener noreferrer"><i class="fas fa-up-right-from-square" aria-hidden="true"></i>open source file</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="glass-panel panel-solid" style="display: block;">
+          <div class="panel-header"><i class="fas fa-code" aria-hidden="true"></i> source</div>
+          <div class="panel-body">
+            <p style="margin-bottom: 1rem;">put this file in your denizen scripts folder, then reload your scripts.</p>
+            <pre style="margin-bottom: 1rem;"><code id="script-source" data-script-src="/portfolio-scripts/denizenscript/silky_spawners.dsc">loading script...</code></pre>
+            <button class="btn btn-outline-primary btn-sm btn-icon-prepend" type="button" data-copy-source><i class="fas fa-copy" aria-hidden="true"></i>copy source</button>
+          </div>
+        </section>
+
+        <section class="glass-panel panel" style="display: block; padding: 2rem;">
+          <span class="panel-label">how it works</span>
+          <div class="panel-content" style="max-width: 800px; margin: 0 auto;">
+            <p>
+              the first check keeps normal pickaxes working the way players expect. no silk touch means the script stops and leaves the block break alone.
+            </p>
+            <p>
+              after that, it reads the spawner at the broken block. the final line gives back a new spawner item with the same creature type and a clear display name. it is only a few lines, but it gives rare spawners a real reason to be protected and collected.
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <footer style="margin-top: 2rem;">
+        © <span id="year"></span> b - built with ❤️ and plain html/css/js by bear riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+    <script src="/assets/js/denizen-formatter.js"></script>
+    <script src="/assets/js/pages/script-page.js"></script>
+  </body>
+</html>
