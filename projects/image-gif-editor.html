@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B - Image & GIF Studio</title>
+
+  <meta name="portfolio-title" content="Image & GIF Studio">
+  <meta name="portfolio-category" content="project">
+  <meta name="portfolio-date" content="2026-09-19">
+  <meta name="portfolio-thumbnail" content="/assets/img/projects/image-resizer/thumbnail.jpg">
+  <meta name="portfolio-description"
+    content="Animate rainbow hue cycles, edit images, and export GIFs entirely in your browser.">
+  <meta name="description"
+    content="Animate rainbow hue cycles and edit images or GIFs locally in your browser, then export an optimized GIF.">
+  <meta property="og:title" content="B - Image & GIF Studio">
+  <meta property="og:description" content="Edit images and animated GIFs locally in your browser.">
+  <meta property="og:url" content="https://home.behr.dev/projects/image-gif-editor.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://home.behr.dev/assets/img/projects/image-resizer/thumbnail.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#00FFFE">
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/projects/image-gif-editor.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+
+<body class="gif-studio-page">
+  <div class="wrap">
+    <canvas id="starfield" aria-hidden="true"></canvas>
+    <header>
+      <div class="header">
+        <a class="brand" href="/pages/index.html">
+          <div class="logo" aria-hidden="true">B</div>
+          <div class="brand-text-wrap">
+            <div class="brand-title">It's a fun place to be</div>
+            <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+          </div>
+        </a>
+        <div class="nav-wrapper">
+          <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+            <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+            <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i
+                class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+            <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"
+                aria-hidden="true"></i>Github</a>
+          </nav>
+          <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon"
+              aria-hidden="true"></i>Dark</button>
+          <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">?</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <article class="content-card static-card gif-studio-article">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><span><i class="fas fa-rocket" aria-hidden="true"></i> Projects</span></li>
+            <li><span class="breadcrumb-current" aria-current="page">Image & GIF Studio</span></li>
+          </ol>
+        </nav>
+
+        <div class="studio-intro">
+          <h1>Image &amp; GIF Studio</h1>
+          <p>Create cycling rainbow animations, edit color, timing, and size, and export a GIF without sending your
+            image anywhere. The preview stays fast because encoding only starts when you export.</p>
+          <div class="privacy-note"><i class="fas fa-shield-halved" aria-hidden="true"></i><span>Your files remain in
+              this browser. No upload or server round-trip is used.</span></div>
+        </div>
+
+        <section class="upload-zone" id="upload-zone" tabindex="0" role="button"
+          aria-label="Choose an image or drop one here">
+          <input id="file-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+          <i class="fas fa-images upload-icon" aria-hidden="true"></i>
+          <div>
+            <h2>Drop an image here</h2>
+            <p>or choose a PNG, JPEG, WebP, or GIF</p>
+          </div>
+          <span class="studio-button studio-button-primary"><i class="fas fa-folder-open" aria-hidden="true"></i> Choose
+            image</span>
+        </section>
+
+        <div id="studio-status" class="studio-status" role="status" aria-live="polite" hidden></div>
+
+        <section id="editor" class="editor-layout" aria-label="Image editor" aria-busy="false">
+          <div class="preview-column">
+            <section class="studio-panel preview-panel" aria-labelledby="preview-heading">
+              <div class="panel-heading-row">
+                <div>
+                  <p class="section-kicker">Live canvas</p>
+                  <h2 id="preview-heading">Preview</h2>
+                </div>
+                <span id="preview-badge" class="format-badge">Waiting</span>
+              </div>
+              <div id="preview-stage" class="preview-stage">
+                <canvas id="preview-canvas" aria-label="Edited image preview"></canvas>
+                <div id="preview-placeholder" class="preview-placeholder">
+                  <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i>
+                  <strong>Your preview will appear here</strong>
+                  <span>Choose an image to begin editing.</span>
+                </div>
+              </div>
+              <div class="playback-bar">
+                <button id="play-toggle" class="icon-button" type="button" disabled aria-label="Pause animation"
+                  title="Play or pause"><i class="fas fa-pause" aria-hidden="true"></i></button>
+                <button id="step-back" class="icon-button" type="button" disabled aria-label="Previous frame"
+                  title="Previous frame"><i class="fas fa-step-backward" aria-hidden="true"></i></button>
+                <button id="step-forward" class="icon-button" type="button" disabled aria-label="Next frame"
+                  title="Next frame"><i class="fas fa-step-forward" aria-hidden="true"></i></button>
+                <span id="frame-readout" class="frame-readout">No image loaded</span>
+                <button id="replace-image" class="text-button" type="button" disabled><i
+                    class="fas fa-arrow-rotate-right" aria-hidden="true"></i> Replace</button>
+              </div>
+            </section>
+
+            <section id="file-info-panel" class="studio-panel file-info-panel" aria-labelledby="file-info-heading"
+              hidden>
+              <div class="panel-heading-row compact">
+                <h2 id="file-info-heading">Source</h2>
+                <button id="clear-image" class="text-button danger" type="button"><i class="fas fa-trash"
+                    aria-hidden="true"></i> Clear</button>
+              </div>
+              <dl class="file-facts">
+                <div>
+                  <dt>File</dt>
+                  <dd id="info-name">—</dd>
+                </div>
+                <div>
+                  <dt>Dimensions</dt>
+                  <dd id="info-dimensions">—</dd>
+                </div>
+                <div>
+                  <dt>Size</dt>
+                  <dd id="info-size">—</dd>
+                </div>
+                <div>
+                  <dt>Type</dt>
+                  <dd id="info-type">—</dd>
+                </div>
+                <div id="info-frames-row">
+                  <dt>Animation</dt>
+                  <dd id="info-frames">—</dd>
+                </div>
+              </dl>
+            </section>
+          </div>
+
+          <div class="controls-column">
+            <fieldset id="editor-controls" disabled>
+              <section class="studio-panel" aria-labelledby="adjust-heading">
+                <div class="panel-heading-row">
+                  <div>
+                    <p class="section-kicker">Light &amp; color</p>
+                    <h2 id="adjust-heading">Adjustments</h2>
+                  </div>
+                  <button id="reset-all" class="text-button" type="button"><i class="fas fa-rotate-left"
+                      aria-hidden="true"></i> Reset all</button>
+                </div>
+                <div id="adjustment-controls" class="adjustment-grid"></div>
+                <div class="effect-toggles" aria-label="Color effects">
+                  <label><input id="effect-grayscale" type="checkbox"> <span>Grayscale</span></label>
+                  <label><input id="effect-sepia" type="checkbox"> <span>Sepia</span></label>
+                  <label><input id="effect-invert" type="checkbox"> <span>Invert</span></label>
+                </div>
+              </section>
+
+              <section class="studio-panel" aria-labelledby="animation-heading">
+                <div class="panel-heading-row">
+                  <div>
+                    <p class="section-kicker">Motion</p>
+                    <h2 id="animation-heading">Animation</h2>
+                  </div>
+                  <span id="animation-kind" class="subtle-label">Load an image</span>
+                </div>
+
+                <label class="switch-row animation-effect-switch" for="rainbow-enabled">
+                  <span><strong>Rainbow hue cycle</strong><small>Continuously sweep through the full color
+                      spectrum.</small></span>
+                  <input id="rainbow-enabled" type="checkbox" checked>
+                </label>
+
+                <div id="gif-animation-controls" hidden>
+                  <div class="control-row">
+                    <div class="control-label"><label for="animation-speed">Playback speed</label><output
+                        id="animation-speed-value" for="animation-speed">1×</output></div>
+                    <input id="animation-speed" type="range" min="0.25" max="4" step="0.25" value="1">
+                    <div class="range-ends"><span>0.25×</span><span>4×</span></div>
+                  </div>
+                  <p class="control-help">Frame order and relative timing are preserved. Speed changes preview
+                    immediately.</p>
+                </div>
+
+                <div id="still-animation-controls" hidden>
+                  <label class="switch-row" for="rotation-enabled">
+                    <span><strong>Rotation animation</strong><small>Turn this still image into an animated
+                        GIF.</small></span>
+                    <input id="rotation-enabled" type="checkbox" checked>
+                  </label>
+                  <div id="still-animation-options" class="option-grid">
+                    <div id="rotation-direction-field" class="field-group">
+                      <label for="rotation-direction">Direction</label>
+                      <select id="rotation-direction">
+                        <option value="1">Clockwise</option>
+                        <option value="-1">Counter-clockwise</option>
+                      </select>
+                    </div>
+                    <div class="field-group">
+                      <label for="loop-duration">Loop duration</label>
+                      <select id="loop-duration">
+                        <option value="1">1 second</option>
+                        <option value="2" selected>2 seconds</option>
+                        <option value="3">3 seconds</option>
+                        <option value="5">5 seconds</option>
+                        <option value="8">8 seconds</option>
+                      </select>
+                    </div>
+                    <div class="field-group">
+                      <label for="rotation-fps">Frame rate</label>
+                      <select id="rotation-fps">
+                        <option value="12">12 FPS</option>
+                        <option value="18">18 FPS</option>
+                        <option value="24" selected>24 FPS</option>
+                        <option value="30">30 FPS</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="studio-panel" aria-labelledby="output-heading">
+                <div class="panel-heading-row">
+                  <div>
+                    <p class="section-kicker">Compression</p>
+                    <h2 id="output-heading">GIF output</h2>
+                  </div>
+                  <span class="format-badge">GIF</span>
+                </div>
+                <div class="preset-buttons" role="group" aria-label="Output presets">
+                  <button type="button" data-preset="quality">Best quality</button>
+                  <button type="button" data-preset="balanced" class="active">Balanced</button>
+                  <button type="button" data-preset="small">Small file</button>
+                </div>
+                <div class="output-grid">
+                  <div class="field-group">
+                    <label for="output-scale">Output size</label>
+                    <select id="output-scale">
+                      <option value="1">100%</option>
+                      <option value="0.75" selected>75%</option>
+                      <option value="0.5">50%</option>
+                      <option value="0.33">33%</option>
+                      <option value="0.25">25%</option>
+                    </select>
+                  </div>
+                  <div class="field-group">
+                    <label for="palette-size">Palette colors</label>
+                    <select id="palette-size">
+                      <option value="256">256 colors</option>
+                      <option value="128" selected>128 colors</option>
+                      <option value="64">64 colors</option>
+                      <option value="32">32 colors</option>
+                      <option value="16">16 colors</option>
+                    </select>
+                  </div>
+                  <div class="field-group">
+                    <label for="dither-method">Dithering</label>
+                    <select id="dither-method">
+                      <option value="floyd-steinberg" selected>Floyd–Steinberg</option>
+                      <option value="atkinson">Atkinson</option>
+                      <option value="stucki">Stucki</option>
+                      <option value="">None</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="estimate-card">
+                  <span>Estimated size <button class="info-dot" type="button" aria-label="About estimated size"
+                      title="A fast estimate based on dimensions, frame count, and palette size. Exact size is known after export.">?</button></span>
+                  <strong id="estimated-size">—</strong>
+                  <small id="output-summary">Choose an image to calculate output settings.</small>
+                </div>
+                <button id="export-button" class="studio-button studio-button-primary export-button" type="button"
+                  disabled>
+                  <i class="fas fa-bolt" aria-hidden="true"></i><span>Export GIF</span>
+                </button>
+                <div id="export-progress" class="export-progress" hidden>
+                  <div class="progress-track"><span id="progress-bar"></span></div>
+                  <span id="progress-label">Preparing frames…</span>
+                </div>
+                <div id="export-result" class="export-result" hidden>
+                  <div><span>Exported size</span><strong id="exported-size">—</strong></div>
+                  <a id="download-link" class="studio-button" download><i class="fas fa-download"
+                      aria-hidden="true"></i> Download GIF</a>
+                </div>
+              </section>
+            </fieldset>
+          </div>
+        </section>
+
+        <noscript>
+          <p class="studio-status error">This editor requires JavaScript to process images locally in your browser.</p>
+        </noscript>
+      </article>
+    </main>
+    <footer>&copy; <span id="year"></span> B - Built with &hearts; and plain HTML/CSS/JS by Bear Riley</footer>
+  </div>
+
+  <script src="/assets/js/scrolling-nebula.js"></script>
+  <script src="/assets/js/global.js"></script>
+  <script src="/assets/vendor/modern-gif/index.js"></script>
+  <script type="module" src="/assets/js/projects/image-gif-editor/app.js"></script>
+</body>
+
+</html>

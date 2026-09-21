@@ -22,6 +22,7 @@
       '/projects/tiny-b-links.html',
       '/projects/minecraft-castle-wars.html',
       '/projects/live-preview-editor.html',
+      '/projects/image-gif-editor.html',
       '/articles/tax-and-salary.html',
       '/projects/tax-and-salary/income-tax-calculator.html',
       '/projects/tax-and-salary/salary-calculator.html',

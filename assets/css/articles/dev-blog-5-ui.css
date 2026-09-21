@@ -3604,7 +3604,7 @@
 }
 .mock-alliance-card .alliance-ranks-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 6px;
 }
 .mock-alliance-card .alliance-rank-row {
@@ -3624,6 +3624,7 @@
 }
 .mock-alliance-card .alliance-rank-name-input {
   flex-grow: 1;
+  min-width: 0;
   background: transparent;
   border: 1px solid transparent;
   color: #fff;
