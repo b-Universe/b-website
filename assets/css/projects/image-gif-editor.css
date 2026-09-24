@@ -39,7 +39,7 @@
     font-weight: 800;
     letter-spacing: 0.16em;
     margin: 0;
-    text-transform: uppercase;
+    text-transform: capitalize;
   }
 
   .privacy-note {
@@ -169,7 +169,7 @@
     font-weight: 800;
     letter-spacing: .06em;
     padding: .35rem .65rem;
-    text-transform: uppercase;
+    text-transform: capitalize;
   }
 
   .preview-stage {

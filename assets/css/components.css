@@ -726,7 +726,7 @@ blockquote {
 
 .display-1, .display-2, .display-3, .display-4 {
   font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-  text-transform: uppercase;
+  text-transform: capitalize;
   margin-bottom: 1rem;
 }
 
