@@ -1,0 +1,443 @@
+.regex-app {
+  color-scheme: dark;
+  --rx-accent: #24d5e0;
+  --rx-accent-ink: #05262e;
+  --rx-text: #e6eff5;
+  --rx-muted: #a7bac6;
+  --rx-surface: #10252d;
+  --rx-surface-raised: #17313b;
+  --rx-input: #0b1b22;
+  --rx-border: #34515b;
+  --rx-border-strong: #52727c;
+  --rx-success: #70e0b9;
+  --rx-error: #ff9da8;
+  --rx-warn: #efc779;
+  font: inherit;
+  color: var(--rx-text);
+  min-width: 0;
+}
+
+:is(html.light, body.light, .light) .regex-app,
+.regex-app.light {
+  color-scheme: light;
+  --rx-accent: #007e94;
+  --rx-accent-ink: #fff;
+  --rx-text: #1e3340;
+  --rx-muted: #506776;
+  --rx-surface: #f1f6f8;
+  --rx-surface-raised: #e4eef2;
+  --rx-input: #fff;
+  --rx-border: #b6cbd4;
+  --rx-border-strong: #829faa;
+  --rx-success: #176c52;
+  --rx-error: #a83345;
+  --rx-warn: #866013;
+}
+
+.regex-app *,
+.regex-app *::before,
+.regex-app *::after {
+  box-sizing: border-box;
+}
+
+.regex-app :is(button, input, textarea, select) {
+  font: inherit;
+  color: var(--rx-text);
+  background: var(--rx-input);
+  border: 1px solid var(--rx-border);
+  border-radius: 8px;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+.regex-app :is(input, textarea)::placeholder {
+  color: var(--rx-muted);
+  opacity: .78;
+}
+
+.regex-app button {
+  appearance: none;
+  cursor: pointer;
+  padding: 9px 12px;
+  background: var(--rx-surface-raised);
+  font-size: .86rem;
+  font-weight: 650;
+  line-height: 1.35;
+  min-height: 38px;
+  white-space: normal;
+}
+
+.regex-app button:hover:not(:disabled) {
+  border-color: var(--rx-accent);
+  background: color-mix(in srgb, var(--rx-accent) 14%, var(--rx-surface-raised));
+}
+
+.regex-app button.primary {
+  color: var(--rx-accent-ink);
+  background: var(--rx-accent);
+  border-color: var(--rx-accent);
+}
+
+.regex-app button.primary:hover:not(:disabled) {
+  color: var(--rx-accent-ink);
+  background: color-mix(in srgb, var(--rx-accent) 85%, white);
+}
+
+.regex-app :is(button, input, textarea, select):focus-visible {
+  outline: 2px solid var(--rx-accent);
+  outline-offset: 2px;
+}
+
+.regex-app button:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+.regex-app :is(h2, label, p, span, div) {
+  text-shadow: none;
+}
+
+.regex-app .toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 0 0 15px;
+}
+
+.regex-app .toolbar>label {
+  font-size: .84rem;
+  color: var(--rx-muted);
+}
+
+.regex-app select {
+  padding: 9px;
+  max-width: 100%;
+  min-height: 38px;
+}
+
+.regex-app .spacer {
+  flex: 1;
+}
+
+.regex-app .grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.regex-app .panel {
+  min-width: 0;
+  color: var(--rx-text);
+  background: var(--rx-surface);
+  border: 1px solid var(--rx-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 18px #00000016;
+}
+
+.regex-app .panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--rx-surface-raised);
+  border-bottom: 1px solid var(--rx-border);
+}
+
+.regex-app .panel-head h2 {
+  color: var(--rx-text);
+  font-family: inherit;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.4;
+  font-weight: 700;
+  letter-spacing: normal;
+  -webkit-text-stroke: 0 transparent;
+  text-shadow: none;
+  filter: none;
+  margin: 0;
+}
+
+.regex-app .panel-body {
+  padding: 14px;
+}
+
+.regex-app .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 13px;
+}
+
+.regex-app .field>label {
+  font-size: .85rem;
+  font-weight: 650;
+  color: var(--rx-text);
+}
+
+.regex-app .pattern-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.regex-app .pattern-wrap span {
+  font: 1.35rem Consolas, monospace;
+  color: var(--rx-muted);
+}
+
+.regex-app .pattern-wrap input {
+  width: 100%;
+  min-width: 0;
+  font: 14px/1.6 Consolas, monospace;
+  padding: 10px;
+}
+
+.regex-app .flag-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.regex-app .flag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 9px;
+  border: 1px solid var(--rx-border);
+  border-radius: 8px;
+  color: var(--rx-muted);
+  font-size: .83rem;
+  cursor: pointer;
+  background: var(--rx-input);
+}
+
+.regex-app .flag input {
+  accent-color: var(--rx-accent);
+  background: initial;
+}
+
+.regex-app textarea {
+  display: block;
+  width: 100%;
+  min-height: 210px;
+  resize: vertical;
+  padding: 12px;
+  font: 13px/1.6 Consolas, monospace;
+  tab-size: 2;
+}
+
+.regex-app input[type="text"] {
+  width: 100%;
+  padding: 10px;
+}
+
+.regex-app .subtext,
+.regex-app .meta {
+  color: var(--rx-muted);
+  font-size: .8rem;
+  opacity: 1;
+}
+
+.regex-app .status {
+  margin: 0 0 16px;
+  padding: 11px 13px;
+  border-radius: 9px;
+  background: var(--rx-surface);
+  border: 1px solid var(--rx-border);
+  color: var(--rx-text);
+  font-size: .87rem;
+  white-space: pre-wrap;
+}
+
+.regex-app .status.ok {
+  border-color: var(--rx-success);
+  color: var(--rx-success);
+}
+
+.regex-app .status.error {
+  border-color: var(--rx-error);
+  color: var(--rx-error);
+}
+
+.regex-app .status.warn {
+  border-color: var(--rx-warn);
+  color: var(--rx-warn);
+}
+
+.regex-app .status.info {
+  border-color: var(--rx-border-strong);
+}
+
+.regex-app .result {
+  min-height: 190px;
+  max-height: 440px;
+  overflow: auto;
+  padding: 13px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 13px/1.6 Consolas, monospace;
+  tab-size: 2;
+  color: var(--rx-text);
+}
+
+.regex-app mark {
+  background: #e7bd54;
+  color: #202027;
+  border-radius: 2px;
+}
+
+.regex-app mark:nth-of-type(even) {
+  background: #6bdbca;
+  color: #10262a;
+}
+
+.regex-app .result:empty::before {
+  content: 'Matches will appear here as you type.';
+  color: var(--rx-muted);
+}
+
+.regex-app .match-list {
+  max-height: 330px;
+  overflow: auto;
+  display: grid;
+  gap: 8px;
+  padding: 13px;
+}
+
+.regex-app .match-item {
+  border: 1px solid var(--rx-border);
+  background: var(--rx-input);
+  padding: 10px;
+  border-radius: 8px;
+  font-size: .85rem;
+}
+
+.regex-app .match-item code {
+  overflow-wrap: anywhere;
+  color: var(--rx-accent);
+}
+
+.regex-app .match-item .meta {
+  display: block;
+  margin-top: 5px;
+}
+
+.regex-app .match-item ul {
+  margin: 6px 0 0;
+  padding-left: 20px;
+}
+
+.regex-app .replacement {
+  min-height: 95px;
+  max-height: 320px;
+  padding: 13px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 13px/1.6 Consolas, monospace;
+  color: var(--rx-text);
+}
+
+.regex-app .cheat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  padding: 13px;
+}
+
+.regex-app .cheat-grid div {
+  border-bottom: 1px solid var(--rx-border);
+  padding: 5px 0;
+  font-size: .82rem;
+}
+
+.regex-app .cheat-grid code {
+  display: inline-block;
+  min-width: 72px;
+  color: var(--rx-accent);
+}
+
+.regex-app .micro-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.regex-app .micro-actions button {
+  padding: 6px 9px;
+  font-size: .8rem;
+}
+
+.regex-app [hidden] {
+  display: none !important;
+}
+
+.regex-app .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.regex-app .footnote {
+  margin: 14px 0 0;
+  color: var(--rx-muted);
+  font-size: .8rem;
+}
+
+.regex-intro {
+  margin: 6px 0 22px;
+}
+
+.regex-intro .kicker {
+  font-size: .75rem;
+  letter-spacing: .16em;
+  font-weight: 750;
+  color: #24d5e0;
+  margin: 0 0 5px;
+}
+
+.regex-intro h1 {
+  font-size: clamp(1.6rem, 3.8vw, 2.35rem);
+  margin: 0 0 9px;
+}
+
+.regex-intro p:last-child {
+  opacity: .8;
+  margin: 0;
+}
+
+:is(html.light, body.light, .light) .regex-intro .kicker {
+  color: #007e94;
+}
+
+@media (max-width: 880px) {
+  .regex-app .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .content-card:has(.regex-app) {
+    padding: 18px !important;
+  }
+
+  .regex-app .cheat-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .regex-app .toolbar .spacer {
+    display: none;
+  }
+
+  .regex-app .toolbar button {
+    flex: 1 1 auto;
+  }
+}

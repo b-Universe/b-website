@@ -1,0 +1,581 @@
+body:has(#toolboxApp) .wrap {
+  width: min(100%, 1520px);
+  max-width: 1520px;
+}
+
+body:has(#toolboxApp) .main-content,
+body:has(#toolboxApp) .content-card:has(#toolboxApp) {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+body:has(#toolboxApp) .content-card:has(#toolboxApp) {
+  padding: clamp(14px, 2.3vw, 34px) !important;
+}
+
+body:has(#toolboxApp) nav.breadcrumbs {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.toolbox-app {
+  --tb-accent: var(--accent, #00e0ff);
+  --tb-accent-rgb: var(--accent-rgb, 0, 224, 255);
+  --tb-ink: var(--text, #e6eef6);
+  --tb-secondary: var(--muted, #c1c9d2);
+  --tb-glass: rgba(200, 254, 255, .075);
+  --tb-head: rgba(200, 254, 255, .12);
+  --tb-editor: #0b151b;
+  --tb-control: rgba(200, 254, 255, .09);
+  --tb-line: rgba(var(--tb-accent-rgb), .28);
+  --tb-placeholder: #91a5af;
+  color: var(--tb-ink);
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+}
+
+.toolbox-app * {
+  box-sizing: border-box;
+}
+
+.toolbox-app [hidden] {
+  display: none !important;
+}
+
+.light .toolbox-app {
+  --tb-accent: #e0d66c;
+  --tb-accent-rgb: 220, 214, 112;
+  --tb-ink: #f0f4f8;
+  --tb-secondary: #dbdcc9;
+  --tb-glass: rgba(197, 196, 151, .22);
+  --tb-head: rgba(197, 196, 151, .27);
+  --tb-editor: rgba(34, 34, 18, .55);
+  --tb-control: rgba(197, 196, 151, .16);
+  --tb-line: rgba(226, 221, 125, .45);
+  --tb-placeholder: #c4c5ab;
+}
+
+.ecstatic .toolbox-app {
+  --tb-accent: #f6df42;
+  --tb-accent-rgb: 255, 230, 0;
+  --tb-ink: #faf4da;
+  --tb-secondary: #dfd3a5;
+  --tb-glass: rgba(38, 35, 18, .83);
+  --tb-head: rgba(116, 100, 32, .40);
+  --tb-editor: #1a1b13;
+  --tb-control: rgba(234, 210, 75, .10);
+  --tb-line: rgba(243, 216, 59, .45);
+  --tb-placeholder: #bcb48d;
+}
+
+.toolbox-intro {
+  margin: 6px 0 22px;
+}
+
+.toolbox-intro .toolbox-kicker {
+  margin: 0 0 5px;
+  font-size: .75rem;
+  font-weight: 750;
+  letter-spacing: .16em;
+  color: var(--accent);
+}
+
+.toolbox-intro h1 {
+  font-size: clamp(1.7rem, 3vw, 2.6rem);
+  margin: 0 0 8px;
+}
+
+.toolbox-intro p:last-child {
+  margin: 0;
+  color: var(--muted);
+  opacity: .95;
+}
+
+.toolbox-app .panel {
+  background: var(--tb-glass);
+  border: 1px solid var(--tb-line);
+  border-radius: var(--radius, 8px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, .20), 0 0 8px rgba(0, 0, 0, .15) inset;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  min-width: 0;
+  overflow: hidden;
+  height: auto;
+}
+
+.toolbox-app .panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 9px;
+  min-height: 57px;
+  padding: 10px 14px;
+  background: var(--tb-head);
+  border-bottom: 1px solid var(--tb-line);
+}
+
+.toolbox-app .panel-head h2 {
+  color: var(--tb-ink);
+  font: 700 .96rem/1.4 'Segoe UI', Tahoma, sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+  text-align: left;
+  text-shadow: none;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.toolbox-app .small-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.toolbox-app .small-actions button,
+.toolbox-app .panel-head>button {
+  padding: 6px 10px;
+  font-size: .8rem;
+}
+
+.toolbox-app textarea,
+.toolbox-app #source,
+.toolbox-app #leftText,
+.toolbox-app #rightText,
+.toolbox-app #output {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: clamp(270px, 43vh, 520px);
+  max-height: 70vh;
+  margin: 0;
+  padding: 16px;
+  background: var(--tb-editor);
+  color: var(--tb-ink);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  text-shadow: none;
+  font: 13px/1.65 ui-monospace, SFMono-Regular, Consolas, monospace;
+  tab-size: 2;
+  white-space: pre;
+  overflow: auto;
+  caret-color: var(--tb-accent);
+}
+
+.toolbox-app textarea {
+  resize: vertical;
+}
+
+.toolbox-app textarea::placeholder,
+.toolbox-app input::placeholder {
+  color: var(--tb-placeholder);
+  opacity: 1;
+}
+
+.toolbox-app textarea::selection,
+.toolbox-app #output::selection {
+  background: var(--tb-accent);
+  color: #111821;
+}
+
+.toolbox-app button,
+.toolbox-app select,
+.toolbox-app input {
+  font: inherit;
+}
+
+.toolbox-app button,
+.toolbox-app select,
+.toolbox-app input[type=search] {
+  background: var(--tb-control);
+  color: var(--tb-ink);
+  border: 1px solid var(--tb-line);
+  border-radius: var(--radius, 8px);
+  box-shadow: none;
+  text-shadow: none;
+}
+
+.toolbox-app button {
+  cursor: pointer;
+  padding: 9px 12px;
+}
+
+.toolbox-app button:hover {
+  border-color: var(--tb-accent);
+  background: var(--tb-head);
+}
+
+.toolbox-app button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.toolbox-app button.primary {
+  background: rgba(var(--tb-accent-rgb), .20);
+  border-color: var(--tb-accent);
+  font-weight: 700;
+}
+
+.toolbox-app button.primary:hover {
+  background: rgba(var(--tb-accent-rgb), .30);
+}
+
+.toolbox-app button:focus-visible,
+.toolbox-app textarea:focus-visible,
+.toolbox-app select:focus-visible,
+.toolbox-app input:focus-visible {
+  outline: 2px solid var(--tb-accent);
+  outline-offset: 2px;
+}
+
+.toolbox-app select {
+  padding: 8px;
+  min-width: 0;
+}
+
+.toolbox-app select option {
+  background: #20251d;
+  color: #f0f4f8;
+}
+
+.toolbox-app input[type=search] {
+  padding: 8px 10px;
+  min-width: 0;
+}
+
+.toolbox-app input[type=checkbox] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--tb-accent);
+}
+
+.toolbox-app .toolbar {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.toolbox-app .toolbar>label:not(.live-option) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 130px;
+  font-size: .84rem;
+  color: var(--tb-secondary);
+}
+
+.toolbox-app .toolbar select {
+  width: 100%;
+}
+
+.toolbox-app .toolbar-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.toolbox-app .live-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--tb-secondary);
+  font-size: .84rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.toolbox-app nav.tabs,
+body:has(#toolboxApp) nav.breadcrumbs {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  max-height: none;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  flex-direction: row;
+}
+
+.toolbox-app nav.tabs {
+  display: flex;
+  gap: 5px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--tb-line);
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  margin-bottom: 17px;
+}
+
+.toolbox-app .tabs .tab {
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  padding: 11px 16px;
+  color: var(--tb-secondary);
+  opacity: .8;
+}
+
+.toolbox-app .tabs .tab.active {
+  border-bottom-color: var(--tb-accent);
+  color: var(--tb-ink);
+  opacity: 1;
+  font-weight: 700;
+}
+
+.toolbox-app .tabs .tab:hover {
+  opacity: 1;
+  color: var(--tb-ink);
+  background: var(--tb-control);
+}
+
+.toolbox-app .editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.toolbox-app .editor-grid>.panel {
+  min-width: 0;
+}
+
+.toolbox-app .compare-inputs textarea {
+  min-height: 250px;
+}
+
+.toolbox-app .searchbar,
+.toolbox-app .output-footer {
+  background: var(--tb-head);
+  border-top: 1px solid var(--tb-line);
+  color: var(--tb-secondary);
+}
+
+.toolbox-app .searchbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 13px;
+}
+
+.toolbox-app .searchbar input {
+  flex: 1;
+  min-width: 110px;
+}
+
+.toolbox-app .searchbar span,
+.toolbox-app .hint,
+.toolbox-app .output-footer {
+  font-size: .8rem;
+}
+
+.toolbox-app .hint {
+  color: var(--tb-secondary);
+  background: var(--tb-head);
+  margin: 0;
+  padding: 0 13px 12px;
+}
+
+.toolbox-app .output-footer {
+  padding: 13px;
+}
+
+.toolbox-app .status {
+  margin: 16px 0;
+  padding: 12px 14px;
+  border: 1px solid var(--tb-line);
+  border-radius: var(--radius, 8px);
+  font-size: .86rem;
+  white-space: pre-wrap;
+  color: var(--tb-ink);
+  background: var(--tb-control);
+}
+
+.toolbox-app .status.success {
+  background: rgba(57, 147, 95, .2);
+  border-color: #62b284;
+}
+
+.toolbox-app .status.error {
+  background: rgba(179, 65, 77, .22);
+  border-color: #de8591;
+}
+
+.toolbox-app .diff-panel {
+  margin-top: 16px;
+}
+
+.toolbox-app .legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: .8rem;
+}
+
+.toolbox-app .added {
+  color: #80d5a2;
+}
+
+.toolbox-app .removed {
+  color: #f3a1a9;
+}
+
+.toolbox-app .diff-wrap {
+  max-height: 560px;
+  max-width: 100%;
+  overflow: auto;
+}
+
+.toolbox-app .diff-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font: 12px/1.5 ui-monospace, Consolas, monospace;
+}
+
+.toolbox-app .diff-table th {
+  padding: 10px;
+  text-align: left;
+  color: var(--tb-ink);
+  background: var(--tb-head);
+  border-bottom: 1px solid var(--tb-line);
+}
+
+.toolbox-app .diff-table td {
+  padding: 5px 7px;
+  vertical-align: top;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--tb-ink);
+  border-bottom: 1px solid var(--tb-line);
+}
+
+.toolbox-app .diff-table td:nth-child(1),
+.toolbox-app .diff-table td:nth-child(3) {
+  width: 42px;
+  text-align: right;
+  opacity: .7;
+  border-right: 1px solid var(--tb-line);
+}
+
+.toolbox-app .diff-table td.add {
+  background: rgba(52, 169, 101, .23);
+}
+
+.toolbox-app .diff-table td.remove {
+  background: rgba(196, 69, 86, .24);
+}
+
+.toolbox-app .diff-table td.blank {
+  background: rgba(0, 0, 0, .13);
+}
+
+.toolbox-app .diff-table .empty-diff {
+  text-align: center;
+  padding: 28px;
+}
+
+.toolbox-app .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 900px) {
+  .toolbox-app .editor-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .toolbox-app textarea,
+  .toolbox-app #source,
+  .toolbox-app #leftText,
+  .toolbox-app #rightText,
+  .toolbox-app #output {
+    min-height: 260px;
+    max-height: 52vh;
+  }
+
+  .toolbox-app .toolbar-actions {
+    margin-left: 0;
+  }
+
+  .toolbox-app nav.tabs,
+  body:has(#toolboxApp) nav.breadcrumbs {
+    position: relative !important;
+    inset: auto !important;
+    max-height: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    flex-direction: row !important;
+    width: 100%;
+  }
+
+  body:has(#toolboxApp) nav.breadcrumbs {
+    padding: .6rem .7rem;
+  }
+}
+
+@media (max-width: 600px) {
+  body:has(#toolboxApp) .content-card:has(#toolboxApp) {
+    padding: 12px !important;
+  }
+
+  .toolbox-app .toolbar>label:not(.live-option) {
+    flex: 1 1 120px;
+    min-width: 120px;
+  }
+
+  .toolbox-app .toolbar-actions {
+    width: 100%;
+  }
+
+  .toolbox-app .toolbar-actions button {
+    flex: 1 1 auto;
+  }
+
+  .toolbox-app .panel-head {
+    align-items: flex-start;
+  }
+
+  .toolbox-app .searchbar input {
+    flex: 1 1 130px;
+  }
+
+  .toolbox-app .diff-table {
+    min-width: 550px;
+  }
+
+  .toolbox-app .status {
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .toolbox-app *,
+  .toolbox-app *::before,
+  .toolbox-app *::after {
+    transition: none !important;
+  }
+}

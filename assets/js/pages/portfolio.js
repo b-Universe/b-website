@@ -28,7 +28,9 @@
       '/projects/tax-and-salary/salary-calculator.html',
       '/projects/tax-and-salary/take-home-pay-calculator.html',
       '/projects/tax-and-salary/marriage-tax-calculator.html',
-      '/projects/tax-and-salary/estate-tax-calculator.html'
+      '/projects/tax-and-salary/estate-tax-calculator.html',
+      '/projects/regex-sandbox.html',
+      '/projects/json-yaml-toolbox.html'
     ];
 
     let cachedCards = [];
