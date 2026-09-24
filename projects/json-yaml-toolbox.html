@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>B - JSON & YAML Toolbox</title>
+
+  <!-- Portfolio Metadata -->
+  <meta name="portfolio-title" content="JSON & YAML Toolbox">
+  <meta name="portfolio-category" content="project">
+  <meta name="portfolio-date" content="2026-09-23">
+  <meta name="portfolio-thumbnail" content="/assets/img/projects/json-yaml-toolbox/thumbnail.png">
+  <meta name="portfolio-description" content="A browser-based toolbox for formatting, validating, converting, and comparing JSON and YAML files.">
+
+  <!-- Open Graph / Facebook / Discord -->
+  <meta property="og:title" content="B - JSON & YAML Toolbox">
+  <meta property="og:description" content="Format, validate, convert, and compare JSON and YAML files directly in your browser, with live previews and no file uploads.">
+  <meta property="og:url" content="https://home.behr.dev/projects/json-yaml-toolbox.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://home.behr.dev/assets/img/projects/json-yaml-toolbox/thumbnail.png">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="B - JSON & YAML Toolbox">
+  <meta name="twitter:description" content="A browser-based toolbox for formatting, validating, converting, and comparing JSON and YAML files.">
+  <meta name="twitter:image" content="https://home.behr.dev/assets/img/projects/json-yaml-toolbox/thumbnail.png">
+
+  <meta name="theme-color" content="#00FFFE">
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/projects/json-yaml-toolbox.css">
+
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer" />
+</head>
+<body>
+  <div class="wrap">
+    <canvas id="starfield"></canvas>
+    <header>
+      <div class="header">
+        <a class="brand" href="/pages/index.html">
+          <div class="logo" aria-hidden="true">B</div>
+          <div class="brand-text-wrap">
+            <div class="brand-title">It's a fun place to be</div>
+            <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+          </div>
+        </a>
+
+        <div class="nav-wrapper">
+          <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+            <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+            <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i
+                class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+            <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"
+                aria-hidden="true"></i>Github</a>
+          </nav>
+          <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon"
+              aria-hidden="true"></i>Dark</button>
+          <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">?</button>
+        </div>
+      </div>
+    </header>
+    <main class="main-content">
+      <section class="content-card static-card" style="padding: 40px;">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><span><i class="fas fa-rocket" aria-hidden="true"></i> Projects</span></li>
+            <li><span class="breadcrumb-current" aria-current="page">JSON & YAML Toolbox</span></li>
+          </ol>
+        </nav>
+
+        <div class="toolbox-intro">
+          <p class="toolbox-kicker">B TOOLBOX</p>
+          <h1>JSON &amp; YAML Toolbox</h1>
+          <p>Format, convert, validate, search, and compare your files. Everything is processed locally in your browser.</p>
+        </div>
+        <div class="toolbox-app" id="toolboxApp">
+    <nav class="toolbox-tabs tabs" aria-label="Tool mode">
+      <button class="tab active" id="editTab" aria-selected="true" type="button">Editor & converter</button>
+      <button class="tab" id="compareTab" aria-selected="false" type="button">Compare files</button>
+    </nav>
+
+    <section id="editorView" class="view" aria-label="Editor and converter">
+      <div class="toolbar">
+        <label>Input format <select id="inputFormat"><option value="auto">Auto-detect</option><option value="json">JSON</option><option value="yaml">YAML</option></select></label>
+        <label>Output format <select id="outputFormat"><option value="json">JSON</option><option value="yaml">YAML</option></select></label>
+        <label>JSON indent <select id="indent"><option value="2">2 spaces</option><option value="4">4 spaces</option><option value="tab">Tab</option></select></label>
+        <div class="toolbar-actions"><label class="live-option"><input id="liveToggle" type="checkbox" checked> Live preview</label><button class="primary" id="convertBtn" type="button">Refresh now</button><button id="validateBtn" type="button">Validate</button><button id="clearBtn" type="button">Clear</button></div>
+      </div>
+
+      <div class="editor-grid">
+        <section class="panel">
+          <div class="panel-head"><h2>Input</h2><div class="small-actions"><button id="openBtn" type="button">Open file</button><button id="exampleBtn" type="button">Example</button></div></div>
+          <label class="sr-only" for="source">Paste JSON or YAML</label>
+          <textarea id="source" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Paste JSON or YAML here..."></textarea>
+          <div class="searchbar"><label for="searchInput">Find</label><input id="searchInput" placeholder="Search input text..." type="search"><button id="findBtn" type="button">Next match</button><span id="searchCount" aria-live="polite"></span></div>
+          <p class="hint">Drag a text file onto the input, or use Open file. Nothing is uploaded.</p>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><h2>Output</h2><div class="small-actions"><button id="copyBtn" type="button">Copy</button><button id="downloadBtn" type="button">Download</button></div></div>
+          <pre id="output" tabindex="0" aria-label="Formatted output">Your formatted result will update while you type.</pre>
+          <div class="output-footer"><span id="outputStats">No output yet</span></div>
+        </section>
+      </div>
+      <div id="status" class="status info" role="status" aria-live="polite">Live preview is ready. Paste JSON or YAML to begin.</div>
+    </section>
+
+    <section id="compareView" class="view" aria-label="Compare files" hidden>
+      <div class="toolbar compare-toolbar"><label>Compare as <select id="compareFormat"><option value="text">Plain text (line by line)</option><option value="json">Normalized JSON</option><option value="yaml">Normalized YAML</option></select></label><label class="live-option"><input id="liveCompareToggle" type="checkbox" checked> Live comparison</label><button class="primary" id="compareBtn" type="button">Compare now</button><button id="swapBtn" type="button">Swap sides</button><button id="clearCompareBtn" type="button">Clear</button></div>
+      <div class="editor-grid compare-inputs">
+        <section class="panel"><div class="panel-head"><h2>Original</h2><button id="openLeftBtn" type="button">Open file</button></div><label class="sr-only" for="leftText">Original content</label><textarea id="leftText" spellcheck="false" placeholder="Paste the original file here..."></textarea></section>
+        <section class="panel"><div class="panel-head"><h2>Modified</h2><button id="openRightBtn" type="button">Open file</button></div><label class="sr-only" for="rightText">Modified content</label><textarea id="rightText" spellcheck="false" placeholder="Paste the modified file here..."></textarea></section>
+      </div>
+      <div id="compareStatus" class="status info" role="status" aria-live="polite">Comparison updates as you type in either editor.</div>
+      <section class="panel diff-panel"><div class="panel-head"><h2>Differences</h2><div class="legend"><span class="added">+ Added</span><span class="removed">− Removed</span><span class="unchanged">Unchanged</span></div></div><div class="diff-wrap"><table class="diff-table" aria-label="Side by side differences"><thead><tr><th colspan="2">Original</th><th colspan="2">Modified</th></tr></thead><tbody id="diffBody"><tr><td colspan="4" class="empty-diff">Differences will appear here.</td></tr></tbody></table></div></section>
+    </section>
+
+        </div>
+        <input id="filePicker" type="file" accept=".json,.yaml,.yml,.txt,application/json,text/plain" hidden>
+
+
+      </section>
+    </main>
+    <footer>
+      &copy; <span id="year"></span> B - Built with &hearts; and plain HTML/CSS/JS by Bear Riley
+    </footer>
+  </div>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <script defer src="/assets/js/projects/json-yaml-toolbox.js"></script>
+  <script src="/assets/js/scrolling-nebula.js"></script>
+  <script src="/assets/js/global.js"></script>
+</body>
+</html>

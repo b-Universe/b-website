@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>B - Regex Sandbox</title>
+
+  <meta name="portfolio-title" content="Regex Sandbox">
+  <meta name="portfolio-category" content="project">
+  <meta name="portfolio-date" content="2026-09-17">
+  <meta name="portfolio-thumbnail" content="/assets/img/projects/regex-sandbox/thumbnail.png">
+  <meta name="portfolio-description" content="Test JavaScript regular expressions, inspect matches and capture groups, and preview replacements live in your browser.">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:title" content="B - Regex Sandbox">
+  <meta property="og:description" content="Test JavaScript regular expressions, inspect matches and capture groups, and preview replacements live in your browser.">
+  <meta property="og:url" content="https://home.behr.dev/projects/regex-sandbox.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://home.behr.dev/assets/img/projects/regex-sandbox/thumbnail.png">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="B - Regex Sandbox">
+  <meta name="twitter:description" content="Test JavaScript regular expressions, inspect matches and capture groups, and preview replacements live in your browser.">
+  <meta name="twitter:image" content="https://home.behr.dev/assets/img/projects/regex-sandbox/thumbnail.png">
+  <meta name="theme-color" content="#00FFFE">
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/projects/regex-sandbox.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+  <div class="wrap">
+    <canvas id="starfield"></canvas>
+    <header>
+      <div class="header">
+        <a class="brand" href="/pages/index.html">
+          <div class="logo" aria-hidden="true">B</div>
+          <div class="brand-text-wrap">
+            <div class="brand-title">It's a fun place to be</div>
+            <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+          </div>
+        </a>
+
+        <div class="nav-wrapper">
+          <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+            <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+            <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i
+                class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+            <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"
+                aria-hidden="true"></i>Github</a>
+          </nav>
+          <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon"
+              aria-hidden="true"></i>Dark</button>
+          <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">?</button>
+        </div>
+      </div>
+    </header>
+    <main class="main-content">
+      <section class="content-card static-card" style="padding: 40px;">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><span><i class="fas fa-rocket" aria-hidden="true"></i> Projects</span></li>
+            <li><span class="breadcrumb-current" aria-current="page">Regex Sandbox</span></li>
+          </ol>
+        </nav>
+
+        <div class="regex-intro">
+          <p class="kicker">B TOOLBOX</p>
+          <h1>Regex Sandbox</h1>
+          <p>Test JavaScript regular expressions, inspect capture groups, and preview replacements while you type. Your sample text stays in your browser.</p>
+        </div>
+        <div class="regex-app" id="regexApp">
+          <div class="toolbar">
+            <label for="rxExamples">Try an example</label>
+            <select id="rxExamples"><option value="">Select an example…</option><option value="emails">Email addresses</option><option value="discord">Discord name checks</option><option value="color">Hex colors</option><option value="named">Named date groups</option></select>
+            <span class="spacer"></span>
+            <button type="button" id="rxRun" class="primary">Refresh results</button>
+            <button type="button" id="rxCopy">Copy expression</button>
+            <button type="button" id="rxDownload">Export JSON</button>
+            <button type="button" id="rxClear">Clear</button>
+          </div>
+          <section class="panel" aria-label="Regular expression editor" style="margin-bottom:16px">
+            <div class="panel-head"><h2>Expression</h2><span class="subtext">JavaScript regex syntax</span></div>
+            <div class="panel-body">
+              <div class="field"><label for="rxPattern">Pattern</label><div class="pattern-wrap"><span>/</span><input id="rxPattern" type="text" autocomplete="off" spellcheck="false" aria-describedby="rxPatternHelp" placeholder="\bword\b"><span>/</span></div><span id="rxPatternHelp" class="subtext">Enter the pattern without surrounding /slashes/.</span></div>
+              <div class="field"><span style="font-weight:650;font-size:.85rem">Flags</span><div class="flag-group">
+                <label class="flag" title="Find every match"><input type="checkbox" data-flag="g" checked> g · global</label>
+                <label class="flag" title="Ignore case"><input type="checkbox" data-flag="i"> i · ignore case</label>
+                <label class="flag" title="^ and $ match line boundaries"><input type="checkbox" data-flag="m"> m · multiline</label>
+                <label class="flag" title="Dot matches newlines"><input type="checkbox" data-flag="s"> s · dot all</label>
+                <label class="flag" title="Unicode mode"><input type="checkbox" data-flag="u"> u · unicode</label>
+                <label class="flag" title="Sticky matching starting at lastIndex"><input type="checkbox" data-flag="y"> y · sticky</label>
+              </div></div>
+            </div>
+          </section>
+          <div id="rxStatus" class="status info" role="status" aria-live="polite">Enter an expression and sample text to begin.</div>
+          <div class="grid">
+            <section class="panel"><div class="panel-head"><h2>Test text</h2><span class="subtext">Live updates · typing focus stays here</span></div><div class="panel-body"><label class="visually-hidden" for="rxText">Text to search</label><textarea id="rxText" spellcheck="false" placeholder="Paste some text to test here…"></textarea><p class="subtext">Maximum 100,000 characters. Expressions are checked in a separate worker with a timeout.</p></div></section>
+            <section class="panel"><div class="panel-head"><h2>Highlighted matches</h2><span class="meta" id="rxStats">0 matches</span></div><div id="rxHighlights" class="result" aria-label="Highlighted matches" tabindex="0"></div></section>
+            <section class="panel"><div class="panel-head"><h2>Match details &amp; capture groups</h2></div><div id="rxMatchList" class="match-list"><p class="subtext">Your matches will appear here.</p></div></section>
+            <section class="panel"><div class="panel-head"><h2>Replacement preview</h2><div class="micro-actions"><button type="button" id="rxCopyReplacement">Copy result</button></div></div><div class="panel-body"><div class="field"><label for="rxReplacement">Replace matches with</label><input id="rxReplacement" type="text" spellcheck="false" placeholder="Replacement text or $1, $&lt;name&gt;, $&amp;…"></div><div id="rxReplaced" class="replacement" tabindex="0" aria-label="Replacement preview"></div><p class="subtext">Uses JavaScript replacement syntax. Without the g flag, only the first match is replaced.</p></div></section>
+          </div>
+          <section class="panel" style="margin-top:16px"><div class="panel-head"><h2>Quick reference</h2><span class="subtext">JavaScript regular expressions</span></div><div class="cheat-grid">
+            <div><code>.</code> Any character except newline</div><div><code>\d</code> Digit</div><div><code>\w</code> Word character</div><div><code>\s</code> Whitespace</div><div><code>^ / $</code> Start / end</div><div><code>\b</code> Word boundary</div><div><code>[abc]</code> Character set</div><div><code>[^abc]</code> Negated set</div><div><code>* / + / ?</code> Repeat quantifiers</div><div><code>{2,5}</code> Between 2 and 5</div><div><code>(...)</code> Capture group</div><div><code>(?:...)</code> Non-capturing group</div><div><code>(?&lt;x&gt;...)</code> Named capture</div><div><code>$1</code> First capture in replacement</div>
+          </div></section>
+          <p class="footnote">Everything runs locally using your browser's regex engine. The sample data is never sent to a server.</p>
+        </div>
+
+      </section>
+    </main>
+    <footer>
+      &copy; <span id="year"></span> B - Built with &hearts; and plain HTML/CSS/JS by Bear Riley
+    </footer>
+  </div>
+
+  <script defer src="/assets/js/projects/regex-sandbox/regex-sandbox.js"></script>
+  <script src="/assets/js/scrolling-nebula.js"></script>
+  <script src="/assets/js/global.js"></script>
+</body>
+</html>
