@@ -19,12 +19,12 @@
     <meta property="og:description" content="Moving to a server-authoritative architecture and implementing face culling.">
     <meta property="og:url" content="/articles/dev-blog-4-security-speed.html">
     <meta property="og:type" content="article">
-    <meta property="og:image" content="/assets/img/articles/dev-blog-4-security-speed/adjacency-culling-example.png">
+    <meta property="og:image" content="https://home.behr.dev/assets/img/articles/dev-blog-4-security-speed/adjacency-culling-example.png">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="B - Dev Blog #4">
     <meta name="twitter:description" content="Moving to a server-authoritative architecture and implementing face culling.">
-    <meta name="twitter:image" content="/assets/img/articles/dev-blog-4-security-speed/adjacency-culling-example.png">
+    <meta name="twitter:image" content="https://home.behr.dev/assets/img/articles/dev-blog-4-security-speed/adjacency-culling-example.png">
     
     <meta name="theme-color" content="#00FFFE">
 
@@ -32,61 +32,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
     <style>
-      /* Custom Technical Article Layout */
-      .tech-article-wrapper {
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 0 1rem;
-      }
-
-      .tech-section {
-        background: rgba(0, 0, 0, 0.4);
-        border-left: 4px solid var(--accent);
-        border-radius: 8px;
-        padding: 3rem;
-        margin-bottom: 3rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(10px);
-        transition: transform 0.3s ease;
-      }
-
-      .tech-section:hover {
-        transform: translateY(-2px);
-      }
-
-      .tech-section h2 {
-        font-size: 2.2rem;
-        color: var(--text-light);
-        margin-top: 0;
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding-bottom: 0.8rem;
-      }
-
-      .tech-section p {
-        font-size: 1.15rem;
-        line-height: 1.8;
-        color: var(--muted);
-        margin-bottom: 1.5rem;
-      }
-
-      .tech-section p:last-child {
-        margin-bottom: 0;
-      }
-
       @media (max-width: 900px) {
+        .grid-locked {
+          grid-template-columns: 1fr !important;
+        }
+        .dev-blog-container > .grid-locked > section:has(.panel-image) {
+          order: -1;
+        }
         .post-title {
           font-size: 2.2rem !important;
         }
-        .tech-section {
-          padding: 2rem;
-        }
-        .tech-section h2 {
-          font-size: 1.8rem;
-        }
       }
-      
-      .featured-image img {
+      .featured-image img, .featured-image video {
         transform: translate3d(0, 0, 0);
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
@@ -100,26 +57,6 @@
         border-radius: 8px;
         border: 2px solid var(--accent);
         box-sizing: border-box;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-      }
-
-      .tech-image-split {
-        display: grid;
-        grid-template-columns: 1.2fr 0.8fr;
-        gap: 2.5rem;
-        align-items: center;
-        margin-top: 2rem;
-        background: rgba(0, 0, 0, 0.2);
-        padding: 1.5rem;
-        border-radius: 8px;
-        border: 1px solid rgba(var(--accent-rgb), 0.2);
-      }
-
-      @media (max-width: 768px) {
-        .tech-image-split {
-          grid-template-columns: 1fr;
-          gap: 1.5rem;
-        }
       }
     </style>
   </head>
@@ -171,87 +108,139 @@
           </ol>
         </nav>
 
-        <div class="tech-article-wrapper">
+        <div class="dev-blog-container">
           <h1 class="post-title">
             Dev Blog #4:<br>Security, Speed, and Object Culling
           </h1>
 
-          <div class="tech-section">
-            <h2>Shifting to Server Authority & Anti-Cheat</h2>
-            <p>
-              When we initially prototyped the game, we took the easy route: the client told the server what it was doing. If you clicked an enemy, your browser would send a message to the backend saying, "I hit this monster for 50 damage." While this made development fast, it left the door wide open for script kiddies and memory editing. Any player could simply open their developer console, change a variable, and instantly deal a million damage to every entity on the map.
-            </p>
-            <p>
-              We've officially ripped that out and replaced it with a strict Server-Authoritative architecture. The <code>Node.js</code> backend is now the absolute boss of the game. Your client no longer dictates damage, movement speed, or ability cooldowns. Instead, your client sends an "intent" to the server (e.g., "I'm trying to cast Fireball at these coordinates"). 
-            </p>
-            <p>
-              The server then verifies everything: Do you have the energy? Is the cooldown finished? Is the target within line of sight? Are you actually standing where you say you are? If the math checks out, the server executes the action and broadcasts the results to all nearby players. This completely perfectly syncs multiplayer projectiles and permanently patches out fake critical hits, speed hacks, and range exploits.
-            </p>
-          </div>
-
-          <div class="tech-section">
-            <h2>Engine Rendering & Face Culling</h2>
-            <p>
-              Transitioning to <code>WebGL</code> using <code>Three.js</code> was a massive leap forward for us, but rendering thousands of voxel blocks comes with a heavy cost to the GPU. Initially, we were rendering every single face of every single block. If we generated a hill made of 10,000 dirt blocks, the engine was drawing 60,000 faces; Even the ones buried deep underground that no player could ever see!
-            </p>
-            
-            <div class="tech-image-split">
-              <div>
-                <p style="font-size: 1.05rem; margin-bottom: 1rem;">
-                  To solve this, we wrote a custom adjacency culling algorithm. Before the server sends a map chunk to the client, it checks the neighboring coordinates (<code>x±1, y±1, z±1</code>) of every single block. 
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Shifting to Server Authority</h2>
+                <p>
+                  When we initially prototyped the game, we took the easy route: the client told the server what it was doing. If you clicked an enemy, your browser would send a message to the backend saying, <em>"I hit this monster for 50 damage."</em> While this made development fast, it left the door wide open for script tampering and memory editing. Any player could open their developer console, change a variable, and instantly deal absurd damage.
                 </p>
-                <p style="font-size: 1.05rem;">
-                  If a neighbor exists and is an opaque material, the engine knows that specific face is hidden. We then dynamically construct the <code>InstancedMesh</code> matrices to entirely skip pushing those hidden vertices to the graphics card. This drastically reduces the draw calls and gives us a massive FPS boost, allowing us to generate incredibly tall and deep maps without melting your computer.
+                <p>
+                  We've officially ripped that out and replaced it with a strict Server-Authoritative architecture. The <code>Node.js</code> backend is now the absolute authority of the game, keeping every single calculation honest.
                 </p>
               </div>
-              <div>
-                <figure class="featured-image" style="margin: 0;">
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Anti-Cheat & State Validation</h2>
+                <p>
+                  Your client no longer dictates damage, movement speed, or ability cooldowns. Instead, your client sends an <strong>"intent"</strong> to the server (e.g., <em>"I'm trying to cast Fireball at these coordinates"</em>). 
+                </p>
+                <p>
+                  The server then verifies everything in real time: Do you have the energy? Is the cooldown finished? Is the target within line of sight? Are you actually standing where you say you are? If the math checks out, the server executes the action and broadcasts the results to all nearby players. This completely syncs multiplayer projectiles and permanently patches out speed hacks and range exploits.
+                </p>
+              </div>
+            </section>
+          </div>
+
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Engine Rendering & Face Culling</h2>
+                <p>
+                  Transitioning to <code>WebGL</code> using <code>Three.js</code> was a massive leap forward for us, but rendering thousands of voxel blocks comes with a heavy cost to the GPU. Initially, we were rendering every single face of every single block. If we generated a hill made of 10,000 dirt blocks, the engine was drawing 60,000 faces - even the ones buried deep underground that no player could ever see!
+                </p>
+                <p>
+                  To solve this, we wrote a custom adjacency culling algorithm. Before the server sends a map chunk to the client, it checks the neighboring coordinates (<code>x±1, y±1, z±1</code>) of every single block. If a neighbor exists and is an opaque material, the engine skips pushing those hidden vertices to the GPU, giving us massive FPS gains!
+                </p>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-image">
+                <figure class="featured-image">
                   <img src="/assets/img/articles/dev-blog-4-security-speed/adjacency-culling-example.png" alt="Adjacency face culling example showing only visible blocks rendered">
-                  <figcaption style="text-align: center; margin-top: 10px; color: var(--muted); font-size: 0.85rem;">
+                  <figcaption style="text-align: center; margin-top: 10px; color: var(--muted); font-size: 0.9rem;">
                     <i class="fas fa-eye-slash" aria-hidden="true"></i> Skipping hidden faces saves immense computing power!
                   </figcaption>
                 </figure>
               </div>
-            </div>
+            </section>
           </div>
 
-          <div class="tech-section">
-            <h2>Client-Side Prediction & Raycasting Math</h2>
-            <p>
-              Because of the new server authority, a new problem arose: latency. If your network ping is 100ms, waiting for the server to acknowledge your movement before updating your screen makes the controls feel incredibly sluggish. To fix this, we implemented client-side prediction. 
-            </p>
-            <p>
-              Now, when you press a movement key, your local client instantly begins simulating the physics and interpolates your character's position locally. The server is still doing the real math in the background, but your client guesses where you should be between network ticks. If the server disagrees with your position (like if you walked into a wall that hasn't loaded yet), it sends a correction packet to snap you back to reality. Most of the time, though, it results in buttery-smooth gameplay regardless of minor lag.
-            </p>
-            <p>
-              We also overhauled our Raycasting system. Taking a 2D mouse click on a flat monitor and projecting an invisible 3D laser into the world requires complex unprojection math. Because our engine uses a custom <code>Z-up</code> coordinate system (where blocks are exactly 32 units large), standard tutorials didn't work for us. We had to write the intersection logic specifically to map against our scaled <code>InstancedMesh</code> matrices, ensuring that clicking the ground to teleport or build always finds the exact, pixel-perfect voxel.
-            </p>
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Client-Side Prediction & Smoothing</h2>
+                <p>
+                  Because of the new server authority, a new problem arose: latency. If your network ping is 100ms, waiting for the server to acknowledge your movement before updating your screen makes controls feel sluggish. To fix this, we implemented client-side prediction. 
+                </p>
+                <p>
+                  Now, when you press a movement key, your local client instantly begins simulating physics and interpolates your character locally. The server is still doing the real math in the background, but your client predicts where you should be between network ticks. If the server disagrees, it gently reconciles your position, keeping movement silky smooth.
+                </p>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Raycasting Math & Z-Up Coordinates</h2>
+                <p>
+                  Taking a 2D mouse click on a flat monitor and projecting an invisible 3D laser into the world requires complex unprojection math. 
+                </p>
+                <p>
+                  Because our engine uses a custom <code>Z-up</code> coordinate system (where blocks are exactly 32 units large), standard tutorials didn't work for us. We wrote intersection logic specifically mapped against our scaled <code>InstancedMesh</code> matrices, ensuring that clicking the ground to teleport, interact, or build always finds the exact, pixel-perfect voxel in 3D space.
+                </p>
+              </div>
+            </section>
           </div>
 
-          <div class="tech-section">
-            <h2>UI Architecture & Spherical Billboarding</h2>
-            <p>
-              Managing a complex UI in a browser-based game can get messy quickly. We've built an entirely independent HTML/CSS UI overlay that scales perfectly regardless of your monitor's resolution or aspect ratio. We've introduced independent camera zooming: you can zoom your minimap way out to see the entire region, while keeping your main gameplay camera zoomed in tightly for intense combat. The addition of a Picture-in-Picture mode ensures you never lose sight of your character when examining full-screen maps.
-            </p>
-            <p>
-              Finally, we spent time polishing our visual immersion. Standard 2D sprites look terrible when a 3D camera tilts over them; They look like flat pieces of paper stuck to the ground. To combat this, we applied Spherical Billboarding math to our character meshes. 
-            </p>
-            <p>
-              This logic dynamically adjusts the pitch (<code>rotation.x</code>) of the sprite plane to match the camera's height. We also programmed a safety clamp into the equation: the tilt stops exactly 10 degrees before reaching the camera's absolute limit. This guarantees the sprite always faces the player nicely while still looking firmly planted on the voxel ground, preserving our unique 2.5D aesthetic!
-            </p>
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>UI Architecture & Independent Zoom</h2>
+                <p>
+                  Managing a complex UI in a browser-based game can get messy quickly. We've built an entirely independent HTML/CSS UI overlay that scales cleanly regardless of monitor resolution or aspect ratio.
+                </p>
+                <p>
+                  We also introduced independent camera zooming: you can zoom your minimap way out to survey an entire region, while keeping your main gameplay camera zoomed in tightly for intense combat. An added Picture-in-Picture mode ensures you never lose sight of your character when examining full-screen maps.
+                </p>
+              </div>
+            </section>
+
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+              <div class="panel-content">
+                <h2>Spherical Billboarding Math</h2>
+                <p>
+                  Standard 2D sprites look unnatural when a 3D camera tilts over them; they tend to look like flat paper stuck to the floor. To solve this, we applied spherical billboarding math to our character meshes. 
+                </p>
+                <p>
+                  This logic dynamically calculates the pitch (<code>rotation.x</code>) of the sprite plane to match the camera's height. We programmed a 10-degree safety clamp so the tilt stops right before the camera's absolute limit. This guarantees the sprite always faces the player nicely while staying planted on the voxel ground, preserving our unique 2.5D aesthetic!
+                </p>
+              </div>
+            </section>
           </div>
 
-          <!-- Footer / CTA -->
-          <div class="tech-section" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 4rem 2rem;">
-            <h2 style="border: none; margin-bottom: 0.5rem;">Ready to experience the upgrades?</h2>
-            <p style="margin-bottom: 2rem; font-size: 1.2rem;">
-              The server is live and running incredibly smooth. Jump in directly from your browser! No downloads, no sign-ups required.
-            </p>
-            <a href="https://play.behr.dev/" target="_blank" rel="noopener noreferrer" class="theme-button cta-button" style="font-size: 1.3rem; padding: 1rem; width: 100%; max-width: 300px; justify-content: center; white-space: nowrap; margin: 0 auto;">
-              <i class="fas fa-gamepad" aria-hidden="true"></i> Play B Now!
-            </a>
-          </div>
+          <!-- Footer/CTA -->
+          <div class="grid-locked" style="margin-bottom: 2rem;">
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+              <div>
+                <h3 style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.8rem;">Read the next dev blog!</h3>
+                <p style="margin-bottom: 1.5rem; color: var(--muted); font-size: 1.1rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+                  <strong>Designing the User Interface</strong><br>
+                  Diving into the UI architecture, HTML/CSS over WebGL, minimaps, and seamless Discord integration.
+                </p>
+                <a href="/articles/dev-blog-5-ui.html" class="theme-button cta-button" style="font-size: 1.3rem; padding: 1rem; width: 100%; max-width: 300px; justify-content: center; white-space: nowrap; margin: 0 auto;">
+                  <i class="fas fa-book-open" aria-hidden="true"></i> Read Dev Blog #5
+                </a>
+              </div>
+            </section>
 
+            <section class="glass-panel panel" style="padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+              <div>
+                <h3 style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.8rem; color: var(--text-light);">Ready to experience the upgrades?</h3>
+                <p style="margin-bottom: 1.5rem; color: var(--muted); font-size: 1.1rem;">No download or email required!</p>
+                <a href="/play/index.html" class="theme-button cta-button" style="font-size: 1.3rem; padding: 1rem; width: 100%; max-width: 300px; justify-content: center; white-space: nowrap; margin: 0 auto;">
+                  <i class="fas fa-gamepad" aria-hidden="true"></i> Sign up today!
+                </a>
+              </div>
+            </section>
+          </div>
         </div>
 
       </main>
