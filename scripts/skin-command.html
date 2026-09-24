@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>b - skin command</title>
+
+    <meta name="portfolio-title" content="skin command" />
+    <meta name="portfolio-category" content="script" />
+    <meta name="portfolio-date" content="2026-08-30" />
+    <meta name="portfolio-thumbnail" content="/assets/img/scripts/skin_command/thumbnail.png" />
+    <meta name="portfolio-description" content="a comprehensive in-game skin utility for saving, switching, renaming, and downloading player skins via usernames or direct urls." />
+
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="description" content="a comprehensive in-game skin utility for saving, switching, renaming, and downloading player skins via usernames or direct urls." />
+    <meta name="keywords" content="minecraft, denizen, denizenscript, player skins, skin command, alex, steve, cosmetics" />
+    <meta property="og:title" content="b - skin command" />
+    <meta property="og:description" content="a comprehensive in-game skin utility for saving, switching, renaming, and downloading player skins via usernames or direct urls." />
+    <meta property="og:url" content="/scripts/skin.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:image" content="/assets/img/scripts/skin_command/thumbnail.png" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="b - skin command" />
+    <meta name="twitter:description" content="a comprehensive in-game skin utility for saving, switching, renaming, and downloading player skins via usernames or direct urls." />
+    <meta name="twitter:image" content="/assets/img/scripts/skin_command/thumbnail.png" />
+
+    <meta name="theme-color" content="#00fffe" />
+
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <link rel="stylesheet" href="/assets/css/denizen/behrry-dark.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+      .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+      
+      .media-figure {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+      }
+      
+      .featured-video {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        border: 2px solid var(--accent);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        display: block;
+      }
+      
+      .media-figure figcaption {
+        text-align: center;
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 0.9rem;
+        font-style: italic;
+      }
+
+      .commands-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      
+      .command-card {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(var(--accent-rgb), 0.3);
+        padding: 1.25rem;
+        border-radius: 8px;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+      }
+      
+      .command-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+      }
+      
+      .command-card code {
+        display: inline-block;
+        font-size: 1.05rem;
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+        background: transparent;
+        border: none;
+        padding: 0;
+      }
+      
+      .command-card p {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: var(--text-light);
+      }
+
+      .panel-solid {
+        display: block !important;
+      }
+      
+      @media (max-width: 768px) {
+        .page-container {
+          gap: 1.5rem;
+        }
+        
+        .glass-panel {
+          grid-template-columns: 1fr !important;
+          padding: 1.5rem !important;
+          gap: 1.5rem;
+        }
+        
+        .commands-grid {
+          grid-template-columns: 1fr;
+        }
+        
+        .featured-video {
+          border-width: 1px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <canvas id="starfield"></canvas>
+
+      <header>
+        <div class="header">
+          <a class="brand" href="/pages/index.html">
+            <div class="logo" aria-hidden="true">b</div>
+            <div class="brand-text-wrap">
+              <div class="brand-title">it's a fun place to be</div>
+              <div class="brand-subtitle">explore my projects, concept ideas, and blogs here!</div>
+            </div>
+          </a>
+
+          <div class="nav-wrapper">
+            <nav id="main-nav" class="main-navigation" aria-label="main navigation">
+              <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>portfolio</a>
+              <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>donate</a>
+              <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>github</a>
+            </nav>
+            <button id="theme-toggle" class="theme-button" title="toggle theme"><i class="fa-solid fa-moon" aria-hidden="true"></i>dark</button>
+            <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <div class="page-container">
+          <nav class="breadcrumbs" aria-label="breadcrumb">
+            <ol>
+              <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> home</a></li>
+              <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> portfolio</a></li>
+              <li><span><i class="fas fa-scroll" aria-hidden="true"></i> scripts</span></li>
+              <li><span class="breadcrumb-current" aria-current="page">skin command</span></li>
+            </ol>
+          </nav>
+
+          <h1 style="margin-top: 0; font-size: 3.5rem;">skin command</h1>
+
+          <!-- Intro and Demo Video -->
+          <section class="glass-panel panel">
+            <div class="panel-content">
+              <span class="panel-label" style="display: inline-block; margin-bottom: 1rem;">denizen script</span>
+              <h2 style="margin-top: 0;"><i class="fa-solid fa-shirt"></i> wardrobe control</h2>
+              <p>
+                changing and managing character skins in minecraft typically requires quitting to the launcher or web browser. this full-featured script gives players complete in-game control over their wardrobe.
+              </p>
+              <p>
+                players can save their favorite outfits, copy skins from any online player by username, import custom textures from direct image urls (with slim or regular model selection), and switch looks on the fly.
+              </p>
+              <p>
+                looking for new skins? websites like <a data-tooltip="Community Minecraft Skins" href="https://www.minecraftskins.com/" target="_blank" rel="noopener noreferrer" style="color: var(--accent); font-weight: bold; text-decoration: underline;"><code>minecraftskins.com</code></a> have thousands of community creations. when you find a skin you like, use the <strong>Image Link</strong> button on their site to get the direct URL. then, just use <code>/skin &lt;url&gt;</code> in-game to apply it instantly!
+              </p>
+              <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+                <a class="btn btn-primary btn-icon-prepend" href="/portfolio-scripts/denizenscript/skin.dsc" download><i class="fas fa-download" aria-hidden="true"></i>download script</a>
+                <a class="btn btn-outline-primary btn-icon-prepend" href="/portfolio-scripts/denizenscript/skin.dsc" target="_blank" rel="noopener noreferrer"><i class="fas fa-up-right-from-square" aria-hidden="true"></i>open source file</a>
+              </div>
+            </div>
+            
+            <figure class="media-figure">
+              <video class="featured-video" src="/assets/img/scripts/skin_command/2021-10-15_07-04-07.mp4" controls loop playsinline autoplay muted></video>
+              <figcaption><i class="fas fa-play-circle" aria-hidden="true"></i> demonstration of the in-game skin utility.</figcaption>
+            </figure>
+          </section>
+
+          <!-- Commands and Syntax -->
+          <section class="glass-panel panel" style="display: block;">
+            <div class="panel-content" style="width: 100%;">
+              <h2 style="margin-top: 0;"><i class="fas fa-terminal" aria-hidden="true"></i> commands & syntax</h2>
+              <p>
+                the <code>/skin</code> command dispatcher is built for ease of use. applying a skin immediately syncs the new texture model across the network to all surrounding players. here are the available commands:
+              </p>
+
+              <div class="commands-grid">
+                <div class="command-card">
+                  <code>/skin &lt;url / player / default&gt;</code>
+                  <p>instantly apply a skin by providing a direct image URL, targeting another online player's username, or using <code>default</code> to clear your current skin.</p>
+                </div>
+                <div class="command-card">
+                  <code>/skin save &lt;name&gt;</code>
+                  <p>saves your currently applied skin texture under a custom name, allowing you to easily switch back to it later.</p>
+                </div>
+                <div class="command-card">
+                  <code>/skin set &lt;name&gt;</code>
+                  <p>equips a previously saved skin from your wardrobe. features smart tab-completion for all your saved outfits.</p>
+                </div>
+                <div class="command-card">
+                  <code>/skin list</code>
+                  <p>displays a clickable, formatted chat menu of all the skins you currently have saved in your wardrobe.</p>
+                </div>
+                <div class="command-card">
+                  <code>/skin delete &lt;name&gt;</code>
+                  <p>permanently removes a saved skin from your wardrobe organization flags.</p>
+                </div>
+                <div class="command-card">
+                  <code>/skin rename &lt;old_name&gt; &lt;new_name&gt;</code>
+                  <p>updates the name of a previously saved outfit without needing to re-apply and re-save the texture.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          <!-- Source Code -->
+          <section class="glass-panel panel-solid">
+            <div class="panel-header"><i class="fas fa-code" aria-hidden="true"></i> source</div>
+            <div class="panel-body">
+              <p style="margin-bottom: 1rem;">put this file in your denizen scripts folder, then reload your scripts.</p>
+              <pre style="margin-bottom: 1rem;"><code id="script-source" data-script-src="/portfolio-scripts/denizenscript/skin.dsc" style="white-space: pre; word-break: normal; display: block; overflow-x: auto;">loading script...</code></pre>
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <button class="btn btn-outline-primary btn-sm btn-icon-prepend" type="button" data-copy-source><i class="fas fa-copy" aria-hidden="true"></i>copy source</button>
+                <button class="btn btn-outline-primary btn-sm btn-icon-prepend" type="button" id="wrap-toggle"><i class="fas fa-align-left" aria-hidden="true"></i>toggle wrap</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer style="margin-top: 2rem;">
+        © <span id="year"></span> b - built with ❤️ and plain html/css/js by bear riley
+      </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+    <script src="/assets/js/denizen-formatter.js"></script>
+    <script src="/assets/js/pages/script-page.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const wrapToggle = document.getElementById('wrap-toggle');
+        const codeBlock = document.getElementById('script-source');
+        
+        if (wrapToggle && codeBlock) {
+          wrapToggle.addEventListener('click', () => {
+            const isWrapped = codeBlock.style.whiteSpace === 'pre-wrap';
+            
+            if (isWrapped) {
+              codeBlock.style.whiteSpace = 'pre';
+              codeBlock.style.wordBreak = 'normal';
+              wrapToggle.innerHTML = '<i class="fas fa-align-left" aria-hidden="true"></i>toggle wrap';
+            } else {
+              codeBlock.style.whiteSpace = 'pre-wrap';
+              codeBlock.style.wordBreak = 'break-word';
+              wrapToggle.innerHTML = '<i class="fas fa-align-justify" aria-hidden="true"></i>unwrap text';
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

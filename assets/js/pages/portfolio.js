@@ -30,7 +30,8 @@
       '/projects/tax-and-salary/marriage-tax-calculator.html',
       '/projects/tax-and-salary/estate-tax-calculator.html',
       '/projects/regex-sandbox.html',
-      '/projects/json-yaml-toolbox.html'
+      '/projects/json-yaml-toolbox.html',
+      '/scripts/skin-command.html'
     ];
 
     let cachedCards = [];
