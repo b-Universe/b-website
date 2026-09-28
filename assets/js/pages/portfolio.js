@@ -4,6 +4,7 @@
     if (!portfolioContainer) return;
 
     const portfolioItems = [
+      '/404.html',
       '/articles/aim.html',
       '/articles/dev-blog-common-game-dev-mistakes.html',
       '/articles/behr-dev-endpoints.html',
