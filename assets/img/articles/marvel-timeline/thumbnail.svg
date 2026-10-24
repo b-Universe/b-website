@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-labelledby="title description">
+  <title id="title">Marvel Timeline</title>
+  <desc id="description">A cosmic timeline graphic for the road to Avengers: Doomsday.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071322"/>
+      <stop offset="1" stop-color="#25102e"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#00e0ff"/>
+      <stop offset="1" stop-color="#ff3cac"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#00e0ff" stop-opacity=".3"/>
+      <stop offset="1" stop-color="#00e0ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#background)"/>
+  <circle cx="520" cy="100" r="190" fill="url(#glow)"/>
+  <g fill="#fff" opacity=".65">
+    <circle cx="61" cy="53" r="2"/><circle cx="172" cy="96" r="1.5"/>
+    <circle cx="275" cy="42" r="1.5"/><circle cx="414" cy="69" r="2"/>
+    <circle cx="583" cy="191" r="1.5"/><circle cx="102" cy="282" r="1.5"/>
+    <circle cx="487" cy="298" r="2"/><circle cx="338" cy="317" r="1.5"/>
+  </g>
+  <path d="M74 225H566" fill="none" stroke="#142a40" stroke-width="14" stroke-linecap="round"/>
+  <path d="M74 225H566" fill="none" stroke="url(#line)" stroke-width="4" stroke-linecap="round"/>
+  <g stroke="#081322" stroke-width="5">
+    <circle cx="90" cy="225" r="12" fill="#00e0ff"/>
+    <circle cx="205" cy="225" r="12" fill="#45b8ff"/>
+    <circle cx="320" cy="225" r="12" fill="#a877ff"/>
+    <circle cx="435" cy="225" r="12" fill="#ff62bd"/>
+    <circle cx="550" cy="225" r="16" fill="#00ff88"/>
+  </g>
+  <g fill="#9db3c8" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="2">
+    <text x="90" y="258" text-anchor="middle">Origins</text>
+    <text x="205" y="258" text-anchor="middle">Avengers</text>
+    <text x="320" y="258" text-anchor="middle">Multiverse</text>
+    <text x="435" y="258" text-anchor="middle">New Teams</text>
+    <text x="550" y="258" text-anchor="middle">Doomsday</text>
+  </g>
+  <text x="320" y="126" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="900" letter-spacing="3" text-anchor="middle">Marvel Timeline</text>
+  <text x="320" y="160" fill="#82e9ff" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="5" text-anchor="middle">Road To Avengers: Doomsday</text>
+</svg>
