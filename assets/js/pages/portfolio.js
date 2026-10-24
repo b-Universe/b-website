@@ -14,6 +14,7 @@
       '/articles/dev-blog-2-elevation-webgl-multiplayer.html',
       '/articles/dev-blog-1-landscape-sprites.html',
       '/articles/riley-wedding-2027.html',
+      '/articles/marvel-timeline.html',
       '/projects/discord-chat-relay.html',
       '/projects/armor_stand-generator.html',
       '/projects/b-the-game.html',
