@@ -1,0 +1,563 @@
+/* Page-Specific Timeline Enhancements */
+.timeline-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.search-bar-wrap {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.timeline-search {
+  flex: 1;
+  min-width: 240px;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(var(--accent-rgb), 0.35);
+  border-radius: var(--radius);
+  color: var(--text-light);
+  font-size: 1rem;
+  outline: none;
+}
+
+.timeline-search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.3);
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.badge-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.tl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.badge-movie {
+  background: rgba(0, 224, 255, 0.18);
+  color: #66f0ff;
+  border-color: rgba(0, 224, 255, 0.4);
+}
+
+.badge-show {
+  background: rgba(170, 85, 255, 0.2);
+  color: #d4a5ff;
+  border-color: rgba(170, 85, 255, 0.45);
+}
+
+.badge-oneshot {
+  background: rgba(255, 193, 7, 0.18);
+  color: #ffe066;
+  border-color: rgba(255, 193, 7, 0.45);
+}
+
+.badge-special {
+  background: rgba(85, 255, 136, 0.18);
+  color: #88ffaa;
+  border-color: rgba(85, 255, 136, 0.45);
+}
+
+.badge-multiverse {
+  background: rgba(255, 60, 172, 0.2);
+  color: #ff85d0;
+  border-color: rgba(255, 60, 172, 0.45);
+}
+
+.badge-doomsday {
+  background: linear-gradient(90deg, rgba(0, 255, 128, 0.25), rgba(0, 224, 255, 0.25));
+  color: #55ff99;
+  border-color: #00ff88;
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.3);
+}
+
+/* Vertical Spine Layout */
+.timeline-stream {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-left: 2rem;
+  border-left: 3px solid rgba(var(--accent-rgb), 0.35);
+  margin-left: 0.75rem;
+}
+
+.era-divider {
+  position: relative;
+  margin: 1.5rem 0 0.5rem -2rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(90deg, rgba(var(--accent-rgb), 0.25), transparent);
+  border-left: 5px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.era-toggle {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.era-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.era-toggle-icon {
+  flex: 0 0 auto;
+  font-size: 1rem;
+}
+
+.era-divider h2 {
+  text-align: left;
+  margin: 0;
+  font-size: 1.85rem;
+}
+
+.era-toggle > span:first-child {
+  flex: 1;
+}
+
+.era-divider p {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.9rem;
+}
+
+.era-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.era-entries[hidden] {
+  display: none;
+}
+
+.era-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.timeline-node {
+  position: relative;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.timeline-node::before {
+  content: '';
+  position: absolute;
+  left: -2.48rem;
+  top: 1.25rem;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 3px solid var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  z-index: 2;
+}
+
+.timeline-node.doomsday-key::before {
+  background: #00ff88;
+  border-color: #ffffff;
+  box-shadow: 0 0 12px #00ff88;
+}
+
+.timeline-node.watched {
+  opacity: 0.65;
+}
+
+.timeline-node.watched::before {
+  background: var(--accent);
+}
+
+.node-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.node-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.node-index {
+  font-family: Consolas, monospace;
+  font-size: 0.85rem;
+  color: var(--accent);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+}
+
+.node-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.node-year {
+  font-family: Consolas, monospace;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.extras-box {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(var(--accent-rgb), 0.2);
+  border-left: 3px solid var(--accent-2);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+}
+
+.extras-box ul {
+  margin: 0.4rem 0 0 0;
+  padding-left: 1.25rem;
+}
+
+.extras-box li {
+  margin-bottom: 0.25rem;
+}
+
+.progress-bar-outer {
+  width: 100%;
+  height: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  border-radius: 50px;
+  overflow: hidden;
+}
+
+.progress-bar-inner {
+  height: 100%;
+  width: 0%;
+  background: var(--color-gradient);
+  background-size: 300% 100%;
+  transition: width 0.4s ease;
+}
+
+.watch-check {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  user-select: none;
+}
+
+.watch-check input {
+  accent-color: #00e0ff;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.doomsday-climax {
+  border: 2px solid #00ff88 !important;
+  box-shadow: 0 0 25px rgba(0, 255, 136, 0.25), 0 0 10px rgba(0, 0, 0, 0.8) inset !important;
+}
+
+@media (max-width: 768px) {
+  .marvel-timeline-page {
+    padding: 1.5rem !important;
+  }
+
+  .marvel-timeline-page > h1 {
+    font-size: clamp(1.5rem, 4.5vw, 2rem);
+  }
+
+  .marvel-timeline-page > p,
+  .panel-note {
+    font-size: 0.9rem;
+  }
+
+  .timeline-progress-header,
+  .timeline-progress-status {
+    font-size: 0.85rem;
+  }
+
+  .timeline-progress-header,
+  .timeline-progress-status {
+    align-items: flex-start !important;
+  }
+
+  .timeline-progress-header {
+    flex-direction: column;
+  }
+
+  .timeline-progress-status {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .search-bar-wrap > .timeline-search {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+
+  .search-bar-wrap > .btn {
+    flex: 1 1 100%;
+    font-size: 0.85rem;
+  }
+
+  .timeline-search {
+    font-size: 0.9rem;
+  }
+
+  .tabs {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  .tab-btn {
+    flex: 1 1 40%;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .filter-row,
+  .badge-group {
+    width: 100%;
+  }
+
+  #visible-count {
+    font-size: 0.8rem !important;
+  }
+
+  .badge-group .navbox-btn {
+    flex: 1 1 calc(50% - 0.4rem);
+    text-align: center;
+    font-size: 0.8rem;
+    padding: 0.45rem 0.6rem;
+  }
+
+  .timeline-stream {
+    padding-left: 1.25rem;
+    margin-left: 0.25rem;
+  }
+
+  .timeline-node::before {
+    left: -1.72rem;
+  }
+
+  .era-divider {
+    margin-left: -1.25rem;
+    padding: 0.75rem;
+  }
+
+  .era-divider h2 {
+    font-size: clamp(1.2rem, 5vw, 1.5rem);
+  }
+
+  .era-divider p {
+    font-size: 0.82rem;
+  }
+
+  .node-header {
+    align-items: flex-start;
+  }
+
+  .node-title-wrap {
+    width: 100%;
+  }
+
+  .node-meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .node-year {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 0.78rem;
+  }
+
+  .node-index,
+  .watch-check {
+    font-size: 0.78rem;
+  }
+
+  .node-title {
+    font-size: 1.05rem;
+  }
+
+  .tl-badge {
+    font-size: 0.68rem;
+  }
+
+  .timeline-node .panel-body {
+    font-size: 0.9rem;
+  }
+
+  .extras-box {
+    font-size: 0.82rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .marvel-timeline-article .brand {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .marvel-timeline-article .brand-text-wrap {
+    min-width: 0;
+  }
+
+  .marvel-timeline-article .brand-subtitle {
+    display: none;
+  }
+
+  .marvel-timeline-article .nav-wrapper {
+    flex-shrink: 0;
+    gap: 0.5rem;
+  }
+
+  .marvel-timeline-article .theme-button {
+    justify-content: center;
+    min-width: 48px;
+    width: 48px;
+    font-size: 0;
+  }
+
+  .marvel-timeline-article .theme-button i {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  .marvel-timeline-page {
+    padding: 1rem !important;
+  }
+
+  .marvel-timeline-page > h1 {
+    font-size: 1.4rem;
+  }
+
+  .marvel-timeline-page > p,
+  .panel-note {
+    font-size: 0.85rem;
+  }
+
+  .timeline-controls {
+    padding: 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .tab-btn {
+    flex-basis: 45%;
+    padding: 0.55rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .search-bar-wrap > .btn {
+    padding: 0.55rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .timeline-progress-status {
+    font-size: 0.78rem;
+  }
+
+  .timeline-stream {
+    padding-left: 1rem;
+    margin-left: 0.15rem;
+  }
+
+  .timeline-node::before {
+    left: -1.47rem;
+  }
+
+  .era-divider {
+    margin-left: -1rem;
+  }
+
+  .node-meta {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+  }
+
+  .node-title {
+    font-size: 1rem;
+  }
+
+  .timeline-node .panel-body {
+    font-size: 0.85rem;
+  }
+
+  .extras-box {
+    font-size: 0.78rem;
+    padding: 0.65rem 0.75rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .marvel-timeline-page > h1 {
+    font-size: 1.25rem;
+  }
+
+  .timeline-stream {
+    gap: 0.9rem;
+  }
+
+  .era-group,
+  .era-entries {
+    gap: 0.9rem;
+  }
+
+  .era-divider h2 {
+    font-size: 1.1rem;
+  }
+
+  .node-title {
+    font-size: 0.95rem;
+  }
+
+  .node-year,
+  .node-index,
+  .watch-check,
+  .tl-badge {
+    font-size: 0.72rem;
+  }
+}

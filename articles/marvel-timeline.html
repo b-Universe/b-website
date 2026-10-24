@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>B - Complete Marvel Timeline To Doomsday</title>
+
+  <meta name="portfolio-title" content="Complete Marvel Timeline To Doomsday">
+  <meta name="portfolio-category" content="project">
+  <meta name="portfolio-date" content="2026-10-24">
+  <meta name="portfolio-thumbnail" content="">
+  <meta name="portfolio-description"
+    content="Complete chronological Marvel Universe timeline including every movie, show, One-Shot, and post-credit scene leading up to Avengers: Doomsday.">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:title" content="B - Complete Marvel Timeline To Doomsday">
+  <meta property="og:description"
+    content="Complete chronological Marvel Universe timeline including every movie, show, One-Shot, and post-credit scene leading up to Avengers: Doomsday.">
+  <meta property="og:url" content="https://home.behr.dev/pages/marvel-timeline.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://home.behr.dev/assets/img/128x128.png">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="B - Complete Marvel Timeline To Doomsday">
+  <meta name="twitter:description"
+    content="Complete chronological Marvel Universe timeline including every movie, show, One-Shot, and post-credit scene leading up to Avengers: Doomsday.">
+  <meta name="twitter:image" content="https://home.behr.dev/assets/img/128x128.png">
+  <meta name="theme-color" content="#00FFFE">
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/articles/marvel-timeline.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+</head>
+
+<body class="marvel-timeline-article">
+  <div class="wrap">
+    <canvas id="starfield"></canvas>
+    <header>
+      <div class="header">
+        <a class="brand" href="/pages/index.html">
+          <div class="logo" aria-hidden="true">B</div>
+          <div class="brand-text-wrap">
+            <div class="brand-title">It's a fun place to be</div>
+            <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+          </div>
+        </a>
+
+        <div class="nav-wrapper">
+          <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+            <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+            <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i
+                class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+            <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"
+                aria-hidden="true"></i>Github</a>
+          </nav>
+          <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon"
+              aria-hidden="true"></i>Dark</button>
+          <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">?</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="content-card static-card panel marvel-timeline-page" style="padding: 32px;">
+        <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+          <ol>
+            <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+            <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+            <li><span><i class="fas fa-film" aria-hidden="true"></i> Guides</span></li>
+            <li><span class="breadcrumb-current" aria-current="page">Marvel Timeline To Doomsday</span></li>
+          </ol>
+        </nav>
+
+        <h1>Complete Marvel Timeline <span class="header-label">Road To Avengers: Doomsday</span></h1>
+        <p style="text-align: center; max-width: 820px; margin: 0 auto 1.5rem auto;">
+          Every canonical movie, Disney+ series, Marvel One-Shot, Defenders saga chapter, Web series, Multiverse Legacy
+          anchor, and post-credit scene ordered chronologically up to <strong>Avengers: Doomsday</strong>.
+        </p>
+
+        <!-- Stats & Watch Progress -->
+        <div class="sub-panel" style="margin-bottom: 1.5rem;">
+          <div class="timeline-progress-header"
+            style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <span class="panel-label" style="margin: 0; border: none; padding: 0; width: auto;">
+              <i class="fas fa-bolt" aria-hidden="true"></i> Chronological Watch Tracker
+            </span>
+            <div class="timeline-progress-status" style="display: flex; gap: 0.75rem; align-items: center;">
+              <span id="progress-text" style="font-weight: 700; font-size: 0.9rem; color: var(--accent);">0 / 0
+                Completed (0%)</span>
+              <button id="reset-progress" class="btn btn-outline-danger btn-sm" title="Clear all checkboxes">
+                <i class="fas fa-rotate-left" aria-hidden="true"></i>&nbsp;Reset
+              </button>
+            </div>
+          </div>
+          <div class="progress-bar-outer">
+            <div id="progress-fill" class="progress-bar-inner"></div>
+          </div>
+        </div>
+
+        <!-- Interactive Controls -->
+        <div class="timeline-controls sub-panel">
+          <div class="search-bar-wrap">
+            <input type="text" id="tl-search" class="timeline-search"
+              placeholder="Search titles, characters, Infinity Stones, Doom, Kang, post-credits..."
+              aria-label="Search timeline" />
+            <button id="toggle-doomsday-only" class="btn btn-outline-success btn-icon-prepend">
+              <i class="fas fa-meteor" aria-hidden="true"></i>Doomsday Essentials Only
+            </button>
+            <button id="toggle-extras-all" class="btn btn-outline-info btn-icon-prepend">
+              <i class="fas fa-eye" aria-hidden="true"></i>Toggle Scene Spoilers
+            </button>
+          </div>
+
+          <!-- Era Filter Tabs -->
+          <div class="tabs" id="era-tabs" role="tablist">
+            <button class="tab-btn active" data-era="all" role="tab">All Eras</button>
+            <button class="tab-btn" data-era="origins" role="tab">1. Ancient &amp; WWII</button>
+            <button class="tab-btn" data-era="multiverse-legacy" role="tab">2. Multiverse &amp; Earth-828</button>
+            <button class="tab-btn" data-era="avengers-dawn" role="tab">3. Dawn Of Avengers</button>
+            <button class="tab-btn" data-era="age-of-heroes" role="tab">4. Age Of Ultron &amp; Street Level</button>
+            <button class="tab-btn" data-era="civil-war-infinity" role="tab">5. Civil War To Infinity</button>
+            <button class="tab-btn" data-era="post-blip" role="tab">6. Post-Blip &amp; Multiverse</button>
+            <button class="tab-btn" data-era="road-to-doomsday" role="tab">7. Road To Doomsday</button>
+          </div>
+
+          <!-- Media Type Filter Pills -->
+          <div class="filter-row">
+            <div class="badge-group" id="type-filters">
+              <button class="navbox-btn active" data-type="all">All Media</button>
+              <button class="navbox-btn" data-type="Movie"><i class="fas fa-film"></i> Movies</button>
+              <button class="navbox-btn" data-type="Show"><i class="fas fa-tv"></i> Series</button>
+              <button class="navbox-btn" data-type="One-Shot"><i class="fas fa-bolt"></i> One-Shots &amp;
+                Shorts</button>
+              <button class="navbox-btn" data-type="Special"><i class="fas fa-star"></i> Specials</button>
+              <button class="navbox-btn" data-type="Multiverse"><i class="fas fa-globe"></i> Legacy / Alt-Earth</button>
+            </div>
+            <span id="visible-count" class="text-muted" style="font-size: 0.9rem;">Showing all entries</span>
+          </div>
+        </div>
+
+        <!-- Note on Chronology vs Post-Credit Splits -->
+        <div class="panel-note sub-panel" style="margin-bottom: 2rem;">
+          <p style="margin: 0;">
+            <strong><i class="fas fa-circle-info" aria-hidden="true"></i> Chronological Stinger Rule:</strong> Several
+            mid- and post-credit scenes jump forward in time (such as <em>Captain Marvel</em> jumping from 1995 to 2018,
+            or <em>Black Widow</em> jumping from 2016 to 2024). Every entry below lists its exact attached scenes and
+            tells you when to pause if you want zero future spoilers.
+          </p>
+        </div>
+
+        <!-- Timeline Stream Container -->
+        <div id="timeline-container" class="timeline-stream"></div>
+
+      </section>
+    </main>
+
+    <footer>
+      &copy; <span id="year"></span> B - Built with &hearts; and plain HTML/CSS/JS by Bear Riley
+    </footer>
+  </div>
+
+  <script src="/assets/js/scrolling-nebula.js"></script>
+  <script src="/assets/js/global.js"></script>
+  <script src="/assets/js/articles/marvel-timeline.js"></script>
+
+</body>
+
+</html>
