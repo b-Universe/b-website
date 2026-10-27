@@ -661,19 +661,34 @@ const TIMELINE_DATA = [
 
   // ERA 6: POST-BLIP & MULTIVERSE EXPANSION (2023 - 2025)
   {
-    id: "loki-s1",
+    id: "wandavision",
     era: "post-blip",
     eraTitle: "Era 6: Post-Blip & The Multiverse Unleashed (2023 - 2025)",
-    eraDesc: "The Sacred Timeline shatters at the Citadel at the End of Time, unleashing Variants and Incursions.",
+    eraDesc: "The Sacred Timeline shatters as Wanda awakens as the Scarlet Witch and Sylvie slays He Who Remains, unleashing infinite Multiversal branches and Incursions.",
+    title: "WandaVision (Limited Series)",
+    type: "Show",
+    inUniverseYear: "November 2023 (Climax Synced with Loki S1)",
+    releaseYear: "2021",
+    doomsdayKey: true,
+    summary: "Grief-stricken Wanda Maximoff traps Westview, New Jersey in a sitcom Hex, battles Agatha Harkness, awakens as the Scarlet Witch, and creates twins Billy and Tommy.",
+    extras: [
+      "Episode 7, 8 & 9 Stingers: Monica Rambeau gains photon powers; S.W.O.R.D. activates White Vision; a Skrull invites Monica to space; Wanda astral-projects with the Darkhold and hears her sons crying across the Multiverse.",
+      "<strong>Simultaneous Finale Synchronization (WandaVision &amp; Loki):</strong> The climaxes of <em>WandaVision</em> (Episode 9) and <em>Loki</em> (Season 1, Episode 6) line up second-for-second:<ul><li><strong>27:30–27:55:</strong> Wanda ascends into the Scarlet Witch at the exact time He Who Remains realizes he has crossed the threshold and can no longer predict the future.</li><li><strong>28:04:</strong> Thunder-like cosmic rumbling echoes in both scenes simultaneously.</li><li><strong>28:14:</strong> He Who Remains drops an object onto his desk at almost the exact moment Wanda drops Agatha Harkness to the ground.</li></ul>This popular Marvel synchronization theory suggests Wanda's reality-warping chaos magic transformation ruptured the Sacred Timeline, triggering the threshold breach outside time. <a href=\"https://www.youtube.com/results?search_query=WandaVision+and+Loki+synced+Did+Marvel+plan+this\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color: var(--accent); text-decoration: underline;\">Watch the synchronized scenes comparison on YouTube</a>."
+    ]
+  },
+  {
+    id: "loki-s1",
+    era: "post-blip",
     title: "Loki (Season 1)",
     type: "Show",
-    inUniverseYear: "Outside Time (Branches from 2012 / 2023)",
+    inUniverseYear: "Outside Time (Finale Synced with WandaVision)",
     releaseYear: "2021",
     doomsdayKey: true,
     summary: "Captured by the Time Variance Authority (TVA), 2012 Variant Loki and Mobius hunt Sylvie to the Citadel at the End of Time, where Sylvie kills He Who Remains and unleashes the Multiverse.",
     extras: [
       "Episode 4 Mid-Credits: Loki wakes up in the Void surrounded by Classic Loki, Kid Loki, Boastful Loki, and Alligator Loki.",
-      "Finale Stinger: Stamps 'Loki will return in Season 2' on a TVA case file."
+      "Finale Stinger: Stamps 'Loki will return in Season 2' on a TVA case file.",
+      "<strong>Simultaneous Cosmic Threshold (WandaVision Sync):</strong> At timestamp 27:30–28:14 of Episode 6, He Who Remains realizes they crossed the threshold into unwritten time and drops his desk object at 28:14—synchronizing precisely with Wanda becoming the Scarlet Witch and dropping Agatha Harkness in <em>WandaVision</em>. This simultaneous event shatters the Sacred Timeline and opens the floodgates to the Multiverse."
     ]
   },
   {
@@ -700,19 +715,6 @@ const TIMELINE_DATA = [
     summary: "Uatu the Watcher observes—and eventually intervenes in—divergent realities including Captain Carter, Strange Supreme, Kahhori, and a zombie-plagued Earth.",
     extras: [
       "Season 1 Finale Mid-Credits: Captain Carter discovers the HYDRA Stomper armor with someone inside on her Earth."
-    ]
-  },
-  {
-    id: "wandavision",
-    era: "post-blip",
-    title: "WandaVision (Limited Series)",
-    type: "Show",
-    inUniverseYear: "November 2023",
-    releaseYear: "2021",
-    doomsdayKey: true,
-    summary: "Grief-stricken Wanda Maximoff traps Westview, New Jersey in a sitcom Hex, battles Agatha Harkness, awakens as the Scarlet Witch, and creates twins Billy and Tommy.",
-    extras: [
-      "Episode 7, 8 & 9 Stingers: Monica Rambeau gains photon powers; S.W.O.R.D. activates White Vision; a Skrull invites Monica to space; Wanda astral-projects with the Darkhold and hears her sons crying across the Multiverse."
     ]
   },
   {
