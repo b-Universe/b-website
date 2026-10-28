@@ -1143,6 +1143,7 @@ const progressText = document.getElementById("progress-text");
 const progressFill = document.getElementById("progress-fill");
 const visibleCount = document.getElementById("visible-count");
 const resetBtn = document.getElementById("reset-progress");
+const topSpoilerNote = document.getElementById("top-spoiler-note");
 
 function getBadgeClass(type) {
   switch (type) {
@@ -1169,6 +1170,11 @@ function updateProgressUI() {
 }
 
 function renderTimeline() {
+  if (topSpoilerNote) {
+    topSpoilerNote.hidden = hideExtras;
+    topSpoilerNote.style.display = hideExtras ? "none" : "";
+  }
+
   container.innerHTML = "";
   let currentEraRendered = null;
   let currentEraEntries = null;
