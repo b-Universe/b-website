@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>B - 3D Building Generator (B Remastered)</title>
+  <meta name="portfolio-title" content="B Remastered 3D Building Generator">
+  <meta name="portfolio-category" content="project">
+  <meta name="portfolio-date" content="2026-11-06">
+  <meta name="portfolio-thumbnail" content="/assets/img/128x128.png">
+  <meta name="portfolio-description"
+    content="Design and export procedural low-poly buildings, facades, apartments, and city blocks for B Remastered.">
+  <meta property="og:title" content="B - 3D Building Generator">
+  <meta property="og:description" content="A customizable low-poly urban architecture generator for B Remastered.">
+  <meta property="og:url" content="https://home.behr.dev/projects/building-generator.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://home.behr.dev/assets/img/128x128.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="B - 3D Building Generator">
+  <meta name="twitter:description" content="Generate and customize low-poly urban architecture in 3D.">
+  <meta name="twitter:image" content="https://home.behr.dev/assets/img/128x128.png">
+  <meta name="theme-color" content="#00FFFE">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="/assets/css/projects/building-generator.css">
+</head>
+
+<body class="building-page">
+  <div class="wrap">
+    <canvas id="starfield"></canvas>
+    <header>
+      <div class="header">
+        <a class="brand" href="/pages/index.html">
+          <div class="logo" aria-hidden="true">B</div>
+          <div class="brand-text-wrap">
+            <div class="brand-title">It's a fun place to be</div>
+            <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+          </div>
+        </a>
+        <div class="nav-wrapper">
+          <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+            <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+            <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i
+                class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+            <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"
+                aria-hidden="true"></i>Github</a>
+          </nav>
+          <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon"
+              aria-hidden="true"></i><span>Dark</span></button>
+          <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+        </div>
+      </div>
+    </header>
+    <main class="main-content">
+      <section class="content-card static-card building-project-card">
+        <div class="studio-topline">
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <ol>
+              <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i>Home</a></li>
+              <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a></li>
+              <li><span><i class="fas fa-cubes" aria-hidden="true"></i>Projects</span></li>
+              <li><span class="breadcrumb-current" aria-current="page">Building Generator</span></li>
+            </ol>
+          </nav>
+          <div class="studio-quick-actions">
+            <button type="button" class="studio-btn studio-btn-ghost" id="btn-screenshot"
+              title="Save a picture of the preview"><i class="fas fa-camera"></i><span> Snapshot</span></button>
+            <button type="button" class="studio-btn studio-btn-primary" id="btn-export-glb"><i
+                class="fas fa-download"></i><span> Export .GLB</span></button>
+          </div>
+        </div>
+        <div class="studio-heading">
+          <div>
+            <div class="studio-eyebrow"><span class="studio-status-light"></span> B REMASTERED · CREATION TOOLS</div>
+            <h1>3D Building Generator</h1>
+            <p>Build a city, one brick at a time. Old-school geometry, modern city character.</p>
+          </div>
+          <div class="studio-version">PROCEDURAL STUDIO <strong>01</strong></div>
+        </div>
+
+        <div class="studio-shell" id="building-studio">
+          <aside class="studio-panel studio-left" aria-label="Building configuration">
+            <div class="studio-panel-head"><span><i class="fas fa-sliders-h"></i> Building Workshop</span><span
+                class="studio-small-tag" id="active-style-name">Red Brick</span></div>
+            <div class="studio-panel-inside">
+              <div class="studio-control-lead"><span>ARCHITECTURE</span><small>Start with an urban archetype</small>
+              </div>
+              <div id="style-picker" class="style-picker" aria-label="Building styles"></div>
+              <div class="studio-seed-panel">
+                <div class="studio-seed-header"><strong><i class="fas fa-fingerprint"></i> Generation Seed</strong><span
+                    class="seed-caption">REPRODUCIBLE</span></div>
+                <div class="studio-seed-row">
+                  <input id="seed-input" class="studio-textbox" type="number" min="1" max="99999999" value="1337"
+                    aria-label="Generation seed" />
+                  <button class="studio-icon-btn" id="btn-new-seed" type="button" title="New seed"><i
+                      class="fas fa-dice"></i></button>
+                  <button class="studio-icon-btn" id="btn-random-all" type="button"
+                    title="Randomize unlocked parameters"><i class="fas fa-random"></i></button>
+                </div>
+                <div class="studio-seed-tip">Same seed + settings = same building.</div>
+              </div>
+              <div class="studio-tabbar" role="tablist" aria-label="Building settings">
+                <button type="button" role="tab" class="studio-tab active" data-tab="form" aria-selected="true"><i
+                    class="fas fa-vector-square"></i> Form</button>
+                <button type="button" role="tab" class="studio-tab" data-tab="facade" aria-selected="false"><i
+                    class="fas fa-border-all"></i> Facade</button>
+                <button type="button" role="tab" class="studio-tab" data-tab="features" aria-selected="false"><i
+                    class="fas fa-landmark"></i> Details</button>
+                <button type="button" role="tab" class="studio-tab" data-tab="interior" aria-selected="false"><i
+                    class="fas fa-door-open"></i> Inside</button>
+              </div>
+              <div class="studio-tab-content" id="tab-content"></div>
+            </div>
+          </aside>
+
+          <section class="studio-viewport-column" aria-label="Interactive 3D building preview">
+            <div class="studio-viewport-frame">
+              <div class="studio-viewbar">
+                <div class="view-mode-group" role="group" aria-label="Preview mode">
+                  <button type="button" class="view-mode active" data-mode="single"><i class="fas fa-cube"></i>
+                    Building</button>
+                  <button type="button" class="view-mode" data-mode="compare"><i class="fas fa-columns"></i>
+                    Compare</button>
+                  <button type="button" class="view-mode" data-mode="block"><i class="fas fa-city"></i> City
+                    Block</button>
+                </div>
+                <div class="viewbar-tools">
+                  <button id="btn-reset-camera" class="studio-view-btn" type="button" title="Reset camera"><i
+                      class="fas fa-crosshairs"></i></button>
+                  <button id="btn-rotate" class="studio-view-btn" type="button" title="Toggle rotation"><i
+                      class="fas fa-sync-alt"></i></button>
+                  <button id="btn-wireframe" class="studio-view-btn" type="button" title="Wireframe"><i
+                      class="fas fa-border-all"></i></button>
+                </div>
+              </div>
+              <div class="studio-stage" id="building-stage">
+                <canvas id="building-canvas" aria-label="3D generated building"></canvas>
+                <div class="studio-stage-top">
+                  <div class="stage-metrics"><span><i class="fas fa-cubes"></i> <strong id="stat-buildings">1</strong>
+                      buildings</span><span><i class="fas fa-layer-group"></i> <strong id="stat-floors">4</strong>
+                      floors</span><span><i class="fas fa-draw-polygon"></i> <strong id="stat-triangles">0</strong>
+                      tris</span></div>
+                  <div class="stage-camera"><i class="fas fa-mouse"></i> drag to orbit · scroll to zoom</div>
+                </div>
+                <div class="studio-stage-bottom"><span class="stage-scene-label" id="scene-label">01 / CLASSIC RED
+                    BRICK</span><span id="render-status" role="status">Loading 3D scene…</span></div>
+                <div id="studio-loading" class="studio-loading">
+                  <div class="studio-spinner"></div><strong>Preparing the workshop</strong><span>Loading 3D preview
+                    tools…</span>
+                </div>
+              </div>
+              <div class="studio-preview-controls">
+                <label class="studio-select-inline">Lighting <select id="lighting-select">
+                    <option value="day">Sunny day</option>
+                    <option value="evening">Golden hour</option>
+                    <option value="night">Night</option>
+                  </select></label>
+                <label class="studio-select-inline">Street <select id="environment-select">
+                    <option value="street">City street</option>
+                    <option value="studio">Studio platform</option>
+                    <option value="none">None</option>
+                  </select></label>
+                <label class="studio-check-inline"><input id="ground-grid" type="checkbox" checked /> Grid</label>
+                <span class="studio-preview-hint"><i class="far fa-lightbulb"></i> Changes update the model
+                  automagically</span>
+              </div>
+            </div>
+            <div class="studio-features-strip"><span><i class="fas fa-dice"></i> Seeded designs</span><span><i
+                  class="fas fa-palette"></i> Custom materials</span><span><i class="fas fa-building"></i> Real
+                facades</span><span><i class="fas fa-file-export"></i> 3D export</span></div>
+          </section>
+
+          <aside class="studio-panel studio-right" aria-label="Presets and export options">
+            <div class="studio-panel-head"><span><i class="fas fa-bookmark"></i> Design Library</span><span
+                class="studio-small-tag">8 STYLES</span></div>
+            <div class="studio-panel-inside">
+              <div class="studio-control-lead"><span>Ready-Made Buildings</span><small>Load a complete design</small>
+              </div>
+              <div id="preset-list" class="preset-list"></div>
+              <div class="studio-separator"></div>
+              <div class="studio-section-title"><i class="fas fa-shield-alt"></i> Variation Locks</div>
+              <p class="studio-help">Lock any setting with <i class="fas fa-lock"></i> beside its control. Randomize
+                just one category below.</p>
+              <div class="category-random-buttons">
+                <button type="button" data-random="form"><i class="fas fa-dice"></i> Form</button>
+                <button type="button" data-random="facade"><i class="fas fa-dice"></i> Facade</button>
+                <button type="button" data-random="features"><i class="fas fa-dice"></i> Details</button>
+                <button type="button" data-random="palette"><i class="fas fa-dice"></i> Colors</button>
+              </div>
+              <div class="studio-separator"></div>
+              <div class="studio-section-title"><i class="fas fa-save"></i> Your Creations</div>
+              <div class="studio-save-row"><input class="studio-textbox" id="custom-name" type="text"
+                  placeholder="Name this building…" maxlength="64" aria-label="Preset name" /><button type="button"
+                  class="studio-btn studio-btn-primary" id="btn-save-custom">Save</button></div>
+              <div id="custom-presets" class="custom-presets"></div>
+              <div class="studio-separator"></div>
+              <div class="studio-section-title"><i class="fas fa-box-open"></i> Save & Export</div>
+              <div class="studio-export-grid">
+                <button type="button" id="btn-export-json" class="studio-btn studio-btn-ghost"><i
+                    class="fas fa-file-code"></i> Settings .JSON</button>
+                <button type="button" id="btn-import-json" class="studio-btn studio-btn-ghost"><i
+                    class="fas fa-file-import"></i> Import .JSON</button>
+                <button type="button" id="btn-export-glb-side" class="studio-btn studio-btn-ghost"><i
+                    class="fas fa-cube"></i> Model .GLB</button>
+                <button type="button" id="btn-screenshot-side" class="studio-btn studio-btn-ghost"><i
+                    class="fas fa-image"></i> Preview .PNG</button>
+              </div>
+              <input id="file-import" type="file" accept=".json,application/json" hidden />
+              <p class="studio-help">Exports include the active building, not the surrounding street; <code>City Block</code> mode is
+                for previewing neighborhood variety.</p>
+            </div>
+          </aside>
+        </div>
+        <div id="studio-toasts" class="studio-toasts" role="status" aria-live="polite"></div>
+      </section>
+    </main>
+    <footer>&copy; <span id="year"></span> B - Built with &hearts; and plain HTML/CSS/JS by Bear Riley</footer>
+  </div>
+  <script src="/assets/js/scrolling-nebula.js"></script>
+  <script src="/assets/js/global.js"></script>
+  <script src="/assets/js/projects/building-generator.js"></script>
+</body>
+
+</html>
