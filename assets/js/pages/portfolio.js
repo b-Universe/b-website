@@ -33,9 +33,8 @@
       '/projects/tax-and-salary/estate-tax-calculator.html',
       '/projects/regex-sandbox.html',
       '/projects/json-yaml-toolbox.html',
-      '/scripts/skin-command.html'
       '/scripts/skin-command.html',
-      '/projects/tree-generator.html',
+      '/projects/tree-generator.html'
     ];
 
     let cachedCards = [];
