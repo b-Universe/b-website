@@ -34,7 +34,8 @@
       '/projects/regex-sandbox.html',
       '/projects/json-yaml-toolbox.html',
       '/scripts/skin-command.html',
-      '/projects/tree-generator.html'
+      '/projects/tree-generator.html',
+      '/projects/building-generator.html'
     ];
 
     let cachedCards = [];
