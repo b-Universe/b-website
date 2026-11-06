@@ -142,6 +142,27 @@
                 </div>
               </div>
 
+              <!-- Shrubbery Variant Selector (Contextual for Bush species) -->
+              <div id="shrub-variant-bar" class="control-group"
+                style="display: none; background: rgba(0, 224, 255, 0.05); padding: 0.6rem; border-radius: 6px; border: 1px solid rgba(0, 224, 255, 0.15); margin-bottom: 0.75rem;">
+                <div class="control-label">
+                  <span><i class="fas fa-seedling" style="color:var(--accent)"></i> Shrub Variant</span>
+                  <span id="val-shrub-variant" class="control-val">Basic Shrub</span>
+                </div>
+                <div class="shrub-variant-grid" id="shrub-variant-selector"
+                  style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.35rem; margin-top: 0.4rem;">
+                  <button type="button" class="btn btn-outline btn-sm shrub-var-btn active" data-variant="basic">
+                    <i class="fas fa-leaf"></i> Basic
+                  </button>
+                  <button type="button" class="btn btn-outline btn-sm shrub-var-btn" data-variant="berry">
+                    <i class="fas fa-circle" style="color: #ff3860;"></i> Berry
+                  </button>
+                  <button type="button" class="btn btn-outline btn-sm shrub-var-btn" data-variant="flowering">
+                    <i class="fas fa-spa" style="color: #ffb3d9;"></i> Flower
+                  </button>
+                </div>
+              </div>
+
               <!-- Seed & Forest Variation Jitter -->
               <div class="control-group"
                 style="background: rgba(0,0,0,0.3); padding: 0.6rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.07);">
@@ -275,6 +296,68 @@
                     <span id="val-jitter" class="control-val">0.18</span>
                   </div>
                   <input type="range" id="param-jitter" min="0.0" max="0.45" step="0.01" value="0.18" />
+                </div>
+
+                <!-- Shrub Detailing Parameters (Contextual for Shrubbery) -->
+                <div id="shrub-details-panel"
+                  style="display: none; margin-top: 0.8rem; padding: 0.65rem; background: rgba(0,0,0,0.25); border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);">
+                  <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--accent); letter-spacing: 0.05em; margin-bottom: 0.5rem; font-weight: 700;">
+                    <i class="fas fa-sliders-h"></i> Shrub Detailing
+                  </div>
+
+                  <!-- Berry Controls -->
+                  <div id="shrub-berry-controls">
+                    <div class="control-group">
+                      <div class="control-label">
+                        <span>Berry Density</span>
+                        <span id="val-berry-density" class="control-val">0.45</span>
+                      </div>
+                      <input type="range" id="param-berry-density" min="0.0" max="1.0" step="0.05" value="0.45" />
+                    </div>
+                    <div class="control-group">
+                      <div class="control-label">
+                        <span>Berry Scale</span>
+                        <span id="val-berry-size" class="control-val">0.18</span>
+                      </div>
+                      <input type="range" id="param-berry-size" min="0.08" max="0.35" step="0.01" value="0.18" />
+                    </div>
+                    <div class="control-group">
+                      <div class="control-label">
+                        <span>Berry Color</span>
+                      </div>
+                      <label class="color-picker-wrap" style="width: 100%;">
+                        <input type="color" id="color-berry" value="#ff2a55" />
+                        <span style="margin-left: 0.5rem;">Fruit Hue</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Blossom Controls -->
+                  <div id="shrub-blossom-controls" style="display: none;">
+                    <div class="control-group">
+                      <div class="control-label">
+                        <span>Blossom Density</span>
+                        <span id="val-blossom-density" class="control-val">0.45</span>
+                      </div>
+                      <input type="range" id="param-blossom-density" min="0.0" max="1.0" step="0.05" value="0.45" />
+                    </div>
+                    <div class="control-group">
+                      <div class="control-label">
+                        <span>Blossom Scale</span>
+                        <span id="val-blossom-size" class="control-val">0.20</span>
+                      </div>
+                      <input type="range" id="param-blossom-size" min="0.08" max="0.35" step="0.01" value="0.20" />
+                    </div>
+                    <div class="control-group">
+                      <div class="control-label">
+                        <span>Blossom Color</span>
+                      </div>
+                      <label class="color-picker-wrap" style="width: 100%;">
+                        <input type="color" id="color-blossom" value="#ffb6c1" />
+                        <span style="margin-left: 0.5rem;">Petal Hue</span>
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -516,7 +599,9 @@
                   <button class="preset-chip" data-preset="karamja_palm">Karamja Palm</button>
                   <button class="preset-chip" data-preset="wildy_dead">Wildy Deadwood</button>
                   <button class="preset-chip" data-preset="prif_crystal">Crystal Magic</button>
+                  <button class="preset-chip" data-preset="basic_shrub">Basic Shrub</button>
                   <button class="preset-chip" data-preset="varrock_bush">Berry Bush</button>
+                  <button class="preset-chip" data-preset="flowering_shrub">Flowering Shrub</button>
                 </div>
 
                 <div style="display: flex; gap: 0.4rem; margin-top: 0.25rem;">

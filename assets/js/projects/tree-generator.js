@@ -43,6 +43,14 @@
     colorAccent: '#e8f4f8',
     colorVar: 0.16,
     snow: 0.0,
+    // Shrub Variants & Detailing
+    shrubVariant: 'basic',     // 'basic' | 'berry' | 'flowering'
+    berryDensity: 0.45,
+    berryColor: '#ff2a55',
+    berrySize: 0.18,
+    blossomDensity: 0.45,
+    blossomColor: '#ffb6c1',
+    blossomSize: 0.20,
     // Preview & LOD Options
     viewMode: 'single',      // 'single' | 'compare' | 'forest'
     singleLod: 0,            // 0, 1, 2, 3
@@ -141,12 +149,32 @@
       colorLeaf1: '#00d4ff', colorLeaf2: '#9d4edd', colorBark: '#232946', colorAccent: '#e0fbfc',
       colorVar: 0.25, snow: 0.35
     },
+    basic_shrub: {
+      species: 'bush', seed: 2048, height: 2.3, radius: 0.22, taper: 0.70, curve: 0.18,
+      branches: 4, gnarl: 0.25, radialSegments: 5, spread: 2.7, canopyHeight: 0.85,
+      density: 12, clusterSize: 1.20, polyDetail: 1, jitter: 0.18, season: 'summer',
+      colorLeaf1: '#2f6d22', colorLeaf2: '#478f31', colorBark: '#453221', colorAccent: '#e8f4f8',
+      colorVar: 0.14, snow: 0.0,
+      shrubVariant: 'basic', berryDensity: 0.45, berryColor: '#ff2a55', berrySize: 0.18,
+      blossomDensity: 0.45, blossomColor: '#ff85a2', blossomSize: 0.20
+    },
     varrock_bush: {
       species: 'bush', seed: 2048, height: 2.4, radius: 0.24, taper: 0.70, curve: 0.20,
       branches: 4, gnarl: 0.30, radialSegments: 5, spread: 2.8, canopyHeight: 0.85,
       density: 12, clusterSize: 1.25, polyDetail: 1, jitter: 0.20, season: 'spring',
-      colorLeaf1: '#397d28', colorLeaf2: '#559e3e', colorBark: '#4f3824', colorAccent: '#ff3860',
-      colorVar: 0.15, snow: 0.35
+      colorLeaf1: '#397d28', colorLeaf2: '#559e3e', colorBark: '#4f3824', colorAccent: '#e8f4f8',
+      colorVar: 0.15, snow: 0.0,
+      shrubVariant: 'berry', berryDensity: 0.50, berryColor: '#ff2a55', berrySize: 0.18,
+      blossomDensity: 0.45, blossomColor: '#ff85a2', blossomSize: 0.20
+    },
+    flowering_shrub: {
+      species: 'bush', seed: 3344, height: 2.5, radius: 0.25, taper: 0.70, curve: 0.22,
+      branches: 4, gnarl: 0.28, radialSegments: 5, spread: 2.9, canopyHeight: 0.90,
+      density: 14, clusterSize: 1.25, polyDetail: 1, jitter: 0.18, season: 'spring',
+      colorLeaf1: '#3e8428', colorLeaf2: '#61a845', colorBark: '#4a3622', colorAccent: '#ffccd5',
+      colorVar: 0.15, snow: 0.0,
+      shrubVariant: 'flowering', berryDensity: 0.45, berryColor: '#ff2a55', berrySize: 0.18,
+      blossomDensity: 0.55, blossomColor: '#ff85a2', blossomSize: 0.22
     }
   };
 
@@ -400,6 +428,162 @@
     });
 
     return { geometry: colored, topTip };
+  }
+
+  /* ------------------------------------------------------------------------
+     Procedural Shrubbery & Shrub Variants Generation Engine
+     Generates low-poly multi-cluster foliage with reproducible low-poly
+     berries or flower blossoms physically attached to foliage surfaces.
+     ------------------------------------------------------------------------ */
+  function buildShrubProceduralFoliage(cfg, dims, foliageGeos, rng) {
+    const { clusterCount, polyDetail, spread, height, isLod1 } = dims;
+    const clusters = [];
+
+    // 1. Generate primary multi-cluster foliage
+    for (let c = 0; c < clusterCount; c++) {
+      const angle = (c / clusterCount) * Math.PI * 2 + rng() * 0.5;
+      const dist = (c === 0 ? 0 : (0.25 + rng() * 0.65) * spread * 0.45);
+      const cSize = cfg.clusterSize * (0.55 + rng() * 0.45) * 0.75;
+      const rx = 1.15 * cSize;
+      const ry = 0.85 * cfg.canopyHeight * cSize;
+      const rz = 1.15 * cSize;
+
+      const ico = new THREE.IcosahedronGeometry(cSize, polyDetail);
+      ico.scale(1.15, 0.85 * cfg.canopyHeight, 1.15);
+      const jittered = jitterGeometryVertices(ico, cfg.jitter * cSize, rng);
+
+      const cx = Math.cos(angle) * dist;
+      const cy = cSize * 0.65 + rng() * height * 0.35;
+      const cz = Math.sin(angle) * dist;
+      jittered.translate(cx, cy, cz);
+
+      foliageGeos.push(colorizeGeometry(jittered, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, {
+        variance: cfg.colorVar,
+        snowCoverage: cfg.snow * 0.5
+      }));
+
+      clusters.push({ cx, cy, cz, cSize, rx, ry, rz });
+    }
+
+    // 2. Generate Shrub Variant Detailing (Berries or Blossoms)
+    const variant = cfg.shrubVariant || 'basic';
+
+    if (variant === 'berry') {
+      const density = Math.max(0, Math.min(1, cfg.berryDensity !== undefined ? cfg.berryDensity : 0.45));
+      if (density > 0.001) {
+        const berryColor = cfg.berryColor || '#ff2a55';
+        const baseSize = cfg.berrySize || 0.18;
+
+        clusters.forEach((cl) => {
+          // In LOD1: reduce berry instances to ~50% of clusters with 1 item per cluster
+          if (isLod1) {
+            if (rng() > density * 0.85) return;
+            const theta = rng() * Math.PI * 2;
+            const phi = 0.12 * Math.PI + rng() * 0.55 * Math.PI;
+            const nx = Math.sin(phi) * Math.cos(theta);
+            const ny = Math.cos(phi);
+            const nz = Math.sin(phi) * Math.sin(theta);
+
+            const factor = 0.92;
+            const bx = cl.cx + nx * cl.rx * factor;
+            const by = cl.cy + ny * cl.ry * factor;
+            const bz = cl.cz + nz * cl.rz * factor;
+            const bRadius = baseSize * (0.9 + rng() * 0.25) * 1.15;
+
+            // Simplified 4-facet tetrahedron in LOD1
+            const berry = new THREE.TetrahedronGeometry(bRadius, 0);
+            berry.translate(bx, by, bz);
+            foliageGeos.push(colorizeGeometry(berry, berryColor, berryColor, '#ffffff', rng, { variance: 0.05 }));
+            return;
+          }
+
+          // In LOD0: generate full octahedron berries distributed naturally
+          const count = Math.floor(density * 3.5) + (rng() < (density * 3.5 % 1) ? 1 : 0);
+          for (let i = 0; i < count; i++) {
+            const theta = (i / Math.max(1, count)) * Math.PI * 2 + rng() * 0.8;
+            const phi = 0.10 * Math.PI + rng() * 0.58 * Math.PI;
+            const nx = Math.sin(phi) * Math.cos(theta);
+            const ny = Math.cos(phi);
+            const nz = Math.sin(phi) * Math.sin(theta);
+
+            // Natural attachment on outer cluster perimeter
+            const factor = 0.90 + rng() * 0.08;
+            const bx = cl.cx + nx * cl.rx * factor;
+            const by = cl.cy + ny * cl.ry * factor;
+            const bz = cl.cz + nz * cl.rz * factor;
+            const bRadius = baseSize * (0.85 + rng() * 0.3);
+
+            // Octahedron geometry for crisp low-poly facet shading
+            const berry = new THREE.OctahedronGeometry(bRadius, 0);
+            berry.translate(bx, by, bz);
+            foliageGeos.push(colorizeGeometry(berry, berryColor, berryColor, '#ffffff', rng, { variance: 0.06 }));
+          }
+        });
+      }
+
+    } else if (variant === 'flowering') {
+      const density = Math.max(0, Math.min(1, cfg.blossomDensity !== undefined ? cfg.blossomDensity : 0.45));
+      if (density > 0.001) {
+        const blossomColor = cfg.blossomColor || '#ffb6c1';
+        const baseSize = cfg.blossomSize || 0.20;
+
+        clusters.forEach((cl) => {
+          // In LOD1: reduce blossom instances to ~50% of clusters with 1 item per cluster
+          if (isLod1) {
+            if (rng() > density * 0.85) return;
+            const theta = rng() * Math.PI * 2;
+            const phi = 0.08 * Math.PI + rng() * 0.52 * Math.PI;
+            const nx = Math.sin(phi) * Math.cos(theta);
+            const ny = Math.cos(phi);
+            const nz = Math.sin(phi) * Math.sin(theta);
+
+            const factor = 0.94;
+            const fx = cl.cx + nx * cl.rx * factor;
+            const fy = cl.cy + ny * cl.ry * factor;
+            const fz = cl.cz + nz * cl.rz * factor;
+            const fRadius = baseSize * (0.9 + rng() * 0.25) * 1.15;
+
+            // Simplified 4-sided flower in LOD1
+            const flower = new THREE.CylinderGeometry(fRadius, fRadius * 0.8, fRadius * 0.2, 4, 1);
+            const normVec = new THREE.Vector3(nx, ny, nz).normalize();
+            const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), normVec);
+            flower.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(quat));
+            flower.translate(fx, fy, fz);
+            foliageGeos.push(colorizeGeometry(flower, blossomColor, blossomColor, '#ffffff', rng, { variance: 0.05 }));
+            return;
+          }
+
+          // In LOD0: generate 5-sided low-poly petal flower with center pistil
+          const count = Math.floor(density * 3.2) + (rng() < (density * 3.2 % 1) ? 1 : 0);
+          for (let i = 0; i < count; i++) {
+            const theta = (i / Math.max(1, count)) * Math.PI * 2 + rng() * 0.8;
+            const phi = 0.06 * Math.PI + rng() * 0.52 * Math.PI;
+            const nx = Math.sin(phi) * Math.cos(theta);
+            const ny = Math.cos(phi);
+            const nz = Math.sin(phi) * Math.sin(theta);
+
+            const factor = 0.92 + rng() * 0.06;
+            const fx = cl.cx + nx * cl.rx * factor;
+            const fy = cl.cy + ny * cl.ry * factor;
+            const fz = cl.cz + nz * cl.rz * factor;
+            const fRadius = baseSize * (0.85 + rng() * 0.3);
+
+            // 5-segment disc for low-poly petals
+            const flower = new THREE.CylinderGeometry(fRadius, fRadius * 0.8, fRadius * 0.22, 5, 1);
+            const normVec = new THREE.Vector3(nx, ny, nz).normalize();
+            const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), normVec);
+            flower.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(quat));
+            flower.translate(fx, fy, fz);
+            foliageGeos.push(colorizeGeometry(flower, blossomColor, blossomColor, '#ffffff', rng, { variance: 0.06 }));
+
+            // Center pollen pistil dot
+            const pistil = new THREE.TetrahedronGeometry(fRadius * 0.35, 0);
+            pistil.translate(fx + nx * fRadius * 0.12, fy + ny * fRadius * 0.12, fz + nz * fRadius * 0.12);
+            foliageGeos.push(colorizeGeometry(pistil, '#ffe066', '#ffd166', '#ffffff', rng, { variance: 0.04 }));
+          }
+        });
+      }
+    }
   }
 
   /* ------------------------------------------------------------------------
@@ -717,36 +901,13 @@
       }
 
     } else if (cfg.species === 'bush') {
-      // Low multi-cluster shrub with berries/blossoms
-      for (let c = 0; c < clusterCount; c++) {
-        const angle = (c / clusterCount) * Math.PI * 2 + rng() * 0.5;
-        const dist = (c === 0 ? 0 : (0.25 + rng() * 0.65) * spread * 0.45);
-        const cSize = cfg.clusterSize * (0.55 + rng() * 0.45) * 0.75;
-        const ico = new THREE.IcosahedronGeometry(cSize, polyDetail);
-        ico.scale(1.15, 0.85 * cfg.canopyHeight, 1.15);
-        const jittered = jitterGeometryVertices(ico, cfg.jitter * cSize, rng);
-
-        const cx = Math.cos(angle) * dist;
-        const cy = cSize * 0.65 + rng() * height * 0.35;
-        const cz = Math.sin(angle) * dist;
-        jittered.translate(cx, cy, cz);
-
-        foliageGeos.push(colorizeGeometry(jittered, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, {
-          variance: cfg.colorVar,
-          snowCoverage: cfg.snow * 0.5
-        }));
-
-        // Optional low-poly berries / blossoms when snow/accent > 0.05
-        if (!isLod1 && cfg.snow > 0.05 && c % 2 === 0) {
-          const berry = new THREE.OctahedronGeometry(cSize * 0.22, 0);
-          berry.translate(
-            cx + Math.cos(angle) * cSize * 0.78,
-            cy + cSize * 0.45,
-            cz + Math.sin(angle) * cSize * 0.78
-          );
-          foliageGeos.push(colorizeGeometry(berry, cfg.colorAccent, cfg.colorAccent, '#ffffff', rng, { variance: 0.05 }));
-        }
-      }
+      buildShrubProceduralFoliage(cfg, {
+        clusterCount,
+        polyDetail,
+        spread,
+        height,
+        isLod1
+      }, foliageGeos, rng);
 
     } else if (cfg.species === 'fantasy') {
       // Crystal / Magic Spire Tree: Spiraling branches + floating octahedron crystal shards & glowing canopy
@@ -1035,9 +1196,10 @@
       );
       hemi.scale(1.0, domeHeight / domeRadius, 1.0);
       const jitteredHemi = jitterGeometryVertices(hemi, cfg.jitter * domeRadius * 0.35, rng, true);
+      const domeY = cfg.species === 'bush' ? domeHeight * 0.2 : cfg.height * 0.38;
       jitteredHemi.translate(
         lod0Data.center.x,
-        cfg.species === 'bush' ? domeHeight * 0.2 : cfg.height * 0.38,
+        domeY,
         lod0Data.center.z
       );
 
@@ -1053,6 +1215,35 @@
           isGradientCanopy: true
         }
       ));
+
+      // Shrub variant detailing on hemisphere dome
+      if (cfg.species === 'bush') {
+        const isBerry = cfg.shrubVariant === 'berry' && (cfg.berryDensity || 0) > 0.001;
+        const isFlower = cfg.shrubVariant === 'flowering' && (cfg.blossomDensity || 0) > 0.001;
+        if (isBerry || isFlower) {
+          const accentCount = isBerry
+            ? Math.max(3, Math.min(10, Math.round((cfg.berryDensity || 0.45) * 8)))
+            : Math.max(3, Math.min(10, Math.round((cfg.blossomDensity || 0.45) * 8)));
+          const accentCol = isBerry ? (cfg.berryColor || '#ff2a55') : (cfg.blossomColor || '#ffb6c1');
+          const accentSize = isBerry ? (cfg.berrySize || 0.18) * 1.2 : (cfg.blossomSize || 0.20) * 1.2;
+
+          for (let k = 0; k < accentCount; k++) {
+            const theta = (k / accentCount) * Math.PI * 2 + rng() * 0.6;
+            const phi = 0.18 * Math.PI + rng() * 0.38 * Math.PI;
+            const dx = Math.sin(phi) * Math.cos(theta);
+            const dy = Math.cos(phi);
+            const dz = Math.sin(phi) * Math.sin(theta);
+
+            const px = lod0Data.center.x + dx * domeRadius * 0.97;
+            const py = domeY + dy * domeHeight * 0.97;
+            const pz = lod0Data.center.z + dz * domeRadius * 0.97;
+
+            const marker = new THREE.TetrahedronGeometry(accentSize, 0);
+            marker.translate(px, py, pz);
+            geos.push(colorizeGeometry(marker, accentCol, accentCol, '#ffffff', rng, { variance: 0.05 }));
+          }
+        }
+      }
     }
 
     return mergeBufferGeometries(geos);
@@ -1224,6 +1415,7 @@
      Scene Rebuilder For Single, Side-By-Side LOD Compare & Forest Modes
      ------------------------------------------------------------------------ */
   function rebuildScene() {
+    if (!contentGroup) return;
     while (contentGroup.children.length > 0) {
       const child = contentGroup.children[0];
       contentGroup.remove(child);
@@ -1507,7 +1699,11 @@
       ['param-jitter', state.jitter, 'val-jitter', (v) => Number(v).toFixed(2)],
       ['param-color-var', state.colorVar, 'val-color-var', (v) => Number(v).toFixed(2)],
       ['param-snow', state.snow, 'val-snow', (v) => Number(v).toFixed(2)],
-      ['param-forest-count', state.forestCount, 'val-forest-count', (v) => `${v}`]
+      ['param-forest-count', state.forestCount, 'val-forest-count', (v) => `${v}`],
+      ['param-berry-density', state.berryDensity, 'val-berry-density', (v) => Number(v).toFixed(2)],
+      ['param-berry-size', state.berrySize, 'val-berry-size', (v) => Number(v).toFixed(2)],
+      ['param-blossom-density', state.blossomDensity, 'val-blossom-density', (v) => Number(v).toFixed(2)],
+      ['param-blossom-size', state.blossomSize, 'val-blossom-size', (v) => Number(v).toFixed(2)]
     ];
 
     map.forEach(([inputId, val, badgeId, fmt]) => {
@@ -1523,7 +1719,79 @@
     document.getElementById('color-leaf-2').value = state.colorLeaf2;
     document.getElementById('color-bark').value = state.colorBark;
     document.getElementById('color-accent').value = state.colorAccent;
+
+    const colBerry = document.getElementById('color-berry');
+    if (colBerry) colBerry.value = state.berryColor;
+    const colBlossom = document.getElementById('color-blossom');
+    if (colBlossom) colBlossom.value = state.blossomColor;
+
+    // Shrubbery UI panels & variants
+    const isBush = state.species === 'bush';
+    const shrubBar = document.getElementById('shrub-variant-bar');
+    if (shrubBar) shrubBar.style.display = isBush ? 'block' : 'none';
+
+    document.querySelectorAll('.shrub-var-btn').forEach((btn) => {
+      const isActive = btn.dataset.variant === state.shrubVariant;
+      btn.classList.toggle('btn-primary', isActive);
+      btn.classList.toggle('btn-outline', !isActive);
+      btn.classList.toggle('active', isActive);
+    });
+
+    const valShrubVariant = document.getElementById('val-shrub-variant');
+    if (valShrubVariant) {
+      valShrubVariant.textContent =
+        state.shrubVariant === 'berry' ? 'Berry Bush' :
+        state.shrubVariant === 'flowering' ? 'Flowering' : 'Basic Shrub';
+    }
+
+    const shrubDetailsPanel = document.getElementById('shrub-details-panel');
+    if (shrubDetailsPanel) {
+      shrubDetailsPanel.style.display = isBush && state.shrubVariant !== 'basic' ? 'block' : 'none';
+    }
+
+    const shrubBerryControls = document.getElementById('shrub-berry-controls');
+    if (shrubBerryControls) {
+      shrubBerryControls.style.display = isBush && state.shrubVariant === 'berry' ? 'block' : 'none';
+    }
+
+    const shrubBlossomControls = document.getElementById('shrub-blossom-controls');
+    if (shrubBlossomControls) {
+      shrubBlossomControls.style.display = isBush && state.shrubVariant === 'flowering' ? 'block' : 'none';
+    }
   }
+
+  const DEFAULT_TREE_CONFIG = {
+    species: 'oak',
+    seed: 1337,
+    variation: 0.25,
+    height: 6.5,
+    radius: 0.48,
+    taper: 0.62,
+    curve: 0.22,
+    branches: 5,
+    gnarl: 0.30,
+    radialSegments: 6,
+    spread: 3.6,
+    canopyHeight: 1.0,
+    density: 14,
+    clusterSize: 1.45,
+    polyDetail: 1,
+    jitter: 0.18,
+    season: 'summer',
+    colorLeaf1: '#3b7a2e',
+    colorLeaf2: '#5a9e38',
+    colorBark: '#5c4028',
+    colorAccent: '#e8f4f8',
+    colorVar: 0.16,
+    snow: 0.0,
+    shrubVariant: 'basic',
+    berryDensity: 0.45,
+    berryColor: '#ff2a55',
+    berrySize: 0.18,
+    blossomDensity: 0.45,
+    blossomColor: '#ffb6c1',
+    blossomSize: 0.20
+  };
 
   const SPECIES_DEFAULT_PRESETS = {
     oak: 'lumbridge_oak',
@@ -1532,14 +1800,11 @@
     willow: 'draynor_willow',
     palm: 'karamja_palm',
     dead: 'wildy_dead',
-    bush: 'varrock_bush',
+    bush: 'basic_shrub',
     fantasy: 'prif_crystal'
   };
 
-  const TREE_SETTING_KEYS = [
-    ...Object.keys(BUILTIN_PRESETS.lumbridge_oak),
-    'variation'
-  ];
+  const TREE_SETTING_KEYS = Object.keys(DEFAULT_TREE_CONFIG);
 
   function applyPresetObject(presetObj, label = 'Preset') {
     if (!presetObj || typeof presetObj !== 'object' || Array.isArray(presetObj)) {
@@ -1550,8 +1815,34 @@
       ? presetObj.species
       : 'oak';
 
-    const defaults = BUILTIN_PRESETS[SPECIES_DEFAULT_PRESETS[species]];
-    const next = { variation: 0.25, ...defaults, ...presetObj, species };
+    const defaultPresetKey = SPECIES_DEFAULT_PRESETS[species];
+    const defaultPreset = BUILTIN_PRESETS[defaultPresetKey] || {};
+
+    // Backward compatibility for legacy JSON / storage presets without explicit shrubVariant:
+    let legacyShrubVariant = undefined;
+    if (species === 'bush' && presetObj.shrubVariant === undefined) {
+      if (presetObj.snow > 0.05 || (presetObj.colorAccent && presetObj.colorAccent.toLowerCase() === '#ff3860')) {
+        legacyShrubVariant = 'berry';
+      } else {
+        legacyShrubVariant = 'basic';
+      }
+    }
+
+    const next = {
+      ...DEFAULT_TREE_CONFIG,
+      ...defaultPreset,
+      ...presetObj,
+      species
+    };
+
+    if (legacyShrubVariant !== undefined && presetObj.shrubVariant === undefined) {
+      next.shrubVariant = legacyShrubVariant;
+    }
+
+    // Ensure non-bush species never retain active shrub variants
+    if (species !== 'bush') {
+      next.shrubVariant = 'basic';
+    }
 
     TREE_SETTING_KEYS.forEach((key) => {
       state[key] = next[key];
@@ -1610,6 +1901,23 @@
       });
     });
 
+    // Shrub Variant Selector
+    document.querySelectorAll('.shrub-var-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.species = 'bush';
+        const variant = btn.dataset.variant;
+        state.shrubVariant = variant;
+        if (variant === 'berry' && (!state.berryDensity || state.berryDensity <= 0.05)) {
+          state.berryDensity = 0.50;
+        }
+        if (variant === 'flowering' && (!state.blossomDensity || state.blossomDensity <= 0.05)) {
+          state.blossomDensity = 0.50;
+        }
+        syncUIFromState();
+        rebuildScene();
+      });
+    });
+
     // Season Selector
     document.querySelectorAll('.season-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -1646,7 +1954,11 @@
       ['param-jitter', 'jitter', false],
       ['param-color-var', 'colorVar', false],
       ['param-snow', 'snow', false],
-      ['param-forest-count', 'forestCount', true]
+      ['param-forest-count', 'forestCount', true],
+      ['param-berry-density', 'berryDensity', false],
+      ['param-berry-size', 'berrySize', false],
+      ['param-blossom-density', 'blossomDensity', false],
+      ['param-blossom-size', 'blossomSize', false]
     ];
 
     sliderBindings.forEach(([id, key, isInt]) => {
@@ -1664,7 +1976,9 @@
       ['color-leaf-1', 'colorLeaf1'],
       ['color-leaf-2', 'colorLeaf2'],
       ['color-bark', 'colorBark'],
-      ['color-accent', 'colorAccent']
+      ['color-accent', 'colorAccent'],
+      ['color-berry', 'berryColor'],
+      ['color-blossom', 'blossomColor']
     ];
     colorBindings.forEach(([id, key]) => {
       const el = document.getElementById(id);
@@ -1786,8 +2100,10 @@
       try {
         const raw = localStorage.getItem('b_remastered_tree_presets');
         const list = raw ? JSON.parse(raw) : {};
-        const snapshot = { ...state };
-        delete snapshot.viewMode;
+        const snapshot = {};
+        TREE_SETTING_KEYS.forEach((key) => {
+          snapshot[key] = state[key];
+        });
         list[name] = snapshot;
         localStorage.setItem('b_remastered_tree_presets', JSON.stringify(list));
         input.value = '';
@@ -1800,7 +2116,11 @@
 
     // Export / Import JSON Preset
     document.getElementById('btn-export-json').addEventListener('click', () => {
-      const json = JSON.stringify(state, null, 2);
+      const exportData = {};
+      TREE_SETTING_KEYS.forEach((key) => {
+        exportData[key] = state[key];
+      });
+      const json = JSON.stringify(exportData, null, 2);
       const blob = new Blob([json], { type: 'application/json' });
       triggerDownloadBlob(blob, `b_tree_preset_${state.species}_${state.seed}.json`);
       showToast('Exported Preset JSON!', 'fa-file-code');
