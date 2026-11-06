@@ -1,3 +1,4 @@
+/* B Remastered - 3D Building Generator */
 (function () {
   'use strict';
 
@@ -26,12 +27,12 @@
     trimColor: '#d6c9ad', trimAmount: 0.55, facadeAccent: 'cornice',
     windowsX: 4, windowsSide: 3, windowWidth: 1.4, windowHeight: 1.85,
     windowStyle: 'sash', windowFrameColor: '#d6cdbb', glassColor: '#384955',
-    windowLighting: 0.20, shutters: false, balconies: 0.0, fireEscape: true,
+    windowLighting: 0.20, shutters: false, curtains: true, balconies: 0.0, acUnits: false, fireEscape: true,
     doorStyle: 'stoop', doorColor: '#5f4134', entranceSteps: 3,
     groundUse: 'residential', awning: false, awningColor: '#8e3b3b',
     signage: 'none', signText: 'CORNER MARKET', signColor: '#f2e1aa',
-    rooftopProps: 0.65, rooftopWaterTank: true, skylights: false, chimneys: 2, antennas: true,
-    age: 0.18, damage: 0, overgrowth: 0, grimeColor: '#282b2a',
+    rooftopProps: 0.65, rooftopWaterTank: true, skylights: false, chimneys: 2, antennas: true, rooftopPipes: true,
+    age: 0.18, damage: 0, windowDamageStyle: 'mixed', tarPatches: false, roofPuddles: false, overgrowth: 0, grimeColor: '#282b2a',
     interiorMode: 'none', cutaway: false, inspectedFloor: 0,
     stairwell: true, elevator: false, roomsPerFloor: 4,
     accentFloor: 0, accentSide: 'front', accentFloorColor: '#b58867', floorOverrides: []
@@ -40,14 +41,14 @@
   const CONFIG_KEYS = Object.keys(BASE).filter((k) => k !== 'floorOverrides');
 
   const PRESETS = {
-    paragon_brick: { label: 'Paragon Brick', style: 'brick', seed: 1337, wallColor: '#a64a40', floors: 5, width: 13, depth: 11, fireEscape: true, rooftopWaterTank: true },
-    kings_row: { label: "King's Row Brownstone", style: 'brownstone', seed: 4612, width: 9, depth: 14, floors: 4, floorHeight: 3.4, roofType: 'mansard', wallColor: '#946d55', secondaryWallColor: '#6e5344', groundFloorColor: '#8b776b', roofColor: '#4a4040', wallMaterial: 'brick', trimAmount: 0.85, facadeAccent: 'ornate', windowsX: 3, windowsSide: 3, windowStyle: 'arched', windowFrameColor: '#e2c5a7', doorStyle: 'stoop', entranceSteps: 5, fireEscape: false, balconies: 0, rooftopWaterTank: false, chimneys: 2, rooftopProps: 0.2 },
-    old_downtown: { label: 'Old Downtown', style: 'commercial', seed: 5821, floors: 7, width: 19, depth: 15, groundUse: 'shop', groundFloorMaterial: 'stone', groundFloorColor: '#777167', wallColor: '#86765e', secondaryWallColor: '#6f6250', roofType: 'flat', trimAmount: 0.85, facadeAccent: 'cornice', windowsX: 7, windowsSide: 5, windowStyle: 'tall', fireEscape: false, rooftopWaterTank: false, rooftopProps: 0.75, signage: 'marquee', signText: 'DOWNTOWN' },
-    market_street: { label: 'Market Street Shops', style: 'mixed', seed: 3009, width: 16, depth: 11, floors: 4, wallColor: '#a95f4b', secondaryWallColor: '#864b3f', groundUse: 'shop', groundFloorColor: '#625d62', awning: true, awningColor: '#a14248', signage: 'shop', signText: 'THE MARKET', roofType: 'flat', fireEscape: true, rooftopWaterTank: false, windowsX: 5 },
-    golden_age: { label: 'Golden Age Deco', style: 'artdeco', seed: 1017, floors: 8, width: 17, depth: 14, wallMaterial: 'stone', wallColor: '#bbad8d', secondaryWallColor: '#8d826b', groundFloorColor: '#746e61', trimColor: '#e1c98a', roofColor: '#615c55', facadeAccent: 'vertical', trimAmount: 0.9, windowsX: 6, windowStyle: 'tall', roofType: 'stepped', setback: 1.0, rooftopWaterTank: false, chimneys: 0, fireEscape: false, groundUse: 'lobby', doorStyle: 'double', rooftopProps: 0.2 },
-    new_harbor: { label: 'New Harbor Apartments', style: 'modern', seed: 9135, floors: 9, width: 20, depth: 14, floorHeight: 3.1, wallMaterial: 'concrete', wallColor: '#9daab1', secondaryWallColor: '#71838c', groundFloorMaterial: 'concrete', groundFloorColor: '#556b78', roofColor: '#363f48', trimColor: '#d4e1e5', trimAmount: 0.2, facadeAccent: 'none', windowsX: 7, windowsSide: 4, windowStyle: 'modern', windowFrameColor: '#293d48', glassColor: '#2a526a', windowWidth: 1.8, windowHeight: 2.25, balconies: 0.8, fireEscape: false, rooftopWaterTank: false, skylights: true, rooftopProps: 0.9, chimneys: 0, entranceSteps: 0, doorStyle: 'double', groundUse: 'lobby' },
-    abandoned_flats: { label: 'Abandoned Flats', style: 'abandoned', seed: 6697, width: 15, depth: 12, floors: 6, wallColor: '#695e53', secondaryWallColor: '#474641', trimColor: '#827864', trimAmount: 0.2, windowFrameColor: '#554b42', glassColor: '#252d2d', windowLighting: 0, fireEscape: true, age: 0.85, damage: 0.38, overgrowth: 0.48, chimneys: 1, rooftopWaterTank: true },
-    corner_block: { label: 'Corner Block', style: 'corner', seed: 7284, width: 18, depth: 17, floors: 5, footprint: 'corner', cornerCut: 1.75, wallColor: '#ad6c56', secondaryWallColor: '#915342', groundUse: 'shop', groundFloorColor: '#786d5c', windowStyle: 'arched', windowsX: 6, windowsSide: 5, signage: 'shop', signText: 'CORNER GOODS', awning: true, awningColor: '#45647b', fireEscape: false, rooftopWaterTank: true, balconies: 0.25 }
+    paragon_brick: { label: 'Paragon Brick', style: 'brick', seed: 1337, wallColor: '#a64a40', floors: 5, width: 13, depth: 11, curtains: true, acUnits: true, fireEscape: true, rooftopWaterTank: true, rooftopPipes: true },
+    kings_row: { label: "King's Row Brownstone", style: 'brownstone', seed: 4612, width: 9, depth: 14, floors: 4, floorHeight: 3.4, roofType: 'mansard', wallColor: '#946d55', secondaryWallColor: '#6e5344', groundFloorColor: '#8b776b', roofColor: '#4a4040', wallMaterial: 'brick', trimAmount: 0.85, facadeAccent: 'ornate', windowsX: 3, windowsSide: 3, windowStyle: 'arched', windowFrameColor: '#e2c5a7', curtains: true, shutters: true, doorStyle: 'stoop', entranceSteps: 5, fireEscape: false, acUnits: false, balconies: 0, rooftopWaterTank: false, rooftopPipes: false, chimneys: 2, rooftopProps: 0.2 },
+    old_downtown: { label: 'Old Downtown', style: 'commercial', seed: 5821, floors: 7, width: 19, depth: 15, groundUse: 'shop', groundFloorMaterial: 'stone', groundFloorColor: '#777167', wallColor: '#86765e', secondaryWallColor: '#6f6250', roofType: 'flat', trimAmount: 0.85, facadeAccent: 'cornice', windowsX: 7, windowsSide: 5, windowStyle: 'tall', curtains: false, fireEscape: false, acUnits: false, rooftopWaterTank: false, rooftopPipes: true, rooftopProps: 0.75, signage: 'marquee', signText: 'DOWNTOWN' },
+    market_street: { label: 'Market Street Shops', style: 'mixed', seed: 3009, width: 16, depth: 11, floors: 4, wallColor: '#a95f4b', secondaryWallColor: '#864b3f', groundUse: 'shop', groundFloorColor: '#625d62', awning: true, awningColor: '#a14248', signage: 'shop', signText: 'THE MARKET', roofType: 'flat', curtains: true, acUnits: true, fireEscape: true, rooftopWaterTank: false, rooftopPipes: true, windowsX: 5 },
+    golden_age: { label: 'Golden Age Deco', style: 'artdeco', seed: 1017, floors: 8, width: 17, depth: 14, wallMaterial: 'stone', wallColor: '#bbad8d', secondaryWallColor: '#8d826b', groundFloorColor: '#746e61', trimColor: '#e1c98a', roofColor: '#615c55', facadeAccent: 'vertical', trimAmount: 0.9, windowsX: 6, windowStyle: 'tall', curtains: false, roofType: 'stepped', setback: 1.0, rooftopWaterTank: false, rooftopPipes: false, chimneys: 0, fireEscape: false, acUnits: false, groundUse: 'lobby', doorStyle: 'double', rooftopProps: 0.2 },
+    new_harbor: { label: 'New Harbor Apartments', style: 'modern', seed: 9135, floors: 9, width: 20, depth: 14, floorHeight: 3.1, wallMaterial: 'concrete', wallColor: '#9daab1', secondaryWallColor: '#71838c', groundFloorMaterial: 'concrete', groundFloorColor: '#556b78', roofColor: '#363f48', trimColor: '#d4e1e5', trimAmount: 0.2, facadeAccent: 'none', windowsX: 7, windowsSide: 4, windowStyle: 'modern', windowFrameColor: '#293d48', glassColor: '#2a526a', windowWidth: 1.8, windowHeight: 2.25, curtains: true, balconies: 0.8, acUnits: false, fireEscape: false, rooftopWaterTank: false, skylights: true, rooftopPipes: true, rooftopProps: 0.9, chimneys: 0, entranceSteps: 0, doorStyle: 'double', groundUse: 'lobby' },
+    abandoned_flats: { label: 'Abandoned Flats', style: 'abandoned', seed: 6697, width: 15, depth: 12, floors: 6, wallColor: '#695e53', secondaryWallColor: '#474641', trimColor: '#827864', trimAmount: 0.2, windowFrameColor: '#554b42', glassColor: '#252d2d', windowLighting: 0, shutters: true, curtains: true, acUnits: true, fireEscape: true, age: 0.85, damage: 0.48, windowDamageStyle: 'mixed', tarPatches: true, roofPuddles: true, rooftopPipes: true, overgrowth: 0.48, chimneys: 1, rooftopWaterTank: true },
+    corner_block: { label: 'Corner Block', style: 'corner', seed: 7284, width: 18, depth: 17, floors: 5, footprint: 'corner', cornerCut: 1.75, wallColor: '#ad6c56', secondaryWallColor: '#915342', groundUse: 'shop', groundFloorColor: '#786d5c', windowStyle: 'arched', windowsX: 6, windowsSide: 5, curtains: true, acUnits: true, signage: 'shop', signText: 'CORNER GOODS', awning: true, awningColor: '#45647b', fireEscape: false, rooftopWaterTank: true, rooftopPipes: true, balconies: 0.25 }
   };
 
   const OPTIONS = {
@@ -57,6 +58,7 @@
     groundFloorMaterial: [['brick', 'Brick'], ['stone', 'Stone'], ['concrete', 'Concrete'], ['painted', 'Painted plaster']],
     facadeAccent: [['none', 'None'], ['cornice', 'Classic cornices'], ['ornate', 'Ornate stonework'], ['vertical', 'Art Deco verticals']],
     windowStyle: [['sash', 'Classic sash'], ['arched', 'Arched'], ['tall', 'Tall panes'], ['modern', 'Modern glass'], ['square', 'Square']],
+    windowDamageStyle: [['mixed', 'Mixed (broken & boarded)'], ['boarded', 'Fully boarded'], ['partial', 'Partially boarded'], ['broken', 'Broken glass only']],
     doorStyle: [['stoop', 'Raised stoop'], ['single', 'Single entrance'], ['double', 'Double doors']],
     groundUse: [['residential', 'Residential'], ['shop', 'Shops'], ['lobby', 'Shared lobby']],
     signage: [['none', 'None'], ['shop', 'Storefront sign'], ['marquee', 'Wall marquee']],
@@ -104,6 +106,7 @@
       { key: 'windowFrameColor', name: 'Frame color', type: 'color' },
       { key: 'glassColor', name: 'Glass color', type: 'color' },
       { key: 'windowLighting', name: 'Interior lights', min: 0, max: 1, step: 0.05 },
+      { key: 'curtains', name: 'Window curtains', type: 'boolean' },
       { key: 'shutters', name: 'Window shutters', type: 'boolean' }
     ],
     features: [
@@ -119,15 +122,20 @@
       { key: 'signColor', name: 'Sign color', type: 'color' },
       { group: 'EXTERIOR DETAILS' },
       { key: 'balconies', name: 'Balcony frequency', min: 0, max: 1, step: 0.1 },
+      { key: 'acUnits', name: 'Window A/C units', type: 'boolean' },
       { key: 'fireEscape', name: 'Exterior fire escape', type: 'boolean' },
       { key: 'rooftopProps', name: 'Rooftop equipment', min: 0, max: 1, step: 0.1 },
       { key: 'rooftopWaterTank', name: 'Rooftop water tank', type: 'boolean' },
+      { key: 'rooftopPipes', name: 'Exposed pipes & cables', type: 'boolean' },
       { key: 'skylights', name: 'Rooftop skylights', type: 'boolean' },
       { key: 'chimneys', name: 'Chimneys', min: 0, max: 5, step: 1 },
       { key: 'antennas', name: 'Rooftop antenna', type: 'boolean' },
       { group: 'AGE & CHARACTER' },
       { key: 'age', name: 'Weathering / dirt', min: 0, max: 1, step: 0.05 },
       { key: 'damage', name: 'Damaged windows & walls', min: 0, max: 1, step: 0.05 },
+      { key: 'windowDamageStyle', name: 'Window damage style', type: 'select' },
+      { key: 'tarPatches', name: 'Tar patches & roof repairs', type: 'boolean' },
+      { key: 'roofPuddles', name: 'Roof puddles & water stains', type: 'boolean' },
       { key: 'overgrowth', name: 'Vines & overgrowth', min: 0, max: 1, step: 0.05 },
       { key: 'grimeColor', name: 'Grime tone', type: 'color' }
     ],
@@ -397,6 +405,10 @@
         if (key === 'footprint' && value === 'corner' && state.cornerCut <= 0) {
           state.cornerCut = 1.5;
         }
+        if (key === 'windowDamageStyle' && state.damage <= 0) {
+          state.damage = 0.35;
+          renderControls();
+        }
         if (key === 'signText' && state.signage === 'none' && String(value).trim().length > 0) {
           state.signage = state.groundUse === 'shop' ? 'shop' : 'marquee';
         }
@@ -557,7 +569,7 @@
       if (!def) continue;
       if (def.type === 'color') state[key] = pick(r, key === 'wallColor' || key === 'groundFloorColor' ? MATERIAL_CHOICES : COLOR_CHOICES);
       else if (def.type === 'select') {
-        if (['wallMaterial', 'groundFloorMaterial', 'footprint', 'roofType', 'windowStyle', 'facadeAccent', 'groundUse', 'signage', 'doorStyle'].includes(key)) {
+        if (['wallMaterial', 'groundFloorMaterial', 'footprint', 'roofType', 'windowStyle', 'windowDamageStyle', 'facadeAccent', 'groundUse', 'signage', 'doorStyle'].includes(key)) {
           state[key] = pick(r, OPTIONS[key])[0];
         }
       } else if (def.type === 'boolean') state[key] = r() > 0.55;
@@ -673,18 +685,32 @@
     return materials.get(key);
   }
 
+  function puddleMaterial() {
+    const key = 'puddle-water';
+    if (!materials.has(key)) {
+      materials.set(key, new THREE.MeshPhongMaterial({
+        color: '#233846',
+        emissive: '#0a1620',
+        emissiveIntensity: 0.25,
+        specular: '#c8e6ff',
+        shininess: 140
+      }));
+    }
+    return materials.get(key);
+  }
+
   function glassMaterial(hex, lit = false) {
     const isDay = view.lighting === 'day';
     const key = 'glass:' + hex + ':' + lit + ':' + isDay;
     if (!materials.has(key)) {
       const color = new THREE.Color(hex);
-      if (lit) color.lerp(new THREE.Color('#ffda88'), isDay ? 0.62 : 0.85);
+      if (lit) color.lerp(new THREE.Color('#ffda88'), isDay ? 0.58 : 0.85);
       materials.set(key, new THREE.MeshPhongMaterial({
         color,
-        emissive: lit ? (isDay ? '#8f6f38' : '#c79e54') : '#071016',
-        emissiveIntensity: lit ? (isDay ? 0.45 : 0.72) : 0.12,
-        shininess: 95,
-        specular: '#667b81'
+        emissive: lit ? (isDay ? '#8f6f38' : '#c79e54') : '#050b10',
+        emissiveIntensity: lit ? (isDay ? 0.42 : 0.72) : 0.08,
+        shininess: 90,
+        specular: '#3d4f58'
       }));
     }
     return materials.get(key);
@@ -732,7 +758,6 @@
         }
       }
     } else {
-      // Concrete and painted plaster use mortarColor for subtle expansion seams and secondaryWallColor for mottling
       ctx.strokeStyle = mix(mainHex, mortarHex, 0.38);
       ctx.lineWidth = kind === 'concrete' ? 2 : 1;
       const panelStep = kind === 'concrete' ? 64 : 128;
@@ -847,6 +872,19 @@
     return mesh;
   }
 
+  function sagCable(group, a, b, sag, radius, material, segments = 6) {
+    const p = new THREE.Vector3(...a);
+    const q = new THREE.Vector3(...b);
+    let prev = p;
+    for (let i = 1; i <= segments; i++) {
+      const t = i / segments;
+      const pt = new THREE.Vector3().lerpVectors(p, q, t);
+      pt.y -= Math.sin(t * Math.PI) * sag;
+      line(group, [prev.x, prev.y, prev.z], [pt.x, pt.y, pt.z], radius, material);
+      prev = pt;
+    }
+  }
+
   function signboard(group, txt, w, h, base = '#302e32', fg = '#f5dea6') {
     const canvas = document.createElement('canvas');
     canvas.width = 512;
@@ -884,15 +922,29 @@
     return g;
   }
 
+  function pickWindowDamageMode(cfg, r, forceBroken = false) {
+    const isDamaged = forceBroken || (cfg.damage > 0 && r() < cfg.damage * 0.72);
+    if (!isDamaged) return 'none';
+    const style = cfg.windowDamageStyle || 'mixed';
+    if (style === 'boarded') return 'boarded';
+    if (style === 'partial') return 'partial';
+    if (style === 'broken') return 'broken';
+    const roll = r();
+    if (roll < 0.36) return 'boarded';
+    if (roll < 0.7) return 'partial';
+    return 'broken';
+  }
+
   function addWindow(parent, side, baseX, baseY, baseZ, cfg, r, width, height, options = {}) {
     const group = worldRoot(parent, baseX, baseY, baseZ);
     const rotMap = { front: 0, back: Math.PI, left: -Math.PI / 2, right: Math.PI / 2, corner: Math.PI / 4 };
     group.rotation.y = rotMap[side] || 0;
 
+    const damageMode = options.damageMode || 'none';
     const frame = solid(cfg.windowFrameColor);
-    const lit = cfg.windowLighting > 0 && (cfg.windowLighting >= 0.99 || r() < cfg.windowLighting);
+    const lit = damageMode === 'none' && cfg.windowLighting > 0 && (cfg.windowLighting >= 0.99 || r() < cfg.windowLighting);
     const glass = glassMaterial(cfg.glassColor, lit);
-    const dark = solid('#242a2d');
+    const dark = solid('#151a1d');
     const trim = solid(cfg.trimColor);
 
     let w = Math.min(width, options.maxW || width);
@@ -912,70 +964,159 @@
     const rectH = isArched ? Math.max(0.45, h - archRadius * 0.7) : h;
     const rectY = isArched ? -archRadius * 0.35 : 0;
 
-    // Wall recess backing and outer window frame anchored directly to wall surface (z = 0)
-    box(group, 0, rectY, -0.02, w + 0.12, rectH + 0.1, 0.08, dark);
-    if (isArched) {
-      box(group, -w * 0.5 - 0.04, rectY, 0.02, 0.09, rectH + 0.08, 0.12, frame);
-      box(group, w * 0.5 + 0.04, rectY, 0.02, 0.09, rectH + 0.08, 0.12, frame);
-      box(group, 0, rectY - rectH * 0.5 - 0.03, 0.02, w + 0.16, 0.08, 0.12, frame);
+    // Thin recess backing plate strictly behind the glass plane (z = 0.00 to 0.014)
+    box(group, 0, rectY, 0.007, w + 0.04, rectH + 0.04, 0.014, dark, { cast: false });
 
+    // Hollow 4-sided perimeter window frame so the center glass pane is never covered by a solid frame block
+    const frameT = 0.085;
+    const frameD = 0.095;
+    const frameZ = frameD * 0.5;
+    box(group, -w * 0.5 - frameT * 0.5, rectY, frameZ, frameT, rectH + frameT * 2, frameD, frame);
+    box(group, w * 0.5 + frameT * 0.5, rectY, frameZ, frameT, rectH + frameT * 2, frameD, frame);
+    box(group, 0, rectY - rectH * 0.5 - frameT * 0.5, frameZ, w + frameT * 2, frameT, frameD, frame);
+
+    if (isArched) {
       const archY = rectY + rectH * 0.5;
-      const archGlassGeo = new THREE.CylinderGeometry(archRadius, archRadius, 0.05, 14, 1, false, 0, Math.PI);
-      archGlassGeo.rotateZ(-Math.PI / 2);
-      archGlassGeo.rotateX(Math.PI / 2);
-      const archGlass = new THREE.Mesh(archGlassGeo, glass);
-      archGlass.position.set(0, archY, 0.03);
+      const archShape = new THREE.Shape();
+      archShape.absarc(0, 0, archRadius + 0.01, 0, Math.PI, false);
+      archShape.closePath();
+
+      // Extrudes along +Z from z = 0.012 to z = 0.056 (flush with rectangular glass, never protruding into -Z)
+      const archGlassGeo = new THREE.ExtrudeGeometry(archShape, { depth: 0.044, bevelEnabled: false, curveSegments: 16 });
+      const archMat = (damageMode === 'broken' || damageMode === 'partial') ? dark : glass;
+      const archGlass = new THREE.Mesh(archGlassGeo, archMat);
+      archGlass.position.set(0, archY, 0.012);
       group.add(archGlass);
 
-      const archFrame = new THREE.Mesh(new THREE.TorusGeometry(archRadius + 0.035, 0.048, 6, 14, Math.PI), frame);
-      archFrame.position.set(0, archY, 0.04);
+      // Springline bar and vertical radial muntin inside the arch
+      box(group, 0, archY, 0.068, w, 0.05, 0.036, frame);
+      box(group, 0, archY + archRadius * 0.5, 0.068, 0.05, archRadius, 0.036, frame);
+
+      const archFrame = new THREE.Mesh(new THREE.TorusGeometry(archRadius + frameT * 0.45, frameT * 0.55, 8, 18, Math.PI), frame);
+      archFrame.position.set(0, archY, frameZ);
       group.add(archFrame);
 
       if (cfg.trimAmount > 0.05) {
-        const archTrim = new THREE.Mesh(new THREE.TorusGeometry(archRadius + 0.09, 0.045, 6, 14, Math.PI), trim);
-        archTrim.position.set(0, archY, 0.05);
+        const archTrim = new THREE.Mesh(new THREE.TorusGeometry(archRadius + frameT + 0.03, 0.045, 8, 18, Math.PI), trim);
+        archTrim.position.set(0, archY, frameZ + 0.015);
         group.add(archTrim);
       }
     } else {
-      box(group, 0, rectY, 0.02, w + 0.16, rectH + 0.14, 0.11, frame);
+      box(group, 0, rectY + rectH * 0.5 + frameT * 0.5, frameZ, w + frameT * 2, frameT, frameD, frame);
       if (cfg.trimAmount > 0.12) {
-        box(group, 0, rectY + rectH * 0.5 + 0.09, 0.04, w + 0.24, 0.1, 0.15, trim);
+        box(group, 0, rectY + rectH * 0.5 + frameT + 0.055, frameZ + 0.02, w + frameT * 2 + 0.14, 0.1, 0.13, trim);
       }
     }
 
-    // Main glass pane
-    box(group, 0, rectY, 0.03, w, rectH, 0.05, glass, { cast: false });
-
-    // Muntins / sash bars flush against glass
-    if (cfg.windowStyle === 'sash' || cfg.windowStyle === 'arched') {
-      box(group, 0, rectY, 0.055, 0.055, rectH, 0.04, frame);
-      box(group, 0, rectY, 0.055, w, 0.055, 0.04, frame);
-    } else if (cfg.windowStyle === 'modern') {
-      box(group, 0, rectY, 0.055, 0.05, rectH, 0.04, frame);
-    } else if (cfg.windowStyle === 'tall') {
-      box(group, 0, rectY - rectH * 0.18, 0.055, w, 0.055, 0.04, frame);
-      box(group, 0, rectY + rectH * 0.22, 0.055, w, 0.045, 0.04, frame);
+    // Main glass pane (front face at z = 0.056) or shattered cavity
+    if (damageMode === 'broken' || damageMode === 'partial') {
+      box(group, 0, rectY, 0.025, w, rectH, 0.028, dark, { cast: false });
+      const shardMat = glassMaterial(cfg.glassColor, false);
+      for (const sx of [-1, 1]) {
+        for (const sy of [-1, 1]) {
+          if (r() < 0.78) {
+            const sw = w * randBetween(r, 0.18, 0.34);
+            const sh = rectH * randBetween(r, 0.16, 0.32);
+            const shard = box(group, sx * (w * 0.5 - sw * 0.45), rectY + sy * (rectH * 0.5 - sh * 0.45), 0.045, sw, sh, 0.025, shardMat, { cast: false });
+            if (shard) shard.rotation.z = sx * sy * randBetween(r, 0.15, 0.42);
+          }
+        }
+      }
+      line(group, [-w * 0.38, rectY - rectH * 0.34, 0.052], [w * 0.32, rectY + rectH * 0.32, 0.052], 0.012, frame);
+    } else {
+      box(group, 0, rectY, 0.034, w, rectH, 0.044, glass, { cast: false });
     }
 
-    // Window sill anchored into wall
-    box(group, 0, rectY - rectH * 0.5 - 0.08, 0.05, w + 0.28, 0.1, 0.18, trim);
+    // Curtains layered cleanly at z = 0.058 (in front of glass at 0.056, behind muntins at 0.068)
+    if (cfg.curtains && !options.noCurtains && damageMode !== 'boarded') {
+      const curtainTone = lit ? '#ebd8b7' : (r() > 0.5 ? '#a39788' : '#7f8c96');
+      const curtainMat = solid(curtainTone);
+      const panelW = w * 0.25;
+      box(group, 0, rectY + rectH * 0.5 - 0.05, 0.058, w * 0.96, 0.09, 0.012, curtainMat, { cast: false });
+      for (const dir of [-1, 1]) {
+        if (damageMode !== 'none' && r() < 0.35) continue;
+        const cGroup = worldRoot(group, dir * (w * 0.5 - panelW * 0.54), rectY, 0.058);
+        if (damageMode !== 'none') cGroup.rotation.z = dir * randBetween(r, -0.14, 0.18);
+        box(cGroup, 0, rectH * 0.04, 0, panelW, rectH * 0.88, 0.012, curtainMat, { cast: false });
+        box(cGroup, -dir * panelW * 0.16, -rectH * 0.18, 0.004, panelW * 0.62, rectH * 0.46, 0.012, curtainMat, { cast: false });
+      }
+    }
 
-    // Shutters with horizontal louver slats
+    // Muntins / sash bars at z = 0.068 (front face at z = 0.086)
+    if (cfg.windowStyle === 'sash' || cfg.windowStyle === 'arched') {
+      if (damageMode === 'none' || r() < 0.5) box(group, 0, rectY, 0.068, 0.052, rectH, 0.036, frame);
+      box(group, 0, rectY, 0.068, w, 0.052, 0.036, frame);
+    } else if (cfg.windowStyle === 'modern') {
+      box(group, 0, rectY, 0.068, 0.048, rectH, 0.036, frame);
+    } else if (cfg.windowStyle === 'tall') {
+      box(group, 0, rectY - rectH * 0.18, 0.068, w, 0.052, 0.036, frame);
+      box(group, 0, rectY + rectH * 0.22, 0.068, w, 0.045, 0.036, frame);
+    }
+
+    // Window sill anchored below the bottom frame rail
+    box(group, 0, rectY - rectH * 0.5 - frameT - 0.035, 0.065, w + frameT * 2 + 0.16, 0.095, 0.18, trim);
+
+    // Shutters with horizontal louver slats (and crooked tilt on aged or damaged buildings)
     if (showShutters) {
       const shutterMat = solid(cfg.doorColor);
-      const sx = w * 0.5 + 0.08 + shutterW * 0.5;
+      const sx = w * 0.5 + frameT + 0.02 + shutterW * 0.5;
+      const wearAmount = Math.max(cfg.damage, cfg.age > 0.35 ? (cfg.age - 0.35) * 0.85 : 0);
       for (const dir of [-1, 1]) {
-        box(group, dir * sx, rectY, 0.03, shutterW, rectH + 0.04, 0.055, shutterMat);
-        box(group, dir * sx, rectY, 0.06, shutterW * 0.76, 0.05, 0.02, frame);
+        if (cfg.damage > 0.45 && r() < cfg.damage * 0.22) continue;
+        const shGroup = worldRoot(group, dir * sx, rectY, 0.042);
+        if (wearAmount > 0.06 && r() < 0.78) {
+          shGroup.rotation.z = dir * randBetween(r, -0.24, 0.28) * wearAmount;
+          shGroup.rotation.y = -dir * randBetween(r, 0, 0.26) * wearAmount;
+        }
+        box(shGroup, 0, 0, 0, shutterW, rectH + 0.04, 0.055, shutterMat);
+        box(shGroup, 0, 0, 0.03, shutterW * 0.76, 0.05, 0.02, frame);
+        box(shGroup, 0, rectH * 0.26, 0.03, shutterW * 0.76, 0.04, 0.02, frame);
+        box(shGroup, 0, -rectH * 0.26, 0.03, shutterW * 0.76, 0.04, 0.02, frame);
       }
     }
 
-    if (options.broken) {
-      const boardMat = solid('#5b4636');
-      box(group, 0, rectY + rectH * 0.12, 0.068, w * 0.92, 0.14, 0.04, boardMat);
-      box(group, 0, rectY - rectH * 0.16, 0.068, w * 0.88, 0.13, 0.04, boardMat);
-      line(group, [-w * 0.36, rectY - rectH * 0.34, 0.065], [w * 0.34, rectY + rectH * 0.34, 0.065], 0.015, frame);
+    // Boarded and partially-boarded wooden planks positioned in front of the frame
+    if (damageMode === 'boarded') {
+      const planks = Math.max(3, Math.min(5, Math.round(rectH / 0.38)));
+      const plankColors = ['#69503c', '#5b4331', '#755a43', '#4f3a2b'];
+      for (const dir of [-1, 1]) {
+        box(group, dir * (w * 0.38), rectY, 0.095, 0.11, rectH * 0.94, 0.03, solid('#4e392a'));
+      }
+      for (let p = 0; p < planks; p++) {
+        const py = rectY - rectH * 0.4 + (p / (planks - 1)) * (rectH * 0.8);
+        const plank = box(group, 0, py, 0.115, w + 0.22, (rectH / planks) * 0.82, 0.038, solid(pick(r, plankColors)));
+        if (plank) plank.rotation.z = randBetween(r, -0.06, 0.06);
+      }
+    } else if (damageMode === 'partial') {
+      const plankColors = ['#69503c', '#5b4331', '#755a43'];
+      const p1 = box(group, 0, rectY + rectH * 0.14, 0.105, w + 0.18, 0.17, 0.038, solid(pick(r, plankColors)));
+      if (p1) p1.rotation.z = randBetween(r, 0.08, 0.24);
+      if (r() < 0.78) {
+        const p2 = box(group, 0, rectY - rectH * 0.18, 0.112, w + 0.16, 0.16, 0.038, solid(pick(r, plankColors)));
+        if (p2) p2.rotation.z = randBetween(r, -0.22, -0.06);
+      }
     }
+
+    // Window A/C unit mounted on lower sill
+    if (options.hasAC && damageMode !== 'boarded') {
+      const acW = clamp(w * 0.58, 0.52, 0.82);
+      const acH = clamp(rectH * 0.28, 0.34, 0.48);
+      const acD = 0.46;
+      const acY = rectY - rectH * 0.5 + acH * 0.5 + 0.02;
+      const acGroup = worldRoot(group, 0, acY, acD * 0.42);
+      if (cfg.age > 0.3 || cfg.damage > 0.15) {
+        acGroup.rotation.x = 0.065;
+        acGroup.rotation.z = randBetween(r, -0.04, 0.04);
+      }
+      box(acGroup, 0, 0, 0, acW, acH, acD, solid(cfg.age > 0.45 ? '#787d7a' : '#8e9699'));
+      box(acGroup, 0, 0, acD * 0.5 + 0.01, acW * 0.9, acH * 0.84, 0.03, solid('#343a3e'));
+      box(acGroup, -acW * 0.18, 0, acD * 0.5 + 0.025, acW * 0.44, acH * 0.68, 0.02, solid('#1d2225'));
+      box(acGroup, acW * 0.24, 0, acD * 0.5 + 0.025, acW * 0.28, acH * 0.68, 0.02, solid('#495156'));
+      for (const sx of [-1, 1]) {
+        line(acGroup, [sx * acW * 0.36, -acH * 0.5 - 0.18, -acD * 0.28], [sx * acW * 0.36, -acH * 0.5, acD * 0.35], 0.022, solid('#454b4e'));
+      }
+    }
+
     return group;
   }
 
@@ -989,16 +1130,18 @@
     const trim = solid(cfg.trimColor);
     const doorMat = wide ? glassMaterial(cfg.glassColor, cfg.windowLighting > 0.25 || view.lighting === 'night') : solid(cfg.doorColor);
 
-    // Frame and recessed door leaf anchored to wall at z = 0
-    box(group, 0, h * 0.5, 0.03, w + 0.34, h + 0.18, 0.16, trim);
-    box(group, 0, h * 0.5, 0.04, w, h, 0.08, doorMat);
+    // Hollow door surround jambs and lintel so the door leaf is never buried inside the trim
+    const jambT = 0.17;
+    box(group, -w * 0.5 - jambT * 0.5, h * 0.5, 0.06, jambT, h + jambT, 0.14, trim);
+    box(group, w * 0.5 + jambT * 0.5, h * 0.5, 0.06, jambT, h + jambT, 0.14, trim);
+    box(group, 0, h + jambT * 0.5, 0.06, w + jambT * 2, jambT, 0.14, trim);
+    box(group, 0, h * 0.5, 0.038, w, h, 0.065, doorMat);
     if (wide) {
-      box(group, 0, h * 0.5, 0.075, 0.06, h, 0.05, trim);
+      box(group, 0, h * 0.5, 0.075, 0.06, h, 0.04, trim);
     }
-    box(group, wide ? 0.16 : w * 0.32, h * 0.46, 0.09, 0.08, 0.16, 0.08, solid('#d5b66c'));
-    box(group, 0, h + 0.14, 0.07, w + 0.56, 0.18, 0.24, trim);
+    box(group, wide ? 0.16 : w * 0.32, h * 0.46, 0.088, 0.08, 0.16, 0.06, solid('#d5b66c'));
+    box(group, 0, h + jambT + 0.08, 0.09, w + 0.56, 0.18, 0.22, trim);
 
-    // Classic portico side pilasters and deep pediment hood when doorStyle is stoop
     if (cfg.doorStyle === 'stoop') {
       for (const dir of [-1, 1]) {
         box(group, dir * (w * 0.5 + 0.24), h * 0.5, 0.14, 0.18, h + 0.16, 0.26, trim);
@@ -1018,7 +1161,6 @@
     const depth = 1.15;
     const baseY = -cfg.floorHeight * 0.36;
 
-    // Balcony slab flush with wall face at z = 0
     box(group, 0, baseY, depth * 0.5, w, 0.12, depth, deck);
     box(group, 0, baseY + 0.86, depth - 0.04, w + 0.04, 0.06, 0.06, steel);
     box(group, -w * 0.5 + 0.03, baseY + 0.86, depth * 0.5, 0.06, 0.06, depth, steel);
@@ -1061,12 +1203,9 @@
       const windowCount = Math.max(1, Math.min(proportional, maxFit));
       const spacing = avail / windowCount;
 
-      let colIdx = 0;
-      if (side === 'front') {
-        colIdx = windowCount - 1;
-      } else {
-        colIdx = Math.min(windowCount - 1, Math.floor(r() * windowCount));
-      }
+      const colIdx = side === 'front'
+        ? windowCount - 1
+        : Math.min(windowCount - 1, Math.floor(r() * windowCount));
       const coord = spanStart + (colIdx + 0.5) * spacing;
       const deckW = clamp(spacing * 0.95, 1.85, 2.55);
       return { side, coord, deckW };
@@ -1108,21 +1247,17 @@
 
     for (let i = 1; i < cfg.floors; i++) {
       const y = i * cfg.floorHeight + 0.12;
-      // Platform deck flush against the wall (local z = 0 is wall face)
       box(group, 0, y, zCenter, deckW, 0.11, deckD, steel);
 
-      // Angled support brackets anchored to the wall at z = 0.02
       for (const dx of [-deckW * 0.42, deckW * 0.42]) {
         line(group, [dx, y - 0.58, 0.02], [dx, y - 0.03, deckD - 0.12], 0.04, steel);
       }
 
-      // Top guardrails around front and both sides
       const railY = y + 0.88;
       box(group, 0, railY, deckD - 0.04, deckW, 0.06, 0.06, steel);
       box(group, -deckW * 0.5 + 0.03, railY, zCenter, 0.06, 0.06, deckD, steel);
       box(group, deckW * 0.5 - 0.03, railY, zCenter, 0.06, 0.06, deckD, steel);
 
-      // Vertical balusters on front and sides
       for (let j = 0; j < 6; j++) {
         const bx = -deckW * 0.5 + 0.04 + (j / 5) * (deckW - 0.08);
         box(group, bx, y + 0.46, deckD - 0.04, 0.04, 0.82, 0.04, steel);
@@ -1133,7 +1268,6 @@
         }
       }
 
-      // Connecting stair flight positioned inside the landing depth
       if (i < cfg.floors - 1) {
         const nextY = (i + 1) * cfg.floorHeight + 0.12;
         const dir = i % 2 === 1 ? 1 : -1;
@@ -1153,7 +1287,6 @@
         }
       }
 
-      // Vertical drop ladder on the lowest landing
       if (i === 1) {
         const lx = deckW * 0.5 + 0.18;
         const lz = deckD * 0.55;
@@ -1237,12 +1370,13 @@
         const bayW = Math.min(3.4, sideSpace * 0.88);
         const bayOffset = doorHalfW + sideSpace * 0.5;
         const shopCfg = { ...cfg, windowStyle: 'modern', windowLighting: Math.max(0.75, cfg.windowLighting) };
-        addWindow(parent, 'front', cx - bayOffset, cfg.floorHeight * 0.48, wallZ, shopCfg, r, bayW, cfg.floorHeight * 0.62, { maxW: bayW, noShutters: true });
-        addWindow(parent, 'front', cx + bayOffset, cfg.floorHeight * 0.48, wallZ, shopCfg, r, bayW, cfg.floorHeight * 0.62, { maxW: bayW, noShutters: true });
+        const shopDmgL = cfg.damage > 0.35 && r() < cfg.damage * 0.45 ? pickWindowDamageMode(cfg, r, true) : 'none';
+        const shopDmgR = cfg.damage > 0.35 && r() < cfg.damage * 0.45 ? pickWindowDamageMode(cfg, r, true) : 'none';
+        addWindow(parent, 'front', cx - bayOffset, cfg.floorHeight * 0.48, wallZ, shopCfg, r, bayW, cfg.floorHeight * 0.62, { maxW: bayW, noShutters: true, noCurtains: true, damageMode: shopDmgL });
+        addWindow(parent, 'front', cx + bayOffset, cfg.floorHeight * 0.48, wallZ, shopCfg, r, bayW, cfg.floorHeight * 0.62, { maxW: bayW, noShutters: true, noCurtains: true, damageMode: shopDmgR });
       }
       addAwning(parent, cx, wallZ, usableW * 0.82, cfg.floorHeight, cfg, false);
     } else if (cfg.awning) {
-      // Render an entrance canopy awning over residential or lobby doors when checked
       const canopyW = Math.min(usableW * 0.55, wideDoor ? 3.8 : 2.9);
       addAwning(parent, cx, wallZ, canopyW, cfg.floorHeight + totalRise * 0.6, cfg, true);
     }
@@ -1303,55 +1437,74 @@
 
   function segmentsForFloor(cfg, index) {
     const setbackStart = Math.floor(cfg.floors * 0.6);
-    const shrink = cfg.setback > 0 && index >= setbackStart
+    const rawShrink = cfg.setback > 0 && index >= setbackStart
       ? cfg.setback * (1 + Math.floor((index - setbackStart) / 3) * 0.4)
       : 0;
-    const w = Math.max(5, cfg.width - shrink * 2);
-    const d = Math.max(5, cfg.depth - shrink * 2);
-    // Apply cornerCut on any footprint whenever cornerCut > 0
+    const baseW = cfg.width;
+    const baseD = cfg.depth;
+    const maxShrink = Math.max(0, Math.min((baseW - 5) * 0.45, (baseD - 5) * 0.45));
+    const shrink = Math.min(rawShrink, maxShrink);
+
+    const w = Math.max(5, baseW - shrink * 2);
+    const d = Math.max(5, baseD - shrink * 2);
     const cut = cfg.cornerCut > 0 ? Math.min(cfg.cornerCut, w * 0.28, d * 0.28) : 0;
 
     const segments = [];
     if (cfg.footprint === 'L') {
-      const backD = d * 0.56;
-      const backZ = -d * 0.5 + backD * 0.5;
-      const frontD = d - backD;
-      const frontW = w * 0.46;
-      const frontX = -w * 0.5 + frontW * 0.5;
-      const frontZ = backZ + backD * 0.5 + frontD * 0.5;
+      const seamZ = -baseD * 0.5 + baseD * 0.56;
+      const backMinZ = -baseD * 0.5 + shrink;
+      const backMaxZ = Math.min(seamZ, baseD * 0.5 - shrink);
+      const backD = Math.max(2.6, backMaxZ - backMinZ);
+      const backZ = (backMinZ + backMaxZ) * 0.5;
+
+      const wingMinX = -baseW * 0.5 + shrink;
+      const wingMaxX = Math.max(wingMinX + 2.2, -baseW * 0.5 + baseW * 0.46 - shrink * 0.5);
+      const frontW = wingMaxX - wingMinX;
+      const frontX = (wingMinX + wingMaxX) * 0.5;
+      const frontMaxZ = baseD * 0.5 - shrink;
+      const frontD = Math.max(1.8, frontMaxZ - backMaxZ);
+      const frontZ = backMaxZ + frontD * 0.5;
 
       segments.push(makeSeg(0, backZ, w, backD, {
         isMain: true,
         hasEntrance: true,
         cornerCut: cut,
-        occlusions: { front: [[-w * 0.5, -w * 0.5 + frontW]] }
+        occlusions: { front: [[wingMinX, wingMaxX]] }
       }));
       segments.push(makeSeg(frontX, frontZ, frontW, frontD, {
         skipWalls: { back: true }
       }));
     } else if (cfg.footprint === 'U') {
-      const backD = d * 0.46;
-      const backZ = -d * 0.5 + backD * 0.5;
-      const wingD = d - backD;
-      const wingW = w * 0.31;
-      const wingZ = backZ + backD * 0.5 + wingD * 0.5;
-      const leftX = -w * 0.5 + wingW * 0.5;
-      const rightX = w * 0.5 - wingW * 0.5;
+      const seamZ = -baseD * 0.5 + baseD * 0.46;
+      const backMinZ = -baseD * 0.5 + shrink;
+      const backMaxZ = Math.min(seamZ, baseD * 0.5 - shrink);
+      const backD = Math.max(2.5, backMaxZ - backMinZ);
+      const backZ = (backMinZ + backMaxZ) * 0.5;
+
+      const wingW = Math.max(2.0, baseW * 0.31 - shrink * 0.65);
+      const leftMinX = -baseW * 0.5 + shrink;
+      const leftMaxX = leftMinX + wingW;
+      const rightMaxX = baseW * 0.5 - shrink;
+      const rightMinX = rightMaxX - wingW;
+
+      const wingMaxZ = baseD * 0.5 - shrink;
+      const wingD = Math.max(1.8, wingMaxZ - backMaxZ);
+      const wingZ = backMaxZ + wingD * 0.5;
 
       segments.push(makeSeg(0, backZ, w, backD, {
         isMain: true,
         hasEntrance: true,
         occlusions: {
           front: [
-            [-w * 0.5, -w * 0.5 + wingW],
-            [w * 0.5 - wingW, w * 0.5]
+            [leftMinX, leftMaxX],
+            [rightMinX, rightMaxX]
           ]
         }
       }));
-      segments.push(makeSeg(leftX, wingZ, wingW, wingD, {
+      segments.push(makeSeg((leftMinX + leftMaxX) * 0.5, wingZ, wingW, wingD, {
         skipWalls: { back: true }
       }));
-      segments.push(makeSeg(rightX, wingZ, wingW, wingD, {
+      segments.push(makeSeg((rightMinX + rightMaxX) * 0.5, wingZ, wingW, wingD, {
         cornerCut: Math.min(cut, wingW * 0.35),
         skipWalls: { back: true }
       }));
@@ -1434,36 +1587,40 @@
     const cut = seg.cornerCut || 0;
     const t = cfg.wallThickness;
 
-    let wallLen = long ? seg.w : seg.d;
-    if (side === 'front' && cut > 0) wallLen -= cut;
-    if (side === 'right' && cut > 0) wallLen -= cut;
-    if (wallLen <= 0.2) return;
-
-    const mat = textureMaterial(kind, override, cfg.secondaryWallColor, cfg.mortarColor, cfg, seed, wallLen, cfg.floorHeight);
-
-    // Position wall so its outer face sits flush on the segment perimeter
-    if (side === 'front') {
-      box(group, seg.x - cut * 0.5, y, seg.z + seg.d * 0.5 - t * 0.5, seg.w - cut, cfg.floorHeight, t, mat);
-    } else if (side === 'back') {
-      box(group, seg.x, y, seg.z - seg.d * 0.5 + t * 0.5, seg.w, cfg.floorHeight, t, mat);
-    } else if (side === 'left') {
-      box(group, seg.x - seg.w * 0.5 + t * 0.5, y, seg.z, t, cfg.floorHeight, Math.max(0.2, seg.d - t * 2), mat);
-    } else if (side === 'right') {
-      const rightDepth = Math.max(0.2, seg.d - t - (cut > 0 ? cut : t));
-      const rightZ = seg.z + (t - (cut > 0 ? cut : t)) * 0.5;
-      box(group, seg.x + seg.w * 0.5 - t * 0.5, y, rightZ, t, cfg.floorHeight, rightDepth, mat);
-    }
-
-    const trim = solid(cfg.trimColor);
     const spanStart = long ? seg.x - seg.w * 0.5 : seg.z - seg.d * 0.5;
     const spanEnd = long
       ? seg.x + seg.w * 0.5 - (side === 'front' ? cut : 0)
       : seg.z + seg.d * 0.5 - (side === 'right' ? cut : 0);
+    if (spanEnd - spanStart <= 0.2) return;
 
     const blocked = [...(seg.occlusions?.[side] || [])];
     const exposedSpans = subtractIntervals(spanStart, spanEnd, blocked);
 
-    // Base grime plinth band at street level when weathering > 0.05
+    for (const [s, e] of exposedSpans) {
+      let ws = s;
+      let we = e;
+      if (!long) {
+        if (Math.abs(ws - (seg.z - seg.d * 0.5)) < 0.02 && !seg.skipWalls?.back) ws += t;
+        if (Math.abs(we - (seg.z + seg.d * 0.5)) < 0.02 && !seg.skipWalls?.front && cut <= 0.01) we -= t;
+      }
+      const len = we - ws;
+      if (len <= 0.05) continue;
+      const mid = (ws + we) * 0.5;
+      const mat = textureMaterial(kind, override, cfg.secondaryWallColor, cfg.mortarColor, cfg, seed, len, cfg.floorHeight);
+
+      if (side === 'front') {
+        box(group, mid, y, seg.z + seg.d * 0.5 - t * 0.5, len, cfg.floorHeight, t, mat);
+      } else if (side === 'back') {
+        box(group, mid, y, seg.z - seg.d * 0.5 + t * 0.5, len, cfg.floorHeight, t, mat);
+      } else if (side === 'left') {
+        box(group, seg.x - seg.w * 0.5 + t * 0.5, y, mid, t, cfg.floorHeight, len, mat);
+      } else if (side === 'right') {
+        box(group, seg.x + seg.w * 0.5 - t * 0.5, y, mid, t, cfg.floorHeight, len, mat);
+      }
+    }
+
+    const trim = solid(cfg.trimColor);
+
     if (index === 0 && cfg.age > 0.05) {
       const grimeMat = solid(cfg.grimeColor);
       const grimeH = 0.22 + cfg.age * 0.35;
@@ -1480,6 +1637,48 @@
       }
     }
 
+    if (index === cfg.floors - 1 && (cfg.roofPuddles || cfg.age > 0.45)) {
+      const stainMat = solid(cfg.grimeColor);
+      const topY = (index + 1) * cfg.floorHeight;
+      for (const [s, e] of exposedSpans) {
+        const drips = Math.max(1, Math.floor((e - s) / 3.2));
+        for (let dIdx = 0; dIdx < drips; dIdx++) {
+          const pos = randBetween(r, s + 0.35, e - 0.35);
+          const dripH = randBetween(r, 0.45, 1.25);
+          const dripW = randBetween(r, 0.25, 0.65);
+          if (long) {
+            const zOut = side === 'front' ? seg.z + seg.d * 0.5 + 0.014 : seg.z - seg.d * 0.5 - 0.014;
+            box(group, pos, topY - dripH * 0.5 - 0.14, zOut, dripW, dripH, 0.02, stainMat, { cast: false });
+          } else {
+            const xOut = side === 'left' ? seg.x - seg.w * 0.5 - 0.014 : seg.x + seg.w * 0.5 + 0.014;
+            box(group, xOut, topY - dripH * 0.5 - 0.14, pos, 0.02, dripH, dripW, stainMat, { cast: false });
+          }
+        }
+      }
+    }
+
+    if (cfg.damage > 0.15) {
+      const spallMat = solid(cfg.secondaryWallColor);
+      const darkCore = solid('#322926');
+      for (const [s, e] of exposedSpans) {
+        if (e - s > 2.2 && r() < cfg.damage * 0.6) {
+          const pos = randBetween(r, s + 0.6, e - 0.6);
+          const sy = index * cfg.floorHeight + randBetween(r, 0.35, cfg.floorHeight - 0.35);
+          const pw = randBetween(r, 0.45, 1.1);
+          const ph = randBetween(r, 0.28, 0.62);
+          if (long) {
+            const zOut = side === 'front' ? seg.z + seg.d * 0.5 + 0.012 : seg.z - seg.d * 0.5 - 0.012;
+            box(group, pos, sy, zOut, pw, ph, 0.025, spallMat, { cast: false });
+            box(group, pos, sy, zOut + (side === 'front' ? 0.006 : -0.006), pw * 0.6, ph * 0.55, 0.02, darkCore, { cast: false });
+          } else {
+            const xOut = side === 'left' ? seg.x - seg.w * 0.5 - 0.012 : seg.x + seg.w * 0.5 + 0.012;
+            box(group, xOut, sy, pos, 0.025, ph, pw, spallMat, { cast: false });
+            box(group, xOut + (side === 'left' ? -0.006 : 0.006), sy, pos, 0.02, ph * 0.55, pw * 0.6, darkCore, { cast: false });
+          }
+        }
+      }
+    }
+
     if (cfg.trimAmount > 0.04) {
       const trimH = 0.11 + cfg.trimAmount * 0.11;
       const topTrimH = 0.13 + cfg.trimAmount * 0.16;
@@ -1487,22 +1686,21 @@
         const len = e - s;
         const mid = (s + e) * 0.5;
         if (long) {
-          const zOut = side === 'front' ? seg.z + seg.d * 0.5 + 0.05 : seg.z - seg.d * 0.5 - 0.05;
-          box(group, mid, index * cfg.floorHeight + trimH * 0.5, zOut, len + 0.08, trimH, 0.14, trim);
+          const zOut = side === 'front' ? seg.z + seg.d * 0.5 + 0.04 : seg.z - seg.d * 0.5 - 0.04;
+          box(group, mid, index * cfg.floorHeight + trimH * 0.5 + 0.005, zOut, len + 0.04, trimH, 0.12, trim);
           if (cfg.trimAmount > 0.55 && (index === 0 || index === cfg.floors - 1)) {
-            box(group, mid, (index + 1) * cfg.floorHeight - topTrimH * 0.5, zOut, len + 0.12, topTrimH, 0.2, trim);
+            box(group, mid, (index + 1) * cfg.floorHeight - topTrimH * 0.5 - 0.005, zOut, len + 0.08, topTrimH, 0.18, trim);
           }
         } else {
-          const xOut = side === 'left' ? seg.x - seg.w * 0.5 - 0.05 : seg.x + seg.w * 0.5 + 0.05;
-          box(group, xOut, index * cfg.floorHeight + trimH * 0.5, mid, 0.14, trimH, len + 0.08, trim);
+          const xOut = side === 'left' ? seg.x - seg.w * 0.5 - 0.04 : seg.x + seg.w * 0.5 + 0.04;
+          box(group, xOut, index * cfg.floorHeight + trimH * 0.5 + 0.005, mid, 0.12, trimH, len + 0.04, trim);
           if (cfg.trimAmount > 0.55 && (index === 0 || index === cfg.floors - 1)) {
-            box(group, xOut, (index + 1) * cfg.floorHeight - topTrimH * 0.5, mid, 0.2, topTrimH, len + 0.12, trim);
+            box(group, xOut, (index + 1) * cfg.floorHeight - topTrimH * 0.5 - 0.005, mid, 0.18, topTrimH, len + 0.08, trim);
           }
         }
       }
     }
 
-    // Ground floor front entrance handles its own shop windows or reserves center door space
     if (index === 0 && side === 'front' && seg.hasEntrance && cfg.groundUse === 'shop') return;
     const windowBlocked = [...blocked];
     if (index === 0 && side === 'front' && seg.hasEntrance) {
@@ -1532,17 +1730,113 @@
         const z = long ? (side === 'front' ? seg.z + seg.d * 0.5 : seg.z - seg.d * 0.5) : pos;
 
         const hasFireHere = firePlacement && firePlacement.side === side && Math.abs(pos - firePlacement.coord) < firePlacement.deckW * 0.55;
-        const isBroken = cfg.damage > 0 && (r() < cfg.damage * 0.65 || (cfg.damage >= 0.05 && index === 1 && j === 0));
+        const forceFirstDamage = cfg.damage >= 0.05 && index === Math.min(1, cfg.floors - 1) && j === 0 && side === 'front';
+        const damageMode = pickWindowDamageMode(cfg, r, forceFirstDamage);
 
-        addWindow(group, side, x, wy, z, cfg, r, ww, wh, { maxW: spacing * 0.88, broken: isBroken });
-
+        let hasBalcony = false;
         if (!hasFireHere && cfg.balconies > 0 && (index > 0 || cfg.floors === 1)) {
-          const canBalconySide = side === 'front' || (cfg.balconies >= 0.4 && (side === 'left' || side === 'right'));
-          const guaranteedFirst = side === 'front' && index === Math.min(1, cfg.floors - 1) && j === 0;
-          if (canBalconySide && (guaranteedFirst || r() < cfg.balconies * (side === 'front' ? 0.95 : 0.5))) {
+          const guaranteedFront = side === 'front' && index === Math.min(1, cfg.floors - 1) && j === 0;
+          const sideChance = side === 'front' ? cfg.balconies * 0.85 : cfg.balconies * 0.72;
+          if (guaranteedFront || r() < sideChance) {
             addBalcony(group, side, x, wy, z, ww + 0.75, cfg);
+            hasBalcony = true;
           }
         }
+
+        const hasAC = !hasBalcony && !hasFireHere && cfg.acUnits && (index > 0 || cfg.groundUse === 'residential') && (r() < 0.38 || (index === 1 && j === windowCount - 1));
+        addWindow(group, side, x, wy, z, cfg, r, ww, wh, {
+          maxW: spacing * 0.88,
+          damageMode,
+          hasAC
+        });
+      }
+    }
+  }
+
+  function addSetbackTerrace(group, lowerSeg, upperSeg, y, cfg, r) {
+    const roofMat = solid(cfg.roofColor);
+    const trimMat = solid(cfg.trimColor);
+    const wallMat = solid(cfg.wallColor);
+    const slabH = 0.12;
+    const slabY = y - slabH * 0.5 - 0.015;
+    const overlap = Math.min(0.08, cfg.wallThickness * 0.45);
+
+    const lMinX = lowerSeg.x - lowerSeg.w * 0.5;
+    const lMaxX = lowerSeg.x + lowerSeg.w * 0.5 - (lowerSeg.cornerCut || 0);
+    const lMinZ = lowerSeg.z - lowerSeg.d * 0.5;
+    const lMaxZ = lowerSeg.z + lowerSeg.d * 0.5;
+
+    const uMinX = upperSeg.x - upperSeg.w * 0.5 + overlap;
+    const uMaxX = upperSeg.x + upperSeg.w * 0.5 - (upperSeg.cornerCut || 0) - overlap;
+    const uMinZ = upperSeg.z - upperSeg.d * 0.5 + overlap;
+    const uMaxZ = upperSeg.z + upperSeg.d * 0.5 - overlap;
+
+    const frontD = lMaxZ - uMaxZ;
+    if (frontD > 0.04) {
+      box(group, (lMinX + lMaxX) * 0.5, slabY, uMaxZ + frontD * 0.5, lMaxX - lMinX, slabH, frontD, roofMat);
+    }
+    const backD = uMinZ - lMinZ;
+    if (backD > 0.04) {
+      box(group, (lMinX + lMaxX) * 0.5, slabY, lMinZ + backD * 0.5, lMaxX - lMinX, slabH, backD, roofMat);
+    }
+    const midD = Math.max(0, uMaxZ - uMinZ);
+    const leftW = uMinX - lMinX;
+    if (leftW > 0.04 && midD > 0.04) {
+      box(group, lMinX + leftW * 0.5, slabY, (uMinZ + uMaxZ) * 0.5, leftW, slabH, midD, roofMat);
+    }
+    const rightW = lMaxX - uMaxX;
+    if (rightW > 0.04 && midD > 0.04) {
+      box(group, uMaxX + rightW * 0.5, slabY, (uMinZ + uMaxZ) * 0.5, rightW, slabH, midD, roofMat);
+    }
+
+    const ledgeH = 0.16;
+    const ledgeT = 0.14;
+    const ledgeMat = cfg.parapet ? wallMat : trimMat;
+    box(group, (lMinX + lMaxX) * 0.5, y + ledgeH * 0.5 - 0.02, lMaxZ - ledgeT * 0.5, lMaxX - lMinX + 0.04, ledgeH, ledgeT, ledgeMat);
+    box(group, (lMinX + lMaxX) * 0.5, y + ledgeH * 0.5 - 0.02, lMinZ + ledgeT * 0.5, lMaxX - lMinX + 0.04, ledgeH, ledgeT, ledgeMat);
+    box(group, lMinX + ledgeT * 0.5, y + ledgeH * 0.5 - 0.02, (lMinZ + lMaxZ) * 0.5, ledgeT, ledgeH, lMaxZ - lMinZ - ledgeT * 2, ledgeMat);
+    box(group, lMaxX - ledgeT * 0.5, y + ledgeH * 0.5 - 0.02, (lMinZ + lMaxZ) * 0.5, ledgeT, ledgeH, lMaxZ - lMinZ - ledgeT * 2, ledgeMat);
+
+    if (frontD > 0.65 && (cfg.tarPatches || cfg.roofPuddles || cfg.age > 0.45)) {
+      addSurfaceWeathering(group, (lMinX + lMaxX) * 0.5, y - 0.012, uMaxZ + frontD * 0.5, lMaxX - lMinX - 0.5, frontD - 0.35, cfg, r);
+    }
+  }
+
+  function addSurfaceWeathering(group, cx, surfaceY, cz, spanW, spanD, cfg, r) {
+    if (spanW < 0.8 || spanD < 0.45) return;
+
+    if (cfg.tarPatches || cfg.damage > 0.25 || cfg.age > 0.55) {
+      const tarMat = solid('#1b1e20');
+      const seamMat = solid('#282c2f');
+      const metalPatchMat = solid('#6b6358');
+      const count = Math.max(2, Math.ceil((spanW * spanD) / 18) + (cfg.tarPatches ? 3 : 0));
+      for (let i = 0; i < count; i++) {
+        const pw = randBetween(r, 0.55, Math.min(2.4, spanW * 0.45));
+        const pd = randBetween(r, 0.38, Math.min(1.9, spanD * 0.45));
+        const px = cx + randBetween(r, -spanW * 0.45 + pw * 0.5, spanW * 0.45 - pw * 0.5);
+        const pz = cz + randBetween(r, -spanD * 0.45 + pd * 0.5, spanD * 0.45 - pd * 0.5);
+        const patch = box(group, px, surfaceY + 0.008 + i * 0.001, pz, pw, 0.014, pd, i % 3 === 0 && cfg.damage > 0.15 ? metalPatchMat : (i % 2 === 0 ? tarMat : seamMat), { cast: false });
+        if (patch) patch.rotation.y = randBetween(r, -0.35, 0.35);
+      }
+    }
+
+    if (cfg.roofPuddles || cfg.age > 0.5) {
+      const stainMat = solid(cfg.grimeColor);
+      const waterMat = puddleMaterial();
+      const puddleCount = Math.max(1, Math.min(4, Math.ceil((spanW * spanD) / 28) + (cfg.roofPuddles ? 2 : 0)));
+      for (let i = 0; i < puddleCount; i++) {
+        const rad = randBetween(r, 0.35, Math.min(1.35, Math.min(spanW, spanD) * 0.32));
+        const px = cx + randBetween(r, -spanW * 0.42 + rad, spanW * 0.42 - rad);
+        const pz = cz + randBetween(r, -spanD * 0.42 + rad, spanD * 0.42 - rad);
+        const scaleZ = randBetween(r, 0.65, 1.25);
+
+        const stain = cylinder(group, px, surfaceY + 0.006 + i * 0.001, pz, rad * 1.28, rad * 1.28, 0.008, stainMat, 14);
+        stain.scale.z = scaleZ;
+        stain.castShadow = false;
+
+        const water = cylinder(group, px, surfaceY + 0.012 + i * 0.001, pz, rad, rad, 0.01, waterMat, 14);
+        water.scale.z = scaleZ;
+        water.castShadow = false;
       }
     }
   }
@@ -1569,9 +1863,9 @@
 
     if (cfg.trimAmount > 0.04) {
       const trimH = 0.11 + cfg.trimAmount * 0.11;
-      box(wedge, 0, index * cfg.floorHeight + trimH * 0.5, 0.05, diagLen + 0.16, trimH, 0.16, solid(cfg.trimColor));
+      box(wedge, 0, index * cfg.floorHeight + trimH * 0.5 + 0.005, 0.04, diagLen + 0.12, trimH, 0.14, solid(cfg.trimColor));
       if (index === cfg.floors - 1 && cfg.trimAmount > 0.2) {
-        box(wedge, 0, (index + 1) * cfg.floorHeight - 0.13, 0.12, diagLen + 0.36, 0.26, 0.36, solid(cfg.trimColor));
+        box(wedge, 0, (index + 1) * cfg.floorHeight - 0.13, 0.1, diagLen + 0.28, 0.24, 0.3, solid(cfg.trimColor));
       }
     }
 
@@ -1580,44 +1874,67 @@
     } else if (diagLen >= 1.05) {
       const ww = Math.min(cfg.windowWidth, diagLen * 0.62);
       const wh = Math.min(cfg.windowHeight, cfg.floorHeight * 0.66);
-      addWindow(group, 'corner', cx, index * cfg.floorHeight + cfg.floorHeight * 0.51, cz, cfg, r, ww, wh, { maxW: diagLen * 0.7, noShutters: true });
+      const damageMode = pickWindowDamageMode(cfg, r, false);
+      addWindow(group, 'corner', cx, index * cfg.floorHeight + cfg.floorHeight * 0.51, cz, cfg, r, ww, wh, {
+        maxW: diagLen * 0.7,
+        noShutters: true,
+        damageMode
+      });
     }
   }
 
-  function addVerticalDetails(group, seg, totalHeight, cfg) {
+  function addVerticalDetails(group, seg, sectionHeight, cfg) {
     if (cfg.facadeAccent === 'none' || cfg.trimAmount <= 0.02) return;
     const trim = solid(cfg.trimColor);
     const cut = seg.cornerCut || 0;
-    const usableW = seg.w - cut;
-    const cx = seg.x - cut * 0.5;
-    const wallZ = seg.z + seg.d * 0.5;
-    const exposed = subtractIntervals(seg.x - seg.w * 0.5, seg.x + seg.w * 0.5 - cut, seg.occlusions?.front || []);
+    const usableH = sectionHeight - 0.18;
 
-    if (cfg.facadeAccent === 'vertical') {
-      const col = Math.max(3, Math.floor(usableW / 3));
-      for (let i = 0; i <= col; i++) {
-        const px = cx - usableW * 0.5 + (usableW * i) / col;
-        if (exposed.some(([s, e]) => px >= s - 0.05 && px <= e + 0.05)) {
-          box(group, px, totalHeight * 0.5, wallZ + 0.07, 0.16, totalHeight, 0.14, trim);
+    for (const side of ['front', 'back', 'left', 'right']) {
+      if (seg.skipWalls?.[side]) continue;
+      const long = side === 'front' || side === 'back';
+      const sideCut = (side === 'front' || side === 'right') ? cut : 0;
+      const spanStart = long ? seg.x - seg.w * 0.5 : seg.z - seg.d * 0.5;
+      const spanEnd = (long ? seg.x + seg.w * 0.5 : seg.z + seg.d * 0.5) - sideCut;
+      const exposed = subtractIntervals(spanStart, spanEnd, seg.occlusions?.[side] || []);
+      if (!exposed.length) continue;
+
+      if (cfg.facadeAccent === 'vertical' && (side === 'front' || side === 'left' || side === 'right')) {
+        const spanLen = spanEnd - spanStart;
+        const col = Math.max(2, Math.floor(spanLen / 3.2));
+        for (let i = 0; i <= col; i++) {
+          const p = spanStart + (spanLen * i) / col;
+          if (exposed.some(([s, e]) => p >= s - 0.05 && p <= e + 0.05)) {
+            if (long) {
+              const zOut = side === 'front' ? seg.z + seg.d * 0.5 + 0.025 : seg.z - seg.d * 0.5 - 0.025;
+              box(group, p, usableH * 0.5, zOut, 0.15, usableH, 0.06, trim);
+            } else {
+              const xOut = side === 'left' ? seg.x - seg.w * 0.5 - 0.025 : seg.x + seg.w * 0.5 + 0.025;
+              box(group, xOut, usableH * 0.5, p, 0.06, usableH, 0.15, trim);
+            }
+          }
+        }
+      } else if (cfg.facadeAccent === 'ornate' && side === 'front') {
+        for (const px of [spanStart + 0.32, spanEnd - 0.32]) {
+          if (exposed.some(([s, e]) => px >= s - 0.1 && px <= e + 0.1)) {
+            box(group, px, usableH * 0.5, seg.z + seg.d * 0.5 + 0.08, 0.3, usableH, 0.16, trim);
+          }
         }
       }
-    } else if (cfg.facadeAccent === 'ornate') {
-      for (const px of [seg.x - seg.w * 0.5 + 0.32, seg.x + seg.w * 0.5 - cut - 0.32]) {
-        if (exposed.some(([s, e]) => px >= s - 0.1 && px <= e + 0.1)) {
-          box(group, px, totalHeight * 0.5, wallZ + 0.09, 0.32, totalHeight, 0.18, trim);
-          box(group, px, totalHeight - 0.2, wallZ + 0.16, 0.62, 0.42, 0.32, trim);
-        }
-      }
-    }
 
-    if (cfg.trimAmount > 0.2) {
-      const depth = cfg.facadeAccent === 'cornice' ? 0.42 : 0.28;
-      for (const [s, e] of exposed) {
-        const len = e - s;
-        const mid = (s + e) * 0.5;
-        box(group, mid, totalHeight - 0.13, wallZ + depth * 0.4, len + 0.32, 0.26 + cfg.trimAmount * 0.24, depth, trim);
-        if (cfg.facadeAccent === 'ornate') {
-          box(group, mid, totalHeight - 0.41, wallZ + 0.12, len + 0.18, 0.16, 0.26, solid(cfg.secondaryWallColor));
+      if (cfg.trimAmount > 0.2) {
+        const depth = cfg.facadeAccent === 'cornice' ? 0.34 : 0.22;
+        const corniceH = 0.22 + cfg.trimAmount * 0.16;
+        const corniceY = sectionHeight - corniceH * 0.5 - 0.14;
+        for (const [s, e] of exposed) {
+          const len = e - s;
+          const mid = (s + e) * 0.5;
+          if (long) {
+            const zOut = side === 'front' ? seg.z + seg.d * 0.5 + depth * 0.42 : seg.z - seg.d * 0.5 - depth * 0.42;
+            box(group, mid, corniceY, zOut, len + 0.18, corniceH, depth, trim);
+          } else {
+            const xOut = side === 'left' ? seg.x - seg.w * 0.5 - depth * 0.42 : seg.x + seg.w * 0.5 + depth * 0.42;
+            box(group, xOut, corniceY, mid, depth, corniceH, len + 0.18, trim);
+          }
         }
       }
     }
@@ -1630,7 +1947,8 @@
     const baseY = index * cfg.floorHeight;
     const tWall = cfg.wallThickness;
     const floorMat = solid(index % 2 ? '#746d60' : '#8c7d68');
-    slabBox(group, seg, baseY + 0.08, 0.16, tWall * 0.85, floorMat);
+    const yMicro = (seg.extIndex >= 0 ? (seg.extIndex + 1) : 0) * 0.002;
+    slabBox(group, seg, baseY + 0.08 + yMicro, 0.15, tWall * 0.95, floorMat);
 
     const h = cfg.floorHeight * 0.82;
     const t = 0.09;
@@ -1639,7 +1957,6 @@
     const innerD = seg.d - tWall * 2 - 0.12;
     if (innerW <= 1.5 || innerD <= 1.5) return;
 
-    // Reserve a rear-left circulation bay on the main segment for stairs so partitions don't collide
     const hasStairBay = seg.isMain && cfg.stairwell && innerW >= 4.2 && innerD >= 3.2;
     const stairBayW = hasStairBay ? Math.min(2.6, innerW * 0.32) : 0;
     const roomStartX = seg.x - innerW * 0.5 + stairBayW;
@@ -1675,7 +1992,6 @@
       const halfH = cfg.floorHeight * 0.5;
       const midY = baseY + halfH;
 
-      // Mid-level turn landing flush against left interior wall
       box(group, seg.x - innerW * 0.5 + 0.32, midY, bayZ, 0.62, 0.12, 1.45, stairMat);
 
       const stepsPerFlight = 6;
@@ -1710,45 +2026,69 @@
     if (cfg.overgrowth <= 0) return;
     const ivy = solid('#415f37');
     const cut = seg.cornerCut || 0;
-    const exposed = subtractIntervals(seg.x - seg.w * 0.5 + 0.3, seg.x + seg.w * 0.5 - cut - 0.3, seg.occlusions?.front || []);
-    if (!exposed.length) return;
+    const sides = ['front', 'left', 'right', 'back'];
 
-    const clusters = Math.max(2, Math.ceil(cfg.overgrowth * 28));
-    const wallZ = seg.z + seg.d * 0.5 + 0.06;
-    for (let i = 0; i < clusters; i++) {
-      const span = pick(r, exposed);
-      const x = randBetween(r, span[0], span[1]);
-      const y = randBetween(r, 0.4, totalHeight * 0.88);
-      const x2 = clamp(x + randBetween(r, -0.55, 0.55), span[0], span[1]);
-      line(group, [x, y, wallZ], [x2, Math.min(totalHeight - 0.2, y + randBetween(r, 0.4, 1.5)), wallZ], 0.028, ivy);
-      for (let j = 0; j < 3; j++) {
-        const leaf = new THREE.Mesh(
-          new THREE.IcosahedronGeometry(randBetween(r, 0.1, 0.24), 0),
-          solid(pick(r, ['#425c30', '#677a45', '#394a2c']))
-        );
-        leaf.position.set(clamp(x + randBetween(r, -0.25, 0.25), span[0], span[1]), y + j * 0.25, wallZ + 0.05);
-        group.add(leaf);
+    for (const side of sides) {
+      if (seg.skipWalls?.[side]) continue;
+      const long = side === 'front' || side === 'back';
+      const sideCut = (side === 'front' || side === 'right') ? cut : 0;
+      const spanStart = (long ? seg.x - seg.w * 0.5 : seg.z - seg.d * 0.5) + 0.3;
+      const spanEnd = (long ? seg.x + seg.w * 0.5 : seg.z + seg.d * 0.5) - sideCut - 0.3;
+      const exposed = subtractIntervals(spanStart, spanEnd, seg.occlusions?.[side] || []);
+      if (!exposed.length) continue;
+
+      const clusters = Math.max(1, Math.ceil(cfg.overgrowth * (side === 'front' ? 16 : 9)));
+      for (let i = 0; i < clusters; i++) {
+        const span = pick(r, exposed);
+        const pos = randBetween(r, span[0], span[1]);
+        const pos2 = clamp(pos + randBetween(r, -0.55, 0.55), span[0], span[1]);
+        const y = randBetween(r, 0.4, totalHeight * 0.88);
+        const y2 = Math.min(totalHeight - 0.2, y + randBetween(r, 0.4, 1.5));
+
+        if (long) {
+          const zOut = side === 'front' ? seg.z + seg.d * 0.5 + 0.06 : seg.z - seg.d * 0.5 - 0.06;
+          line(group, [pos, y, zOut], [pos2, y2, zOut], 0.028, ivy);
+          for (let j = 0; j < 3; j++) {
+            const leaf = new THREE.Mesh(
+              new THREE.IcosahedronGeometry(randBetween(r, 0.1, 0.23), 0),
+              solid(pick(r, ['#425c30', '#677a45', '#394a2c']))
+            );
+            leaf.position.set(clamp(pos + randBetween(r, -0.25, 0.25), span[0], span[1]), y + j * 0.25, zOut + (side === 'front' ? 0.04 : -0.04));
+            group.add(leaf);
+          }
+        } else {
+          const xOut = side === 'left' ? seg.x - seg.w * 0.5 - 0.06 : seg.x + seg.w * 0.5 + 0.06;
+          line(group, [xOut, y, pos], [xOut, y2, pos2], 0.028, ivy);
+          for (let j = 0; j < 3; j++) {
+            const leaf = new THREE.Mesh(
+              new THREE.IcosahedronGeometry(randBetween(r, 0.1, 0.23), 0),
+              solid(pick(r, ['#425c30', '#677a45', '#394a2c']))
+            );
+            leaf.position.set(xOut + (side === 'left' ? -0.04 : 0.04), y + j * 0.25, clamp(pos + randBetween(r, -0.25, 0.25), span[0], span[1]));
+            group.add(leaf);
+          }
+        }
       }
     }
   }
 
-  function addRoof(group, seg, y, cfg) {
+  function addRoof(group, seg, y, cfg, r, segIdx = 0) {
     const roof = solid(cfg.roofColor);
     const trim = solid(cfg.trimColor);
     const wallMat = solid(cfg.wallColor);
     const cut = seg.cornerCut || 0;
+    const yLift = segIdx * 0.003;
 
-    // Base roof deck matching exact segment footprint
-    slabBox(group, seg, y - 0.09, 0.18, -0.08, roof);
+    slabBox(group, seg, y - 0.07 + yLift, 0.14, 0.01, roof);
 
-    let deckTopY = y;
+    let deckTopY = y + yLift;
     const pitchedW = seg.w - cut;
     const pitchedX = seg.x - cut * 0.5;
     const ridgeH = Math.min(2.6, Math.max(1.4, Math.min(pitchedW, seg.d) * 0.26));
 
     if (cfg.roofType === 'pitched') {
-      const overW = pitchedW + 0.28;
-      const overD = seg.d + 0.28;
+      const overW = pitchedW + 0.24;
+      const overD = seg.d + (seg.skipWalls?.back ? -0.04 : 0.24);
       const shape = new THREE.Shape();
       shape.moveTo(-overW * 0.5, 0);
       shape.lineTo(0, ridgeH);
@@ -1756,21 +2096,33 @@
       shape.closePath();
       const geo = new THREE.ExtrudeGeometry(shape, { depth: overD, bevelEnabled: false });
       const mesh = new THREE.Mesh(geo, roof);
-      mesh.position.set(pitchedX, y, seg.z - overD * 0.5);
+      mesh.position.set(pitchedX, y + yLift, seg.z - overD * 0.5);
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       group.add(mesh);
+
+      if (cfg.tarPatches || cfg.damage > 0.3) {
+        const slopeAngle = Math.atan2(ridgeH, overW * 0.5);
+        for (const s of [-1, 1]) {
+          const patch = box(group, pitchedX + s * (pitchedW * 0.24), y + ridgeH * 0.48, seg.z + randBetween(r, -seg.d * 0.22, seg.d * 0.22), pitchedW * 0.22, 0.04, seg.d * 0.28, solid(s < 0 ? '#1d2022' : '#6c6256'));
+          if (patch) patch.rotation.z = -s * slopeAngle;
+        }
+      }
     } else if (cfg.roofType === 'mansard') {
-      slabBox(group, seg, y, 0.56, seg.w * 0.05, roof);
-      slabBox(group, seg, y + 0.56, 0.28, seg.w * 0.12, solid(cfg.secondaryWallColor));
-      deckTopY = y + 0.84;
+      slabBox(group, seg, y + 0.28 + yLift, 0.56, seg.w * 0.05, roof);
+      slabBox(group, seg, y + 0.70 + yLift, 0.28, seg.w * 0.12, solid(cfg.secondaryWallColor));
+      deckTopY = y + 0.84 + yLift;
     } else if (cfg.roofType === 'stepped') {
-      slabBox(group, seg, y, 0.44, seg.w * 0.06, wallMat);
-      slabBox(group, seg, y + 0.44, 0.26, seg.w * 0.16, trim);
-      deckTopY = y + 0.7;
+      slabBox(group, seg, y + 0.22 + yLift, 0.44, seg.w * 0.06, wallMat);
+      slabBox(group, seg, y + 0.57 + yLift, 0.26, seg.w * 0.16, trim);
+      deckTopY = y + 0.7 + yLift;
     }
 
-    // Skylights work across all roof types
+    if (cfg.roofType !== 'pitched') {
+      const insetFactor = cfg.roofType === 'flat' ? 0.82 : 0.62;
+      addSurfaceWeathering(group, seg.x - cut * 0.35, deckTopY, seg.z, (seg.w - cut) * insetFactor, seg.d * insetFactor, cfg, r);
+    }
+
     if (cfg.skylights && seg.w >= 4.5 && seg.d >= 4.5) {
       if (cfg.roofType === 'pitched') {
         const slopeAngle = Math.atan2(ridgeH, pitchedW * 0.5);
@@ -1801,24 +2153,24 @@
 
       if (!seg.skipWalls?.front && cfg.roofType !== 'pitched') {
         for (const [s, e] of frontExposed) {
-          box(group, (s + e) * 0.5, y + ph * 0.5, seg.z + seg.d * 0.5 - pt * 0.5, e - s + 0.08, ph, pt, wallMat);
-          if (cfg.trimAmount > 0.15) box(group, (s + e) * 0.5, y + ph + 0.05, seg.z + seg.d * 0.5 - pt * 0.3, e - s + 0.2, 0.1, pt + 0.12, trim);
+          box(group, (s + e) * 0.5, y + ph * 0.5, seg.z + seg.d * 0.5 - pt * 0.5, e - s + 0.04, ph, pt, wallMat);
+          if (cfg.trimAmount > 0.15) box(group, (s + e) * 0.5, y + ph + 0.05, seg.z + seg.d * 0.5 - pt * 0.3, e - s + 0.16, 0.1, pt + 0.12, trim);
         }
       }
       if (!seg.skipWalls?.back && cfg.roofType !== 'pitched') {
         for (const [s, e] of backExposed) {
-          box(group, (s + e) * 0.5, y + ph * 0.5, seg.z - seg.d * 0.5 + pt * 0.5, e - s + 0.08, ph, pt, wallMat);
-          if (cfg.trimAmount > 0.15) box(group, (s + e) * 0.5, y + ph + 0.05, seg.z - seg.d * 0.5 + pt * 0.3, e - s + 0.2, 0.1, pt + 0.12, trim);
+          box(group, (s + e) * 0.5, y + ph * 0.5, seg.z - seg.d * 0.5 + pt * 0.5, e - s + 0.04, ph, pt, wallMat);
+          if (cfg.trimAmount > 0.15) box(group, (s + e) * 0.5, y + ph + 0.05, seg.z - seg.d * 0.5 + pt * 0.3, e - s + 0.16, 0.1, pt + 0.12, trim);
         }
       }
       if (!seg.skipWalls?.left) {
         for (const [s, e] of leftExposed) {
-          box(group, seg.x - seg.w * 0.5 + pt * 0.5, y + ph * 0.5, (s + e) * 0.5, pt, ph, e - s + 0.08, wallMat);
+          box(group, seg.x - seg.w * 0.5 + pt * 0.5, y + ph * 0.5, (s + e) * 0.5, pt, ph, Math.max(0.1, e - s - pt * 2), wallMat);
         }
       }
       if (!seg.skipWalls?.right) {
         for (const [s, e] of rightExposed) {
-          box(group, seg.x + seg.w * 0.5 - pt * 0.5, y + ph * 0.5, (s + e) * 0.5, pt, ph, e - s + 0.08, wallMat);
+          box(group, seg.x + seg.w * 0.5 - pt * 0.5, y + ph * 0.5, (s + e) * 0.5, pt, ph, Math.max(0.1, e - s - pt * 2), wallMat);
         }
       }
       if (cut > 0.05) {
@@ -1826,16 +2178,18 @@
         const cz = seg.z + seg.d * 0.5 - cut * 0.5;
         const wedge = worldRoot(group, cx, y, cz);
         wedge.rotation.y = Math.PI / 4;
-        box(wedge, 0, ph * 0.5, -pt * 0.5, cut * Math.SQRT2 + pt * 0.5, ph, pt, wallMat);
+        box(wedge, 0, ph * 0.5, -pt * 0.5, cut * Math.SQRT2 + pt * 0.4, ph, pt, wallMat);
       }
     }
   }
 
-  function addRooftopProps(group, topSegments, cfg, r, baseHeight) {
+  function addRooftopProps(group, topSegments, groundMain, cfg, r, baseHeight) {
     if (!topSegments.length) return;
     const roof = solid('#697277');
     const roofDark = solid('#363d40');
     const metal = solid('#858d8e');
+    const pipeMat = solid('#5b6468');
+    const cableMat = solid('#1d2225');
     const mainSeg = topSegments[0];
     const cut = mainSeg.cornerCut || 0;
     const isPitched = cfg.roofType === 'pitched';
@@ -1853,6 +2207,8 @@
     });
 
     const b0 = safeBounds(mainSeg, insetMargin);
+    const cableAnchors = [];
+
     if (cfg.rooftopWaterTank && b0.maxX > b0.minX && b0.maxZ > b0.minZ) {
       const x = clamp(mainSeg.x + (mainSeg.w - cut) * 0.2, b0.minX, b0.maxX);
       const z = clamp(mainSeg.z - mainSeg.d * 0.18, b0.minZ, b0.maxZ);
@@ -1867,6 +2223,7 @@
       for (let i = 0; i < 3; i++) {
         cylinder(group, x, height + 1.8 + i * 0.4, z, 1.16, 1.16, 0.07, metal, 10);
       }
+      cableAnchors.push([x, height + 2.5, z]);
     }
 
     for (let i = 0; i < cfg.chimneys; i++) {
@@ -1878,8 +2235,10 @@
       const chimH = isPitched ? 2.2 : 1.4;
       box(group, x, baseHeight + chimH * 0.5, z, 0.62, chimH, 0.55, solid('#676663'));
       box(group, x, baseHeight + chimH + 0.07, z, 0.81, 0.15, 0.74, roofDark);
+      cableAnchors.push([x, baseHeight + chimH * 0.85, z]);
     }
 
+    const hvacPositions = [];
     const units = Math.round(cfg.rooftopProps * 8);
     for (let i = 0; i < units; i++) {
       const seg = pick(r, topSegments);
@@ -1895,6 +2254,8 @@
         for (let j = 0; j < 3; j++) {
           box(group, x + (j - 1) * (uw * 0.24), propBaseY + 0.4, z + ud * 0.5 + 0.02, 0.08, 0.42, 0.04, roofDark);
         }
+        hvacPositions.push([x, propBaseY, z]);
+        cableAnchors.push([x, propBaseY + 0.76, z]);
       } else {
         cylinder(group, x, propBaseY + 0.13, z, 0.45, 0.45, 0.26, metal, 8);
         cylinder(group, x, propBaseY + 0.38, z, 0.18, 0.18, 0.32, roofDark, 8);
@@ -1908,6 +2269,49 @@
       line(group, [x, antBaseY, z], [x, antBaseY + 3, z], 0.055, roof);
       line(group, [x - 0.8, antBaseY + 2.15, z], [x + 0.8, antBaseY + 2.15, z], 0.045, metal);
       line(group, [x - 0.43, antBaseY + 2.55, z], [x + 0.43, antBaseY + 2.55, z], 0.045, metal);
+      cableAnchors.push([x, antBaseY + 2.1, z]);
+    }
+
+    if (cfg.rooftopPipes) {
+      const pipeY = height + 0.09;
+      if (!isPitched && b0.maxX > b0.minX && b0.maxZ > b0.minZ) {
+        const backRunZ = mainSeg.z - mainSeg.d * 0.5 + 0.42;
+        const leftRunX = mainSeg.x - mainSeg.w * 0.5 + 0.42;
+        const rightRunX = mainSeg.x + mainSeg.w * 0.5 - cut - 0.42;
+
+        line(group, [leftRunX, pipeY, backRunZ], [rightRunX, pipeY, backRunZ], 0.055, pipeMat);
+        line(group, [leftRunX, pipeY, backRunZ], [leftRunX, pipeY, mainSeg.z + mainSeg.d * 0.32], 0.05, pipeMat);
+        if (cfg.parapet) {
+          line(group, [leftRunX, pipeY, backRunZ], [leftRunX, baseHeight + cfg.parapetHeight + 0.12, backRunZ], 0.05, pipeMat);
+        }
+
+        for (let i = 0; i < Math.min(3, hvacPositions.length); i++) {
+          const [hx, , hz] = hvacPositions[i];
+          line(group, [hx, pipeY, hz], [hx, pipeY, backRunZ], 0.04, metal);
+        }
+
+        const postA = [leftRunX + 0.15, baseHeight + (cfg.parapet ? cfg.parapetHeight : 0) + 1.15, mainSeg.z + mainSeg.d * 0.38];
+        const postB = [rightRunX - 0.15, baseHeight + (cfg.parapet ? cfg.parapetHeight : 0) + 1.15, backRunZ + 0.15];
+        line(group, [postA[0], height, postA[2]], postA, 0.04, roofDark);
+        line(group, [postB[0], height, postB[2]], postB, 0.04, roofDark);
+        cableAnchors.push(postA, postB);
+      }
+
+      for (let i = 0; i < cableAnchors.length - 1; i++) {
+        sagCable(group, cableAnchors[i], cableAnchors[i + 1], randBetween(r, 0.22, 0.48), 0.018, cableMat, 6);
+      }
+
+      if (groundMain && !cfg.cutaway) {
+        const mainH = cfg.setback > 0 ? Math.floor(cfg.floors * 0.6) * cfg.floorHeight : baseHeight;
+        const spoutX = groundMain.x - groundMain.w * 0.5 + 0.32;
+        const spoutZ = groundMain.z - groundMain.d * 0.5 - 0.06;
+        line(group, [spoutX, 0.1, spoutZ], [spoutX, mainH - 0.1, spoutZ], 0.048, pipeMat);
+        const sideSpoutX = groundMain.x - groundMain.w * 0.5 - 0.06;
+        const sideSpoutZ = groundMain.z + groundMain.d * 0.32;
+        line(group, [sideSpoutX, 0.1, sideSpoutZ], [sideSpoutX, mainH - 0.1, sideSpoutZ], 0.045, pipeMat);
+        box(group, sideSpoutX - 0.04, 1.35, sideSpoutZ - 0.45, 0.12, 0.42, 0.32, roofDark);
+        line(group, [sideSpoutX, 1.56, sideSpoutZ - 0.45], [sideSpoutX, mainH * 0.65, sideSpoutZ - 0.45], 0.025, metal);
+      }
     }
   }
 
@@ -1920,7 +2324,6 @@
     const cutaway = !!cfg.cutaway;
     const selectedFloor = clamp(cfg.inspectedFloor || 0, 0, count);
     const visibleFloors = selectedFloor > 0 ? selectedFloor : count;
-    // Hide the roof whenever cutaway is active OR a specific floor is being inspected
     const roofOn = !cutaway && selectedFloor === 0;
 
     const groundSegments = segmentsForFloor(cfg, 0);
@@ -1942,21 +2345,20 @@
         addInteriors(root, seg, floor, cfg);
 
         if (floor === 0) {
-          slabBox(root, seg, -0.08, 0.16, 0, solid('#716f67'));
+          slabBox(root, seg, -0.08 - j * 0.002, 0.15, 0.01, solid('#716f67'));
         }
         if (floor === visibleFloors - 1 && selectedFloor === 0 && cfg.interiorMode !== 'none') {
-          slabBox(root, seg, (floor + 1) * fh - 0.06, 0.12, cfg.wallThickness * 0.5, solid('#817b6d'));
+          slabBox(root, seg, (floor + 1) * fh - 0.08 - j * 0.002, 0.12, cfg.wallThickness * 0.8, solid('#817b6d'));
         }
 
-        // Cap extensions or setback ledges when the floor above shrinks or omits an extension
         if (nextSegments && !cutaway) {
           if (seg.isExtension) {
             const hasAbove = nextSegments.some((ns) => ns.isExtension && ns.extIndex === seg.extIndex);
             if (!hasAbove) {
-              addRoof(root, seg, (floor + 1) * fh, { ...cfg, roofType: 'flat', skylights: false, parapetHeight: Math.min(0.35, cfg.parapetHeight) });
+              addRoof(root, seg, (floor + 1) * fh, { ...cfg, roofType: 'flat', skylights: false, parapetHeight: Math.min(0.32, cfg.parapetHeight) }, r, j + 1);
             }
           } else if (nextSegments[j] && (nextSegments[j].w < seg.w - 0.05 || nextSegments[j].d < seg.d - 0.05)) {
-            slabBox(root, seg, (floor + 1) * fh - 0.08, 0.16, -0.06, solid(cfg.roofColor));
+            addSetbackTerrace(root, seg, nextSegments[j], (floor + 1) * fh, cfg, r);
           }
         }
       }
@@ -1971,14 +2373,15 @@
 
     if (roofOn) {
       const topSegments = segmentsForFloor(cfg, count - 1).filter((s) => !s.isExtension);
-      for (const seg of topSegments) {
-        addRoof(root, seg, count * fh, cfg);
+      for (let j = 0; j < topSegments.length; j++) {
+        addRoof(root, topSegments[j], count * fh, cfg, r, j);
       }
-      addRooftopProps(root, topSegments, cfg, r, count * fh);
+      addRooftopProps(root, topSegments, primary, cfg, r, count * fh);
     }
 
     if (!cutaway) {
-      const mainH = cfg.setback > 0 ? Math.floor(count * 0.6) * fh : count * fh;
+      const setbackFloor = Math.floor(count * 0.6);
+      const mainH = cfg.setback > 0 && setbackFloor > 0 ? setbackFloor * fh : count * fh;
       for (const seg of groundSegments.filter((s) => !s.isExtension)) {
         addVerticalDetails(root, seg, mainH, cfg);
         addVines(root, seg, mainH, cfg, r);
