@@ -882,8 +882,7 @@
     toRemove.forEach((m) => bakerScene.remove(m));
 
     const mat = new THREE.MeshLambertMaterial({
-      vertexColors: true,
-      flatShading: true
+      vertexColors: true
     });
     const tempMesh = new THREE.Mesh(lod0TreeData.mergedGeo, mat);
     bakerScene.add(tempMesh);
@@ -1063,7 +1062,6 @@
   function createTreeLODObject(cfg, lodLevel, lod0Reference, seedOffset = 0) {
     const flatMat = new THREE.MeshLambertMaterial({
       vertexColors: true,
-      flatShading: true,
       wireframe: state.wireframe
     });
 
@@ -1210,7 +1208,7 @@
 
     const discGeo = new THREE.CylinderGeometry(radius, radius * 1.06, 0.35, 24);
     discGeo.translate(0, -0.175, 0);
-    const discMat = new THREE.MeshLambertMaterial({ color: groundColor, flatShading: true });
+    const discMat = new THREE.MeshLambertMaterial({ color: groundColor });
     const disc = new THREE.Mesh(discGeo, discMat);
     disc.receiveShadow = true;
     groundGroup.add(disc);
@@ -1304,7 +1302,6 @@
 
       const flatMat = new THREE.MeshLambertMaterial({
         vertexColors: true,
-        flatShading: true,
         wireframe: state.wireframe
       });
 
@@ -1528,11 +1525,41 @@
     document.getElementById('color-accent').value = state.colorAccent;
   }
 
+  const SPECIES_DEFAULT_PRESETS = {
+    oak: 'lumbridge_oak',
+    birch: 'silver_birch',
+    pine: 'rellekka_pine',
+    willow: 'draynor_willow',
+    palm: 'karamja_palm',
+    dead: 'wildy_dead',
+    bush: 'varrock_bush',
+    fantasy: 'prif_crystal'
+  };
+
+  const TREE_SETTING_KEYS = [
+    ...Object.keys(BUILTIN_PRESETS.lumbridge_oak),
+    'variation'
+  ];
+
   function applyPresetObject(presetObj, label = 'Preset') {
-    Object.assign(state, presetObj);
+    if (!presetObj || typeof presetObj !== 'object' || Array.isArray(presetObj)) {
+      throw new Error('Invalid tree preset');
+    }
+
+    const species = Object.prototype.hasOwnProperty.call(SPECIES_DEFAULT_PRESETS, presetObj.species)
+      ? presetObj.species
+      : 'oak';
+
+    const defaults = BUILTIN_PRESETS[SPECIES_DEFAULT_PRESETS[species]];
+    const next = { variation: 0.25, ...defaults, ...presetObj, species };
+
+    TREE_SETTING_KEYS.forEach((key) => {
+      state[key] = next[key];
+    });
+
     syncUIFromState();
     rebuildScene();
-    showToast(`Loaded ${label}`, 'fa-Magic');
+    if (label) showToast(`Loaded ${label}`, 'fa-Magic');
   }
 
   function loadCustomPresetsFromStorage() {
@@ -1575,29 +1602,11 @@
     // Species Selector
     document.querySelectorAll('#species-selector .species-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
-        state.species = btn.dataset.species;
-        // Archetype defaults applied on species change
-        if (state.species === 'birch') {
-          state.colorBark = '#dcd6cd';
-          state.radius = 0.32;
-        } else if (state.species === 'pine') {
-          state.colorBark = '#422c1d';
-          state.colorLeaf1 = '#1f4d36';
-          state.colorLeaf2 = '#2d6648';
-        } else if (state.species === 'fantasy') {
-          state.colorLeaf1 = '#00d4ff';
-          state.colorLeaf2 = '#9d4edd';
-          state.colorBark = '#232946';
-          state.colorAccent = '#e0fbfc';
-        } else if (state.species === 'bush') {
-          state.height = 2.5;
-          state.spread = 2.8;
-        } else if (state.height < 3.5) {
-          state.height = 6.5;
-          state.colorBark = '#5c4028';
-        }
-        syncUIFromState();
-        rebuildScene();
+        const species = btn.dataset.species;
+        const presetKey = SPECIES_DEFAULT_PRESETS[species];
+        if (!presetKey) return;
+
+        applyPresetObject(BUILTIN_PRESETS[presetKey], null);
       });
     });
 
