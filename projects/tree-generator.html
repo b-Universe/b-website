@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>B - 3D Tree Model Generator (B Remastered)</title>
+
+  <meta name="portfolio-title" content="B Remastered 3D Tree Generator">
+  <meta name="portfolio-category" content="project">
+  <meta name="portfolio-date" content="2026-11-05">
+  <meta name="portfolio-thumbnail" content="/assets/img/projects/tree-generator/thumbnail.png">
+  <meta name="portfolio-description"
+    content="Procedural low-poly 3D tree, multi-LOD, and seasonal billboard impostor generator for B Remastered.">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:title" content="B - 3D Tree Model Generator">
+  <meta property="og:description"
+    content="Procedural low-poly 3D tree, multi-LOD, and seasonal billboard impostor generator for B Remastered.">
+  <meta property="og:url" content="https://home.behr.dev/projects/tree-generator.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://home.behr.dev/assets/img/projects/tree-generator/thumbnail.png">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="B - 3D Tree Model Generator">
+  <meta name="twitter:description"
+    content="Procedural low-poly 3D tree, multi-LOD, and seasonal billboard impostor generator for B Remastered.">
+  <meta name="twitter:image" content="https://home.behr.dev/assets/img/projects/tree-generator/thumbnail.png">
+  <meta name="theme-color" content="#00FFFE">
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!-- B-Website Core Stylesheets -->
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Three.js r128 + OrbitControls + GLTFExporter -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"
+    crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="/assets/css/projects/tree-generator.css">
+</head>
+
+<body>
+  <div class="wrap">
+    <canvas id="starfield"></canvas>
+
+    <!-- B-Website Standard Header -->
+    <header>
+      <div class="header">
+        <a class="brand" href="/pages/index.html">
+          <div class="logo" aria-hidden="true">B</div>
+          <div class="brand-text-wrap">
+            <div class="brand-title">It's a fun place to be</div>
+            <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+          </div>
+        </a>
+
+        <div class="nav-wrapper">
+          <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+            <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+            <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i
+                class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+            <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"
+                aria-hidden="true"></i>Github</a>
+          </nav>
+          <button id="theme-toggle" class="theme-button" title="Toggle theme">
+            <i class="fa-solid fa-moon" aria-hidden="true"></i><span>Dark</span>
+          </button>
+          <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">?</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Card -->
+    <main class="main-content">
+      <section class="content-card static-card tree-project-card">
+        <!-- Breadcrumbs & Quick Header -->
+        <div
+          style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+          <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin: 0;">
+            <ol>
+              <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+              <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+              <li><span><i class="fas fa-rocket" aria-hidden="true"></i> Projects</span></li>
+              <li><span class="breadcrumb-current" aria-current="page">B Remastered 3D Tree Generator</span></li>
+            </ol>
+          </nav>
+
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button id="btn-random-tree" class="btn btn-outline btn-sm" title="Mutate Seed">
+              <i class="fas fa-dice"></i> Mutate Seed
+            </button>
+            <button id="btn-export-glb-top" class="btn btn-primary btn-sm" title="Export active 3D model as .GLB">
+              <i class="fas fa-download"></i> Export .GLB
+            </button>
+          </div>
+        </div>
+
+        <h1>B Remastered 3D Tree &amp; LOD Impostor Studio</h1>
+
+        <div class="generator-shell">
+
+          <!-- Left Dock: Species, Procedural Controls & Seasons -->
+          <aside class="panel-solid">
+            <div class="panel-header">
+              <span><i class="fas fa-sliders-h"></i> Procedural Parameters</span>
+              <span id="active-species-badge" class="control-val">Broadleaf</span>
+            </div>
+
+            <div class="panel-body">
+              <!-- Species Selector -->
+              <div class="control-group">
+                <div class="control-label">
+                  <span>Tree Archetype / Species</span>
+                </div>
+                <div class="species-grid" id="species-selector">
+                  <button class="species-btn active" data-species="oak" title="Broadleaf Oak / Maple">
+                    <i class="fas fa-tree"></i><span>Oak/Maple</span>
+                  </button>
+                  <button class="species-btn" data-species="birch" title="Silver Birch with banded bark">
+                    <i class="fas fa-leaf"></i><span>Birch</span>
+                  </button>
+                  <button class="species-btn" data-species="pine" title="Conifer Pine / Spruce / Fir">
+                    <i class="fas fa-mountain"></i><span>Conifer</span>
+                  </button>
+                  <button class="species-btn" data-species="willow" title="Weeping Willow with hanging fronds">
+                    <i class="fas fa-water"></i><span>Willow</span>
+                  </button>
+                  <button class="species-btn" data-species="palm" title="Tropical Segmented Palm">
+                    <i class="fas fa-umbrella-beach"></i><span>Palm</span>
+                  </button>
+                  <button class="species-btn" data-species="dead" title="Leafless Deadwood / Wilderness Tree">
+                    <i class="fas fa-skull-crossbones"></i><span>Deadwood</span>
+                  </button>
+                  <button class="species-btn" data-species="bush" title="Low Foliage Shrubbery & Berry Bush">
+                    <i class="fas fa-seedling"></i><span>Shrubbery</span>
+                  </button>
+                  <button class="species-btn" data-species="fantasy" title="Crystal & Magic Floating Canopy Tree">
+                    <i class="fas fa-gem"></i><span>Fantasy</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Seed & Forest Variation Jitter -->
+              <div class="control-group"
+                style="background: rgba(0,0,0,0.3); padding: 0.6rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.07);">
+                <div class="control-label">
+                  <span><i class="fas fa-fingerprint" style="color:var(--accent)"></i> Procedural Seed</span>
+                  <span id="val-variation" class="control-val">Var: 0.25</span>
+                </div>
+                <div class="seed-row" style="margin-bottom: 0.4rem;">
+                  <input type="number" id="param-seed" class="input-field" value="1337" min="1" max="999999" />
+                  <button id="btn-seed-dice" class="btn btn-outline btn-sm" title="New Random Seed">
+                    <i class="fas fa-random"></i>
+                  </button>
+                </div>
+                <div class="control-label">
+                  <span>Species Variation Jitter (Forest)</span>
+                </div>
+                <input type="range" id="param-variation" min="0" max="0.65" step="0.01" value="0.25" />
+              </div>
+
+              <!-- Parameter Tabs -->
+              <div class="tabs" role="tablist">
+                <button class="tab-btn active" data-tab="tab-trunk"><i class="fas fa-code-branch"></i>Trunk</button>
+                <button class="tab-btn" data-tab="tab-canopy"><i class="fas fa-cloud"></i>Canopy</button>
+                <button class="tab-btn" data-tab="tab-season"><i class="fas fa-palette"></i>Seasons</button>
+              </div>
+
+              <!-- Tab 1: Trunk & Branches -->
+              <div id="tab-trunk" class="tab-pane active">
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>Tree Height</span>
+                    <span id="val-height" class="control-val">6.5m</span>
+                  </div>
+                  <input type="range" id="param-height" min="1.8" max="14.0" step="0.1" value="6.5" />
+                </div>
+
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>Trunk Thickness</span>
+                    <span id="val-radius" class="control-val">0.48m</span>
+                  </div>
+                  <input type="range" id="param-radius" min="0.12" max="1.3" step="0.02" value="0.48" />
+                </div>
+
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>Trunk Taper</span>
+                    <span id="val-taper" class="control-val">0.62</span>
+                  </div>
+                  <input type="range" id="param-taper" min="0.2" max="0.95" step="0.01" value="0.62" />
+                </div>
+
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>Trunk Lean / Curve</span>
+                    <span id="val-curve" class="control-val">0.22</span>
+                  </div>
+                  <input type="range" id="param-curve" min="0.0" max="1.2" step="0.02" value="0.22" />
+                </div>
+
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>Primary Branches</span>
+                    <span id="val-branches" class="control-val">5</span>
+                  </div>
+                  <input type="range" id="param-branches" min="0" max="12" step="1" value="5" />
+                </div>
+
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>Branch Twist / Gnarl</span>
+                    <span id="val-gnarl" class="control-val">0.30</span>
+                  </div>
+                  <input type="range" id="param-gnarl" min="0.0" max="1.0" step="0.02" value="0.30" />
+                </div>
+
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>Bark Radial Facets (Low-Poly)</span>
+                    <span id="val-radial" class="control-val">6 sides</span>
+                  </div>
+                  <input type="range" id="param-radial" min="3" max="8" step="1" value="6" />
+                </div>
+              </div>
+
+              <!-- Tab 2: Canopy & Foliage -->
+              <div id="tab-canopy" class="tab-pane">
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>Canopy Spread / Width</span>
+                    <span id="val-spread" class="control-val">3.6m</span>
+                  </div>
+                  <input type="range" id="param-spread" min="1.0" max="8.0" step="0.1" value="3.6" />
+                </div>
+
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>Canopy Vertical Stretch</span>
+                    <span id="val-canopy-height" class="control-val">1.00</span>
+                  </div>
+                  <input type="range" id="param-canopy-height" min="0.4" max="2.2" step="0.05" value="1.00" />
+                </div>
+
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>Foliage Density (Clusters)</span>
+                    <span id="val-density" class="control-val">14</span>
+                  </div>
+                  <input type="range" id="param-density" min="3" max="36" step="1" value="14" />
+                </div>
+
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>Cluster Scale</span>
+                    <span id="val-cluster-size" class="control-val">1.45</span>
+                  </div>
+                  <input type="range" id="param-cluster-size" min="0.5" max="3.0" step="0.05" value="1.45" />
+                </div>
+
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>Poly Subdivision Detail</span>
+                    <span id="val-poly-detail" class="control-val">1 (OSRS)</span>
+                  </div>
+                  <input type="range" id="param-poly-detail" min="0" max="2" step="1" value="1" />
+                </div>
+
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>OSRS Facet Jitter (Crunchy)</span>
+                    <span id="val-jitter" class="control-val">0.18</span>
+                  </div>
+                  <input type="range" id="param-jitter" min="0.0" max="0.45" step="0.01" value="0.18" />
+                </div>
+              </div>
+
+              <!-- Tab 3: Seasons & Colors -->
+              <div id="tab-season" class="tab-pane">
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>Seasonal Palette</span>
+                  </div>
+                  <div class="season-grid">
+                    <button class="season-btn spring" data-season="spring">
+                      <i class="fas fa-spa"></i><span>Spring</span>
+                    </button>
+                    <button class="season-btn summer active" data-season="summer">
+                      <i class="fas fa-sun"></i><span>Summer</span>
+                    </button>
+                    <button class="season-btn autumn" data-season="autumn">
+                      <i class="fas fa-canadian-maple-leaf"></i><span>Autumn</span>
+                    </button>
+                    <button class="season-btn winter" data-season="winter">
+                      <i class="fas fa-snowflake"></i><span>Winter</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>Custom Material Palette</span>
+                  </div>
+                  <div class="color-grid">
+                    <label class="color-picker-wrap">
+                      <input type="color" id="color-leaf-1" value="#3b7a2e" />
+                      <span>Primary Leaf</span>
+                    </label>
+                    <label class="color-picker-wrap">
+                      <input type="color" id="color-leaf-2" value="#5a9e38" />
+                      <span>Secondary Leaf</span>
+                    </label>
+                    <label class="color-picker-wrap">
+                      <input type="color" id="color-bark" value="#5c4028" />
+                      <span>Trunk Bark</span>
+                    </label>
+                    <label class="color-picker-wrap">
+                      <input type="color" id="color-accent" value="#e8f4f8" />
+                      <span>Snow / Blossom</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>Per-Cluster Color Variance</span>
+                    <span id="val-color-var" class="control-val">0.16</span>
+                  </div>
+                  <input type="range" id="param-color-var" min="0.0" max="0.5" step="0.01" value="0.16" />
+                </div>
+
+                <div class="control-group">
+                  <div class="control-label">
+                    <span>Snow / Blossom Cap Coverage</span>
+                    <span id="val-snow" class="control-val">0.00</span>
+                  </div>
+                  <input type="range" id="param-snow" min="0.0" max="1.0" step="0.02" value="0.00" />
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Center Viewport: 3D Interactive Inspector & Forest Simulator -->
+          <section class="panel-solid viewport-card">
+            <!-- Top Mode Switcher Bar -->
+            <div class="viewport-toolbar">
+              <div class="mode-pills" role="group" aria-label="Viewport Mode">
+                <button class="mode-pill active" data-view="single">
+                  <i class="fas fa-cube"></i> Single Tree
+                </button>
+                <button class="mode-pill" data-view="compare">
+                  <i class="fas fa-columns"></i> Side-by-Side LODs
+                </button>
+                <button class="mode-pill" data-view="forest">
+                  <i class="fas fa-tree"></i> Forest Ecosystem
+                </button>
+              </div>
+
+              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                <button id="btn-iso-cam" class="btn btn-outline btn-sm" title="Elevated isometric view">
+                  <i class="fas fa-video"></i> B Iso Cam
+                </button>
+                <button id="btn-wireframe" class="btn btn-outline btn-sm" title="Toggle wireframe">
+                  <i class="fas fa-border-all"></i> Wireframe
+                </button>
+                <button id="btn-autorotate" class="btn btn-outline btn-sm" title="Toggle turntable rotation">
+                  <i class="fas fa-sync-alt"></i> Turntable
+                </button>
+              </div>
+            </div>
+
+            <!-- Contextual Bar for Single / Compare / Forest Controls -->
+            <div class="context-bar">
+              <!-- Single Mode LOD Picker -->
+              <div id="single-context-controls"
+                style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <span style="color: var(--muted); font-weight: 600;">Active LOD Preview:</span>
+                <select id="select-single-lod" class="select-field" style="width: auto; padding: 0.28rem 0.6rem;">
+                  <option value="0">LOD0 — High Detail (Full Low-Poly)</option>
+                  <option value="1">LOD1 — Medium Detail (Simplified Geometry)</option>
+                  <option value="2">LOD2 — Low Detail (Billboard / Hemisphere Impostor)</option>
+                  <option value="3">LOD3 — Very Low Detail (Distant Forest Proxy)</option>
+                </select>
+              </div>
+
+              <!-- LOD2 Representation Selector (Always Accessible) -->
+              <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <span style="color: var(--muted); font-weight: 600;">LOD2 Style:</span>
+                <select id="select-lod2-style" class="select-field" style="width: auto; padding: 0.28rem 0.6rem;">
+                  <option value="billboard">Multi-Angle Billboards + Iso Cap</option>
+                  <option value="hemisphere">Seasonal Hemisphere Impostor</option>
+                  <option value="hybrid">Hybrid Dome + Crossed Billboard</option>
+                </select>
+              </div>
+
+              <!-- Forest Mode Specific Controls (Hidden unless Forest View is active) -->
+              <div id="forest-context-controls"
+                style="display: none; align-items: center; gap: 0.6rem; flex-wrap: wrap; width: 100%; padding-top: 0.4rem; border-top: 1px solid rgba(255,255,255,0.08);">
+                <span style="color: var(--accent); font-weight: 700;"><i class="fas fa-layer-group"></i> Forest
+                  Quality:</span>
+                <select id="select-forest-quality" class="select-field" style="width: auto; padding: 0.28rem 0.6rem;">
+                  <option value="dynamic">Dynamic Distance LOD (LOD0 → LOD3 Rings)</option>
+                  <option value="lod0">High Graphics — All LOD0 (Full Geometry)</option>
+                  <option value="lod1">Medium Graphics — All LOD1 (Simplified Geo)</option>
+                  <option value="lod2-billboard">Low Graphics — All LOD2 (Multi-Angle Billboards)</option>
+                  <option value="lod2-hemisphere">Low Graphics — All LOD2 (Hemisphere Impostors)</option>
+                  <option value="lod3">Very Low Graphics — All LOD3 (Distant Proxies)</option>
+                  <option value="split">Split Compare: Left LOD0 Geo vs Right LOD2 Impostor</option>
+                </select>
+
+                <span style="color: var(--muted); font-weight: 600; margin-left: 0.4rem;">Trees:</span>
+                <input type="range" id="param-forest-count" min="25" max="320" step="5" value="120"
+                  style="width: 110px;" />
+                <span id="val-forest-count" class="control-val">120</span>
+
+                <button id="btn-reshuffle-forest" class="btn btn-outline btn-sm">
+                  <i class="fas fa-seedling"></i> Regrow Forest
+                </button>
+              </div>
+            </div>
+
+            <!-- 3D WebGL Canvas Stage -->
+            <div class="canvas-stage" id="canvas-container">
+              <canvas id="tree-canvas"></canvas>
+
+              <!-- Floating Telemetry HUD -->
+              <div class="viewport-hud-top">
+                <div class="hud-badge">
+                  <span class="stat-chip"><i class="fas fa-play"
+                      style="transform: rotate(-90deg); color: var(--accent);"></i> Tris: <strong
+                      id="hud-tris">0</strong></span>
+                  <span class="stat-chip"><i class="fas fa-circle-nodes" style="color: var(--accent);"></i> Verts:
+                    <strong id="hud-verts">0</strong></span>
+                  <span class="stat-chip"><i class="fas fa-trees" style="color: var(--accent);"></i> Instances: <strong
+                      id="hud-instances">1</strong></span>
+                </div>
+
+                <div class="hud-badge">
+                  <span class="stat-chip">Camera: <strong id="hud-cam-mode">Perspective Orbit</strong></span>
+                </div>
+              </div>
+
+              <!-- Side-by-Side LOD Comparison Cards -->
+              <div class="lod-cards-overlay" id="lod-cards-overlay">
+                <div class="lod-stat-card">
+                  <h5>LOD 0 • High</h5>
+                  <p id="card-lod0-stats">0 Tris | 100%</p>
+                </div>
+                <div class="lod-stat-card">
+                  <h5>LOD 1 • Medium</h5>
+                  <p id="card-lod1-stats">0 Tris | 42%</p>
+                </div>
+                <div class="lod-stat-card">
+                  <h5>LOD 2 • Impostor</h5>
+                  <p id="card-lod2-stats">0 Tris | 8%</p>
+                </div>
+                <div class="lod-stat-card">
+                  <h5>LOD 3 • Distant</h5>
+                  <p id="card-lod3-stats">0 Tris | 3%</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Right Dock: Billboard Atlas Baker, Presets & Export -->
+          <aside class="right-dock" style="display: flex; flex-direction: column; gap: 1rem;">
+
+            <!-- Billboard & Impostor Texture Atlas Baker -->
+            <div class="panel-solid">
+              <div class="panel-header">
+                <span><i class="fas fa-camera-retro"></i> Multi-Angle Billboard Atlas</span>
+                <span class="control-val" id="atlas-res-badge">512×512</span>
+              </div>
+              <div class="panel-body">
+
+                <div class="atlas-preview-wrap">
+                  <canvas id="atlas-canvas" width="512" height="512"></canvas>
+                  <div class="atlas-quadrant-labels">
+                    <span>0° FRONT</span>
+                    <span style="text-align: right;">45° OBLIQUE</span>
+                    <span style="align-self: end;">90° SIDE</span>
+                    <span style="align-self: end; text-align: right;">ISO TOP CAP</span>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+                  <span style="font-size: 0.78rem; color: var(--muted); font-weight: 600;">Atlas Resolution:</span>
+                  <select id="select-atlas-res" class="select-field" style="width: auto; padding: 0.25rem 0.5rem;">
+                    <option value="256">256 × 256 px</option>
+                    <option value="512" selected>512 × 512 px</option>
+                    <option value="1024">1024 × 1024 px</option>
+                  </select>
+                </div>
+
+                <button id="btn-download-atlas" class="btn btn-outline" style="width: 100%;">
+                  <i class="fas fa-image"></i> Download Billboard Atlas (.PNG)
+                </button>
+              </div>
+            </div>
+
+            <!-- Built-In & Custom Presets -->
+            <div class="panel-solid">
+              <div class="panel-header">
+                <span><i class="fas fa-bookmark"></i> B Remastered Presets</span>
+              </div>
+              <div class="panel-body">
+                <div class="preset-grid" id="builtin-presets">
+                  <button class="preset-chip" data-preset="lumbridge_oak">Lumbridge Oak</button>
+                  <button class="preset-chip" data-preset="seers_maple">Seers' Maple</button>
+                  <button class="preset-chip" data-preset="silver_birch">Silver Birch</button>
+                  <button class="preset-chip" data-preset="draynor_willow">Draynor Willow</button>
+                  <button class="preset-chip" data-preset="rellekka_pine">Rellekka Pine</button>
+                  <button class="preset-chip" data-preset="karamja_palm">Karamja Palm</button>
+                  <button class="preset-chip" data-preset="wildy_dead">Wildy Deadwood</button>
+                  <button class="preset-chip" data-preset="prif_crystal">Crystal Magic</button>
+                  <button class="preset-chip" data-preset="varrock_bush">Berry Bush</button>
+                </div>
+
+                <div style="display: flex; gap: 0.4rem; margin-top: 0.25rem;">
+                  <input type="text" id="input-preset-name" class="input-field" placeholder="Custom preset name..." />
+                  <button id="btn-save-preset" class="btn btn-outline btn-sm" title="Save Preset to Browser">
+                    <i class="fas fa-save"></i> Save
+                  </button>
+                </div>
+
+                <div id="custom-presets-list" class="preset-grid" style="display: none;"></div>
+
+                <div style="display: flex; gap: 0.4rem;">
+                  <button id="btn-export-json" class="btn btn-outline btn-sm" style="flex: 1;">
+                    <i class="fas fa-file-code"></i> Export JSON
+                  </button>
+                  <button id="btn-import-json" class="btn btn-outline btn-sm" style="flex: 1;">
+                    <i class="fas fa-file-upload"></i> Load JSON
+                  </button>
+                  <input type="file" id="file-import-json" accept=".json" style="display: none;" />
+                </div>
+              </div>
+            </div>
+
+            <!-- 3D Model Export Suite -->
+            <div class="panel-solid">
+              <div class="panel-header">
+                <span><i class="fas fa-file-export"></i> B Engine Export Suite</span>
+              </div>
+              <div class="panel-body">
+                <button id="btn-export-current-glb" class="btn btn-primary" style="width: 100%;">
+                  <i class="fas fa-cube"></i> Export Active Model (.GLB)
+                </button>
+                <button id="btn-export-all-lods" class="btn btn-outline" style="width: 100%;">
+                  <i class="fas fa-cubes"></i> Export All 4 LODs Bundle (.GLB)
+                </button>
+              </div>
+            </div>
+
+          </aside>
+
+        </div>
+      </section>
+    </main>
+
+
+    <footer>
+      &copy; <span id="year"></span> B - Built with &hearts; and plain HTML/CSS/JS by Bear Riley
+    </footer>
+  </div>
+
+  <!-- Non-blocking Toast Container -->
+  <div id="tree-toast-container" aria-live="polite"></div>
+
+  <!-- Standard b-website scripts -->
+  <script src="/assets/js/scrolling-nebula.js"></script>
+  <script src="/assets/js/global.js"></script>
+
+  <script src="/assets/js/projects/tree-generator.js"></script>
+
+</body>
+
+</html>
