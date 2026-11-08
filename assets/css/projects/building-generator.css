@@ -2,6 +2,7 @@
 .building-page .wrap {
   width: 96%;
   max-width: 1850px;
+  transition: max-width .25s ease;
 }
 
 .building-page .main-content {
@@ -531,10 +532,11 @@
 }
 
 .studio-stage {
-  height: clamp(430px, 47vw, 650px);
+  height: clamp(460px, calc(100vh - 350px), 720px);
   position: relative;
   overflow: hidden;
   background: radial-gradient(circle at 50% 26%, #20394a, #0d1d2b 53%, #06121e 100%);
+  transition: height .2s ease;
 }
 
 .studio-stage canvas {
@@ -785,7 +787,7 @@
   position: fixed;
   right: 24px;
   bottom: 20px;
-  z-index: 1000;
+  z-index: 10000005;
   pointer-events: none;
   display: flex;
   flex-direction: column;
@@ -956,5 +958,187 @@
 
   .studio-tab {
     font-size: 9px !important;
+  }
+}
+
+/* Button active / toggled state for Theatre and Fullscreen */
+.studio-view-btn.active,
+.studio-btn.active {
+  border-color: var(--accent) !important;
+  background: var(--accent) !important;
+  color: #001622 !important;
+}
+
+.studio-view-btn.active i,
+.studio-btn.active i {
+  color: #001622 !important;
+}
+
+/* Studio Theatre Mode (Widescreen in-page layout) */
+.studio-shell.theatre-mode {
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "viewport viewport"
+    "left right";
+  gap: 16px;
+}
+
+.studio-shell.theatre-mode .studio-viewport-column {
+  grid-area: viewport;
+  width: 100%;
+}
+
+.studio-shell.theatre-mode .studio-left {
+  grid-area: left;
+}
+
+.studio-shell.theatre-mode .studio-right {
+  grid-area: right;
+}
+
+.studio-shell.theatre-mode .studio-stage {
+  height: clamp(560px, calc(100vh - 280px), 1050px);
+}
+
+@media (max-width: 980px) {
+  .studio-shell.theatre-mode {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "viewport"
+      "left"
+      "right";
+  }
+}
+
+/* Studio Viewport Fullscreen / Theatre Overlay */
+.studio-viewport-frame.is-fullscreen,
+.studio-viewport-frame:fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  z-index: 999999 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: #08121c !important;
+  box-shadow: none !important;
+}
+
+.studio-viewport-frame.is-fullscreen .studio-viewbar,
+.studio-viewport-frame:fullscreen .studio-viewbar {
+  flex-shrink: 0;
+  padding: 10px 18px;
+  background: rgba(6, 17, 28, .92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(var(--accent-rgb), .28);
+  z-index: 10;
+}
+
+.studio-viewport-frame.is-fullscreen .studio-stage,
+.studio-viewport-frame:fullscreen .studio-stage {
+  flex: 1 1 0% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  border-radius: 0;
+}
+
+.studio-viewport-frame.is-fullscreen .studio-stage canvas,
+.studio-viewport-frame:fullscreen .studio-stage canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.studio-viewport-frame.is-fullscreen .studio-preview-controls,
+.studio-viewport-frame:fullscreen .studio-preview-controls {
+  flex-shrink: 0;
+  padding: 10px 18px;
+  background: rgba(6, 17, 28, .92);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(var(--accent-rgb), .28);
+  z-index: 10;
+}
+
+body.studio-fullscreen-active {
+  overflow: hidden !important;
+}
+
+/* Viewport scaling for larger resolutions */
+@media (min-width: 1280px) and (min-height: 800px) {
+  .studio-stage {
+    height: clamp(560px, calc(100vh - 310px), 860px);
+  }
+  .studio-left .studio-panel-inside,
+  .studio-right .studio-panel-inside {
+    max-height: clamp(650px, calc(100vh - 240px), 940px);
+  }
+}
+
+@media (min-width: 1600px) and (min-height: 920px) {
+  .building-page .wrap {
+    max-width: min(96vw, 2200px);
+  }
+  .studio-shell {
+    grid-template-columns: minmax(295px, 335px) minmax(520px, 1fr) minmax(280px, 315px);
+  }
+  .studio-stage {
+    height: clamp(680px, calc(100vh - 290px), 1100px);
+  }
+  .studio-shell.theatre-mode .studio-stage {
+    height: clamp(700px, calc(100vh - 270px), 1250px);
+  }
+  .studio-left .studio-panel-inside,
+  .studio-right .studio-panel-inside {
+    max-height: clamp(750px, calc(100vh - 220px), 1180px);
+  }
+}
+
+@media (min-width: 2200px) and (min-height: 1100px) {
+  .building-page .wrap {
+    max-width: min(96vw, 2800px);
+  }
+  .studio-shell {
+    grid-template-columns: minmax(320px, 370px) minmax(650px, 1fr) minmax(300px, 345px);
+  }
+  .studio-stage {
+    height: clamp(820px, calc(100vh - 270px), 1450px);
+  }
+  .studio-shell.theatre-mode .studio-stage {
+    height: clamp(850px, calc(100vh - 250px), 1550px);
+  }
+  .studio-left .studio-panel-inside,
+  .studio-right .studio-panel-inside {
+    max-height: clamp(880px, calc(100vh - 200px), 1500px);
+  }
+}
+
+@media (min-width: 2800px) and (min-height: 1300px) {
+  .building-page .wrap {
+    max-width: min(96vw, 3400px);
+  }
+  .studio-stage {
+    height: clamp(960px, calc(100vh - 260px), 1750px);
+  }
+  .studio-shell.theatre-mode .studio-stage {
+    height: clamp(980px, calc(100vh - 240px), 1800px);
+  }
+  .studio-left .studio-panel-inside,
+  .studio-right .studio-panel-inside {
+    max-height: clamp(1000px, calc(100vh - 190px), 1800px);
+  }
+}
+
+@media (max-width: 650px) {
+  .studio-quick-actions .studio-btn span {
+    display: none;
+  }
+  .studio-quick-actions .studio-btn {
+    padding: 8px 10px;
   }
 }

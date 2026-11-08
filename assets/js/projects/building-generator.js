@@ -191,7 +191,7 @@
   let activeTab = 'form';
   let activePreset = 'paragon_brick';
   let savedPresets = {};
-  const view = { mode: 'single', lighting: 'day', environment: 'street', grid: true, autoRotate: false, wireframe: false };
+  const view = { mode: 'single', lighting: 'day', environment: 'street', grid: true, autoRotate: false, wireframe: false, theatre: false, fullscreen: false };
   let scene, camera, renderer, orbit, buildingGroup, environmentGroup, hemi, sun, ambient, groundGrid;
   let lastCameraTarget = null;
   let refocusAfterBuild = false;
@@ -549,6 +549,13 @@
     $('#btn-export-glb-side').onclick = exportGLB;
     $('#btn-screenshot').onclick = snapshot;
     $('#btn-screenshot-side').onclick = snapshot;
+    $('#btn-stage-snapshot')?.addEventListener('click', snapshot);
+    $('#btn-theatre')?.addEventListener('click', toggleTheatreMode);
+    $('#btn-theatre-quick')?.addEventListener('click', toggleTheatreMode);
+    $('#btn-fullscreen')?.addEventListener('click', toggleFullscreenViewport);
+    $('#btn-fullscreen-quick')?.addEventListener('click', toggleFullscreenViewport);
+    window.addEventListener('keydown', handleStudioKeydown);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
     try {
       savedPresets = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     } catch {
@@ -825,7 +832,7 @@
   function slabBox(group, seg, y, h, inset, material, options = {}) {
     const w = seg.w - inset * 2;
     const d = seg.d - inset * 2;
-    const cut = Math.max(0, (seg.cornerCut || 0) - inset * 0.5);
+    const cut = Math.max(0, Math.min(seg.cornerCut || 0, w * 0.48, d * 0.48) - inset * 0.5);
     if (w <= 0.01 || d <= 0.01 || h <= 0.001) return null;
     if (cut <= 0.01) {
       return box(group, seg.x, y, seg.z, w, h, d, material, options);
@@ -1176,26 +1183,20 @@
     }
   }
 
-  function chooseFireEscapePlacement(seg, cfg, r) {
+  function chooseFireEscapePlacement(groundSegments, cfg, r) {
     if (!cfg.fireEscape || cfg.floors < 2) return null;
+    const segs = Array.isArray(groundSegments) ? groundSegments : [groundSegments];
+    const seg = segs[0];
+    const topSeg = segmentsForFloor(cfg, cfg.floors - 1)[0] || seg;
     const frontBusy = cfg.awning || cfg.groundUse === 'shop' || cfg.signage !== 'none' || cfg.cutaway || cfg.doorStyle === 'stoop';
     const order = frontBusy
       ? ['right', 'left', 'back']
       : (cfg.seed % 3 === 0 ? ['front', 'right', 'left', 'back'] : ['right', 'left', 'front', 'back']);
 
-    for (const side of order) {
-      if (side === 'front' && (frontBusy || cfg.cutaway)) continue;
-      if (seg.skipWalls?.[side]) continue;
-      if ((seg.occlusions?.[side] || []).length > 0) continue;
-
+    const pickFromSpan = (targetSeg, side, s, e, extIndex = -1) => {
+      const avail = e - s;
       const long = side === 'front' || side === 'back';
-      const cut = (side === 'front' || side === 'right') ? (seg.cornerCut || 0) : 0;
-      const spanStart = (long ? seg.x - seg.w * 0.5 : seg.z - seg.d * 0.5) + 0.45;
-      const spanEnd = (long ? seg.x + seg.w * 0.5 : seg.z + seg.d * 0.5) - cut - 0.45;
-      const avail = spanEnd - spanStart;
-      if (avail < 2.1) continue;
-
-      const totalLength = long ? seg.w : seg.d;
+      const totalLength = long ? targetSeg.w : targetSeg.d;
       const desiredCols = long ? cfg.windowsX : cfg.windowsSide;
       const shutterPad = cfg.shutters ? 0.62 : 0.34;
       const proportional = Math.max(1, Math.round(desiredCols * (avail / Math.max(1, totalLength - 0.9))));
@@ -1206,93 +1207,314 @@
       const colIdx = side === 'front'
         ? windowCount - 1
         : Math.min(windowCount - 1, Math.floor(r() * windowCount));
-      const coord = spanStart + (colIdx + 0.5) * spacing;
-      const deckW = clamp(spacing * 0.95, 1.85, 2.55);
-      return { side, coord, deckW };
+      const deckW = clamp(spacing * 0.95, 1.8, Math.min(2.55, avail - 0.08));
+      const rawCoord = s + (colIdx + 0.5) * spacing;
+      const coord = clamp(rawCoord, s + deckW * 0.5, e - deckW * 0.5);
+      return { side, coord, deckW, extIndex };
+    };
+
+    // Pass 1A: Look for an unoccluded span on the primary building body that aligns with upper setback floors
+    for (const side of order) {
+      if (side === 'front' && (frontBusy || cfg.cutaway)) continue;
+      if (seg.skipWalls?.[side]) continue;
+
+      const long = side === 'front' || side === 'back';
+      const cut = (side === 'front' || side === 'right') ? (seg.cornerCut || 0) : 0;
+      const spanStart = (long ? seg.x - seg.w * 0.5 : seg.z - seg.d * 0.5) + 0.45;
+      const spanEnd = (long ? seg.x + seg.w * 0.5 : seg.z + seg.d * 0.5) - cut - 0.45;
+      if (spanEnd - spanStart < 1.9) continue;
+
+      const exposed = subtractIntervals(spanStart, spanEnd, seg.occlusions?.[side] || []);
+      const topCut = (side === 'front' || side === 'right') ? (topSeg.cornerCut || 0) : 0;
+      const topStart = (long ? topSeg.x - topSeg.w * 0.5 : topSeg.z - topSeg.d * 0.5) + 0.35;
+      const topEnd = (long ? topSeg.x + topSeg.w * 0.5 : topSeg.z + topSeg.d * 0.5) - topCut - 0.35;
+
+      const candidates = [];
+      for (const [s, e] of exposed) {
+        if (e - s < 1.9) continue;
+        if (cfg.setback > 0) {
+          const os = Math.max(s, topStart);
+          const oe = Math.min(e, topEnd);
+          if (oe - os >= 1.85) candidates.push([os, oe]);
+        } else {
+          candidates.push([s, e]);
+        }
+      }
+      if (candidates.length > 0) {
+        candidates.sort((a, b) => (b[1] - b[0]) - (a[1] - a[0]));
+        const [bestS, bestE] = candidates[0];
+        return pickFromSpan(seg, side, bestS, bestE, -1);
+      }
+    }
+
+    // Pass 2: If extensions occlude the main walls (or setback corners don't align), mount on the exterior wall of an extension
+    const extSegments = segs.filter((s) => s.isExtension);
+    for (const extSeg of extSegments) {
+      const extSide = extSeg.skipWalls?.front ? 'back' : (extSeg.skipWalls?.right ? 'left' : 'right');
+      const long = extSide === 'front' || extSide === 'back';
+      const spanStart = (long ? extSeg.x - extSeg.w * 0.5 : extSeg.z - extSeg.d * 0.5) + 0.35;
+      const spanEnd = (long ? extSeg.x + extSeg.w * 0.5 : extSeg.z + extSeg.d * 0.5) - 0.35;
+      if (spanEnd - spanStart >= 1.8) {
+        return pickFromSpan(extSeg, extSide, spanStart, spanEnd, extSeg.extIndex);
+      }
+    }
+
+    // Pass 3: Fallback to any unoccluded span on the primary building body
+    for (const side of order) {
+      if (side === 'front' && (frontBusy || cfg.cutaway)) continue;
+      if (seg.skipWalls?.[side]) continue;
+      const long = side === 'front' || side === 'back';
+      const cut = (side === 'front' || side === 'right') ? (seg.cornerCut || 0) : 0;
+      const spanStart = (long ? seg.x - seg.w * 0.5 : seg.z - seg.d * 0.5) + 0.45;
+      const spanEnd = (long ? seg.x + seg.w * 0.5 : seg.z + seg.d * 0.5) - cut - 0.45;
+      const exposed = subtractIntervals(spanStart, spanEnd, seg.occlusions?.[side] || []).filter(([s, e]) => e - s >= 1.85);
+      if (exposed.length > 0) {
+        return pickFromSpan(seg, side, exposed[0][0], exposed[0][1], -1);
+      }
     }
 
     return {
       side: 'right',
       coord: seg.z - (seg.cornerCut || 0) * 0.25,
-      deckW: clamp(seg.d * 0.32, 1.8, 2.4)
+      deckW: clamp(seg.d * 0.32, 1.8, 2.4),
+      extIndex: -1
     };
+  }
+
+  function getFireEscapeWallAnchor(seg, side, desiredCoord, deckW) {
+    const long = side === 'front' || side === 'back';
+    const cut = (side === 'front' || side === 'right') ? (seg.cornerCut || 0) : 0;
+    const minC = (long ? seg.x - seg.w * 0.5 : seg.z - seg.d * 0.5) + deckW * 0.5 + 0.15;
+    const maxC = (long ? seg.x + seg.w * 0.5 : seg.z + seg.d * 0.5) - cut - deckW * 0.5 - 0.15;
+    let coord = maxC >= minC ? clamp(desiredCoord, minC, maxC) : (minC + maxC) * 0.5;
+
+    const blocked = seg.occlusions?.[side] || [];
+    if (blocked.length > 0 && maxC >= minC) {
+      const spans = subtractIntervals(minC - deckW * 0.5, maxC + deckW * 0.5, blocked)
+        .filter(([s, e]) => e - s >= deckW * 0.85);
+      if (spans.length > 0) {
+        let bestSpan = spans[0];
+        let bestDist = Infinity;
+        for (const sp of spans) {
+          const clamped = clamp(desiredCoord, sp[0] + deckW * 0.5, sp[1] - deckW * 0.5);
+          const dist = Math.abs(clamped - desiredCoord);
+          if (dist < bestDist) {
+            bestDist = dist;
+            bestSpan = sp;
+          }
+        }
+        coord = clamp(desiredCoord, bestSpan[0] + deckW * 0.5, bestSpan[1] - deckW * 0.5);
+      }
+    }
+
+    if (side === 'front') return { x: coord, z: seg.z + seg.d * 0.5, coord };
+    if (side === 'back') return { x: coord, z: seg.z - seg.d * 0.5, coord };
+    if (side === 'left') return { x: seg.x - seg.w * 0.5, z: coord, coord };
+    return { x: seg.x + seg.w * 0.5, z: coord, coord };
   }
 
   function addFireEscape(parent, seg, placement, cfg) {
     if (!placement || cfg.floors < 2) return;
-    const { side, coord, deckW } = placement;
+    const { side, coord, deckW, extIndex = -1 } = placement;
     const steel = solid('#3a4347');
     const deckD = 1.22;
     const rotMap = { front: 0, back: Math.PI, left: -Math.PI / 2, right: Math.PI / 2 };
 
-    let anchorX = seg.x;
-    let anchorZ = seg.z;
-    if (side === 'front') {
-      anchorX = coord;
-      anchorZ = seg.z + seg.d * 0.5;
-    } else if (side === 'back') {
-      anchorX = coord;
-      anchorZ = seg.z - seg.d * 0.5;
-    } else if (side === 'left') {
-      anchorX = seg.x - seg.w * 0.5;
-      anchorZ = coord;
-    } else if (side === 'right') {
-      anchorX = seg.x + seg.w * 0.5;
-      anchorZ = coord;
+    const segForFloor = (flIdx) => {
+      const flSegs = segmentsForFloor(cfg, flIdx);
+      if (extIndex >= 0) {
+        const ext = flSegs.find((s) => s.isExtension && s.extIndex === extIndex);
+        if (ext) return ext;
+      }
+      return flSegs[0] || seg;
+    };
+
+    const wallAnchorForFloor = (flIdx) => getFireEscapeWallAnchor(segForFloor(flIdx), side, coord, deckW);
+
+    // Local coordinate helper: convert world (wx, wz) into local (lx, lz) of a floor anchor
+    const toLocalXZ = (anchor, wx, wz) => {
+      const dx = wx - anchor.x;
+      const dz = wz - anchor.z;
+      if (side === 'front') return { x: dx, z: dz };
+      if (side === 'back') return { x: -dx, z: -dz };
+      if (side === 'left') return { x: dz, z: -dx };
+      return { x: -dz, z: dx };
+    };
+
+    // Two distinct stair lanes in Z:
+    // Inner lane (near building wall): center at 0.44m
+    // Outer lane (near outer railing): center at 0.86m
+    const zInner = 0.44;
+    const zOuter = 0.86;
+    const stairHW = 0.18; // Half-width of stair in Z (0.36m width)
+    const stairTreadD = 0.36;
+
+    const xSpan = deckW * 0.34;
+    const halfDeckW = deckW * 0.5;
+    const deckT = 0.08;
+
+    // Precompute anchors and stair flight lanes per floor so arriving openings and departing flights never collide
+    const anchors = [];
+    for (let f = 0; f < cfg.floors; f++) {
+      anchors.push(wallAnchorForFloor(f));
     }
 
-    const group = worldRoot(parent, anchorX, 0, anchorZ);
-    group.rotation.y = rotMap[side] || 0;
-    const zCenter = deckD * 0.5;
+    const flightLanes = [];
+    for (let i = 1; i < cfg.floors - 1; i++) {
+      const anchorBelow = anchors[i - 1];
+      const anchorAbove = anchors[i];
+      const stepOffset = toLocalXZ(anchorAbove, anchorBelow.x, anchorBelow.z);
+      const stepBackZ = Math.max(0, stepOffset.z);
+
+      let lane = i % 2 === 1 ? zOuter : zInner;
+      if (i > 1) {
+        const prevArriveZ = stepBackZ + flightLanes[i - 1];
+        if (Math.abs(lane - prevArriveZ) < stairHW * 2 + 0.06) {
+          const altLane = lane === zOuter ? zInner : zOuter;
+          if (Math.abs(altLane - prevArriveZ) >= Math.abs(lane - prevArriveZ)) {
+            lane = altLane;
+          }
+        }
+      }
+      flightLanes[i] = lane;
+    }
 
     for (let i = 1; i < cfg.floors; i++) {
       const y = i * cfg.floorHeight + 0.12;
-      box(group, 0, y, zCenter, deckW, 0.11, deckD, steel);
+      const anchorBelow = anchors[i - 1];
+      const anchorAbove = anchors[i];
+      const stepOffset = toLocalXZ(anchorAbove, anchorBelow.x, anchorBelow.z);
+      const stepBackZ = Math.max(0, stepOffset.z);
+      const shiftX = stepOffset.x;
 
-      for (const dx of [-deckW * 0.42, deckW * 0.42]) {
-        line(group, [dx, y - 0.58, 0.02], [dx, y - 0.03, deckD - 0.12], 0.04, steel);
-      }
+      const group = worldRoot(parent, anchorAbove.x, 0, anchorAbove.z);
+      group.rotation.y = rotMap[side] || 0;
 
-      const railY = y + 0.88;
-      box(group, 0, railY, deckD - 0.04, deckW, 0.06, 0.06, steel);
-      box(group, -deckW * 0.5 + 0.03, railY, zCenter, 0.06, 0.06, deckD, steel);
-      box(group, deckW * 0.5 - 0.03, railY, zCenter, 0.06, 0.06, deckD, steel);
+      const totalDeckD = stepBackZ + deckD;
+      const zCenter = totalDeckD * 0.5;
+      const minDeckX = Math.min(-halfDeckW, shiftX - halfDeckW);
+      const maxDeckX = Math.max(halfDeckW, shiftX + halfDeckW);
+      const fullDeckW = maxDeckX - minDeckX;
+      const centerDeckX = (minDeckX + maxDeckX) * 0.5;
 
-      for (let j = 0; j < 6; j++) {
-        const bx = -deckW * 0.5 + 0.04 + (j / 5) * (deckW - 0.08);
-        box(group, bx, y + 0.46, deckD - 0.04, 0.04, 0.82, 0.04, steel);
-      }
-      for (const sx of [-deckW * 0.5 + 0.03, deckW * 0.5 - 0.03]) {
-        for (let k = 1; k <= 2; k++) {
-          box(group, sx, y + 0.46, (k / 3) * deckD, 0.04, 0.82, 0.04, steel);
+      if (i === 1) {
+        // Floor 1 (lowest landing): Solid walking deck with ground ladder
+        box(group, centerDeckX, y, zCenter, fullDeckW, deckT, totalDeckD, steel);
+      } else {
+        // Upper landings: Contains actual stairwell opening for flight arriving from floor i - 1
+        // Flight i - 1 climbed along floor (i - 1)'s exterior wall (offset by shiftX, stepBackZ)
+        const prevDir = (i - 1) % 2 === 1 ? 1 : -1;
+        const prevLaneZ = stepBackZ + flightLanes[i - 1];
+        const xArrive = shiftX + prevDir * xSpan;
+
+        // Headroom clearance opening extends back along the arriving stair flight
+        const openLen = Math.min(xSpan * 1.6, 1.25);
+        const xOpen1 = Math.min(xArrive, xArrive - prevDir * openLen);
+        const xOpen2 = Math.max(xArrive, xArrive - prevDir * openLen);
+
+        const zOpenMin = prevLaneZ - stairHW - 0.03;
+        const zOpenMax = prevLaneZ + stairHW + 0.03;
+
+        // 1. Continuous wall-side walkway from the upper wall (z = 0) up to the stairwell opening (z = zOpenMin)
+        if (zOpenMin > 0.04) {
+          box(group, centerDeckX, y, zOpenMin * 0.5, fullDeckW, deckT, zOpenMin, steel);
+        }
+
+        // 2. Outer deck plate (between zOpenMax and outer railing at totalDeckD)
+        const outerD = totalDeckD - zOpenMax;
+        if (outerD > 0.03) {
+          box(group, centerDeckX, y, zOpenMax + outerD * 0.5, fullDeckW, deckT, outerD, steel);
+        }
+
+        // 3. Solid end landing plates on both sides of the opening in X (spanning zOpenMin to zOpenMax)
+        const openSpanD = zOpenMax - zOpenMin;
+        if (maxDeckX - xOpen2 > 0.03) {
+          const wRight = maxDeckX - xOpen2;
+          box(group, xOpen2 + wRight * 0.5, y, zOpenMin + openSpanD * 0.5, wRight, deckT, openSpanD, steel);
+        }
+        if (xOpen1 - minDeckX > 0.03) {
+          const wLeft = xOpen1 - minDeckX;
+          box(group, minDeckX + wLeft * 0.5, y, zOpenMin + openSpanD * 0.5, wLeft, deckT, openSpanD, steel);
+        }
+
+        // Structural coaming / header framing around the 4 sides of the stairwell opening
+        const frameT = 0.035;
+        box(group, (xOpen1 + xOpen2) * 0.5, y, zOpenMin, xOpen2 - xOpen1, deckT + 0.02, frameT, steel);
+        box(group, (xOpen1 + xOpen2) * 0.5, y, zOpenMax, xOpen2 - xOpen1, deckT + 0.02, frameT, steel);
+        const backX = prevDir === 1 ? xOpen1 : xOpen2;
+        box(group, backX, y, (zOpenMin + zOpenMax) * 0.5, frameT, deckT + 0.02, openSpanD, steel);
+
+        // Guardrail along the inner walkway side of the opening to prevent falling into the stairwell
+        // Only place the inner opening rail when it doesn't block a departing flight on a narrow landing
+        const departLaneZ = i < cfg.floors - 1 ? flightLanes[i] : -1;
+        const railClearOfDepart = departLaneZ < 0 || Math.abs(zOpenMin - departLaneZ) > stairHW + 0.06;
+        if (railClearOfDepart) {
+          const openRailY = y + 0.88;
+          const openRailZ = zOpenMin;
+          line(group, [xOpen1, openRailY, openRailZ], [xOpen2, openRailY, openRailZ], 0.03, steel);
+          line(group, [backX, openRailY, zOpenMin], [backX, openRailY, zOpenMax], 0.03, steel);
+          const railPosts = 4;
+          for (let p = 0; p <= railPosts; p++) {
+            const rx = xOpen1 + (p / railPosts) * (xOpen2 - xOpen1);
+            line(group, [rx, y + 0.04, openRailZ], [rx, openRailY, openRailZ], 0.024, steel);
+          }
         }
       }
 
+      // Diagonal structural wall support struts anchored to floor (i - 1)'s exterior wall at z = stepBackZ
+      for (const dx of [shiftX - deckW * 0.42, shiftX + deckW * 0.42]) {
+        line(group, [dx, y - 0.58, stepBackZ + 0.02], [dx, y - 0.03, totalDeckD - 0.12], 0.04, steel);
+      }
+
+      // Outer street-side guardrail & balusters
+      const railY = y + 0.88;
+      box(group, centerDeckX, railY, totalDeckD - 0.04, fullDeckW, 0.06, 0.06, steel);
+      box(group, minDeckX + 0.03, railY, zCenter, 0.06, 0.06, totalDeckD, steel);
+      box(group, maxDeckX - 0.03, railY, zCenter, 0.06, 0.06, totalDeckD, steel);
+
+      const frontBalusters = Math.max(6, Math.round(fullDeckW * 2.5));
+      for (let j = 0; j < frontBalusters; j++) {
+        const bx = minDeckX + 0.04 + (j / (frontBalusters - 1)) * (fullDeckW - 0.08);
+        box(group, bx, y + 0.46, totalDeckD - 0.04, 0.04, 0.82, 0.04, steel);
+      }
+      const sideBalusters = Math.max(2, Math.round(totalDeckD * 1.8));
+      for (const sx of [minDeckX + 0.03, maxDeckX - 0.03]) {
+        for (let k = 1; k <= sideBalusters; k++) {
+          box(group, sx, y + 0.46, (k / (sideBalusters + 1)) * totalDeckD, 0.04, 0.82, 0.04, steel);
+        }
+      }
+
+      // Stairs climbing from floor i to floor i + 1 (mounted outside floor i's wall, z in [0, deckD])
       if (i < cfg.floors - 1) {
         const nextY = (i + 1) * cfg.floorHeight + 0.12;
         const dir = i % 2 === 1 ? 1 : -1;
-        const xStart = -dir * (deckW * 0.34);
-        const xEnd = dir * (deckW * 0.34);
-        const stairZ = deckD * 0.54;
-        for (const dz of [-0.22, 0.22]) {
-          line(group, [xStart, y, stairZ + dz], [xEnd, nextY, stairZ + dz], 0.042, steel);
-          line(group, [xStart, y + 0.82, stairZ + dz], [xEnd, nextY + 0.82, stairZ + dz], 0.032, steel);
+        const laneZ = flightLanes[i];
+        const xStart = -dir * xSpan;
+        const xEnd = dir * xSpan;
+
+        // Stringers and handrails
+        for (const dz of [-stairHW, stairHW]) {
+          line(group, [xStart, y, laneZ + dz], [xEnd, nextY, laneZ + dz], 0.042, steel);
+          line(group, [xStart, y + 0.82, laneZ + dz], [xEnd, nextY + 0.82, laneZ + dz], 0.032, steel);
         }
-        const steps = 8;
-        for (let s = 1; s < steps; s++) {
+
+        // Treads
+        const steps = 9;
+        for (let s = 1; s <= steps; s++) {
           const frac = s / steps;
           const sx = xStart + (xEnd - xStart) * frac;
           const sy = y + cfg.floorHeight * frac;
-          box(group, sx, sy, stairZ, 0.26, 0.05, 0.44, steel);
+          box(group, sx, sy, laneZ, 0.24, 0.045, stairTreadD, steel);
         }
       }
 
+      // Ground-access ladder at lowest landing (floor 1)
       if (i === 1) {
-        const lx = deckW * 0.5 + 0.18;
-        const lz = deckD * 0.55;
+        const lx = maxDeckX + 0.18;
+        const lz = stepBackZ + deckD * 0.55;
         const botY = 0.45;
         const topY = y + 1.05;
-        box(group, deckW * 0.5 + 0.09, y, lz, 0.18, 0.06, 0.38, steel);
+        box(group, maxDeckX + 0.09, y, lz, 0.18, 0.06, 0.38, steel);
         for (const dz of [-0.16, 0.16]) {
           line(group, [lx, botY, lz + dz], [lx, topY, lz + dz], 0.03, steel);
         }
@@ -1451,47 +1673,54 @@
 
     const segments = [];
     if (cfg.footprint === 'L') {
+      const lShrink = Math.min(shrink, Math.max(0.3, baseW * 0.46 - 2.0));
+      const lw = Math.max(5, baseW - lShrink * 2);
+      const lCut = cfg.cornerCut > 0 ? Math.min(cfg.cornerCut, lw * 0.28, d * 0.28) : 0;
+
       const seamZ = -baseD * 0.5 + baseD * 0.56;
-      const backMinZ = -baseD * 0.5 + shrink;
-      const backMaxZ = Math.min(seamZ, baseD * 0.5 - shrink);
-      const backD = Math.max(2.6, backMaxZ - backMinZ);
+      const backMinZ = -baseD * 0.5 + lShrink;
+      const backMaxZ = seamZ;
+      const backD = Math.max(2.4, backMaxZ - backMinZ);
       const backZ = (backMinZ + backMaxZ) * 0.5;
 
-      const wingMinX = -baseW * 0.5 + shrink;
-      const wingMaxX = Math.max(wingMinX + 2.2, -baseW * 0.5 + baseW * 0.46 - shrink * 0.5);
-      const frontW = wingMaxX - wingMinX;
+      const wingMinX = -baseW * 0.5 + lShrink;
+      const wingMaxX = -baseW * 0.5 + baseW * 0.46;
+      const frontW = Math.max(1.8, wingMaxX - wingMinX);
       const frontX = (wingMinX + wingMaxX) * 0.5;
-      const frontMaxZ = baseD * 0.5 - shrink;
-      const frontD = Math.max(1.8, frontMaxZ - backMaxZ);
+      const frontMaxZ = Math.max(backMaxZ + 1.8, baseD * 0.5 - lShrink);
+      const frontD = frontMaxZ - backMaxZ;
       const frontZ = backMaxZ + frontD * 0.5;
 
-      segments.push(makeSeg(0, backZ, w, backD, {
+      segments.push(makeSeg(0, backZ, lw, backD, {
         isMain: true,
         hasEntrance: true,
-        cornerCut: cut,
+        cornerCut: lCut,
         occlusions: { front: [[wingMinX, wingMaxX]] }
       }));
       segments.push(makeSeg(frontX, frontZ, frontW, frontD, {
         skipWalls: { back: true }
       }));
     } else if (cfg.footprint === 'U') {
+      const uShrink = Math.min(shrink, Math.max(0.3, baseW * 0.31 - 1.8));
+      const uw = Math.max(5, baseW - uShrink * 2);
+
       const seamZ = -baseD * 0.5 + baseD * 0.46;
-      const backMinZ = -baseD * 0.5 + shrink;
-      const backMaxZ = Math.min(seamZ, baseD * 0.5 - shrink);
-      const backD = Math.max(2.5, backMaxZ - backMinZ);
+      const backMinZ = -baseD * 0.5 + uShrink;
+      const backMaxZ = seamZ;
+      const backD = Math.max(2.4, backMaxZ - backMinZ);
       const backZ = (backMinZ + backMaxZ) * 0.5;
 
-      const wingW = Math.max(2.0, baseW * 0.31 - shrink * 0.65);
-      const leftMinX = -baseW * 0.5 + shrink;
-      const leftMaxX = leftMinX + wingW;
-      const rightMaxX = baseW * 0.5 - shrink;
-      const rightMinX = rightMaxX - wingW;
+      const leftMinX = -baseW * 0.5 + uShrink;
+      const leftMaxX = -baseW * 0.5 + baseW * 0.31;
+      const rightMinX = baseW * 0.5 - baseW * 0.31;
+      const rightMaxX = baseW * 0.5 - uShrink;
+      const wingW = Math.max(1.8, leftMaxX - leftMinX);
 
-      const wingMaxZ = baseD * 0.5 - shrink;
-      const wingD = Math.max(1.8, wingMaxZ - backMaxZ);
+      const wingMaxZ = Math.max(backMaxZ + 1.8, baseD * 0.5 - uShrink);
+      const wingD = wingMaxZ - backMaxZ;
       const wingZ = backMaxZ + wingD * 0.5;
 
-      segments.push(makeSeg(0, backZ, w, backD, {
+      segments.push(makeSeg(0, backZ, uw, backD, {
         isMain: true,
         hasEntrance: true,
         occlusions: {
@@ -1601,7 +1830,7 @@
       let we = e;
       if (!long) {
         if (Math.abs(ws - (seg.z - seg.d * 0.5)) < 0.02 && !seg.skipWalls?.back) ws += t;
-        if (Math.abs(we - (seg.z + seg.d * 0.5)) < 0.02 && !seg.skipWalls?.front && cut <= 0.01) we -= t;
+        if (Math.abs(we - (seg.z + seg.d * 0.5)) < 0.02 && !seg.skipWalls?.front && (side !== 'right' || cut <= 0.01)) we -= t;
       }
       const len = we - ws;
       if (len <= 0.05) continue;
@@ -1715,6 +1944,10 @@
     const wh = Math.min(cfg.windowHeight, cfg.floorHeight * 0.66);
     const wy = index * cfg.floorHeight + cfg.floorHeight * 0.51;
 
+    const fireCoordOnFloor = firePlacement && firePlacement.side === side
+      ? getFireEscapeWallAnchor(seg, side, firePlacement.coord, firePlacement.deckW).coord
+      : null;
+
     for (const [s, e] of windowSpans) {
       const avail = e - s;
       if (avail < Math.min(0.85, cfg.windowWidth * 0.7)) continue;
@@ -1729,7 +1962,7 @@
         const x = long ? pos : (side === 'left' ? seg.x - seg.w * 0.5 : seg.x + seg.w * 0.5);
         const z = long ? (side === 'front' ? seg.z + seg.d * 0.5 : seg.z - seg.d * 0.5) : pos;
 
-        const hasFireHere = firePlacement && firePlacement.side === side && Math.abs(pos - firePlacement.coord) < firePlacement.deckW * 0.55;
+        const hasFireHere = fireCoordOnFloor !== null && Math.abs(pos - fireCoordOnFloor) < firePlacement.deckW * 0.58;
         const forceFirstDamage = cfg.damage >= 0.05 && index === Math.min(1, cfg.floors - 1) && j === 0 && side === 'front';
         const damageMode = pickWindowDamageMode(cfg, r, forceFirstDamage);
 
@@ -1753,52 +1986,196 @@
     }
   }
 
-  function addSetbackTerrace(group, lowerSeg, upperSeg, y, cfg, r) {
+  function addSetbackTerrace(group, lowerSeg, upperSeg, y, cfg, r, segIdx = 0, firePlacement = null) {
     const roofMat = solid(cfg.roofColor);
     const trimMat = solid(cfg.trimColor);
     const wallMat = solid(cfg.wallColor);
-    const slabH = 0.12;
-    const slabY = y - slabH * 0.5 - 0.015;
+    const yLift = segIdx * 0.003;
+    const slabH = 0.14;
+    const slabTopY = y + 0.004 + yLift;
+    const slabY = slabTopY - slabH * 0.5;
     const overlap = Math.min(0.08, cfg.wallThickness * 0.45);
+    const wallInset = 0.02;
 
-    const lMinX = lowerSeg.x - lowerSeg.w * 0.5;
-    const lMaxX = lowerSeg.x + lowerSeg.w * 0.5 - (lowerSeg.cornerCut || 0);
-    const lMinZ = lowerSeg.z - lowerSeg.d * 0.5;
-    const lMaxZ = lowerSeg.z + lowerSeg.d * 0.5;
+    const lX1 = lowerSeg.x - lowerSeg.w * 0.5;
+    const lX2 = lowerSeg.x + lowerSeg.w * 0.5;
+    const lZ1 = lowerSeg.z - lowerSeg.d * 0.5;
+    const lZ2 = lowerSeg.z + lowerSeg.d * 0.5;
+    const lCut = Math.max(0, Math.min(lowerSeg.cornerCut || 0, lowerSeg.w * 0.45, lowerSeg.d * 0.45));
 
-    const uMinX = upperSeg.x - upperSeg.w * 0.5 + overlap;
-    const uMaxX = upperSeg.x + upperSeg.w * 0.5 - (upperSeg.cornerCut || 0) - overlap;
-    const uMinZ = upperSeg.z - upperSeg.d * 0.5 + overlap;
-    const uMaxZ = upperSeg.z + upperSeg.d * 0.5 - overlap;
+    // Inset outer terrace slab faces by 2cm inside the lower exterior brick walls to prevent coplanar Z-fighting
+    const oX1 = lX1 + (lowerSeg.skipWalls?.left ? 0.01 : wallInset);
+    const oX2 = lX2 - (lowerSeg.skipWalls?.right ? 0.01 : wallInset);
+    const oZ1 = lZ1 + (lowerSeg.skipWalls?.back ? 0.01 : wallInset);
+    const oZ2 = lZ2 - (lowerSeg.skipWalls?.front ? 0.01 : wallInset);
+    const oCut = lCut > 0.015 ? Math.max(0, lCut - wallInset * 0.5) : 0;
 
-    const frontD = lMaxZ - uMaxZ;
-    if (frontD > 0.04) {
-      box(group, (lMinX + lMaxX) * 0.5, slabY, uMaxZ + frontD * 0.5, lMaxX - lMinX, slabH, frontD, roofMat);
-    }
-    const backD = uMinZ - lMinZ;
-    if (backD > 0.04) {
-      box(group, (lMinX + lMaxX) * 0.5, slabY, lMinZ + backD * 0.5, lMaxX - lMinX, slabH, backD, roofMat);
-    }
-    const midD = Math.max(0, uMaxZ - uMinZ);
-    const leftW = uMinX - lMinX;
-    if (leftW > 0.04 && midD > 0.04) {
-      box(group, lMinX + leftW * 0.5, slabY, (uMinZ + uMaxZ) * 0.5, leftW, slabH, midD, roofMat);
-    }
-    const rightW = lMaxX - uMaxX;
-    if (rightW > 0.04 && midD > 0.04) {
-      box(group, uMaxX + rightW * 0.5, slabY, (uMinZ + uMaxZ) * 0.5, rightW, slabH, midD, roofMat);
+    const uX1 = upperSeg.x - upperSeg.w * 0.5;
+    const uX2 = upperSeg.x + upperSeg.w * 0.5;
+    const uZ1 = upperSeg.z - upperSeg.d * 0.5;
+    const uZ2 = upperSeg.z + upperSeg.d * 0.5;
+    const uCutRaw = Math.max(0, Math.min(upperSeg.cornerCut || 0, upperSeg.w * 0.45, upperSeg.d * 0.45));
+
+    const in_uX1 = uX1 + (uX1 > lX1 + 0.04 ? overlap : 0);
+    const in_uX2 = uX2 - (uX2 < lX2 - 0.04 ? overlap : 0);
+    const in_uZ1 = uZ1 + (uZ1 > lZ1 + 0.04 ? overlap : 0);
+    const in_uZ2 = uZ2 - (uZ2 < lZ2 - 0.04 ? overlap : 0);
+    const in_uCut = uCutRaw > 0.02 ? Math.max(0, uCutRaw - overlap * 0.5) : 0;
+
+    const hasBack = in_uZ1 - oZ1 > 0.04;
+    const hasFront = oZ2 - in_uZ2 > 0.04;
+    const hasLeft = in_uX1 - oX1 > 0.04;
+    const hasRight = oX2 - in_uX2 > 0.04;
+
+    const zL1 = hasBack ? in_uZ1 : oZ1;
+    const zL2 = hasFront ? in_uZ2 : oZ2;
+
+    // 1. Back terrace slab
+    if (hasBack && oX2 - oX1 > 0.04) {
+      box(group, (oX1 + oX2) * 0.5, slabY, (oZ1 + in_uZ1) * 0.5, oX2 - oX1, slabH, in_uZ1 - oZ1, roofMat);
     }
 
-    const ledgeH = 0.16;
-    const ledgeT = 0.14;
+    // 2. Left terrace slab
+    if (hasLeft && zL2 - zL1 > 0.04) {
+      box(group, (oX1 + in_uX1) * 0.5, slabY, (zL1 + zL2) * 0.5, in_uX1 - oX1, slabH, zL2 - zL1, roofMat);
+    }
+
+    if (oCut <= 0.02 && in_uCut <= 0.02) {
+      // Standard rectangular setback terrace (zero corner cut)
+      if (hasFront && oX2 - oX1 > 0.04) {
+        box(group, (oX1 + oX2) * 0.5, slabY, (in_uZ2 + oZ2) * 0.5, oX2 - oX1, slabH, oZ2 - in_uZ2, roofMat);
+      }
+      if (hasRight && zL2 - zL1 > 0.04) {
+        box(group, (in_uX2 + oX2) * 0.5, slabY, (zL1 + zL2) * 0.5, oX2 - in_uX2, slabH, zL2 - zL1, roofMat);
+      }
+    } else {
+      // Setback terrace with diagonal corner chamfer
+      const xCorner = Math.min(oX2 - oCut, in_uX2 - in_uCut);
+      const zCorner = Math.min(oZ2 - oCut, in_uZ2 - in_uCut);
+
+      // Front slab (left of chamfer zone)
+      if (hasFront && xCorner - oX1 > 0.04) {
+        box(group, (oX1 + xCorner) * 0.5, slabY, (in_uZ2 + oZ2) * 0.5, xCorner - oX1, slabH, oZ2 - in_uZ2, roofMat);
+      }
+
+      // Right slab (behind chamfer zone)
+      if (hasRight && zCorner - zL1 > 0.04) {
+        box(group, (in_uX2 + oX2) * 0.5, slabY, (zL1 + zCorner) * 0.5, oX2 - in_uX2, slabH, zCorner - zL1, roofMat);
+      }
+
+      // Diagonal corner terrace polygon connecting front, right, and chamfers
+      const pts = [];
+      const addPt = (px, pz) => {
+        if (!pts.length) { pts.push({ x: px, z: pz }); return; }
+        const prev = pts[pts.length - 1];
+        if (Math.hypot(px - prev.x, pz - prev.z) > 0.015) pts.push({ x: px, z: pz });
+      };
+
+      // Counter-clockwise polygon boundary:
+      addPt(in_uX2, zCorner);
+      addPt(oX2, zCorner);
+      if (oZ2 - oCut > zCorner + 0.015) addPt(oX2, oZ2 - oCut);
+      addPt(oX2 - oCut, oZ2);
+      if (xCorner < oX2 - oCut - 0.015) addPt(xCorner, oZ2);
+      addPt(xCorner, in_uZ2);
+      addPt(in_uX2 - in_uCut, in_uZ2);
+      addPt(in_uX2, in_uZ2 - in_uCut);
+
+      if (pts.length >= 3) {
+        const shape = new THREE.Shape();
+        shape.moveTo(pts[0].x, pts[0].z);
+        for (let k = 1; k < pts.length; k++) shape.lineTo(pts[k].x, pts[k].z);
+        shape.closePath();
+        const geo = new THREE.ExtrudeGeometry(shape, { depth: slabH, bevelEnabled: false });
+        geo.rotateX(Math.PI / 2);
+        const mesh = new THREE.Mesh(geo, roofMat);
+        mesh.position.set(0, slabTopY, 0);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        group.add(mesh);
+      }
+    }
+
+    // Parapets and decorative trim aligned with outer edges and respecting occlusions & fire escape
+    const ledgeH = cfg.parapet ? Math.min(0.55, Math.max(0.24, cfg.parapetHeight || 0.4)) : 0.16;
+    const ledgeT = Math.max(0.18, Math.min(0.25, cfg.wallThickness));
     const ledgeMat = cfg.parapet ? wallMat : trimMat;
-    box(group, (lMinX + lMaxX) * 0.5, y + ledgeH * 0.5 - 0.02, lMaxZ - ledgeT * 0.5, lMaxX - lMinX + 0.04, ledgeH, ledgeT, ledgeMat);
-    box(group, (lMinX + lMaxX) * 0.5, y + ledgeH * 0.5 - 0.02, lMinZ + ledgeT * 0.5, lMaxX - lMinX + 0.04, ledgeH, ledgeT, ledgeMat);
-    box(group, lMinX + ledgeT * 0.5, y + ledgeH * 0.5 - 0.02, (lMinZ + lMaxZ) * 0.5, ledgeT, ledgeH, lMaxZ - lMinZ - ledgeT * 2, ledgeMat);
-    box(group, lMaxX - ledgeT * 0.5, y + ledgeH * 0.5 - 0.02, (lMinZ + lMaxZ) * 0.5, ledgeT, ledgeH, lMaxZ - lMinZ - ledgeT * 2, ledgeMat);
+    const py = slabTopY + ledgeH * 0.5;
+    const capY = slabTopY + ledgeH + 0.03;
 
+    const getBlockedForSide = (side) => {
+      const list = [...(lowerSeg.occlusions?.[side] || [])];
+      if (firePlacement && firePlacement.side === side) {
+        const fa = getFireEscapeWallAnchor(lowerSeg, side, firePlacement.coord, firePlacement.deckW);
+        const ua = getFireEscapeWallAnchor(upperSeg, side, firePlacement.coord, firePlacement.deckW);
+        const fMin = Math.min(fa.coord, ua.coord, firePlacement.coord) - firePlacement.deckW * 0.54;
+        const fMax = Math.max(fa.coord, ua.coord, firePlacement.coord) + firePlacement.deckW * 0.54;
+        list.push([fMin, fMax]);
+      }
+      return list;
+    };
+
+    const hasBackParapet = hasBack && !lowerSeg.skipWalls?.back;
+    const hasFrontParapet = hasFront && !lowerSeg.skipWalls?.front;
+
+    if (hasBackParapet) {
+      const spans = subtractIntervals(lX1, lX2, getBlockedForSide('back'));
+      for (const [s, e] of spans) {
+        box(group, (s + e) * 0.5, py, lZ1 + ledgeT * 0.5, e - s, ledgeH, ledgeT, ledgeMat);
+        if (cfg.trimAmount > 0.15) {
+          box(group, (s + e) * 0.5, capY, lZ1 + ledgeT * 0.5, e - s + 0.04, 0.06, ledgeT + 0.04, trimMat);
+        }
+      }
+    }
+    if (hasFrontParapet) {
+      const fEnd = lCut > 0.015 ? lX2 - lCut : lX2;
+      const spans = subtractIntervals(lX1, fEnd, getBlockedForSide('front'));
+      for (const [s, e] of spans) {
+        box(group, (s + e) * 0.5, py, lZ2 - ledgeT * 0.5, e - s, ledgeH, ledgeT, ledgeMat);
+        if (cfg.trimAmount > 0.15) {
+          box(group, (s + e) * 0.5, capY, lZ2 - ledgeT * 0.5, e - s + 0.04, 0.06, ledgeT + 0.04, trimMat);
+        }
+      }
+    }
+    if (hasLeft && !lowerSeg.skipWalls?.left) {
+      const zStart = lZ1 + (hasBackParapet ? ledgeT : 0);
+      const zEnd = lZ2 - (hasFrontParapet ? ledgeT : 0);
+      const spans = subtractIntervals(zStart, zEnd, getBlockedForSide('left'));
+      for (const [s, e] of spans) {
+        box(group, lX1 + ledgeT * 0.5, py, (s + e) * 0.5, ledgeT, ledgeH, e - s, ledgeMat);
+        if (cfg.trimAmount > 0.15) {
+          box(group, lX1 + ledgeT * 0.5, capY, (s + e) * 0.5, ledgeT + 0.04, 0.06, Math.max(0.08, e - s - 0.04), trimMat);
+        }
+      }
+    }
+    if (hasRight && !lowerSeg.skipWalls?.right) {
+      const zStart = lZ1 + (hasBackParapet ? ledgeT : 0);
+      const zEnd = lCut > 0.015 ? lZ2 - lCut : lZ2 - (hasFrontParapet ? ledgeT : 0);
+      const spans = subtractIntervals(zStart, zEnd, getBlockedForSide('right'));
+      for (const [s, e] of spans) {
+        box(group, lX2 - ledgeT * 0.5, py, (s + e) * 0.5, ledgeT, ledgeH, e - s, ledgeMat);
+        if (cfg.trimAmount > 0.15) {
+          box(group, lX2 - ledgeT * 0.5, capY, (s + e) * 0.5, ledgeT + 0.04, 0.06, Math.max(0.08, e - s - 0.04), trimMat);
+        }
+      }
+    }
+
+    if (lCut > 0.015 && (hasFront || hasRight)) {
+      const cx = lowerSeg.x + lowerSeg.w * 0.5 - lCut * 0.5;
+      const cz = lowerSeg.z + lowerSeg.d * 0.5 - lCut * 0.5;
+      const diagLen = lCut * Math.SQRT2;
+      const wedge = worldRoot(group, cx, slabTopY, cz);
+      wedge.rotation.y = Math.PI / 4;
+      box(wedge, 0, ledgeH * 0.5, -ledgeT * 0.5, diagLen + ledgeT * 0.2, ledgeH, ledgeT, ledgeMat);
+      if (cfg.trimAmount > 0.15) {
+        box(wedge, 0, ledgeH + 0.03, -ledgeT * 0.5, diagLen + ledgeT * 0.3, 0.06, ledgeT + 0.04, trimMat);
+      }
+    }
+
+    const frontD = oZ2 - in_uZ2;
     if (frontD > 0.65 && (cfg.tarPatches || cfg.roofPuddles || cfg.age > 0.45)) {
-      addSurfaceWeathering(group, (lMinX + lMaxX) * 0.5, y - 0.012, uMaxZ + frontD * 0.5, lMaxX - lMinX - 0.5, frontD - 0.35, cfg, r);
+      const weathW = Math.max(1, (oX2 - oCut) - oX1 - 0.6);
+      addSurfaceWeathering(group, (oX1 + (oX2 - oCut)) * 0.5, slabTopY, in_uZ2 + frontD * 0.5, weathW, frontD - 0.35, cfg, r);
     }
   }
 
@@ -2007,17 +2384,22 @@
         box(group, x2, y2, bayZ + 0.34, stepW + 0.04, 0.11, 0.62, stairMat);
       }
 
+      const topLandingY = baseY + cfg.floorHeight - 0.08;
+      const topRailEndY = (index === cfg.floors - 1 || (cfg.setback > 0 && index + 1 >= Math.floor(cfg.floors * 0.6)))
+        ? baseY + cfg.floorHeight - 0.1
+        : baseY + cfg.floorHeight + 0.7;
       line(group, [bayCenterX + runW * 0.45, baseY + 0.16, bayZ - 0.34], [bayCenterX - runW * 0.45, midY, bayZ - 0.34], 0.05, stairMat);
-      line(group, [bayCenterX - runW * 0.45, midY, bayZ + 0.34], [bayCenterX + runW * 0.45, baseY + cfg.floorHeight, bayZ + 0.34], 0.05, stairMat);
+      line(group, [bayCenterX - runW * 0.45, midY, bayZ + 0.34], [bayCenterX + runW * 0.45, topLandingY, bayZ + 0.34], 0.05, stairMat);
       line(group, [bayCenterX + runW * 0.45, baseY + 0.85, bayZ], [bayCenterX - runW * 0.45, midY + 0.7, bayZ], 0.03, railMat);
-      line(group, [bayCenterX - runW * 0.45, midY + 0.7, bayZ], [bayCenterX + runW * 0.45, baseY + cfg.floorHeight + 0.7, bayZ], 0.03, railMat);
+      line(group, [bayCenterX - runW * 0.45, midY + 0.7, bayZ], [bayCenterX + runW * 0.45, topRailEndY, bayZ], 0.03, railMat);
     }
 
     if (seg.isMain && cfg.elevator && innerW >= 3.5) {
       const cut = seg.cornerCut || 0;
+      const elevH = cfg.floorHeight - 0.12;
       const x = seg.x + innerW * 0.5 - cut - 0.72;
       const z = seg.z - innerD * 0.5 + 0.72;
-      box(group, x, baseY + cfg.floorHeight * 0.5, z, 1.24, cfg.floorHeight, 1.2, solid('#8b9194'));
+      box(group, x, baseY + elevH * 0.5 + 0.04, z, 1.24, elevH, 1.2, solid('#8b9194'));
       box(group, x, baseY + cfg.floorHeight * 0.42, z + 0.62, 0.9, Math.min(2.1, cfg.floorHeight * 0.68), 0.06, glassMaterial('#28383d'));
     }
   }
@@ -2328,16 +2710,22 @@
 
     const groundSegments = segmentsForFloor(cfg, 0);
     const primary = groundSegments[0];
-    const fireSeg = cfg.setback > 0 ? segmentsForFloor(cfg, count - 1)[0] : primary;
-    const firePlacement = chooseFireEscapePlacement(fireSeg, cfg, rng32(cfg.seed + 313));
+    const firePlacement = chooseFireEscapePlacement(groundSegments, cfg, rng32(cfg.seed + 313));
 
     for (let floor = 0; floor < visibleFloors; floor++) {
       const segments = segmentsForFloor(cfg, floor);
       const nextSegments = floor < visibleFloors - 1 ? segmentsForFloor(cfg, floor + 1) : null;
+      const hasFireExtOnFloor = firePlacement && firePlacement.extIndex >= 0
+        && segments.some((s) => s.isExtension && s.extIndex === firePlacement.extIndex);
 
       for (let j = 0; j < segments.length; j++) {
         const seg = segments[j];
-        const segFire = j === 0 ? firePlacement : null;
+        const isFireTarget = firePlacement && (
+          hasFireExtOnFloor
+            ? (seg.isExtension && seg.extIndex === firePlacement.extIndex)
+            : (j === 0)
+        );
+        const segFire = isFireTarget ? firePlacement : null;
         for (const side of ['front', 'back', 'left', 'right']) {
           wallForSide(root, seg, floor, side, cfg, r, cutaway, cfg.seed + j * 97 + floor * 17, segFire);
         }
@@ -2355,10 +2743,22 @@
           if (seg.isExtension) {
             const hasAbove = nextSegments.some((ns) => ns.isExtension && ns.extIndex === seg.extIndex);
             if (!hasAbove) {
-              addRoof(root, seg, (floor + 1) * fh, { ...cfg, roofType: 'flat', skylights: false, parapetHeight: Math.min(0.32, cfg.parapetHeight) }, r, j + 1);
+              const roofSeg = segFire
+                ? {
+                    ...seg,
+                    occlusions: {
+                      ...seg.occlusions,
+                      [segFire.side]: [
+                        ...(seg.occlusions?.[segFire.side] || []),
+                        [segFire.coord - segFire.deckW * 0.54, segFire.coord + segFire.deckW * 0.54]
+                      ]
+                    }
+                  }
+                : seg;
+              addRoof(root, roofSeg, (floor + 1) * fh, { ...cfg, roofType: 'flat', skylights: false, parapetHeight: Math.min(0.32, cfg.parapetHeight) }, r, j + 1);
             }
           } else if (nextSegments[j] && (nextSegments[j].w < seg.w - 0.05 || nextSegments[j].d < seg.d - 0.05)) {
-            addSetbackTerrace(root, seg, nextSegments[j], (floor + 1) * fh, cfg, r);
+            addSetbackTerrace(root, seg, nextSegments[j], (floor + 1) * fh, cfg, r, j, j === 0 ? firePlacement : segFire);
           }
         }
       }
@@ -2368,7 +2768,7 @@
       addEntrance(root, primary, cfg, r);
     }
     if (firePlacement) {
-      addFireEscape(root, fireSeg, firePlacement, cfg);
+      addFireEscape(root, primary, firePlacement, cfg);
     }
 
     if (roofOn) {
@@ -2684,6 +3084,115 @@
         toast('Preview saved');
       }
     }, 'image/png');
+  }
+
+  function toggleTheatreMode() {
+    view.theatre = !view.theatre;
+    const studio = $('#building-studio');
+    const btn = $('#btn-theatre');
+    const btnTop = $('#btn-theatre-quick');
+    if (studio) studio.classList.toggle('theatre-mode', view.theatre);
+    if (btn) {
+      btn.classList.toggle('active', view.theatre);
+      btn.title = view.theatre ? 'Exit Theatre Mode (T)' : 'Toggle Theatre Mode (T)';
+    }
+    if (btnTop) {
+      btnTop.classList.toggle('active', view.theatre);
+      btnTop.innerHTML = view.theatre
+        ? '<i class="fas fa-columns"></i><span> Standard Layout</span>'
+        : '<i class="fas fa-film"></i><span> Theatre</span>';
+      btnTop.title = view.theatre ? 'Exit Theatre Mode (T)' : 'Toggle Theatre Mode (T)';
+    }
+    toast(view.theatre ? 'Theatre mode on (T)' : 'Standard layout restored');
+    setTimeout(resizeRenderer, 40);
+    setTimeout(resizeRenderer, 220);
+  }
+
+  function isFullscreenActive() {
+    const frame = $('.studio-viewport-frame');
+    return !!(document.fullscreenElement || (frame && frame.classList.contains('is-fullscreen')));
+  }
+
+  function updateFullscreenUI(active) {
+    view.fullscreen = active;
+    const frame = $('.studio-viewport-frame');
+    const btn = $('#btn-fullscreen');
+    const btnTop = $('#btn-fullscreen-quick');
+    if (frame) frame.classList.toggle('is-fullscreen', active);
+    document.body.classList.toggle('studio-fullscreen-active', active);
+
+    if (btn) {
+      btn.classList.toggle('active', active);
+      btn.innerHTML = active ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+      btn.title = active ? 'Exit Full-Screen Mode (Esc or F)' : 'Toggle Full-Screen Mode (F)';
+      btn.setAttribute('aria-label', btn.title);
+    }
+    if (btnTop) {
+      btnTop.classList.toggle('active', active);
+      btnTop.innerHTML = active
+        ? '<i class="fas fa-compress"></i><span> Exit Fullscreen</span>'
+        : '<i class="fas fa-expand"></i><span> Fullscreen</span>';
+      btnTop.title = active ? 'Exit Full-Screen Mode (Esc or F)' : 'Toggle Full-Screen Mode (F)';
+    }
+    setTimeout(resizeRenderer, 40);
+    setTimeout(resizeRenderer, 220);
+  }
+
+  function enterFullscreenViewport() {
+    const frame = $('.studio-viewport-frame');
+    updateFullscreenUI(true);
+    if (frame && !document.fullscreenElement && frame.requestFullscreen) {
+      frame.requestFullscreen().catch(() => {
+        // Fallback CSS is already applied!
+      });
+    }
+    toast('Full-Screen Mode active (Esc or F to exit)');
+  }
+
+  function exitFullscreenViewport() {
+    if (document.fullscreenElement && document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    }
+    updateFullscreenUI(false);
+    toast('Exited Full-Screen Mode');
+  }
+
+  function toggleFullscreenViewport() {
+    if (isFullscreenActive()) {
+      exitFullscreenViewport();
+    } else {
+      enterFullscreenViewport();
+    }
+  }
+
+  function handleStudioKeydown(e) {
+    const tag = e.target?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target?.isContentEditable) return;
+
+    if (e.key === 'f' || e.key === 'F') {
+      e.preventDefault();
+      toggleFullscreenViewport();
+    } else if (e.key === 't' || e.key === 'T') {
+      e.preventDefault();
+      toggleTheatreMode();
+    } else if (e.key === 'p' || e.key === 'P') {
+      e.preventDefault();
+      snapshot();
+    } else if (e.key === 'Escape') {
+      if (isFullscreenActive()) {
+        exitFullscreenViewport();
+      }
+    }
+  }
+
+  function handleFullscreenChange() {
+    const frame = $('.studio-viewport-frame');
+    const isNowFull = !!document.fullscreenElement;
+    if (isNowFull) {
+      updateFullscreenUI(true);
+    } else if (frame && frame.classList.contains('is-fullscreen')) {
+      updateFullscreenUI(false);
+    }
   }
 
   function loadScript(url, check, timeout = 14000) {
