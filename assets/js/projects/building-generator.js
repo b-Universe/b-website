@@ -1415,18 +1415,15 @@
         const zOpenMin = prevLaneZ - stairHW - 0.03;
         const zOpenMax = prevLaneZ + stairHW + 0.03;
 
-        // 1. Continuous wall-side walkway from the upper wall (z = 0) up to the stairwell opening (z = zOpenMin)
         if (zOpenMin > 0.04) {
           box(group, centerDeckX, y, zOpenMin * 0.5, fullDeckW, deckT, zOpenMin, steel);
         }
 
-        // 2. Outer deck plate (between zOpenMax and outer railing at totalDeckD)
         const outerD = totalDeckD - zOpenMax;
         if (outerD > 0.03) {
           box(group, centerDeckX, y, zOpenMax + outerD * 0.5, fullDeckW, deckT, outerD, steel);
         }
 
-        // 3. Solid end landing plates on both sides of the opening in X (spanning zOpenMin to zOpenMax)
         const openSpanD = zOpenMax - zOpenMin;
         if (maxDeckX - xOpen2 > 0.03) {
           const wRight = maxDeckX - xOpen2;
@@ -2030,12 +2027,12 @@
     const zL1 = hasBack ? in_uZ1 : oZ1;
     const zL2 = hasFront ? in_uZ2 : oZ2;
 
-    // 1. Back terrace slab
+    // Back terrace slab
     if (hasBack && oX2 - oX1 > 0.04) {
       box(group, (oX1 + oX2) * 0.5, slabY, (oZ1 + in_uZ1) * 0.5, oX2 - oX1, slabH, in_uZ1 - oZ1, roofMat);
     }
 
-    // 2. Left terrace slab
+    // Left terrace slab
     if (hasLeft && zL2 - zL1 > 0.04) {
       box(group, (oX1 + in_uX1) * 0.5, slabY, (zL1 + zL2) * 0.5, in_uX1 - oX1, slabH, zL2 - zL1, roofMat);
     }
@@ -2976,6 +2973,214 @@
     }
   }
 
+  const BLOCK_SIGN_TEXTS = [
+    'CORNER MARKET', 'BAKERY & CAFE', 'APOTHECARY', 'HARDWARE CO.', 'BOOKSHOP',
+    'DELI & GROCERY', 'CITY DINER', 'TAILOR & DRY CLEAN', 'ARCADE', 'PHARMACY',
+    'BARBERSHOP', 'HARDWARE & TOOLS', 'TEA HOUSE', 'NEWSSTAND'
+  ];
+
+  const AWNING_PALETTE = [
+    '#8e3b3b', '#a14248', '#2f5d50', '#35546c', '#7a5230', '#5a3d5c', '#3d4f60', '#8c583a'
+  ];
+
+  function createBlockVariant(baseCfg, side, n, totalOnSide = 5) {
+    const seed = baseCfg.seed + side * 3001 + n * 4177;
+    const r = rng32(seed);
+    const cfg = { ...copy(baseCfg), seed, cutaway: false, inspectedFloor: 0, interiorMode: 'none' };
+    const isEndLot = n === 0 || n === totalOnSide - 1;
+    const isHero = side === 0 && n === Math.floor(totalOnSide / 2);
+
+    // Keep the center front building closest
+    // diversify the surrounding buildings across Form, Roofline, Entrances, and Features
+    if (isHero) {
+      return cfg;
+    }
+
+    const canVary = (key) => !locks.has(key);
+
+    // Building Form (width, depth, floors, floorHeight, footprint, extension, setback, cornerCut)
+    if (canVary('width')) {
+      const wDelta = Math.round(randBetween(r, -3.5, 4.0) * 2) * 0.5;
+      cfg.width = clamp(baseCfg.width + wDelta, 7, 28);
+    }
+    if (canVary('depth')) {
+      const dDelta = Math.round(randBetween(r, -2.5, 3.5) * 2) * 0.5;
+      cfg.depth = clamp(baseCfg.depth + dDelta, 7, 26);
+    }
+    if (canVary('floors')) {
+      cfg.floors = clamp(baseCfg.floors + randInt(r, -2, 3), 2, 14);
+    }
+    if (canVary('floorHeight')) {
+      const fhDelta = Math.round(randBetween(r, -0.25, 0.3) * 10) / 10;
+      cfg.floorHeight = clamp(Number((baseCfg.floorHeight + fhDelta).toFixed(1)), 2.8, 4.4);
+    }
+    if (canVary('footprint')) {
+      const fpPool = isEndLot
+        ? [baseCfg.footprint, 'corner', 'L', 'rectangle', 'corner']
+        : [baseCfg.footprint, 'rectangle', 'L', 'U', 'rectangle', 'corner'];
+      cfg.footprint = pick(r, fpPool);
+    }
+    if (canVary('extension')) {
+      const extPool = [baseCfg.extension, 0, 0, 1, 1, 2, 3];
+      cfg.extension = pick(r, extPool);
+    }
+    if (canVary('setback')) {
+      if (cfg.floors >= 4 && r() < (baseCfg.setback > 0 ? 0.72 : 0.45)) {
+        cfg.setback = pick(r, [0.5, 0.75, 1.0, 1.25, 1.5, 1.75]);
+      } else {
+        cfg.setback = 0;
+      }
+    }
+    if (canVary('cornerCut')) {
+      if (cfg.footprint === 'corner') {
+        cfg.cornerCut = pick(r, [1.25, 1.5, 1.75, 2.0, 2.25]);
+      } else if ((isEndLot && r() < 0.55) || r() < 0.28) {
+        cfg.cornerCut = pick(r, [1.0, 1.25, 1.5, 1.75, 2.0]);
+      } else {
+        cfg.cornerCut = 0;
+      }
+    }
+
+    // Roofline (roofType, parapet, parapetHeight, roofColor)
+    if (canVary('roofType')) {
+      const styleRoofPools = {
+        brownstone: ['mansard', 'flat', 'stepped', 'pitched'],
+        artdeco: ['stepped', 'flat', 'stepped'],
+        modern: ['flat', 'stepped', 'flat'],
+        commercial: ['flat', 'stepped', 'mansard'],
+        brick: ['flat', 'stepped', 'mansard', 'pitched']
+      };
+      const pool = styleRoofPools[cfg.style] || ['flat', 'stepped', 'mansard', 'pitched'];
+      cfg.roofType = r() < 0.45 ? baseCfg.roofType : pick(r, pool);
+    }
+    if (canVary('parapet')) {
+      cfg.parapet = cfg.roofType === 'pitched' ? r() < 0.35 : r() < 0.82;
+    }
+    if (canVary('parapetHeight')) {
+      cfg.parapetHeight = Number((0.3 + randInt(r, 0, 14) * 0.05).toFixed(2));
+    }
+    if (canVary('roofColor') && r() < 0.6) {
+      cfg.roofColor = pick(r, [baseCfg.roofColor, '#343b43', '#3d3938', '#464d52', '#2f353b', '#4d443f']);
+    }
+
+    // Wall & Facade Variation (wallColor, groundFloorMaterial, facadeAccent, trimAmount, windowStyle, windowsX)
+    if (canVary('wallColor') && r() < 0.65) {
+      cfg.wallColor = pick(r, [
+        baseCfg.wallColor,
+        baseCfg.secondaryWallColor,
+        ...MATERIAL_CHOICES
+      ]);
+    }
+    if (canVary('groundFloorMaterial') && r() < 0.45) {
+      cfg.groundFloorMaterial = pick(r, ['stone', 'brick', 'concrete', 'painted']);
+    }
+    if (canVary('facadeAccent') && r() < 0.55) {
+      cfg.facadeAccent = pick(r, [baseCfg.facadeAccent, 'cornice', 'ornate', 'vertical', 'none']);
+    }
+    if (canVary('trimAmount')) {
+      cfg.trimAmount = clamp(Number((baseCfg.trimAmount + randBetween(r, -0.25, 0.25)).toFixed(2)), 0.1, 0.95);
+    }
+    if (canVary('windowStyle') && r() < 0.5) {
+      cfg.windowStyle = pick(r, [baseCfg.windowStyle, 'sash', 'arched', 'tall', 'modern', 'square']);
+    }
+    if (canVary('windowsX')) {
+      const idealCols = clamp(Math.round(cfg.width / 3.1) + randInt(r, -1, 1), 2, 7);
+      cfg.windowsX = idealCols;
+    }
+    if (canVary('windowsSide')) {
+      cfg.windowsSide = clamp(Math.round(cfg.depth / 3.4) + randInt(r, -1, 1), 2, 5);
+    }
+    if (canVary('windowLighting')) {
+      cfg.windowLighting = clamp(baseCfg.windowLighting + randBetween(r, -0.12, 0.25), 0, 1);
+    }
+    if (canVary('shutters')) {
+      cfg.shutters = r() < (baseCfg.shutters ? 0.65 : 0.28);
+    }
+    if (canVary('curtains')) {
+      cfg.curtains = r() < (baseCfg.curtains ? 0.75 : 0.45);
+    }
+
+    // Entrances & Street (groundUse, doorStyle, entranceSteps, awning, awningColor, signage, signText)
+    if (canVary('groundUse')) {
+      const groundPools = {
+        brownstone: ['residential', 'residential', 'shop', 'lobby'],
+        commercial: ['shop', 'shop', 'lobby', 'residential'],
+        mixed: ['shop', 'residential', 'shop', 'lobby'],
+        artdeco: ['lobby', 'shop', 'lobby', 'residential'],
+        modern: ['lobby', 'shop', 'residential']
+      };
+      const gPool = groundPools[cfg.style] || [baseCfg.groundUse, 'residential', 'shop', 'lobby'];
+      cfg.groundUse = pick(r, gPool);
+    }
+    if (canVary('doorStyle')) {
+      const doorPool = cfg.groundUse === 'shop'
+        ? ['double', 'single', 'double']
+        : cfg.groundUse === 'lobby'
+          ? ['double', 'stoop', 'single']
+          : ['stoop', 'single', 'double', 'stoop'];
+      cfg.doorStyle = pick(r, doorPool);
+    }
+    if (canVary('entranceSteps')) {
+      if (cfg.groundUse === 'shop') {
+        cfg.entranceSteps = 0;
+      } else if (cfg.doorStyle === 'stoop') {
+        cfg.entranceSteps = randInt(r, 2, 6);
+      } else {
+        cfg.entranceSteps = pick(r, [0, 0, 1, 2, 3, 4]);
+      }
+    }
+    if (canVary('awning')) {
+      const awningChance = cfg.groundUse === 'shop' ? 0.72 : (cfg.groundUse === 'lobby' ? 0.48 : 0.32);
+      cfg.awning = r() < awningChance;
+    }
+    if (canVary('awningColor') && cfg.awning) {
+      cfg.awningColor = pick(r, [baseCfg.awningColor, ...AWNING_PALETTE]);
+    }
+    if (canVary('signage')) {
+      if (cfg.groundUse === 'shop') {
+        cfg.signage = pick(r, ['shop', 'shop', 'marquee', 'none']);
+      } else if (cfg.groundUse === 'lobby') {
+        cfg.signage = pick(r, ['none', 'marquee', 'none']);
+      } else {
+        cfg.signage = r() < 0.15 ? 'marquee' : 'none';
+      }
+    }
+    if (canVary('signText') && cfg.signage !== 'none') {
+      cfg.signText = pick(r, [baseCfg.signText, ...BLOCK_SIGN_TEXTS]);
+    }
+
+    // Exterior & Rooftop Optional Features (fireEscape, balconies, acUnits, rooftopWaterTank, skylights, chimneys, antennas, pipes)
+    if (canVary('fireEscape')) {
+      cfg.fireEscape = cfg.floors >= 3 && r() < (baseCfg.fireEscape ? 0.58 : 0.35);
+    }
+    if (canVary('balconies')) {
+      cfg.balconies = r() < 0.45 ? pick(r, [0.15, 0.25, 0.4, 0.6]) : 0;
+    }
+    if (canVary('acUnits')) {
+      cfg.acUnits = r() < (baseCfg.acUnits ? 0.68 : 0.38);
+    }
+    if (canVary('rooftopProps')) {
+      cfg.rooftopProps = Number(randBetween(r, 0.15, 0.65).toFixed(2));
+    }
+    if (canVary('rooftopWaterTank')) {
+      cfg.rooftopWaterTank = cfg.floors >= 4 && r() < (baseCfg.rooftopWaterTank ? 0.6 : 0.35);
+    }
+    if (canVary('skylights')) {
+      cfg.skylights = r() < 0.35;
+    }
+    if (canVary('chimneys')) {
+      cfg.chimneys = randInt(r, 0, 3);
+    }
+    if (canVary('antennas')) {
+      cfg.antennas = r() < 0.55;
+    }
+    if (canVary('rooftopPipes')) {
+      cfg.rooftopPipes = r() < 0.65;
+    }
+
+    return cfg;
+  }
+
   function buildingAt(group, cfg, x, z, rotation, seedOffset) {
     const fresh = createBuilding({ ...cfg, seed: cfg.seed + seedOffset }, { seedOffset });
     fresh.position.set(x, 0, z);
@@ -3004,23 +3209,33 @@
       }
       count = 3;
     } else {
+      const perSide = 5;
+      const sidewalkLineZ = 11.4;
       for (let side = 0; side < 2; side++) {
-        for (let n = 0; n < 5; n++) {
-          const seed = state.seed + side * 3001 + n * 4177;
-          const r = rng32(seed);
-          const cfg = { ...copy(state), seed, cutaway: false, inspectedFloor: 0 };
-          cfg.width = clamp(state.width + randBetween(r, -3, 3), 6, 32);
-          cfg.depth = clamp(state.depth + randBetween(r, -2, 3), 6, 30);
-          cfg.floors = clamp(state.floors + randInt(r, -2, 2), 1, 14);
-          if (n % 3 === 2) cfg.wallColor = pick(r, [state.wallColor, state.secondaryWallColor, '#986657', '#9d9381', '#8a5548']);
-          cfg.windowLighting = clamp(state.windowLighting + randBetween(r, -0.1, 0.2), 0, 1);
-          cfg.windowsX = Math.max(2, Math.min(4, Math.ceil(cfg.windowsX * 0.65)));
-          cfg.windowsSide = Math.max(1, Math.min(3, Math.ceil(cfg.windowsSide * 0.65)));
-          cfg.balconies = Math.min(cfg.balconies, 0.25);
-          cfg.rooftopProps = Math.min(cfg.rooftopProps, 0.35);
-          cfg.fireEscape = false;
-          cfg.interiorMode = 'none';
-          buildingAt(buildingGroup, cfg, (n - 2) * Math.max(state.width + 2.5, 20), side === 0 ? -18 : 18, side === 0 ? 0 : Math.PI, side * 5 + n);
+        const rowConfigs = [];
+        const effWidths = [];
+        for (let n = 0; n < perSide; n++) {
+          const cfg = createBlockVariant(state, side, n, perSide);
+          const extW = cfg.width * ((cfg.extension >= 2 ? 0.24 : 0) + (cfg.extension >= 3 ? 0.24 : 0));
+          rowConfigs.push(cfg);
+          effWidths.push(cfg.width + extW);
+        }
+
+        const gap = 3.6;
+        const totalSpan = effWidths.reduce((acc, w) => acc + w, 0) + gap * (perSide - 1);
+        let cursorX = -totalSpan * 0.5;
+
+        for (let n = 0; n < perSide; n++) {
+          const cfg = rowConfigs[n];
+          const wEff = effWidths[n];
+          const xCenter = cursorX + wEff * 0.5;
+          cursorX += wEff + gap;
+
+          const zCenter = side === 0
+            ? -(sidewalkLineZ + cfg.depth * 0.5)
+            : (sidewalkLineZ + cfg.depth * 0.5);
+          const rotY = side === 0 ? 0 : Math.PI;
+          buildingAt(buildingGroup, cfg, xCenter, zCenter, rotY, side * perSide + n);
         }
       }
       count = 10;
