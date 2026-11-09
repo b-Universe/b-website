@@ -31,6 +31,9 @@
     doorStyle: 'stoop', doorColor: '#5f4134', entranceSteps: 3,
     groundUse: 'residential', awning: false, awningColor: '#8e3b3b',
     signage: 'none', signText: 'CORNER MARKET', signColor: '#f2e1aa',
+    entranceEnabled: true, entranceCategory: 'apartment', interactionDistance: 2.5,
+    triggerWidth: 2.4, triggerHeight: 2.9, triggerDepth: 3.0,
+    entranceLocked: false, interactionLabel: 'Enter Building',
     rooftopProps: 0.65, rooftopWaterTank: true, skylights: false, chimneys: 2, antennas: true, rooftopPipes: true,
     age: 0.18, damage: 0, windowDamageStyle: 'mixed', tarPatches: false, roofPuddles: false, overgrowth: 0, grimeColor: '#282b2a',
     interiorMode: 'none', cutaway: false, inspectedFloor: 0,
@@ -61,6 +64,14 @@
     windowDamageStyle: [['mixed', 'Mixed (broken & boarded)'], ['boarded', 'Fully boarded'], ['partial', 'Partially boarded'], ['broken', 'Broken glass only']],
     doorStyle: [['stoop', 'Raised stoop'], ['single', 'Single entrance'], ['double', 'Double doors']],
     groundUse: [['residential', 'Residential'], ['shop', 'Shops'], ['lobby', 'Shared lobby']],
+    entranceCategory: [
+      ['apartment', 'Apartment entrance'],
+      ['shop', 'Shop entrance'],
+      ['mission', 'Mission entrance'],
+      ['generic', 'Generic entrance'],
+      ['decorative', 'Decorative (non-interactive)'],
+      ['custom', 'Custom entrance']
+    ],
     signage: [['none', 'None'], ['shop', 'Storefront sign'], ['marquee', 'Wall marquee']],
     interiorMode: [['none', 'None'], ['basic', 'Floor plans'], ['apartments', 'Apartments & rooms']],
     accentSide: [['front', 'Front'], ['back', 'Back'], ['left', 'Left'], ['right', 'Right'], ['all', 'All walls']]
@@ -120,6 +131,15 @@
       { key: 'signage', name: 'Sign type', type: 'select' },
       { key: 'signText', name: 'Sign lettering', type: 'text' },
       { key: 'signColor', name: 'Sign color', type: 'color' },
+      { group: 'GAMEPLAY / ENTRANCES' },
+      { key: 'entranceEnabled', name: 'Enable interactive entrance', type: 'boolean', info: 'When disabled or set to Decorative, the entrance remains visually rendered but non-interactive in blueprints.' },
+      { key: 'entranceCategory', name: 'Entrance category', type: 'select' },
+      { key: 'interactionLabel', name: 'Interaction label', type: 'text' },
+      { key: 'entranceLocked', name: 'Locked by default', type: 'boolean' },
+      { key: 'interactionDistance', name: 'Interaction distance', min: 1.0, max: 8.0, step: 0.25, unit: 'm' },
+      { key: 'triggerWidth', name: 'Trigger width', min: 1.0, max: 8.0, step: 0.1, unit: 'm' },
+      { key: 'triggerHeight', name: 'Trigger height', min: 1.8, max: 6.0, step: 0.1, unit: 'm' },
+      { key: 'triggerDepth', name: 'Trigger depth', min: 1.0, max: 8.0, step: 0.1, unit: 'm' },
       { group: 'EXTERIOR DETAILS' },
       { key: 'balconies', name: 'Balcony frequency', min: 0, max: 1, step: 0.1 },
       { key: 'acUnits', name: 'Window A/C units', type: 'boolean' },
@@ -185,14 +205,61 @@
     return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
   };
 
+  function computeDefaultEntranceGameplay(cfg) {
+    const groundUse = cfg.groundUse || 'residential';
+    const doorStyle = cfg.doorStyle || 'stoop';
+    const floorHeight = Number(cfg.floorHeight) || 3.3;
+    const rawSteps = Number.isFinite(Number(cfg.entranceSteps)) ? Number(cfg.entranceSteps) : 3;
+    const wideDoor = doorStyle === 'double' || groundUse === 'lobby' || groundUse === 'shop';
+    const doorWidth = wideDoor ? 2.5 : 1.55;
+    const doorHeight = floorHeight * 0.68;
+    const steps = groundUse === 'shop' ? 0 : (doorStyle === 'stoop' ? Math.max(1, rawSteps) : rawSteps);
+    const stepH = 0.14;
+    const stepD = 0.34;
+    const landingD = doorStyle === 'stoop' ? 0.95 : 0.65;
+    const totalRise = steps * stepH;
+    const totalStepDepth = steps > 0 ? landingD + (steps - 1) * stepD : 0;
+    const stoopW = wideDoor ? 3.2 : 2.4;
+
+    const triggerWidth = Number(clamp(Math.max(doorWidth + 0.85, steps > 0 ? stoopW : 2.4), 1.0, 8.0).toFixed(1));
+    const triggerHeight = Number(clamp(Math.max(2.4, doorHeight + totalRise + 0.35), 1.8, 6.0).toFixed(1));
+    const triggerDepth = Number(clamp(Math.max(1.8, totalStepDepth + 1.35), 1.0, 8.0).toFixed(1));
+
+    let entranceCategory = 'apartment';
+    let interactionLabel = 'Enter Building';
+    if (groundUse === 'shop') {
+      entranceCategory = 'shop';
+      interactionLabel = 'Enter Shop';
+    } else if (groundUse === 'lobby') {
+      entranceCategory = 'generic';
+      interactionLabel = 'Enter Lobby';
+    } else if (cfg.style === 'abandoned') {
+      entranceCategory = 'mission';
+      interactionLabel = 'Enter Hideout';
+    }
+
+    return {
+      entranceEnabled: true,
+      entranceCategory,
+      interactionDistance: 2.5,
+      triggerWidth,
+      triggerHeight,
+      triggerDepth,
+      entranceLocked: cfg.style === 'abandoned' && (Number(cfg.damage) || 0) >= 0.45,
+      interactionLabel
+    };
+  }
+
   let state = { ...copy(BASE), ...copy(PRESETS.paragon_brick) };
+  Object.assign(state, computeDefaultEntranceGameplay(state));
   delete state.label;
+  let activeBlueprintName = null;
   let locks = new Set();
   let activeTab = 'form';
   let activePreset = 'paragon_brick';
   let savedPresets = {};
-  const view = { mode: 'single', lighting: 'day', environment: 'street', grid: true, autoRotate: false, wireframe: false, theatre: false, fullscreen: false };
-  let scene, camera, renderer, orbit, buildingGroup, environmentGroup, hemi, sun, ambient, groundGrid;
+  const view = { mode: 'single', lighting: 'day', environment: 'street', grid: true, autoRotate: false, wireframe: false, entranceDebug: false, theatre: false, fullscreen: false };
+  let scene, camera, renderer, orbit, buildingGroup, environmentGroup, debugGroup, hemi, sun, ambient, groundGrid;
   let lastCameraTarget = null;
   let refocusAfterBuild = false;
   let buildStats = { buildings: 1, triangles: 0 };
@@ -213,13 +280,21 @@
 
   function baseForStyle(style) {
     const descriptor = getStyle(style);
-    return { ...copy(BASE), ...copy(PRESETS[descriptor.preset]) };
+    const raw = { ...copy(BASE), ...copy(PRESETS[descriptor.preset]) };
+    return { ...raw, ...computeDefaultEntranceGameplay(raw) };
   }
 
   function sanitisePreset(data) {
     if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Invalid building settings');
     const style = STYLES.some((x) => x.id === data.style) ? data.style : 'brick';
-    const merged = { ...baseForStyle(style), ...Object.fromEntries(Object.entries(data).filter(([k]) => k in BASE)), style };
+    const rawBase = { ...baseForStyle(style), ...Object.fromEntries(Object.entries(data).filter(([k]) => k in BASE)), style };
+    const autoEntrance = computeDefaultEntranceGameplay(rawBase);
+    for (const k of Object.keys(autoEntrance)) {
+      if (!(k in data) || data[k] === undefined || data[k] === null) {
+        rawBase[k] = autoEntrance[k];
+      }
+    }
+    const merged = rawBase;
     for (const [, rows] of Object.entries(SCHEMA)) {
       for (const def of rows) {
         if (!def.key) continue;
@@ -391,12 +466,34 @@
       if (valueBadge) valueBadge.textContent = (item.type === 'floor' && state[key] === 0 ? 'All' : input.value) + (item.unit || '');
 
       input.addEventListener(['color', 'text', 'select', 'boolean'].includes(item.type) ? 'change' : 'input', () => {
+        const prevDefaults = computeDefaultEntranceGameplay(state);
         const value = item.type === 'boolean'
           ? input.checked
           : (!item.type || item.type === 'floor' || item.type === 'floorNumber')
             ? Number(input.value)
             : input.value;
         state[key] = value;
+
+        if (['groundUse', 'doorStyle', 'entranceSteps', 'floorHeight'].includes(key)) {
+          const nextDefaults = computeDefaultEntranceGameplay(state);
+          if (!locks.has('triggerWidth') && Math.abs(state.triggerWidth - prevDefaults.triggerWidth) < 0.05) {
+            state.triggerWidth = nextDefaults.triggerWidth;
+          }
+          if (!locks.has('triggerHeight') && Math.abs(state.triggerHeight - prevDefaults.triggerHeight) < 0.05) {
+            state.triggerHeight = nextDefaults.triggerHeight;
+          }
+          if (!locks.has('triggerDepth') && Math.abs(state.triggerDepth - prevDefaults.triggerDepth) < 0.05) {
+            state.triggerDepth = nextDefaults.triggerDepth;
+          }
+          if (key === 'groundUse') {
+            if (!locks.has('entranceCategory') && state.entranceCategory === prevDefaults.entranceCategory) {
+              state.entranceCategory = nextDefaults.entranceCategory;
+            }
+            if (!locks.has('interactionLabel') && state.interactionLabel === prevDefaults.interactionLabel) {
+              state.interactionLabel = nextDefaults.interactionLabel;
+            }
+          }
+        }
 
         if (key === 'floors') {
           state.inspectedFloor = clamp(state.inspectedFloor, 0, value);
@@ -428,7 +525,7 @@
         scheduleRebuild();
       });
 
-      if (['floors', 'footprint', 'accentFloor', 'accentSide'].includes(key)) {
+      if (['floors', 'footprint', 'groundUse', 'doorStyle', 'entranceSteps', 'accentFloor', 'accentSide'].includes(key)) {
         input.addEventListener('change', renderControls);
       }
 
@@ -440,6 +537,34 @@
         wrap.appendChild(help);
       }
       panel.appendChild(wrap);
+
+      if (key === 'triggerDepth') {
+        const bar = document.createElement('div');
+        bar.className = 'studio-blueprint-bar';
+        const autoFitBtn = document.createElement('button');
+        autoFitBtn.type = 'button';
+        autoFitBtn.className = 'studio-btn studio-btn-ghost';
+        autoFitBtn.innerHTML = '<i class="fas fa-compress-arrows-alt"></i> Auto-Fit Trigger to Door';
+        autoFitBtn.onclick = () => {
+          const def = computeDefaultEntranceGameplay(state);
+          state.triggerWidth = def.triggerWidth;
+          state.triggerHeight = def.triggerHeight;
+          state.triggerDepth = def.triggerDepth;
+          renderControls();
+          scheduleRebuild();
+          toast('Trigger dimensions fitted to door & stoop geometry');
+        };
+        const debugBtn = document.createElement('button');
+        debugBtn.type = 'button';
+        debugBtn.className = 'studio-btn ' + (view.entranceDebug ? 'studio-btn-primary' : 'studio-btn-ghost');
+        debugBtn.innerHTML = `<i class="fas fa-door-open"></i> ${view.entranceDebug ? 'Hide Entrance Debug' : 'Show Entrance Debug'}`;
+        debugBtn.onclick = () => {
+          toggleEntranceDebug();
+          renderControls();
+        };
+        bar.append(autoFitBtn, debugBtn);
+        panel.appendChild(bar);
+      }
     }
 
     if (activeTab === 'interior') {
@@ -528,6 +653,10 @@
       $('#btn-wireframe').classList.toggle('active', view.wireframe);
       scheduleRebuild();
     };
+    $('#btn-entrance-debug')?.addEventListener('click', toggleEntranceDebug);
+    $('#entrance-debug-toggle')?.addEventListener('change', (e) => {
+      setEntranceDebug(!!e.target.checked);
+    });
     $('#lighting-select').onchange = (e) => {
       view.lighting = e.target.value;
       updateLighting();
@@ -542,6 +671,8 @@
       rebuildEnvironment();
     };
     $('#btn-save-custom').onclick = saveCustom;
+    $('#btn-export-blueprint')?.addEventListener('click', downloadBlueprint);
+    $('#btn-export-blueprint-top')?.addEventListener('click', downloadBlueprint);
     $('#btn-export-json').onclick = downloadJSON;
     $('#btn-import-json').onclick = () => $('#file-import').click();
     $('#file-import').onchange = importJSON;
@@ -564,6 +695,28 @@
     renderCustomPresets();
   }
 
+  function setEntranceDebug(active) {
+    view.entranceDebug = !!active;
+    $('#btn-entrance-debug')?.classList.toggle('active', view.entranceDebug);
+    const chk = $('#entrance-debug-toggle');
+    if (chk) chk.checked = view.entranceDebug;
+    if (activeTab === 'features') renderControls();
+    if (ready) {
+      rebuildDebugOverlay();
+    }
+    toast(view.entranceDebug ? 'Entrance debug gizmos enabled (E)' : 'Entrance debug gizmos hidden');
+  }
+
+  function toggleEntranceDebug() {
+    setEntranceDebug(!view.entranceDebug);
+  }
+
+  const GAMEPLAY_ENTRANCE_KEYS = new Set([
+    'entranceEnabled', 'entranceCategory', 'interactionDistance',
+    'triggerWidth', 'triggerHeight', 'triggerDepth',
+    'entranceLocked', 'interactionLabel'
+  ]);
+
   function randomize(category) {
     const all = category === 'all';
     const keys = all
@@ -571,7 +724,7 @@
       : CATEGORIES[category];
     const r = rng32(Math.floor(Math.random() * 0xffffffff));
     for (const key of keys) {
-      if (locks.has(key) || !CONFIG_KEYS.includes(key)) continue;
+      if (locks.has(key) || !CONFIG_KEYS.includes(key) || GAMEPLAY_ENTRANCE_KEYS.has(key)) continue;
       const def = Object.values(SCHEMA).flat().find((x) => x.key === key);
       if (!def) continue;
       if (def.type === 'color') state[key] = pick(r, key === 'wallColor' || key === 'groundFloorColor' ? MATERIAL_CHOICES : COLOR_CHOICES);
@@ -586,10 +739,15 @@
         state[key] = Number((def.min + randInt(r, 0, steps) * def.step).toFixed(3));
       }
     }
+    const autoEntrance = computeDefaultEntranceGameplay(state);
+    for (const [k, v] of Object.entries(autoEntrance)) {
+      if (!locks.has(k)) state[k] = v;
+    }
     state.seed = Math.floor(Math.random() * 99999998) + 1;
     state.inspectedFloor = clamp(state.inspectedFloor, 0, state.floors);
     $('#seed-input').value = state.seed;
     activePreset = null;
+    activeBlueprintName = null;
     updatePresetList();
     renderControls();
     refocusAfterBuild = true;
@@ -662,6 +820,17 @@
 
   const safeName = () => String(state.style) + '-' + String(state.seed);
 
+  function downloadBlueprint() {
+    const customInputName = $('#custom-name')?.value?.trim();
+    const bpName = customInputName || activeBlueprintName || (activePreset && PRESETS[activePreset]?.label) || `${getStyle(state.style).label} #${state.seed}`;
+    const blueprint = generateBuildingBlueprint(state, { name: bpName });
+    fileDownload(
+      new Blob([JSON.stringify(blueprint, null, 2)], { type: 'application/json' }),
+      'b-building-' + safeName() + '.building.json'
+    );
+    toast('Building Blueprint (.building.json) exported');
+  }
+
   function downloadJSON() {
     fileDownload(
       new Blob([JSON.stringify({ generator: 'B-3D-Building-Generator', version: 1, settings: state }, null, 2)], { type: 'application/json' }),
@@ -670,12 +839,22 @@
     toast('Building settings exported');
   }
 
+  function applyImportedBuildingData(parsed, sourceLabel = 'Imported building') {
+    const validation = validateBuildingBlueprint(parsed);
+    if (!validation.valid) {
+      throw new Error(validation.errors.join('; '));
+    }
+    activeBlueprintName = validation.blueprint.name || null;
+    loadPreset(validation.settings, validation.blueprint.name || sourceLabel, null);
+    return validation.blueprint;
+  }
+
   async function importJSON(e) {
     const file = e.target.files[0];
     if (!file) return;
     try {
       const parsed = JSON.parse(await file.text());
-      loadPreset(parsed.settings || parsed, file.name);
+      applyImportedBuildingData(parsed, file.name);
     } catch (err) {
       toast('Cannot import file: ' + err.message);
     }
@@ -1549,30 +1728,85 @@
     }
   }
 
-  function addEntrance(parent, seg, cfg, r) {
+  function computePrimaryEntranceLayout(seg, cfg) {
     const cut = seg.cornerCut || 0;
     const usableW = seg.w - cut;
     const cx = seg.x - cut * 0.5;
     const wallZ = seg.z + seg.d * 0.5;
     const wideDoor = cfg.doorStyle === 'double' || cfg.groundUse === 'lobby' || cfg.groundUse === 'shop';
+    const doorWidth = wideDoor ? 2.5 : 1.55;
+    const doorHeight = cfg.floorHeight * 0.68;
     const steps = cfg.groundUse === 'shop' ? 0 : (cfg.doorStyle === 'stoop' ? Math.max(1, cfg.entranceSteps) : cfg.entranceSteps);
     const stepH = 0.14;
     const stepD = 0.34;
     const landingD = cfg.doorStyle === 'stoop' ? 0.95 : 0.65;
     const totalRise = steps * stepH;
+    const totalStepDepth = steps > 0 ? landingD + (steps - 1) * stepD : 0;
+    const stoopW = wideDoor ? 3.2 : 2.4;
+    return {
+      cut,
+      usableW,
+      cx,
+      wallZ,
+      wideDoor,
+      doorWidth,
+      doorHeight,
+      steps,
+      stepH,
+      stepD,
+      landingD,
+      totalRise,
+      totalStepDepth,
+      stoopW,
+      rotY: 0,
+      normal: { x: 0, y: 0, z: 1 },
+      facade: 'front'
+    };
+  }
+
+  function computeCornerEntranceLayout(seg, cfg) {
+    const cut = seg.cornerCut || 0;
+    const cx = seg.x + seg.w * 0.5 - cut * 0.5;
+    const cz = seg.z + seg.d * 0.5 - cut * 0.5;
+    const doorWidth = 1.55;
+    const doorHeight = cfg.floorHeight * 0.68;
+    const rotY = Math.PI / 4;
+    const invSqrt2 = Math.SQRT1_2;
+    return {
+      cut,
+      cx,
+      wallZ: cz,
+      wideDoor: false,
+      doorWidth,
+      doorHeight,
+      steps: 0,
+      stepH: 0,
+      stepD: 0,
+      landingD: 0,
+      totalRise: 0,
+      totalStepDepth: 0,
+      stoopW: 0,
+      rotY,
+      normal: { x: invSqrt2, y: 0, z: invSqrt2 },
+      facade: 'corner_front_right'
+    };
+  }
+
+  function addEntrance(parent, seg, cfg, r) {
+    const layout = computePrimaryEntranceLayout(seg, cfg);
+    const { usableW, cx, wallZ, wideDoor, steps, stepH, stepD, landingD, totalRise, stoopW } = layout;
 
     addDoor(parent, 'front', cx, totalRise, wallZ, cfg, wideDoor);
 
     if (steps > 0) {
       const stairMat = solid('#888882');
       const railMat = solid('#424749');
-      const stoopW = wideDoor ? 3.2 : 2.4;
       for (let i = 0; i < steps; i++) {
         const levelH = (i + 1) * stepH;
         const depth = landingD + (steps - 1 - i) * stepD;
         box(parent, cx, levelH * 0.5, wallZ + depth * 0.5, stoopW, levelH, depth, stairMat);
       }
-      const totalDepth = landingD + (steps - 1) * stepD;
+      const totalDepth = layout.totalStepDepth;
       const railH = 0.78;
       for (const dx of [-stoopW * 0.5 + 0.09, stoopW * 0.5 - 0.09]) {
         const rx = cx + dx;
@@ -1790,6 +2024,566 @@
     }
 
     return segments;
+  }
+
+  /* --- Building Blueprint (b.building.v1) & Interactive Entrance Definitions --- */
+  const BLUEPRINT_SCHEMA_VERSION = 'b.building.v1';
+  const GENERATOR_META = {
+    id: 'b-3d-building-generator',
+    name: 'B Remastered 3D Building Generator',
+    version: '1.1.0',
+    coordinateSystem: {
+      handedness: 'right-handed',
+      upAxis: '+Y',
+      forwardAxis: '+Z',
+      rightAxis: '+X',
+      units: 'meters',
+      rotationOrder: 'XYZ',
+      rotationUnits: 'radians',
+      origin: 'ground-level center of primary footprint (x=0, y=0, z=0); primary facade faces +Z'
+    }
+  };
+
+  const roundNum = (val, decimals = 4) => {
+    const f = Math.pow(10, decimals);
+    return Math.round((Number(val) || 0) * f) / f;
+  };
+
+  function hashBlueprintString(str) {
+    let h1 = 0x811c9dc5;
+    let h2 = 0x01000193;
+    for (let i = 0; i < str.length; i++) {
+      const ch = str.charCodeAt(i);
+      h1 ^= ch;
+      h1 = Math.imul(h1, 0x01000193);
+      h2 ^= ch + (i & 0xff);
+      h2 = Math.imul(h2, 0x85ebca6b);
+    }
+    return ((h1 >>> 0).toString(16).padStart(8, '0')) + ((h2 >>> 0).toString(16).padStart(8, '0'));
+  }
+
+  function buildEntranceDefinition(layout, cfg, meta) {
+    const autoDefaults = computeDefaultEntranceGameplay(cfg);
+    const enabled = typeof cfg.entranceEnabled === 'boolean' ? cfg.entranceEnabled : autoDefaults.entranceEnabled;
+    const category = OPTIONS.entranceCategory.some((x) => x[0] === cfg.entranceCategory)
+      ? cfg.entranceCategory
+      : autoDefaults.entranceCategory;
+    const interactive = Boolean(enabled && category !== 'decorative');
+    const decorative = !interactive;
+    const lockedByDefault = typeof cfg.entranceLocked === 'boolean' ? cfg.entranceLocked : autoDefaults.entranceLocked;
+    const interactionLabel = String(cfg.interactionLabel ?? autoDefaults.interactionLabel).trim() || autoDefaults.interactionLabel;
+    const maxDistance = roundNum(clamp(Number(cfg.interactionDistance) || autoDefaults.interactionDistance, 1.0, 8.0), 3);
+
+    const isCorner = meta.role === 'corner_secondary';
+    const trigW = roundNum(
+      isCorner
+        ? clamp(Math.min(Number(cfg.triggerWidth) || autoDefaults.triggerWidth, Math.max(1.8, layout.cut * Math.SQRT2)), 1.0, 8.0)
+        : clamp(Number(cfg.triggerWidth) || autoDefaults.triggerWidth, 1.0, 8.0),
+      3
+    );
+    const trigH = roundNum(
+      isCorner
+        ? clamp(Math.max(2.3, layout.doorHeight + 0.3), 1.8, 6.0)
+        : clamp(Number(cfg.triggerHeight) || autoDefaults.triggerHeight, 1.8, 6.0),
+      3
+    );
+    const trigD = roundNum(
+      isCorner
+        ? clamp(Math.min(Number(cfg.triggerDepth) || autoDefaults.triggerDepth, 2.2), 1.0, 8.0)
+        : clamp(Number(cfg.triggerDepth) || autoDefaults.triggerDepth, 1.0, 8.0),
+      3
+    );
+
+    const anchorX = roundNum(layout.cx, 4);
+    const anchorY = roundNum(layout.totalRise, 4);
+    const anchorZ = roundNum(layout.wallZ, 4);
+    const nx = roundNum(layout.normal.x, 4);
+    const ny = roundNum(layout.normal.y, 4);
+    const nz = roundNum(layout.normal.z, 4);
+    const rotY = roundNum(layout.rotY, 4);
+    const degreesY = roundNum((layout.rotY * 180) / Math.PI, 2);
+
+    const doorWidth = roundNum(layout.doorWidth, 3);
+    const doorHeight = roundNum(layout.doorHeight, 3);
+    const thresholdElevation = roundNum(layout.totalRise, 4);
+
+    // Center offset relative to entrance threshold anchor in entrance-aligned space (+Z outward along normal, +Y up)
+    const offsetForward = roundNum(trigD * 0.5 - 0.25, 4);
+    const offsetUp = roundNum(trigH * 0.5 - thresholdElevation, 4);
+    const centerOffset = { x: 0, y: offsetUp, z: offsetForward };
+
+    // Building-local center of the trigger box
+    const localCenter = {
+      x: roundNum(anchorX + layout.normal.x * offsetForward, 4),
+      y: roundNum(anchorY + offsetUp, 4),
+      z: roundNum(anchorZ + layout.normal.z * offsetForward, 4)
+    };
+
+    // Navigation & placement positions in building-local space
+    const stepFrontDist = layout.totalStepDepth;
+    const approachDist = roundNum(stepFrontDist + 0.85, 4);
+    const safeDist = roundNum(stepFrontDist + 1.75, 4);
+    const landingDist = roundNum(layout.steps > 0 ? Math.min(layout.landingD * 0.5, 0.42) : 0.35, 4);
+
+    const approachPosition = {
+      x: roundNum(anchorX + layout.normal.x * approachDist, 4),
+      y: 0,
+      z: roundNum(anchorZ + layout.normal.z * approachDist, 4)
+    };
+    const safePosition = {
+      x: roundNum(anchorX + layout.normal.x * safeDist, 4),
+      y: 0,
+      z: roundNum(anchorZ + layout.normal.z * safeDist, 4)
+    };
+    const landingPosition = {
+      x: roundNum(anchorX + layout.normal.x * landingDist, 4),
+      y: thresholdElevation,
+      z: roundNum(anchorZ + layout.normal.z * landingDist, 4)
+    };
+
+    const enterYawRad = roundNum(Math.atan2(-layout.normal.x, -layout.normal.z), 4);
+    const exitYawRad = roundNum(Math.atan2(layout.normal.x, layout.normal.z), 4);
+
+    const playerFacing = {
+      x: roundNum(-layout.normal.x, 4),
+      y: 0,
+      z: roundNum(-layout.normal.z, 4),
+      yawRadians: enterYawRad,
+      yawDegrees: roundNum((enterYawRad * 180) / Math.PI, 2)
+    };
+    const exitFacing = {
+      x: nx,
+      y: 0,
+      z: nz,
+      yawRadians: exitYawRad,
+      yawDegrees: roundNum((exitYawRad * 180) / Math.PI, 2)
+    };
+
+    const effectiveDoorStyle = isCorner ? 'single' : cfg.doorStyle;
+
+    const door = {
+      position: { x: anchorX, y: anchorY, z: anchorZ },
+      centerPosition: { x: anchorX, y: roundNum(anchorY + doorHeight * 0.5, 4), z: anchorZ },
+      rotation: { x: 0, y: rotY, z: 0, degreesY },
+      normal: { x: nx, y: ny, z: nz },
+      width: doorWidth,
+      height: doorHeight,
+      thresholdElevation,
+      segmentIndex: meta.segmentIndex,
+      segmentId: meta.segmentId,
+      facade: layout.facade,
+      doorStyle: effectiveDoorStyle,
+      isDouble: Boolean(layout.wideDoor)
+    };
+
+    const trigger = {
+      shape: 'box',
+      width: trigW,
+      height: trigH,
+      depth: trigD,
+      centerOffset,
+      localCenter,
+      bounds: {
+        min: {
+          x: roundNum(-trigW * 0.5, 4),
+          y: roundNum(offsetUp - trigH * 0.5, 4),
+          z: roundNum(offsetForward - trigD * 0.5, 4)
+        },
+        max: {
+          x: roundNum(trigW * 0.5, 4),
+          y: roundNum(offsetUp + trigH * 0.5, 4),
+          z: roundNum(offsetForward + trigD * 0.5, 4)
+        }
+      },
+      maxDistance,
+      requiresExplicitInteraction: interactive
+    };
+
+    const navigation = {
+      approachPosition,
+      safePosition,
+      landingPosition,
+      playerFacing,
+      exitFacing,
+      hasSteps: layout.steps > 0,
+      stepCount: layout.steps,
+      stepHeight: layout.steps > 0 ? roundNum(layout.stepH, 3) : 0,
+      stepDepth: layout.steps > 0 ? roundNum(layout.stepD, 3) : 0,
+      landingDepth: layout.steps > 0 ? roundNum(layout.landingD, 3) : 0,
+      totalStepDepth: roundNum(layout.totalStepDepth, 4),
+      stoopWidth: layout.steps > 0 ? roundNum(layout.stoopW, 3) : 0,
+      hasElevatedLanding: thresholdElevation > 0,
+      landingElevation: thresholdElevation
+    };
+
+    const gameplay = {
+      category,
+      enabled,
+      interactive,
+      decorative,
+      lockedByDefault,
+      interactionLabel: isCorner && interactionLabel === 'Enter Building' ? 'Enter Corner Shop' : interactionLabel,
+      requiresExplicitInteraction: interactive
+    };
+
+    return {
+      id: meta.id,
+      label: meta.label,
+      role: meta.role,
+      category: gameplay.category,
+      enabled: gameplay.enabled,
+      interactive: gameplay.interactive,
+      decorative: gameplay.decorative,
+      lockedByDefault: gameplay.lockedByDefault,
+      interactionLabel: gameplay.interactionLabel,
+      position: door.position,
+      centerPosition: door.centerPosition,
+      rotation: door.rotation,
+      normal: door.normal,
+      width: door.width,
+      height: door.height,
+      thresholdElevation: door.thresholdElevation,
+      segmentIndex: door.segmentIndex,
+      segmentId: door.segmentId,
+      facade: door.facade,
+      doorStyle: door.doorStyle,
+      isDouble: door.isDouble,
+      triggerShape: trigger.shape,
+      triggerWidth: trigger.width,
+      triggerHeight: trigger.height,
+      triggerDepth: trigger.depth,
+      triggerCenterOffset: trigger.centerOffset,
+      maxInteractionDistance: trigger.maxDistance,
+      requiresExplicitInteraction: trigger.requiresExplicitInteraction,
+      approachPosition: navigation.approachPosition,
+      safePosition: navigation.safePosition,
+      landingPosition: navigation.landingPosition,
+      playerFacing: navigation.playerFacing,
+      exitFacing: navigation.exitFacing,
+      hasSteps: navigation.hasSteps,
+      stepCount: navigation.stepCount,
+      stepHeight: navigation.stepHeight,
+      stepDepth: navigation.stepDepth,
+      landingDepth: navigation.landingDepth,
+      totalStepDepth: navigation.totalStepDepth,
+      hasElevatedLanding: navigation.hasElevatedLanding,
+      landingElevation: navigation.landingElevation,
+      door,
+      trigger,
+      navigation,
+      gameplay
+    };
+  }
+
+  function computeBuildingEntrances(rawCfg, groundSegmentsInput = null) {
+    const cfg = sanitisePreset(rawCfg);
+    const groundSegments = groundSegmentsInput || segmentsForFloor(cfg, 0);
+    const primary = groundSegments[0];
+    if (!primary) return [];
+
+    const entrances = [];
+    const mainLayout = computePrimaryEntranceLayout(primary, cfg);
+    entrances.push(
+      buildEntranceDefinition(mainLayout, cfg, {
+        id: 'entrance_main',
+        label: cfg.groundUse === 'shop' ? 'Main Storefront Entrance' : cfg.groundUse === 'lobby' ? 'Main Lobby Entrance' : 'Main Building Entrance',
+        role: 'main',
+        segmentIndex: 0,
+        segmentId: 'segment_0_main'
+      })
+    );
+
+    if (cfg.groundUse === 'shop') {
+      for (let j = 0; j < groundSegments.length; j++) {
+        const seg = groundSegments[j];
+        if ((seg.cornerCut || 0) > 0.05) {
+          const cornerLayout = computeCornerEntranceLayout(seg, cfg);
+          const id = j === 0 ? 'entrance_corner' : `entrance_corner_${j}`;
+          entrances.push(
+            buildEntranceDefinition(cornerLayout, cfg, {
+              id,
+              label: 'Corner Storefront Entrance',
+              role: 'corner_secondary',
+              segmentIndex: j,
+              segmentId: j === 0 ? 'segment_0_main' : `segment_${j}_wing`
+            })
+          );
+        }
+      }
+    }
+
+    return entrances;
+  }
+
+  function computeBuildingBounds(rawCfg) {
+    const cfg = sanitisePreset(rawCfg);
+    const groundSegments = segmentsForFloor(cfg, 0);
+    const topSegments = segmentsForFloor(cfg, Math.max(0, cfg.floors - 1));
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minZ = Infinity;
+    let maxZ = -Infinity;
+
+    for (let f = 0; f < cfg.floors; f++) {
+      const segs = segmentsForFloor(cfg, f);
+      for (const s of segs) {
+        minX = Math.min(minX, s.x - s.w * 0.5);
+        maxX = Math.max(maxX, s.x + s.w * 0.5);
+        minZ = Math.min(minZ, s.z - s.d * 0.5);
+        maxZ = Math.max(maxZ, s.z + s.d * 0.5);
+      }
+    }
+
+    const primary = groundSegments[0];
+    const mainLayout = primary ? computePrimaryEntranceLayout(primary, cfg) : null;
+    const stoopFrontZ = mainLayout ? mainLayout.wallZ + mainLayout.totalStepDepth : maxZ;
+    const fullMaxZ = Math.max(maxZ, stoopFrontZ);
+
+    const wallHeight = roundNum(cfg.floors * cfg.floorHeight, 3);
+    const roofExtra = cfg.roofType === 'pitched'
+      ? 2.2
+      : cfg.roofType === 'mansard'
+        ? 1.55
+        : cfg.roofType === 'stepped'
+          ? 1.4
+          : (cfg.parapet ? cfg.parapetHeight : 0.2);
+    const totalHeightWithRoof = roundNum(wallHeight + roofExtra, 3);
+
+    const serializeSeg = (s, idx) => ({
+      index: idx,
+      id: idx === 0 ? 'segment_0_main' : s.isExtension ? `segment_${idx}_ext_${s.extIndex}` : `segment_${idx}_wing`,
+      x: roundNum(s.x, 4),
+      z: roundNum(s.z, 4),
+      width: roundNum(s.w, 4),
+      depth: roundNum(s.d, 4),
+      isMain: Boolean(s.isMain),
+      isExtension: Boolean(s.isExtension),
+      cornerCut: roundNum(s.cornerCut || 0, 4),
+      minX: roundNum(s.x - s.w * 0.5, 4),
+      maxX: roundNum(s.x + s.w * 0.5, 4),
+      minZ: roundNum(s.z - s.d * 0.5, 4),
+      maxZ: roundNum(s.z + s.d * 0.5, 4)
+    });
+
+    return {
+      width: roundNum(cfg.width, 3),
+      depth: roundNum(cfg.depth, 3),
+      wallHeight,
+      totalHeightWithRoof,
+      floors: cfg.floors,
+      floorHeight: roundNum(cfg.floorHeight, 3),
+      localBoundingBox: {
+        min: { x: roundNum(minX, 4), y: 0, z: roundNum(minZ, 4) },
+        max: { x: roundNum(maxX, 4), y: totalHeightWithRoof, z: roundNum(fullMaxZ, 4) },
+        size: {
+          x: roundNum(maxX - minX, 4),
+          y: totalHeightWithRoof,
+          z: roundNum(fullMaxZ - minZ, 4)
+        },
+        center: {
+          x: roundNum((minX + maxX) * 0.5, 4),
+          y: roundNum(totalHeightWithRoof * 0.5, 4),
+          z: roundNum((minZ + fullMaxZ) * 0.5, 4)
+        }
+      },
+      footprint: {
+        type: cfg.footprint,
+        hasExtensions: cfg.extension > 0,
+        extensionCount: cfg.extension,
+        hasSetbacks: cfg.setback > 0 && cfg.floors >= 2,
+        setbackStartFloor: Math.floor(cfg.floors * 0.6) + 1,
+        setbackAmount: roundNum(cfg.setback, 3),
+        cornerCut: roundNum(primary?.cornerCut || 0, 4),
+        groundSegments: groundSegments.map(serializeSeg),
+        topFloorSegments: topSegments.map(serializeSeg)
+      }
+    };
+  }
+
+  function generateBuildingBlueprint(rawCfg, options = {}) {
+    const settings = sanitisePreset(rawCfg);
+    // Normalise preview-only inspection fields in exported blueprint settings so the blueprint always represents the complete building
+    const blueprintSettings = {
+      ...copy(settings),
+      cutaway: false,
+      inspectedFloor: 0
+    };
+
+    const groundSegments = segmentsForFloor(blueprintSettings, 0);
+    const bounds = computeBuildingBounds(blueprintSettings);
+    const entrances = computeBuildingEntrances(blueprintSettings, groundSegments);
+    const firePlacement = chooseFireEscapePlacement(groundSegments, blueprintSettings, rng32(blueprintSettings.seed + 313));
+
+    // Stable templateId derived from style + seed + structural/facade configuration (separate from world placement instance IDs)
+    const templateIdentityPayload = JSON.stringify({
+      style: blueprintSettings.style,
+      seed: blueprintSettings.seed,
+      width: blueprintSettings.width,
+      depth: blueprintSettings.depth,
+      floors: blueprintSettings.floors,
+      floorHeight: blueprintSettings.floorHeight,
+      footprint: blueprintSettings.footprint,
+      extension: blueprintSettings.extension,
+      setback: blueprintSettings.setback,
+      cornerCut: blueprintSettings.cornerCut,
+      roofType: blueprintSettings.roofType,
+      groundUse: blueprintSettings.groundUse,
+      doorStyle: blueprintSettings.doorStyle,
+      entranceSteps: blueprintSettings.entranceSteps
+    });
+    const templateHash = hashBlueprintString(templateIdentityPayload).slice(0, 12);
+    const templateId = options.templateId || `bldg_tpl_${blueprintSettings.style}_${blueprintSettings.seed}_${templateHash}`;
+
+    const styleDescriptor = getStyle(blueprintSettings.style);
+    const name = String(options.name || `${styleDescriptor.label} #${blueprintSettings.seed}`).trim();
+
+    const revisionPayload = JSON.stringify({
+      schemaVersion: BLUEPRINT_SCHEMA_VERSION,
+      settings: blueprintSettings,
+      bounds,
+      entrances
+    });
+    const templateRevision = `rev_${hashBlueprintString(revisionPayload)}`;
+
+    const interactiveEntrances = entrances.filter((e) => e.interactive);
+
+    return {
+      schemaVersion: BLUEPRINT_SCHEMA_VERSION,
+      generator: copy(GENERATOR_META),
+      templateId,
+      templateRevision,
+      name,
+      seed: blueprintSettings.seed,
+      settings: blueprintSettings,
+      bounds,
+      entrances,
+      metadata: {
+        styleId: blueprintSettings.style,
+        styleLabel: styleDescriptor.label,
+        groundUse: blueprintSettings.groundUse,
+        interiorMode: blueprintSettings.interiorMode,
+        hasFireEscape: Boolean(firePlacement),
+        fireEscapeSide: firePlacement ? firePlacement.side : null,
+        totalEntranceCount: entrances.length,
+        interactiveEntranceCount: interactiveEntrances.length,
+        primaryEntranceId: entrances[0]?.id || null,
+        damageLevel: blueprintSettings.damage,
+        ageLevel: blueprintSettings.age,
+        tags: [
+          blueprintSettings.style,
+          blueprintSettings.footprint,
+          blueprintSettings.groundUse,
+          ...(blueprintSettings.cornerCut > 0 ? ['corner-cut'] : []),
+          ...(blueprintSettings.setback > 0 ? ['setback'] : []),
+          ...(blueprintSettings.extension > 0 ? ['extensions'] : []),
+          ...(interactiveEntrances.length > 0 ? ['interactive'] : ['decorative'])
+        ],
+        extensions: options.metadataExtensions && typeof options.metadataExtensions === 'object'
+          ? copy(options.metadataExtensions)
+          : {}
+      }
+    };
+  }
+
+  function validateBuildingBlueprint(input) {
+    const errors = [];
+    if (!input || typeof input !== 'object' || Array.isArray(input)) {
+      return { valid: false, errors: ['Blueprint data must be a JSON object'] };
+    }
+
+    // Check schemaVersion if present
+    if ('schemaVersion' in input && input.schemaVersion !== undefined) {
+      if (input.schemaVersion !== BLUEPRINT_SCHEMA_VERSION) {
+        return {
+          valid: false,
+          errors: [`Unsupported blueprint schemaVersion "${String(input.schemaVersion)}". Expected "${BLUEPRINT_SCHEMA_VERSION}".`]
+        };
+      }
+    }
+
+    const isBlueprintV1 = input.schemaVersion === BLUEPRINT_SCHEMA_VERSION;
+    const rawSettings = isBlueprintV1
+      ? input.settings
+      : (input.settings && typeof input.settings === 'object' && !Array.isArray(input.settings) ? input.settings : input);
+
+    if (!rawSettings || typeof rawSettings !== 'object' || Array.isArray(rawSettings)) {
+      return { valid: false, errors: ['Missing or invalid building settings object'] };
+    }
+
+    const hasKnownSettingKey = Object.keys(rawSettings).some((k) => k in BASE);
+    if (!hasKnownSettingKey) {
+      return { valid: false, errors: ['JSON does not contain any recognized building settings'] };
+    }
+
+    const mergedRaw = { ...copy(rawSettings) };
+    if (isBlueprintV1 && input.seed !== undefined && mergedRaw.seed === undefined) {
+      mergedRaw.seed = input.seed;
+    }
+
+    if (isBlueprintV1) {
+      if (input.entrances !== undefined) {
+        if (!Array.isArray(input.entrances)) {
+          errors.push('Blueprint "entrances" field must be an array');
+        } else {
+          const seenIds = new Set();
+          for (let i = 0; i < input.entrances.length; i++) {
+            const ent = input.entrances[i];
+            if (!ent || typeof ent !== 'object') {
+              errors.push(`Entrance at index ${i} must be an object`);
+              continue;
+            }
+            if (!ent.id || typeof ent.id !== 'string') {
+              errors.push(`Entrance at index ${i} is missing a string "id"`);
+            } else if (seenIds.has(ent.id)) {
+              errors.push(`Duplicate entrance ID "${ent.id}"`);
+            } else {
+              seenIds.add(ent.id);
+            }
+            const pos = ent.door?.position || ent.position;
+            if (!pos || !Number.isFinite(Number(pos.x)) || !Number.isFinite(Number(pos.y)) || !Number.isFinite(Number(pos.z))) {
+              errors.push(`Entrance "${ent.id || i}" has invalid door position coordinates`);
+            }
+          }
+          // If settings omit gameplay entrance fields, hydrate from primary entrance in blueprint
+          const mainEnt = input.entrances.find((e) => e && (e.id === 'entrance_main' || e.role === 'main')) || input.entrances[0];
+          if (mainEnt && typeof mainEnt === 'object') {
+            if (mergedRaw.entranceEnabled === undefined && typeof mainEnt.enabled === 'boolean') mergedRaw.entranceEnabled = mainEnt.enabled;
+            if (mergedRaw.entranceCategory === undefined && typeof mainEnt.category === 'string') mergedRaw.entranceCategory = mainEnt.category;
+            if (mergedRaw.entranceLocked === undefined && typeof mainEnt.lockedByDefault === 'boolean') mergedRaw.entranceLocked = mainEnt.lockedByDefault;
+            if (mergedRaw.interactionLabel === undefined && typeof mainEnt.interactionLabel === 'string') mergedRaw.interactionLabel = mainEnt.interactionLabel;
+            const trig = mainEnt.trigger || mainEnt;
+            if (mergedRaw.triggerWidth === undefined && Number.isFinite(Number(trig.width ?? trig.triggerWidth))) mergedRaw.triggerWidth = Number(trig.width ?? trig.triggerWidth);
+            if (mergedRaw.triggerHeight === undefined && Number.isFinite(Number(trig.height ?? trig.triggerHeight))) mergedRaw.triggerHeight = Number(trig.height ?? trig.triggerHeight);
+            if (mergedRaw.triggerDepth === undefined && Number.isFinite(Number(trig.depth ?? trig.triggerDepth))) mergedRaw.triggerDepth = Number(trig.depth ?? trig.triggerDepth);
+            if (mergedRaw.interactionDistance === undefined && Number.isFinite(Number(trig.maxDistance ?? trig.maxInteractionDistance))) {
+              mergedRaw.interactionDistance = Number(trig.maxDistance ?? trig.maxInteractionDistance);
+            }
+          }
+        }
+      }
+    }
+
+    if (errors.length > 0) {
+      return { valid: false, errors };
+    }
+
+    try {
+      const sanitised = sanitisePreset(mergedRaw);
+      const blueprint = generateBuildingBlueprint(sanitised, {
+        name: typeof input.name === 'string' && input.name.trim() ? input.name.trim() : undefined,
+        templateId: typeof input.templateId === 'string' && input.templateId.trim() ? input.templateId.trim() : undefined,
+        metadataExtensions: input.metadata?.extensions
+      });
+      return {
+        valid: true,
+        isLegacySettings: !isBlueprintV1,
+        errors: [],
+        settings: sanitised,
+        blueprint
+      };
+    } catch (err) {
+      return { valid: false, errors: [err.message || 'Invalid building configuration'] };
+    }
   }
 
   function overrideColor(cfg, floor, side, base) {
@@ -2244,7 +3038,8 @@
     }
 
     if (index === 0 && cfg.groundUse === 'shop') {
-      addDoor(group, 'corner', cx, 0, cz, cfg, false);
+      const cornerLayout = computeCornerEntranceLayout(seg, cfg);
+      addDoor(group, 'corner', cornerLayout.cx, cornerLayout.totalRise, cornerLayout.wallZ, cfg, cornerLayout.wideDoor);
     } else if (diagLen >= 1.05) {
       const ww = Math.min(cfg.windowWidth, diagLen * 0.62);
       const wh = Math.min(cfg.windowHeight, cfg.floorHeight * 0.66);
@@ -2785,8 +3580,173 @@
       }
     }
 
-    root.userData = { preset: cfg.style, seed: cfg.seed, floors: cfg.floors, settings: copy(cfg) };
+    const blueprint = generateBuildingBlueprint(cfg, { name: options.name });
+    root.userData = {
+      preset: cfg.style,
+      seed: cfg.seed,
+      floors: cfg.floors,
+      settings: copy(cfg),
+      blueprint,
+      entrances: blueprint.entrances
+    };
     return root;
+  }
+
+  /* --- 3D Entrance Debugging Visualization (Preview-Only, Excluded from GLB) --- */
+  function createDebugLabelSprite(text, borderHex) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 112;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.fillStyle = 'rgba(7, 19, 30, 0.88)';
+      ctx.fillRect(6, 6, 500, 100);
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = borderHex;
+      ctx.strokeRect(6, 6, 500, 100);
+      ctx.fillStyle = '#e9fbff';
+      ctx.font = 'bold 30px monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(text).slice(0, 32), 256, 56);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false, depthWrite: false });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(3.4, 0.75, 1);
+    sprite.renderOrder = 999;
+    return sprite;
+  }
+
+  function buildEntranceDebugGizmos(parent, blueprint) {
+    if (!blueprint || !Array.isArray(blueprint.entrances)) return;
+    for (const ent of blueprint.entrances) {
+      const gizmoRoot = worldRoot(parent);
+      gizmoRoot.name = 'EntranceDebug_' + ent.id;
+
+      const isInteractive = Boolean(ent.interactive);
+      const isLocked = Boolean(ent.lockedByDefault);
+      const primaryHex = !isInteractive ? '#94a3b8' : (isLocked ? '#ffbe0b' : '#00f5d4');
+      const anchorHex = '#ff4d6d';
+      const normalHex = '#00bbf9';
+      const approachHex = '#38b000';
+      const safeHex = '#80ed99';
+
+      // 1. Translucent interaction trigger box + wireframe edges
+      const trig = ent.trigger;
+      const trigGroup = worldRoot(gizmoRoot, trig.localCenter.x, trig.localCenter.y, trig.localCenter.z);
+      trigGroup.rotation.y = ent.door.rotation.y;
+
+      const boxGeo = new THREE.BoxGeometry(trig.width, trig.height, trig.depth);
+      const boxMat = new THREE.MeshBasicMaterial({
+        color: primaryHex,
+        transparent: true,
+        opacity: isInteractive ? 0.20 : 0.10,
+        depthWrite: false
+      });
+      const boxMesh = new THREE.Mesh(boxGeo, boxMat);
+      boxMesh.renderOrder = 990;
+      trigGroup.add(boxMesh);
+
+      const edgesGeo = new THREE.EdgesGeometry(boxGeo);
+      const edgesMat = new THREE.LineBasicMaterial({
+        color: primaryHex,
+        transparent: true,
+        opacity: 0.9
+      });
+      const edgesMesh = new THREE.LineSegments(edgesGeo, edgesMat);
+      edgesMesh.renderOrder = 991;
+      trigGroup.add(edgesMesh);
+
+      // 2. Entrance anchor marker at door.position
+      const anchorPos = ent.door.position;
+      const anchorMat = new THREE.MeshBasicMaterial({ color: anchorHex });
+      const anchorMarker = new THREE.Mesh(new THREE.OctahedronGeometry(0.22, 0), anchorMat);
+      anchorMarker.position.set(anchorPos.x, anchorPos.y + 0.22, anchorPos.z);
+      gizmoRoot.add(anchorMarker);
+
+      const anchorRing = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.32, 0.32, 0.04, 16),
+        new THREE.MeshBasicMaterial({ color: '#ffd166', transparent: true, opacity: 0.85 })
+      );
+      anchorRing.position.set(anchorPos.x, anchorPos.y + 0.025, anchorPos.z);
+      gizmoRoot.add(anchorRing);
+
+      // 3. Outward-facing normal arrow
+      const arrowLen = 1.45;
+      const arrowY = anchorPos.y + 0.45;
+      const nx = ent.door.normal.x;
+      const nz = ent.door.normal.z;
+      const arrowGroup = worldRoot(gizmoRoot, anchorPos.x, arrowY, anchorPos.z);
+      arrowGroup.rotation.y = ent.door.rotation.y;
+      const arrowMat = new THREE.MeshBasicMaterial({ color: normalHex });
+      const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, arrowLen, 10), arrowMat);
+      shaft.rotation.x = Math.PI / 2;
+      shaft.position.set(0, 0, arrowLen * 0.5);
+      arrowGroup.add(shaft);
+      const head = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.34, 12), arrowMat);
+      head.rotation.x = Math.PI / 2;
+      head.position.set(0, 0, arrowLen + 0.15);
+      arrowGroup.add(head);
+
+      // 4. Exterior approach position & safe position markers
+      const appPos = ent.navigation.approachPosition;
+      const appMat = new THREE.MeshBasicMaterial({ color: approachHex });
+      const appDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.04, 18), appMat);
+      appDisc.position.set(appPos.x, appPos.y + 0.025, appPos.z);
+      gizmoRoot.add(appDisc);
+      const appBeacon = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.0, 8), appMat);
+      appBeacon.position.set(appPos.x, appPos.y + 0.5, appPos.z);
+      gizmoRoot.add(appBeacon);
+      const appCap = new THREE.Mesh(new THREE.OctahedronGeometry(0.14, 0), appMat);
+      appCap.position.set(appPos.x, appPos.y + 1.05, appPos.z);
+      gizmoRoot.add(appCap);
+
+      const safePos = ent.navigation.safePosition;
+      const safeMat = new THREE.MeshBasicMaterial({ color: safeHex, transparent: true, opacity: 0.75 });
+      const safeDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.03, 16), safeMat);
+      safeDisc.position.set(safePos.x, safePos.y + 0.02, safePos.z);
+      gizmoRoot.add(safeDisc);
+
+      // Connect anchor to approach position along ground/steps
+      const linkMat = new THREE.MeshBasicMaterial({ color: normalHex, transparent: true, opacity: 0.55 });
+      line(
+        gizmoRoot,
+        [anchorPos.x + nx * 0.1, anchorPos.y + 0.05, anchorPos.z + nz * 0.1],
+        [appPos.x, appPos.y + 0.05, appPos.z],
+        0.025,
+        linkMat
+      );
+
+      // 5. Floating label displaying entrance ID + category/state
+      const statusTag = !isInteractive
+        ? 'DECORATIVE'
+        : isLocked
+          ? `${ent.category.toUpperCase()} • LOCKED`
+          : ent.category.toUpperCase();
+      const sprite = createDebugLabelSprite(`${ent.id} [${statusTag}]`, primaryHex);
+      sprite.position.set(
+        anchorPos.x + nx * 0.35,
+        anchorPos.y + ent.door.height + 0.85,
+        anchorPos.z + nz * 0.35
+      );
+      gizmoRoot.add(sprite);
+    }
+  }
+
+  function rebuildDebugOverlay() {
+    if (!debugGroup) return;
+    disposeObject(debugGroup, true);
+    debugGroup.visible = Boolean(view.entranceDebug);
+    if (!view.entranceDebug || !buildingGroup) return;
+
+    for (const child of buildingGroup.children) {
+      const bp = child.userData?.blueprint || (child.userData?.settings ? generateBuildingBlueprint(child.userData.settings) : null);
+      if (!bp) continue;
+      const bldgDebug = worldRoot(debugGroup, child.position.x, child.position.y, child.position.z);
+      bldgDebug.rotation.y = child.rotation.y;
+      buildEntranceDebugGizmos(bldgDebug, bp);
+    }
   }
 
   /* --- Scene, lighting, environment, and preview modes --- */
@@ -2843,6 +3803,8 @@
     orbit.target.set(0, 8, 0);
     buildingGroup = worldRoot(scene);
     environmentGroup = worldRoot(scene);
+    debugGroup = worldRoot(scene);
+    debugGroup.name = 'EntranceDebugOverlay';
     hemi = new THREE.HemisphereLight('#d6ecff', '#27302e', 0.85);
     scene.add(hemi);
     ambient = new THREE.AmbientLight('#ffffff', 0.4);
@@ -3242,6 +4204,7 @@
     }
     buildStats = { mode, buildings: count };
     rebuildEnvironment();
+    rebuildDebugOverlay();
     buildingGroup.traverse((obj) => {
       if (obj.isMesh && obj.material) obj.material.wireframe = view.wireframe;
     });
@@ -3390,6 +4353,9 @@
     } else if (e.key === 't' || e.key === 'T') {
       e.preventDefault();
       toggleTheatreMode();
+    } else if (e.key === 'e' || e.key === 'E') {
+      e.preventDefault();
+      toggleEntranceDebug();
     } else if (e.key === 'p' || e.key === 'P') {
       e.preventDefault();
       snapshot();
@@ -3478,6 +4444,7 @@
     try {
       await loadExporter();
       const group = createBuilding(state);
+      group.userData = { preset: state.style, seed: state.seed, floors: state.floors };
       const exporter = new THREE.GLTFExporter();
       const data = await new Promise((resolve, reject) => {
         try {
@@ -3512,6 +4479,21 @@
     screen.append(title, body, detail);
     $('#render-status').textContent = 'LIBRARY ERROR';
   }
+
+  window.BBuildingBlueprint = {
+    SCHEMA_VERSION: BLUEPRINT_SCHEMA_VERSION,
+    GENERATOR_META: copy(GENERATOR_META),
+    computeDefaultEntranceGameplay,
+    computePrimaryEntranceLayout,
+    computeCornerEntranceLayout,
+    computeBuildingEntrances,
+    computeBuildingBounds,
+    generateBuildingBlueprint,
+    validateBuildingBlueprint,
+    applyImportedBuildingData,
+    segmentsForFloor,
+    createBuilding
+  };
 
   initUI();
   loadDependencies().then(initScene).catch(showLoadError);

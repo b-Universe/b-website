@@ -73,6 +73,8 @@
               title="Toggle Full-Screen Mode (F)"><i class="fas fa-expand"></i><span> Fullscreen</span></button>
             <button type="button" class="studio-btn studio-btn-ghost" id="btn-screenshot"
               title="Save a picture of the preview"><i class="fas fa-camera"></i><span> Snapshot</span></button>
+            <button type="button" class="studio-btn studio-btn-ghost" id="btn-export-blueprint-top"
+              title="Export Building Blueprint (.building.json)"><i class="fas fa-drafting-compass"></i><span> Blueprint</span></button>
             <button type="button" class="studio-btn studio-btn-primary" id="btn-export-glb"><i
                 class="fas fa-download"></i><span> Export .GLB</span></button>
           </div>
@@ -139,6 +141,8 @@
                       class="fas fa-sync-alt"></i></button>
                   <button id="btn-wireframe" class="studio-view-btn" type="button" title="Toggle wireframe"><i
                       class="fas fa-border-all"></i></button>
+                  <button id="btn-entrance-debug" class="studio-view-btn" type="button" title="Toggle Entrance Debug Gizmos (E)" aria-label="Toggle Entrance Debug Gizmos"><i
+                      class="fas fa-door-open"></i></button>
                   <button id="btn-stage-snapshot" class="studio-view-btn" type="button" title="Save snapshot (P)"><i
                       class="fas fa-camera"></i></button>
                   <button id="btn-theatre" class="studio-view-btn" type="button" title="Toggle Theatre Mode (T)" aria-label="Toggle Theatre Mode"><i
@@ -175,6 +179,7 @@
                     <option value="none">None</option>
                   </select></label>
                 <label class="studio-check-inline"><input id="ground-grid" type="checkbox" checked /> Grid</label>
+                <label class="studio-check-inline" title="Visualize interactive entrance triggers, anchors, normals, and approach positions"><input id="entrance-debug-toggle" type="checkbox" /> Entrance Debug</label>
                 <span class="studio-preview-hint"><i class="far fa-lightbulb"></i> Changes update the model
                   automagically</span>
               </div>
@@ -210,16 +215,18 @@
               <div class="studio-separator"></div>
               <div class="studio-section-title"><i class="fas fa-box-open"></i> Save & Export</div>
               <div class="studio-export-grid">
+                <button type="button" id="btn-export-blueprint" class="studio-btn studio-btn-primary studio-export-span"><i
+                    class="fas fa-drafting-compass"></i> Export Building Blueprint (.building.json)</button>
                 <button type="button" id="btn-export-json" class="studio-btn studio-btn-ghost"><i
                     class="fas fa-file-code"></i> Settings .JSON</button>
                 <button type="button" id="btn-import-json" class="studio-btn studio-btn-ghost"><i
-                    class="fas fa-file-import"></i> Import .JSON</button>
+                    class="fas fa-file-import"></i> Import Blueprint / .JSON</button>
                 <button type="button" id="btn-export-glb-side" class="studio-btn studio-btn-ghost"><i
                     class="fas fa-cube"></i> Model .GLB</button>
                 <button type="button" id="btn-screenshot-side" class="studio-btn studio-btn-ghost"><i
                     class="fas fa-image"></i> Preview .PNG</button>
               </div>
-              <input id="file-import" type="file" accept=".json,application/json" hidden />
+              <input id="file-import" type="file" accept=".json,.building.json,application/json" hidden />
               <p class="studio-help">Exports include the active building, not the surrounding street; <code>City Block</code> mode is
                 for previewing neighborhood variety.</p>
             </div>
