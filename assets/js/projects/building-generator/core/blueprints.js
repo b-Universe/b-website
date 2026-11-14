@@ -1,6 +1,9 @@
 import { clamp, copy, roundNum, hashBlueprintString, rng32 } from '../utils.js';
-import { BASE, BLUEPRINT_SCHEMA_VERSION, GENERATOR_META, getStyle, sanitisePreset } from '../config.js';
-import { segmentsForFloor, chooseFireEscapePlacement } from './layouts.js';
+import { BASE, NEW_EXPANSION_DEFAULTS, BLUEPRINT_SCHEMA_VERSION, GENERATOR_META, getStyle, sanitisePreset } from '../config.js';
+import { segmentsForFloor, chooseFireEscapePlacement, computeFireEscapeMetadata, computeBuildingWindows } from './layouts.js';
+import { computeStraightRunFireEscape } from './straight-run-fire-escape.js';
+import { computeTallStaircaseLayout, summarizeTallStaircaseMetadata } from './tall-staircase.js';
+import { computeRooftopStructuresMetadata } from './rooftop-layout.js';
 import { computeBuildingEntrances, computePrimaryEntranceLayout } from './entrances.js';
 
 export function computeBuildingBounds(rawCfg) {
@@ -35,7 +38,11 @@ export function computeBuildingBounds(rawCfg) {
       : cfg.roofType === 'stepped'
         ? 1.4
         : (cfg.parapet ? cfg.parapetHeight : 0.2);
-  const totalHeightWithRoof = roundNum(wallHeight + roofExtra, 3);
+  let totalHeightWithRoof = roundNum(wallHeight + roofExtra, 3);
+  if (cfg.roofAccess) {
+    const headhouseTopY = roundNum(wallHeight + (Number(cfg.roofAccessHeight) || 2.3), 3);
+    totalHeightWithRoof = Math.max(totalHeightWithRoof, headhouseTopY);
+  }
 
   const serializeSeg = (s, idx) => ({
     index: idx,
@@ -97,10 +104,27 @@ export function generateBuildingBlueprint(rawCfg, options = {}) {
     inspectedFloor: 0
   };
 
+  // Prune unmodified expansion defaults so existing registered building templates (like Brownstone #4612)
+  // retain exact byte-for-byte schema and revision compatibility
+  for (const [key, defaultVal] of Object.entries(NEW_EXPANSION_DEFAULTS)) {
+    if (blueprintSettings[key] === defaultVal) {
+      delete blueprintSettings[key];
+    }
+  }
+
   const groundSegments = segmentsForFloor(blueprintSettings, 0);
+  const topSegments = segmentsForFloor(blueprintSettings, Math.max(0, (blueprintSettings.floors || 1) - 1)).filter((s) => !s.isExtension);
   const bounds = computeBuildingBounds(blueprintSettings);
   const entrances = computeBuildingEntrances(blueprintSettings, groundSegments);
   const firePlacement = chooseFireEscapePlacement(groundSegments, blueprintSettings, rng32(blueprintSettings.seed + 313));
+  const isStraightRun = blueprintSettings.fireEscapeClearance === 'straight_run';
+  const includeRooftopColliders = Boolean(blueprintSettings.rooftopCollision) || isStraightRun;
+  const straightRunData = isStraightRun && firePlacement
+    ? computeStraightRunFireEscape(groundSegments, firePlacement, blueprintSettings)
+    : null;
+  const tallLayout = blueprintSettings.tallStaircase
+    ? computeTallStaircaseLayout(groundSegments, blueprintSettings, firePlacement)
+    : null;
 
   // Derive stable template ID from style, seed, and geometry settings
   const templateIdentityPayload = JSON.stringify({
@@ -152,6 +176,25 @@ export function generateBuildingBlueprint(rawCfg, options = {}) {
       interiorMode: blueprintSettings.interiorMode,
       hasFireEscape: Boolean(firePlacement),
       fireEscapeSide: firePlacement ? firePlacement.side : null,
+      fireEscape: firePlacement
+        ? (straightRunData ? straightRunData.metadata : computeFireEscapeMetadata(groundSegments, firePlacement, blueprintSettings))
+        : null,
+      ...(tallLayout ? {
+        hasTallStaircase: Boolean(tallLayout.feasible),
+        tallStaircase: summarizeTallStaircaseMetadata(tallLayout)
+      } : {}),
+      windows: computeBuildingWindows(blueprintSettings, groundSegments, tallLayout),
+      rooftopStructures: computeRooftopStructuresMetadata(
+        blueprintSettings,
+        topSegments,
+        groundSegments[0],
+        includeRooftopColliders
+      ),
+      windowLighting: {
+        time: blueprintSettings.windowLightingTime || 'day',
+        profile: blueprintSettings.windowLightingProfile || 'auto',
+        ratio: blueprintSettings.windowLighting
+      },
       totalEntranceCount: entrances.length,
       interactiveEntranceCount: interactiveEntrances.length,
       primaryEntranceId: entrances[0]?.id || null,
@@ -164,6 +207,8 @@ export function generateBuildingBlueprint(rawCfg, options = {}) {
         ...(blueprintSettings.cornerCut > 0 ? ['corner-cut'] : []),
         ...(blueprintSettings.setback > 0 ? ['setback'] : []),
         ...(blueprintSettings.extension > 0 ? ['extensions'] : []),
+        ...(blueprintSettings.roofAccess ? ['roof-access'] : []),
+        ...(blueprintSettings.graffiti ? ['graffiti'] : []),
         ...(interactiveEntrances.length > 0 ? ['interactive'] : ['decorative'])
       ],
       extensions: options.metadataExtensions && typeof options.metadataExtensions === 'object'

@@ -359,20 +359,22 @@
 }
 
 .studio-tabbar {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   border-bottom: 1px solid rgba(var(--accent-rgb), .28);
   gap: 0;
 }
 
 .studio-tab {
+  flex: 1 1 25%;
+  min-width: 62px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
   border: 0;
   border-bottom: 2px solid transparent;
-  padding: 10px 1px 9px;
+  padding: 8px 1px 7px;
   background: transparent;
   font-size: 10px !important;
   font-weight: 750 !important;

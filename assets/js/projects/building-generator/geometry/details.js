@@ -1,8 +1,15 @@
-import { clamp, randBetween, pick } from '../utils.js';
-import { solid, puddleMaterial, glassMaterial, registerTexture } from './materials.js';
+import { clamp, randBetween, pick, roundNum } from '../utils.js';
+import { solid, puddleMaterial, glassMaterial, graffitiMaterial, textureMaterial, gratingMaterial, registerTexture } from './materials.js';
 import { box, slabBox, cylinder, line, sagCable, signboard, worldRoot } from './primitives.js';
-import { subtractIntervals, segmentsForFloor, getFireEscapeWallAnchor } from '../core/layouts.js';
-import { computePrimaryEntranceLayout } from '../core/entrances.js';
+import { subtractIntervals, segmentsForFloor, getFireEscapeWallAnchor, computeFireEscapeFlights } from '../core/layouts.js';
+import {
+  computePrimaryEntranceLayout,
+  computeRearEntranceLayout,
+  computeSideEntranceLayout,
+  computeBasementEntranceLayout,
+  computeDeliveryEntranceLayout,
+  computeRooftopEntranceLayout
+} from '../core/entrances.js';
 import { addDoor, addWindow, pickWindowDamageMode } from './facades.js';
 
 let awningCounter = 0;
@@ -36,25 +43,74 @@ export function addBalcony(parent, side, x, y, z, w, cfg) {
   }
 }
 
-export function addFireEscape(parent, seg, placement, cfg) {
-  if (!placement || cfg.floors < 2) return;
-  const { side, coord, deckW, extIndex = -1 } = placement;
-  const steel = solid('#3a4347');
-  const deckD = 1.22;
-  const rotMap = { front: 0, back: Math.PI, left: -Math.PI / 2, right: Math.PI / 2 };
-
-  const segForFloor = (flIdx) => {
-    const flSegs = segmentsForFloor(cfg, flIdx);
-    if (extIndex >= 0) {
-      const ext = flSegs.find((s) => s.isExtension && s.extIndex === extIndex);
-      if (ext) return ext;
+function addFireEscapeSideRailing(group, xPos, y, totalDeckD, portal, steel) {
+  const railY = y + 0.88;
+  const addSegment = (zStart, zEnd, addStartPost, addEndPost) => {
+    const len = zEnd - zStart;
+    if (len <= 0.06) return;
+    box(group, xPos, railY, zStart + len * 0.5, 0.06, 0.06, len, steel);
+    if (addStartPost) box(group, xPos, y + 0.46, zStart + 0.025, 0.05, 0.88, 0.05, steel);
+    if (addEndPost) box(group, xPos, y + 0.46, zEnd - 0.025, 0.05, 0.88, 0.05, steel);
+    const nb = Math.max(1, Math.round(len * 2));
+    for (let k = 1; k <= nb; k++) {
+      box(group, xPos, y + 0.46, zStart + (k / (nb + 1)) * len, 0.04, 0.82, 0.04, steel);
     }
-    return flSegs[0] || seg;
   };
 
-  const wallAnchorForFloor = (flIdx) => getFireEscapeWallAnchor(segForFloor(flIdx), side, coord, deckW);
+  if (portal && portal.portalW > 0) {
+    const zOpen1 = Math.max(0, portal.centerZ - portal.portalW * 0.5);
+    const zOpen2 = Math.min(totalDeckD, portal.centerZ + portal.portalW * 0.5);
+    addSegment(0, zOpen1, true, true);
+    addSegment(zOpen2, totalDeckD, true, false);
+  } else {
+    box(group, xPos, railY, totalDeckD * 0.5, 0.06, 0.06, totalDeckD, steel);
+    box(group, xPos, y + 0.46, 0.03, 0.05, 0.88, 0.05, steel);
+    box(group, xPos, y + 0.46, totalDeckD - 0.03, 0.05, 0.88, 0.05, steel);
+    const sideBalusters = Math.max(2, Math.round(totalDeckD * 1.8));
+    for (let k = 1; k <= sideBalusters; k++) {
+      box(group, xPos, y + 0.46, (k / (sideBalusters + 1)) * totalDeckD, 0.04, 0.82, 0.04, steel);
+    }
+  }
+}
 
-  // Convert world (wx, wz) to local (lx, lz)
+function addFireEscapeFlightMesh(group, flight, stairHW, stairTreadD, steel) {
+  const { local, laneZ, treads } = flight;
+  const { xStart, xEnd, yLower, yUpper } = local;
+  const plateDepth = flight.treadPlateDepth || 0.24;
+
+  for (const dz of [-stairHW, stairHW]) {
+    line(group, [xStart, yLower, laneZ + dz], [xEnd, yUpper, laneZ + dz], 0.045, steel);
+    line(group, [xStart, yLower + 0.84, laneZ + dz], [xEnd, yUpper + 0.84, laneZ + dz], 0.032, steel);
+    line(group, [xStart, yLower, laneZ + dz], [xStart, yLower + 0.84, laneZ + dz], 0.032, steel);
+    line(group, [xEnd, yUpper, laneZ + dz], [xEnd, yUpper + 0.84, laneZ + dz], 0.032, steel);
+  }
+
+  const treadMat = gratingMaterial('#3a4347', plateDepth, stairTreadD);
+  const frameThick = 0.024;
+  const edgeOffsetX = plateDepth * 0.5 - frameThick * 0.5;
+  for (const tr of treads) {
+    const treadMesh = box(group, tr.local.x, tr.local.y, tr.local.z, plateDepth, 0.045, stairTreadD, treadMat);
+    box(group, tr.local.x - edgeOffsetX, tr.local.y, tr.local.z, frameThick, 0.046, stairTreadD, steel);
+    box(group, tr.local.x + edgeOffsetX, tr.local.y, tr.local.z, frameThick, 0.046, stairTreadD, steel);
+    treadMesh.name = tr.id;
+    treadMesh.userData = {
+      treadId: tr.id,
+      flightId: flight.id,
+      stepIndex: tr.stepIndex,
+      floor: flight.floor,
+      elevation: tr.elevation,
+      topSurfaceElevation: tr.topSurfaceElevation
+    };
+  }
+}
+
+export function addFireEscape(parent, seg, placement, cfg) {
+  if (!placement || cfg.floors < 2) return;
+  const { side, deckW } = placement;
+  const steel = solid('#3a4347');
+  const concrete = solid('#858b8c');
+  const rotMap = { front: 0, back: Math.PI, left: -Math.PI / 2, right: Math.PI / 2 };
+
   const toLocalXZ = (anchor, wx, wz) => {
     const dx = wx - anchor.x;
     const dz = wz - anchor.z;
@@ -64,38 +120,178 @@ export function addFireEscape(parent, seg, placement, cfg) {
     return { x: -dz, z: dx };
   };
 
-  const zInner = 0.44;
-  const zOuter = 0.86;
-  const stairHW = 0.18; // Half-width of stair in Z (0.36m width)
-  const stairTreadD = 0.36;
+  const flightData = computeFireEscapeFlights(cfg, [seg], placement);
+  const {
+    anchors,
+    flightLanes,
+    zInner,
+    zOuter,
+    stairHW,
+    stairTreadD,
+    deckD,
+    xSpan,
+    extraLadderClearance,
+    profile,
+    isLegacy,
+    landingPlans,
+    columnPlans
+  } = flightData;
 
-  const xSpan = deckW * 0.34;
   const halfDeckW = deckW * 0.5;
   const deckT = 0.08;
 
-  const anchors = [];
-  for (let f = 0; f < cfg.floors; f++) {
-    anchors.push(wallAnchorForFloor(f));
-  }
+  if (!isLegacy && Array.isArray(landingPlans) && landingPlans.length > 0) {
+    // Render continuous vertical corner support columns & ground baseplates first
+    if (Array.isArray(columnPlans) && columnPlans.length > 0) {
+      const colRoot = worldRoot(parent, anchors[0].x, 0, anchors[0].z);
+      colRoot.rotation.y = rotMap[side] || 0;
+      for (const col of columnPlans) {
+        box(colRoot, col.localX, 0.04, col.localZ, 0.24, 0.08, 0.24, concrete);
+        box(colRoot, col.localX, col.topY * 0.5, col.localZ, 0.09, col.topY, 0.09, steel);
+      }
+    }
 
-  const flightLanes = [];
-  for (let i = 1; i < cfg.floors - 1; i++) {
-    const anchorBelow = anchors[i - 1];
-    const anchorAbove = anchors[i];
-    const stepOffset = toLocalXZ(anchorAbove, anchorBelow.x, anchorBelow.z);
-    const stepBackZ = Math.max(0, stepOffset.z);
+    // Optional ground-to-F1 street stair flight
+    const streetFlight = flightData.flights.find((fl) => fl.floor === 0);
+    if (streetFlight) {
+      const f0Group = worldRoot(parent, anchors[0].x, 0, anchors[0].z);
+      f0Group.rotation.y = rotMap[side] || 0;
+      addFireEscapeFlightMesh(f0Group, streetFlight, stairHW, stairTreadD, steel);
+      // Concrete entry pad at foot of ground stair
+      box(f0Group, streetFlight.local.xStart + 0.35, 0.03, streetFlight.laneZ, 0.90, 0.06, stairTreadD + 0.16, concrete);
+    }
 
-    let lane = i % 2 === 1 ? zOuter : zInner;
-    if (i > 1) {
-      const prevArriveZ = stepBackZ + flightLanes[i - 1];
-      if (Math.abs(lane - prevArriveZ) < stairHW * 2 + 0.06) {
-        const altLane = lane === zOuter ? zInner : zOuter;
-        if (Math.abs(altLane - prevArriveZ) >= Math.abs(lane - prevArriveZ)) {
-          lane = altLane;
+    for (const lp of landingPlans) {
+      const i = lp.floor;
+      const y = lp.y;
+      const group = worldRoot(parent, lp.anchor.x, 0, lp.anchor.z);
+      group.rotation.y = rotMap[side] || 0;
+
+      for (const panel of lp.deckPanels) {
+        const deckMeshMat = gratingMaterial('#3a4347', panel.widthX, panel.depthZ);
+        box(group, panel.centerX, y, panel.centerZ, panel.widthX, deckT, panel.depthZ, deckMeshMat);
+      }
+
+      // Perimeter fascia beams for crisp steel balcony silhouette
+      box(group, lp.centerDeckX, y - 0.02, lp.totalDeckD - 0.03, lp.fullDeckW, 0.09, 0.05, steel);
+      box(group, lp.minDeckX + 0.03, y - 0.02, lp.stepBackZ + deckD * 0.5, 0.05, 0.09, deckD, steel);
+      box(group, lp.maxDeckX - 0.03, y - 0.02, lp.stepBackZ + deckD * 0.5, 0.05, 0.09, deckD, steel);
+
+      // Cutout framing beams and stairwell safety guardrails (open at arrival turnaround)
+      for (const op of lp.openings) {
+        const frameT = 0.035;
+        const openLen = op.xMax - op.xMin;
+        const openDepth = op.zMax - op.zMin;
+        box(group, (op.xMin + op.xMax) * 0.5, y, op.zMin, openLen, deckT + 0.02, frameT, steel);
+        box(group, (op.xMin + op.xMax) * 0.5, y, op.zMax, openLen, deckT + 0.02, frameT, steel);
+        box(group, op.xBack, y, (op.zMin + op.zMax) * 0.5, frameT, deckT + 0.02, openDepth, steel);
+
+        const openRailY = y + 0.88;
+        if (!op.skipBackRail) {
+          line(group, [op.xBack, openRailY, op.zMin], [op.xBack, openRailY, op.zMax], 0.03, steel);
+          line(group, [op.xBack, y + 0.04, op.zMin], [op.xBack, openRailY, op.zMin], 0.026, steel);
+          line(group, [op.xBack, y + 0.04, op.zMax], [op.xBack, openRailY, op.zMax], 0.026, steel);
+        }
+
+        const railEndStopX = op.xArrive - op.dir * 0.16;
+        const rX1 = Math.min(op.xBack, railEndStopX);
+        const rX2 = Math.max(op.xBack, railEndStopX);
+        if (rX2 - rX1 > 0.12) {
+          line(group, [rX1, openRailY, op.railSideZ], [rX2, openRailY, op.railSideZ], 0.03, steel);
+          line(group, [railEndStopX, y + 0.04, op.railSideZ], [railEndStopX, openRailY, op.railSideZ], 0.026, steel);
+          const intermediatePosts = Math.max(2, Math.floor((rX2 - rX1) / 0.42));
+          for (let p = 1; p < intermediatePosts; p++) {
+            const rx = rX1 + (p / intermediatePosts) * (rX2 - rX1);
+            line(group, [rx, y + 0.04, op.railSideZ], [rx, openRailY, op.railSideZ], 0.024, steel);
+          }
+        }
+      }
+
+      // Underside diagonal wall braces
+      for (const br of lp.braces) {
+        line(group, [br.localStart.x, br.localStart.y, br.localStart.z], [br.localEnd.x, br.localEnd.y, br.localEnd.z], 0.042, steel);
+      }
+
+      // Front perimeter guardrail
+      const railY = y + 0.88;
+      box(group, lp.centerDeckX, railY, lp.totalDeckD - 0.04, lp.fullDeckW, 0.06, 0.06, steel);
+      const frontBalusters = Math.max(6, Math.round(lp.fullDeckW * 2.2));
+      for (let j = 0; j < frontBalusters; j++) {
+        const bx = lp.minDeckX + 0.04 + (j / (frontBalusters - 1)) * (lp.fullDeckW - 0.08);
+        box(group, bx, y + 0.46, lp.totalDeckD - 0.04, 0.04, 0.82, 0.04, steel);
+      }
+
+      // Left & right end guardrails with portal openings matching ladders
+      addFireEscapeSideRailing(group, lp.minDeckX + 0.03, y, lp.totalDeckD, lp.leftPortal, steel);
+      addFireEscapeSideRailing(group, lp.maxDeckX - 0.03, y, lp.totalDeckD, lp.rightPortal, steel);
+
+      // Floor stair flight rising upward from this landing
+      const floorFlights = flightData.flights.filter((fl) => fl.floor === i);
+      for (const flight of floorFlights) {
+        addFireEscapeFlightMesh(group, flight, stairHW, stairTreadD, steel);
+      }
+
+      // Drop ladder mounted cleanly at F1 West (-X) portal
+      if (i === 1 && lp.leftPortal) {
+        const lx = lp.minDeckX - 0.06 - (extraLadderClearance > 0 ? extraLadderClearance * 0.5 : 0);
+        const lz = lp.leftPortal.centerZ;
+        const isLowered = cfg.fireEscapeLadder === 'lowered';
+        const botY = isLowered ? 0.08 : 2.2;
+        const topY = y + 0.88;
+        const rungW = 0.42 + extraLadderClearance;
+        const rungHW = rungW * 0.5;
+
+        for (const dz of [-rungHW, rungHW]) {
+          line(group, [lp.minDeckX, y, lz + dz], [lx, y, lz + dz], 0.032, steel);
+          line(group, [lp.minDeckX, y + 0.88, lz + dz], [lx, y + 0.88, lz + dz], 0.032, steel);
+          line(group, [lp.minDeckX, y - 0.24, lz + dz], [lx, y, lz + dz], 0.026, steel);
+          line(group, [lx, botY, lz + dz], [lx, topY, lz + dz], 0.032, steel);
+        }
+        line(group, [lx, topY, lz - rungHW], [lx, topY, lz + rungHW], 0.032, steel);
+        const rungs = Math.max(4, Math.floor((topY - botY - 0.18) / 0.30));
+        for (let rIdx = 0; rIdx < rungs; rIdx++) {
+          const ry = botY + 0.14 + (rIdx / Math.max(1, rungs - 1)) * Math.max(0.4, (y + 0.72) - (botY + 0.14));
+          box(group, lx, ry, lz, 0.04, 0.032, rungW, steel);
+        }
+      }
+
+      // Roof access gooseneck ladder mounted cleanly at top arrival turnaround end
+      if (lp.isTopFloor && cfg.fireEscapeRoofAccess !== false) {
+        const portal = lp.rightPortal || lp.leftPortal;
+        const endSign = lp.rightPortal ? 1 : -1;
+        const edgeX = endSign > 0 ? lp.maxDeckX : lp.minDeckX;
+        const rx = edgeX + endSign * (0.06 + (extraLadderClearance > 0 ? extraLadderClearance * 0.5 : 0));
+        const rz = portal ? portal.centerZ : (lp.stepBackZ + Math.min(zInner + 0.06, deckD * 0.42));
+        const roofBotY = y;
+        const roofDeckY = cfg.floors * cfg.floorHeight;
+        const ph = cfg.parapet ? (cfg.parapetHeight || 0.65) : 0.15;
+        const parapetTopY = roofDeckY + ph;
+        const apexY = parapetTopY + 0.28;
+        const zRoofLand = -0.36;
+        const zMid = (rz + zRoofLand) * 0.5;
+        const roofRungW = 0.42 + extraLadderClearance;
+        const roofRungHW = roofRungW * 0.5;
+
+        for (const dz of [-roofRungHW, roofRungHW]) {
+          line(group, [edgeX, y, rz + dz], [rx, y, rz + dz], 0.032, steel);
+          line(group, [edgeX, y + 0.88, rz + dz], [rx, y + 0.88, rz + dz], 0.032, steel);
+          line(group, [edgeX, y - 0.24, rz + dz], [rx, y, rz + dz], 0.026, steel);
+          line(group, [rx, roofBotY, rz + dz], [rx, parapetTopY, rz + dz], 0.032, steel);
+          line(group, [rx, parapetTopY, rz + dz], [rx, apexY, zMid + dz], 0.032, steel);
+          line(group, [rx, apexY, zMid + dz], [rx, apexY, zRoofLand + dz], 0.032, steel);
+          line(group, [rx, apexY, zRoofLand + dz], [rx, roofDeckY, zRoofLand + dz], 0.032, steel);
+          box(group, rx, roofDeckY + 0.03, zRoofLand + dz, 0.08, 0.05, 0.08, steel);
+          line(group, [rx, roofDeckY - 0.25, rz + dz], [rx, roofDeckY - 0.25, 0.02], 0.028, steel);
+        }
+        line(group, [rx, roofDeckY + 0.14, zRoofLand - roofRungHW], [rx, roofDeckY + 0.14, zRoofLand + roofRungHW], 0.03, steel);
+        const roofRungs = Math.max(5, Math.floor((parapetTopY - roofBotY) / 0.30));
+        for (let rIdx = 0; rIdx < roofRungs; rIdx++) {
+          const ry = roofBotY + 0.28 + (rIdx / Math.max(1, roofRungs - 1)) * Math.max(0.6, parapetTopY - roofBotY - 0.42);
+          box(group, rx, ry, rz, 0.04, 0.032, roofRungW, steel);
         }
       }
     }
-    flightLanes[i] = lane;
+    return;
   }
 
   for (let i = 1; i < cfg.floors; i++) {
@@ -117,37 +313,37 @@ export function addFireEscape(parent, seg, placement, cfg) {
     const centerDeckX = (minDeckX + maxDeckX) * 0.5;
 
     if (i === 1) {
-      // Lowest landing
-      box(group, centerDeckX, y, zCenter, fullDeckW, deckT, totalDeckD, steel);
+      // Lowest landing: complete solid floor deck
+      box(group, centerDeckX, y, zCenter, fullDeckW, deckT, totalDeckD, gratingMaterial('#3a4347', fullDeckW, totalDeckD));
     } else {
       const prevDir = (i - 1) % 2 === 1 ? 1 : -1;
       const prevLaneZ = stepBackZ + flightLanes[i - 1];
       const xArrive = shiftX + prevDir * xSpan;
 
-      const openLen = Math.min(xSpan * 1.6, 1.25);
+      const openLen = Math.min(xSpan * 1.4, 1.25);
       const xOpen1 = Math.min(xArrive, xArrive - prevDir * openLen);
       const xOpen2 = Math.max(xArrive, xArrive - prevDir * openLen);
 
-      const zOpenMin = prevLaneZ - stairHW - 0.03;
-      const zOpenMax = prevLaneZ + stairHW + 0.03;
+      const zOpenMin = prevLaneZ - stairHW - 0.04;
+      const zOpenMax = prevLaneZ + stairHW + 0.04;
 
       if (zOpenMin > 0.04) {
-        box(group, centerDeckX, y, zOpenMin * 0.5, fullDeckW, deckT, zOpenMin, steel);
+        box(group, centerDeckX, y, zOpenMin * 0.5, fullDeckW, deckT, zOpenMin, gratingMaterial('#3a4347', fullDeckW, zOpenMin));
       }
 
       const outerD = totalDeckD - zOpenMax;
       if (outerD > 0.03) {
-        box(group, centerDeckX, y, zOpenMax + outerD * 0.5, fullDeckW, deckT, outerD, steel);
+        box(group, centerDeckX, y, zOpenMax + outerD * 0.5, fullDeckW, deckT, outerD, gratingMaterial('#3a4347', fullDeckW, outerD));
       }
 
       const openSpanD = zOpenMax - zOpenMin;
       if (maxDeckX - xOpen2 > 0.03) {
         const wRight = maxDeckX - xOpen2;
-        box(group, xOpen2 + wRight * 0.5, y, zOpenMin + openSpanD * 0.5, wRight, deckT, openSpanD, steel);
+        box(group, xOpen2 + wRight * 0.5, y, zOpenMin + openSpanD * 0.5, wRight, deckT, openSpanD, gratingMaterial('#3a4347', wRight, openSpanD));
       }
       if (xOpen1 - minDeckX > 0.03) {
         const wLeft = xOpen1 - minDeckX;
-        box(group, minDeckX + wLeft * 0.5, y, zOpenMin + openSpanD * 0.5, wLeft, deckT, openSpanD, steel);
+        box(group, minDeckX + wLeft * 0.5, y, zOpenMin + openSpanD * 0.5, wLeft, deckT, openSpanD, gratingMaterial('#3a4347', wLeft, openSpanD));
       }
 
       const frameT = 0.035;
@@ -156,17 +352,22 @@ export function addFireEscape(parent, seg, placement, cfg) {
       const backX = prevDir === 1 ? xOpen1 : xOpen2;
       box(group, backX, y, (zOpenMin + zOpenMax) * 0.5, frameT, deckT + 0.02, openSpanD, steel);
 
-      const departLaneZ = i < cfg.floors - 1 ? flightLanes[i] : -1;
-      const railClearOfDepart = departLaneZ < 0 || Math.abs(zOpenMin - departLaneZ) > stairHW + 0.06;
-      if (railClearOfDepart) {
-        const openRailY = y + 0.88;
-        const openRailZ = zOpenMin;
-        line(group, [xOpen1, openRailY, openRailZ], [xOpen2, openRailY, openRailZ], 0.03, steel);
-        line(group, [backX, openRailY, zOpenMin], [backX, openRailY, zOpenMax], 0.03, steel);
-        const railPosts = 4;
-        for (let p = 0; p <= railPosts; p++) {
-          const rx = xOpen1 + (p / railPosts) * (xOpen2 - xOpen1);
-          line(group, [rx, y + 0.04, openRailZ], [rx, openRailY, openRailZ], 0.024, steel);
+      const openRailY = y + 0.88;
+      line(group, [backX, openRailY, zOpenMin], [backX, openRailY, zOpenMax], 0.03, steel);
+      line(group, [backX, y + 0.04, zOpenMin], [backX, openRailY, zOpenMin], 0.026, steel);
+      line(group, [backX, y + 0.04, zOpenMax], [backX, openRailY, zOpenMax], 0.026, steel);
+
+      const railSideZ = prevLaneZ === zOuter ? zOpenMin : zOpenMax;
+      const railEndStopX = xArrive - prevDir * 0.18;
+      const rX1 = Math.min(backX, railEndStopX);
+      const rX2 = Math.max(backX, railEndStopX);
+      if (rX2 - rX1 > 0.10) {
+        line(group, [rX1, openRailY, railSideZ], [rX2, openRailY, railSideZ], 0.03, steel);
+        line(group, [railEndStopX, y + 0.04, railSideZ], [railEndStopX, openRailY, railSideZ], 0.026, steel);
+        const intermediatePosts = Math.max(2, Math.floor((rX2 - rX1) / 0.35));
+        for (let p = 1; p < intermediatePosts; p++) {
+          const rx = rX1 + (p / intermediatePosts) * (rX2 - rX1);
+          line(group, [rx, y + 0.04, railSideZ], [rx, openRailY, railSideZ], 0.024, steel);
         }
       }
     }
@@ -177,55 +378,65 @@ export function addFireEscape(parent, seg, placement, cfg) {
 
     const railY = y + 0.88;
     box(group, centerDeckX, railY, totalDeckD - 0.04, fullDeckW, 0.06, 0.06, steel);
-    box(group, minDeckX + 0.03, railY, zCenter, 0.06, 0.06, totalDeckD, steel);
-    box(group, maxDeckX - 0.03, railY, zCenter, 0.06, 0.06, totalDeckD, steel);
-
     const frontBalusters = Math.max(6, Math.round(fullDeckW * 2.5));
     for (let j = 0; j < frontBalusters; j++) {
       const bx = minDeckX + 0.04 + (j / (frontBalusters - 1)) * (fullDeckW - 0.08);
       box(group, bx, y + 0.46, totalDeckD - 0.04, 0.04, 0.82, 0.04, steel);
     }
-    const sideBalusters = Math.max(2, Math.round(totalDeckD * 1.8));
-    for (const sx of [minDeckX + 0.03, maxDeckX - 0.03]) {
-      for (let k = 1; k <= sideBalusters; k++) {
-        box(group, sx, y + 0.46, (k / (sideBalusters + 1)) * totalDeckD, 0.04, 0.82, 0.04, steel);
-      }
+
+    addFireEscapeSideRailing(group, minDeckX + 0.03, y, totalDeckD, null, steel);
+    addFireEscapeSideRailing(group, maxDeckX - 0.03, y, totalDeckD, null, steel);
+
+    const floorFlights = flightData.flights.filter((fl) => fl.floor === i);
+    for (const flight of floorFlights) {
+      addFireEscapeFlightMesh(group, flight, stairHW, stairTreadD, steel);
     }
 
-    if (i < cfg.floors - 1) {
-      const nextY = (i + 1) * cfg.floorHeight + 0.12;
-      const dir = i % 2 === 1 ? 1 : -1;
-      const laneZ = flightLanes[i];
-      const xStart = -dir * xSpan;
-      const xEnd = dir * xSpan;
-
-      for (const dz of [-stairHW, stairHW]) {
-        line(group, [xStart, y, laneZ + dz], [xEnd, nextY, laneZ + dz], 0.042, steel);
-        line(group, [xStart, y + 0.82, laneZ + dz], [xEnd, nextY + 0.82, laneZ + dz], 0.032, steel);
-      }
-
-      const steps = 9;
-      for (let s = 1; s <= steps; s++) {
-        const frac = s / steps;
-        const sx = xStart + (xEnd - xStart) * frac;
-        const sy = y + cfg.floorHeight * frac;
-        box(group, sx, sy, laneZ, 0.24, 0.045, stairTreadD, steel);
-      }
-    }
-
-    if (i === 1) {
-      const lx = maxDeckX + 0.18;
+    if (i === 1 && cfg.fireEscapeLadder !== 'stair') {
+      const lx = maxDeckX + 0.04 + (extraLadderClearance > 0 ? extraLadderClearance : 0);
       const lz = stepBackZ + deckD * 0.55;
-      const botY = 0.45;
-      const topY = y + 1.05;
-      box(group, maxDeckX + 0.09, y, lz, 0.18, 0.06, 0.38, steel);
-      for (const dz of [-0.16, 0.16]) {
-        line(group, [lx, botY, lz + dz], [lx, topY, lz + dz], 0.03, steel);
+      const isLowered = cfg.fireEscapeLadder === 'lowered';
+      const botY = isLowered ? 0.08 : 2.2;
+      const topY = y + 0.90;
+      const rungW = 0.42 + extraLadderClearance;
+      const rungHW = rungW * 0.5;
+      for (const dz of [-rungHW, rungHW]) {
+        line(group, [lx, botY, lz + dz], [lx, topY, lz + dz], 0.032, steel);
       }
-      const rungs = Math.max(4, Math.floor((topY - botY) / 0.32));
-      for (let rIdx = 0; rIdx <= rungs; rIdx++) {
-        const ry = botY + (rIdx / rungs) * (topY - botY - 0.15);
-        box(group, lx, ry, lz, 0.04, 0.035, 0.32, steel);
+      line(group, [lx, topY, lz - rungHW], [lx, topY, lz + rungHW], 0.032, steel);
+      const rungs = Math.max(4, Math.floor((topY - botY) / 0.30));
+      for (let rIdx = 0; rIdx < rungs; rIdx++) {
+        const ry = botY + 0.14 + (rIdx / Math.max(1, rungs - 1)) * Math.max(0.4, topY - botY - 0.34);
+        box(group, lx, ry, lz, 0.04, 0.032, rungW, steel);
+      }
+    }
+
+    if (i === cfg.floors - 1 && cfg.fireEscapeRoofAccess !== false) {
+      const rx = minDeckX - 0.04 - (extraLadderClearance > 0 ? extraLadderClearance * 0.5 : 0);
+      const rz = stepBackZ + Math.min(deckD * 0.55, 0.78);
+      const roofBotY = y;
+      const roofDeckY = cfg.floors * cfg.floorHeight;
+      const ph = cfg.parapet ? (cfg.parapetHeight || 0.65) : 0.15;
+      const parapetTopY = roofDeckY + ph;
+      const apexY = parapetTopY + 0.28;
+      const zRoofLand = -0.36;
+      const zMid = (rz + zRoofLand) * 0.5;
+      const roofRungW = 0.42 + extraLadderClearance;
+      const roofRungHW = roofRungW * 0.5;
+
+      for (const dz of [-roofRungHW, roofRungHW]) {
+        line(group, [rx, roofBotY, rz + dz], [rx, parapetTopY, rz + dz], 0.032, steel);
+        line(group, [rx, parapetTopY, rz + dz], [rx, apexY, zMid + dz], 0.032, steel);
+        line(group, [rx, apexY, zMid + dz], [rx, apexY, zRoofLand + dz], 0.032, steel);
+        line(group, [rx, apexY, zRoofLand + dz], [rx, roofDeckY, zRoofLand + dz], 0.032, steel);
+        box(group, rx, roofDeckY + 0.03, zRoofLand + dz, 0.08, 0.05, 0.08, steel);
+        line(group, [rx, roofDeckY - 0.25, rz + dz], [rx, roofDeckY - 0.25, 0.02], 0.028, steel);
+      }
+      line(group, [rx, roofDeckY + 0.14, zRoofLand - roofRungHW], [rx, roofDeckY + 0.14, zRoofLand + roofRungHW], 0.03, steel);
+      const roofRungs = Math.max(5, Math.floor((parapetTopY - roofBotY) / 0.30));
+      for (let rIdx = 0; rIdx < roofRungs; rIdx++) {
+        const ry = roofBotY + 0.28 + (rIdx / Math.max(1, roofRungs - 1)) * Math.max(0.6, parapetTopY - roofBotY - 0.42);
+        box(group, rx, ry, rz, 0.04, 0.032, roofRungW, steel);
       }
     }
   }
@@ -272,17 +483,29 @@ export function addEntrance(parent, seg, cfg, r) {
       box(parent, cx, levelH * 0.5, wallZ + depth * 0.5, stoopW, levelH, depth, stairMat);
     }
     const totalDepth = layout.totalStepDepth;
-    const railH = 0.78;
-    for (const dx of [-stoopW * 0.5 + 0.09, stoopW * 0.5 - 0.09]) {
+    const railH = 0.82;
+    const curbH = 0.10;
+    for (const dx of [-stoopW * 0.5 + 0.055, stoopW * 0.5 - 0.055]) {
       const rx = cx + dx;
-      box(parent, rx, (totalRise + railH) * 0.5, wallZ + landingD * 0.5, 0.14, totalRise + railH, landingD, stairMat);
-      box(parent, rx, (stepH + railH) * 0.5, wallZ + totalDepth - 0.1, 0.16, stepH + railH, 0.2, stairMat);
-      line(parent, [rx, totalRise + railH, wallZ + landingD - 0.06], [rx, stepH + railH, wallZ + totalDepth - 0.1], 0.045, railMat);
+      // Low concrete curb edge along landing + street newel plinth, topped by slender steel rail
+      box(parent, rx, (totalRise + curbH) * 0.5, wallZ + landingD * 0.5, 0.10, totalRise + curbH, landingD, stairMat);
+      box(parent, rx, (stepH + curbH) * 0.5, wallZ + totalDepth - 0.08, 0.11, stepH + curbH, 0.16, stairMat);
+      line(parent, [rx, totalRise + curbH, wallZ + 0.08], [rx, totalRise + railH, wallZ + 0.08], 0.036, railMat);
+      line(parent, [rx, totalRise + curbH, wallZ + landingD - 0.05], [rx, totalRise + railH, wallZ + landingD - 0.05], 0.038, railMat);
+      line(parent, [rx, stepH + curbH, wallZ + totalDepth - 0.08], [rx, stepH + railH, wallZ + totalDepth - 0.08], 0.038, railMat);
+      line(parent, [rx, totalRise + railH, wallZ + 0.08], [rx, totalRise + railH, wallZ + landingD - 0.05], 0.04, railMat);
+      line(parent, [rx, totalRise + railH, wallZ + landingD - 0.05], [rx, stepH + railH, wallZ + totalDepth - 0.08], 0.04, railMat);
+      if (steps > 1) {
+        const midZ = wallZ + landingD + (totalDepth - landingD) * 0.5;
+        const midBotY = totalRise * 0.5 + curbH * 0.4;
+        const midTopY = (totalRise + stepH) * 0.5 + railH;
+        line(parent, [rx, midBotY, midZ], [rx, midTopY, midZ], 0.028, railMat);
+      }
     }
   }
 
   if (cfg.groundUse === 'shop') {
-    const doorHalfW = (wideDoor ? 2.5 : 1.55) * 0.5 + 0.45;
+    const doorHalfW = layout.doorWidth * 0.5 + 0.35;
     const sideSpace = usableW * 0.5 - doorHalfW - 0.45;
     if (sideSpace >= 1.1) {
       const bayW = Math.min(3.4, sideSpace * 0.88);
@@ -295,8 +518,8 @@ export function addEntrance(parent, seg, cfg, r) {
     }
     addAwning(parent, cx, wallZ, usableW * 0.82, cfg.floorHeight, cfg, false);
   } else if (cfg.awning) {
-    const canopyW = Math.min(usableW * 0.55, wideDoor ? 3.8 : 2.9);
-    addAwning(parent, cx, wallZ, canopyW, cfg.floorHeight + totalRise * 0.6, cfg, true);
+    const canopyW = Math.min(usableW * 0.52, wideDoor ? 3.2 : 2.2);
+    addAwning(parent, cx, wallZ, canopyW, cfg.floorHeight + totalRise * 0.55, cfg, true);
   }
 
   if (cfg.signage !== 'none') {
@@ -306,11 +529,11 @@ export function addEntrance(parent, seg, cfg, r) {
   }
 
   if (cfg.groundUse !== 'shop') {
-    const doorHalf = (wideDoor ? 2.5 : 1.55) * 0.5;
-    const plaque = worldRoot(parent, cx - doorHalf - 0.55, totalRise + 1.45, wallZ + 0.06);
-    signboard(plaque, String((cfg.seed % 900) + 100), 0.54, 0.32, '#323437', '#ead6ac');
+    const doorHalf = layout.doorWidth * 0.5;
+    const plaque = worldRoot(parent, cx - doorHalf - 0.56, totalRise + 1.38, wallZ + 0.055);
+    signboard(plaque, String((cfg.seed % 900) + 100), 0.42, 0.25, '#323437', '#ead6ac');
     for (const s of [-1, 1]) {
-      box(parent, cx + s * (doorHalf + 0.28), totalRise + 1.65, wallZ + 0.08, 0.1, 0.36, 0.12, solid('#d8ad70'));
+      box(parent, cx + s * (doorHalf + 0.22), totalRise + 1.50, wallZ + 0.07, 0.08, 0.28, 0.10, solid('#d8ad70'));
     }
   }
 }
@@ -868,9 +1091,28 @@ export function addRooftopProps(group, topSegments, groundMain, cfg, r, baseHeig
   const b0 = safeBounds(mainSeg, insetMargin);
   const cableAnchors = [];
 
+  const headW = Number(cfg.roofAccessWidth) || 2.4;
+  const headD = Number(cfg.roofAccessDepth) || 3.2;
+  const headHx = 0;
+  const headHz = clamp(-mainSeg.d * 0.15, -mainSeg.d * 0.5 + headD * 0.5 + 0.8, mainSeg.d * 0.5 - headD * 0.5 - 0.8);
+  const isInsideHeadhouse = (px, pz, radius = 0.5) => {
+    if (!cfg.roofAccess) return false;
+    const hw = headW * 0.5 + radius;
+    const hd = headD * 0.5 + radius;
+    return Math.abs(px - headHx) < hw && Math.abs(pz - headHz) < hd;
+  };
+
   if (cfg.rooftopWaterTank && b0.maxX > b0.minX && b0.maxZ > b0.minZ) {
-    const x = clamp(mainSeg.x + (mainSeg.w - cut) * 0.2, b0.minX, b0.maxX);
-    const z = clamp(mainSeg.z - mainSeg.d * 0.18, b0.minZ, b0.maxZ);
+    let x = clamp(mainSeg.x + (mainSeg.w - cut) * 0.2, b0.minX, b0.maxX);
+    let z = clamp(mainSeg.z - mainSeg.d * 0.18, b0.minZ, b0.maxZ);
+    if (isInsideHeadhouse(x, z, 1.45)) {
+      const rightX = clamp(headHx + headW * 0.5 + 1.45, b0.minX, b0.maxX);
+      if (rightX - (headHx + headW * 0.5) >= 1.25) {
+        x = rightX;
+      } else {
+        z = clamp(headHz + headD * 0.5 + 1.6, b0.minZ, b0.maxZ);
+      }
+    }
     const legBaseH = isPitched ? 2.4 : 1.8;
     for (const dx of [-0.66, 0.66]) {
       for (const dz of [-0.66, 0.66]) {
@@ -889,8 +1131,11 @@ export function addRooftopProps(group, topSegments, groundMain, cfg, r, baseHeig
     const seg = pick(r, topSegments);
     const b = safeBounds(seg, 0.9);
     if (b.maxX <= b.minX || b.maxZ <= b.minZ) continue;
-    const x = randBetween(r, b.minX, b.maxX);
-    const z = randBetween(r, b.minZ, b.maxZ);
+    let x = randBetween(r, b.minX, b.maxX);
+    let z = randBetween(r, b.minZ, b.maxZ);
+    if (isInsideHeadhouse(x, z, 0.65)) {
+      z = clamp(headHz + headD * 0.5 + 0.8, b.minZ, b.maxZ);
+    }
     const chimH = isPitched ? 2.2 : 1.4;
     box(group, x, baseHeight + chimH * 0.5, z, 0.62, chimH, 0.55, solid('#676663'));
     box(group, x, baseHeight + chimH + 0.07, z, 0.81, 0.15, 0.74, roofDark);
@@ -903,8 +1148,9 @@ export function addRooftopProps(group, topSegments, groundMain, cfg, r, baseHeig
     const seg = pick(r, topSegments);
     const b = safeBounds(seg, insetMargin);
     if (b.maxX <= b.minX || b.maxZ <= b.minZ) continue;
-    const x = isPitched ? seg.x - (seg.cornerCut || 0) * 0.5 : randBetween(r, b.minX, b.maxX);
-    const z = randBetween(r, b.minZ, b.maxZ);
+    let x = isPitched ? seg.x - (seg.cornerCut || 0) * 0.5 : randBetween(r, b.minX, b.maxX);
+    let z = randBetween(r, b.minZ, b.maxZ);
+    if (isInsideHeadhouse(x, z, 0.8)) continue;
     const propBaseY = isPitched ? baseHeight + ridgeH - 0.15 : height;
     if (r() < 0.67) {
       const uw = randBetween(r, 0.7, 1.4);
@@ -971,5 +1217,345 @@ export function addRooftopProps(group, topSegments, groundMain, cfg, r, baseHeig
       box(group, sideSpoutX - 0.04, 1.35, sideSpoutZ - 0.45, 0.12, 0.42, 0.32, roofDark);
       line(group, [sideSpoutX, 1.56, sideSpoutZ - 0.45], [sideSpoutX, mainH * 0.65, sideSpoutZ - 0.45], 0.025, metal);
     }
+  }
+}
+
+export function addRooftopHeadhouse(group, topSegments, cfg, baseHeight) {
+  if (!cfg.roofAccess || !topSegments.length) return;
+  const mainSeg = topSegments[0];
+  const w = Number(cfg.roofAccessWidth) || 2.4;
+  const d = Number(cfg.roofAccessDepth) || 3.2;
+  const h = Number(cfg.roofAccessHeight) || 2.3;
+  const hx = 0;
+  const hz = clamp(-mainSeg.d * 0.15, -mainSeg.d * 0.5 + d * 0.5 + 0.8, mainSeg.d * 0.5 - d * 0.5 - 0.8);
+
+  const style = cfg.roofAccessStyle || 'brick';
+  let wallMat;
+  if (style === 'concrete') wallMat = solid('#7a858d');
+  else if (style === 'metal') wallMat = solid('#434d54');
+  else if (style === 'decorative') wallMat = solid(cfg.trimColor || '#c4b59d');
+  else if (style === 'industrial') wallMat = solid('#384146');
+  else wallMat = solid(cfg.wallColor || '#8a4b3d');
+
+  const headhouseRoot = worldRoot(group, hx, baseHeight, hz);
+
+  // Main structure walls
+  box(headhouseRoot, 0, h * 0.5, 0, w, h, d, wallMat);
+
+  // Roof
+  const roofStyle = cfg.roofAccessRoof || 'flat';
+  if (roofStyle === 'sloped') {
+    box(headhouseRoot, 0, h + 0.08, 0, w + 0.2, 0.14, d + 0.2, solid('#252b2e'));
+  } else {
+    box(headhouseRoot, 0, h + 0.06, 0, w + 0.16, 0.12, d + 0.16, solid(cfg.trimColor || '#d5cdbd'));
+  }
+
+  // Access door
+  const doorSide = cfg.roofAccessDoorSide || 'front';
+  const dw = 1.15;
+  const dh = Math.min(2.05, h - 0.2);
+  const doorMat = solid(style === 'decorative' ? '#5a3825' : '#2b3338');
+  const doorFrame = solid(cfg.trimColor || '#3a444a');
+
+  const doorGroup = worldRoot(headhouseRoot);
+  if (doorSide === 'front') {
+    doorGroup.position.set(0, 0, d * 0.5);
+  } else if (doorSide === 'back') {
+    doorGroup.position.set(0, 0, -d * 0.5);
+    doorGroup.rotation.y = Math.PI;
+  } else if (doorSide === 'left') {
+    doorGroup.position.set(-w * 0.5, 0, 0);
+    doorGroup.rotation.y = -Math.PI / 2;
+  } else if (doorSide === 'right') {
+    doorGroup.position.set(w * 0.5, 0, 0);
+    doorGroup.rotation.y = Math.PI / 2;
+  }
+
+  // Door pane, frame, threshold, handle
+  box(doorGroup, 0, dh * 0.5, 0.02, dw, dh, 0.04, doorMat);
+  box(doorGroup, -dw * 0.5 - 0.04, dh * 0.5, 0.02, 0.08, dh + 0.08, 0.06, doorFrame);
+  box(doorGroup, dw * 0.5 + 0.04, dh * 0.5, 0.02, 0.08, dh + 0.08, 0.06, doorFrame);
+  box(doorGroup, 0, dh + 0.04, 0.02, dw + 0.16, 0.08, 0.06, doorFrame);
+  box(doorGroup, 0, 0.03, 0.06, dw + 0.2, 0.06, 0.12, solid('#5a6268'));
+  box(doorGroup, dw * 0.38, dh * 0.48, 0.05, 0.05, 0.12, 0.06, solid('#e2b855'));
+
+  // Exterior gooseneck light fixture above door
+  box(doorGroup, 0, dh + 0.22, 0.15, 0.12, 0.18, 0.14, solid('#1e293b'));
+  box(doorGroup, 0, dh + 0.18, 0.18, 0.08, 0.1, 0.08, solid('#ffe8a3'));
+}
+
+export function addVentilationFans(group, topSegments, cfg, r, baseHeight) {
+  if (!cfg.rooftopVents || !topSegments.length) return;
+  const mainSeg = topSegments[0];
+  const count = 2;
+  for (let i = 0; i < count; i++) {
+    const vx = mainSeg.x + (i === 0 ? -1 : 1) * (mainSeg.w * 0.28);
+    const vz = mainSeg.z + (i === 0 ? 1 : -1) * (mainSeg.d * 0.22);
+    box(group, vx, baseHeight + 0.15, vz, 1.15, 0.3, 1.15, solid('#3e484f'));
+    cylinder(group, vx, baseHeight + 0.6, vz, 0.44, 0.44, 0.6, solid('#606c74'), 12);
+    cylinder(group, vx, baseHeight + 0.98, vz, 0.54, 0.2, 0.22, solid('#2b3338'), 12);
+    box(group, vx, baseHeight + 0.6, vz, 0.92, 0.05, 0.92, solid('#1f262b'));
+  }
+}
+
+export function addRoofAccessHatch(group, topSegments, cfg, r, baseHeight) {
+  if (!cfg.rooftopHatch || !topSegments.length) return;
+  const mainSeg = topSegments[0];
+  const hx = mainSeg.x - mainSeg.w * 0.28;
+  const hz = mainSeg.z + mainSeg.d * 0.28;
+  box(group, hx, baseHeight + 0.18, hz, 1.05, 0.36, 1.05, solid('#475569'));
+  box(group, hx, baseHeight + 0.38, hz, 1.15, 0.06, 1.15, solid('#64748b'));
+  cylinder(group, hx, baseHeight + 0.38, hz - 0.55, 0.03, 0.03, 0.95, solid('#1e293b'), 8);
+  box(group, hx, baseHeight + 0.44, hz + 0.42, 0.22, 0.08, 0.05, solid('#e2b855'));
+}
+
+export function addRooftopWalkways(group, topSegments, cfg, baseHeight) {
+  if (!cfg.rooftopWalkways || !topSegments.length) return;
+  const mainSeg = topSegments[0];
+  const plankMat = solid('#4a4036');
+  const spanD = mainSeg.d * 0.65;
+  box(group, mainSeg.x, baseHeight + 0.035, mainSeg.z, 0.85, 0.07, spanD, plankMat);
+  box(group, mainSeg.x + 1.2, baseHeight + 0.035, mainSeg.z - mainSeg.d * 0.15, 2.4, 0.07, 0.85, plankMat);
+}
+
+export function addSafetyRailings(group, topSegments, cfg, baseHeight) {
+  if (!cfg.safetyRailings || !topSegments.length) return;
+  const mainSeg = topSegments[0];
+  const railMat = solid('#64748b');
+  const rh = 1.05;
+  const rz = mainSeg.z + mainSeg.d * 0.5 - 0.25;
+  const rw = mainSeg.w - 0.8;
+  line(group, [mainSeg.x - rw * 0.5, baseHeight + rh, rz], [mainSeg.x + rw * 0.5, baseHeight + rh, rz], 0.04, railMat);
+  line(group, [mainSeg.x - rw * 0.5, baseHeight + rh * 0.5, rz], [mainSeg.x + rw * 0.5, baseHeight + rh * 0.5, rz], 0.03, railMat);
+  const posts = Math.max(3, Math.round(rw / 1.8));
+  for (let i = 0; i <= posts; i++) {
+    const px = mainSeg.x - rw * 0.5 + (i / posts) * rw;
+    line(group, [px, baseHeight, rz], [px, baseHeight + rh, rz], 0.04, railMat);
+  }
+}
+
+export function addAdditionalEntrances(parent, groundSegments, cfg) {
+  if (!groundSegments.length) return;
+
+  if (cfg.rearEntrance) {
+    const layout = computeRearEntranceLayout(groundSegments, cfg);
+    if (layout) {
+      const group = worldRoot(parent, layout.cx, 0, layout.wallZ);
+      group.rotation.y = Math.PI;
+      const dw = layout.doorWidth;
+      const dh = layout.doorHeight;
+      const doorMat = solid(cfg.rearDoorStyle === 'metal' ? '#334155' : (cfg.doorColor || '#475569'));
+      box(group, 0, dh * 0.5 + layout.totalRise, 0.02, dw, dh, 0.05, doorMat);
+      box(group, 0, layout.totalRise * 0.5, layout.landingD * 0.5, dw + 0.4, layout.totalRise, layout.landingD, solid('#64748b'));
+      box(group, 0, dh + layout.totalRise + 0.24, 0.16, 0.16, 0.22, 0.16, solid('#1e293b'));
+      box(group, 0, dh + layout.totalRise + 0.18, 0.2, 0.08, 0.12, 0.08, solid('#ffe599'));
+    }
+  }
+
+  const sides = [];
+  if (cfg.sideEntrance === 'left' || cfg.sideEntrance === 'both') sides.push('left');
+  if (cfg.sideEntrance === 'right' || cfg.sideEntrance === 'both') sides.push('right');
+  for (const s of sides) {
+    const layout = computeSideEntranceLayout(groundSegments, cfg, s);
+    if (layout) {
+      const group = worldRoot(parent, layout.cx, 0, layout.wallZ);
+      group.rotation.y = layout.rotY;
+      const dw = layout.doorWidth;
+      const dh = layout.doorHeight;
+      box(group, 0, dh * 0.5 + layout.totalRise, 0.02, dw, dh, 0.05, solid(cfg.doorColor || '#524338'));
+      box(group, 0, layout.totalRise * 0.5, layout.landingD * 0.5, dw + 0.4, layout.totalRise, layout.landingD, solid('#64748b'));
+      box(group, 0, dh + layout.totalRise + 0.22, 0.14, 0.14, 0.18, 0.14, solid('#1e293b'));
+      box(group, 0, dh + layout.totalRise + 0.18, 0.18, 0.08, 0.1, 0.08, solid('#ffe599'));
+    }
+  }
+
+  if (cfg.basementEntrance) {
+    const layout = computeBasementEntranceLayout(groundSegments, cfg);
+    if (layout) {
+      const group = worldRoot(parent, layout.cx, 0, layout.wallZ);
+      const dw = layout.doorWidth;
+      const dd = layout.totalStepDepth;
+      const cellarMat = solid('#475569');
+      const stormDoor = box(group, 0, 0.52, dd * 0.5, dw, 0.08, dd, cellarMat);
+      if (stormDoor) stormDoor.rotation.x = -0.38;
+      box(group, -dw * 0.5 - 0.06, 0.35, dd * 0.5, 0.12, 0.7, dd, solid('#716f67'));
+      box(group, dw * 0.5 + 0.06, 0.35, dd * 0.5, 0.12, 0.7, dd, solid('#716f67'));
+      box(group, 0, 0.58, dd * 0.5, 0.03, 0.1, dd, solid('#1e293b'));
+      box(group, -0.18, 0.62, dd * 0.65, 0.04, 0.08, 0.16, solid('#e2b855'));
+      box(group, 0.18, 0.62, dd * 0.65, 0.04, 0.08, 0.16, solid('#e2b855'));
+    }
+  }
+
+  if (cfg.deliveryEntrance) {
+    const layout = computeDeliveryEntranceLayout(groundSegments, cfg);
+    if (layout) {
+      const group = worldRoot(parent, layout.cx, 0, layout.wallZ);
+      group.rotation.y = layout.rotY;
+      const dw = layout.doorWidth;
+      const dh = layout.doorHeight;
+      box(group, 0, dh * 0.5 + layout.totalRise, 0.02, dw, dh, 0.08, solid('#334155'));
+      for (let rIdx = 0; rIdx < 10; rIdx++) {
+        box(group, 0, (rIdx / 10) * dh + layout.totalRise + 0.1, 0.04, dw - 0.04, 0.04, 0.04, solid('#1e293b'));
+      }
+      box(group, 0, layout.totalRise * 0.5, layout.landingD * 0.5, dw + 0.5, layout.totalRise, layout.landingD, solid('#64748b'));
+      box(group, -dw * 0.5 - 0.18, 0.45, layout.landingD + 0.06, 0.14, 0.8, 0.14, solid('#0f172a'));
+      box(group, dw * 0.5 + 0.18, 0.45, layout.landingD + 0.06, 0.14, 0.8, 0.14, solid('#0f172a'));
+    }
+  }
+}
+
+export function addGraffiti(parent, groundSegments, cfg) {
+  if (!cfg.graffiti || !groundSegments.length) return;
+  const primary = groundSegments[0];
+  const density = clamp(Number(cfg.graffitiDensity) || 0.4, 0.1, 1.0);
+  const count = Math.max(2, Math.round(density * 14));
+  const style = cfg.graffitiStyle || 'mixed';
+  const cut = primary.cornerCut || 0;
+  const shutterHalf = cfg.shutters ? 0.36 : 0.10;
+  const wy = cfg.floorHeight * 0.51;
+  const wh = Math.min(cfg.windowHeight || 1.85, cfg.floorHeight * 0.66);
+  const winBottom = wy - wh * 0.5 - 0.08;
+  const grimeTop = (cfg.age || 0) > 0.05 ? (0.22 + (cfg.age || 0) * 0.35) : 0.18;
+  const surfaceOffset = 0.048;
+
+  // Build blocked X/Z spans per facade including occlusions, doors, and ground-floor window spans
+  const collectSideSlots = (side) => {
+    if (cfg.cutaway && side === 'front') return [];
+    if (primary.skipWalls?.[side]) return [];
+    const isLong = side === 'front' || side === 'back';
+    const rawMin = (isLong ? primary.x - primary.w * 0.5 : primary.z - primary.d * 0.5) + 0.35;
+    const rawMax = (isLong
+      ? primary.x + primary.w * 0.5 - (side === 'front' ? cut : 0)
+      : primary.z + primary.d * 0.5 - (side === 'right' ? cut : 0)) - 0.35;
+    if (rawMax - rawMin < 0.8) return [];
+
+    const blocked = [...(primary.occlusions?.[side] || [])];
+    const mainDoorCx = primary.x - cut * 0.5;
+    if (side === 'front' && primary.hasEntrance) {
+      const primaryEntrance = computePrimaryEntranceLayout(primary, cfg);
+      const halfSpan = Math.max(primaryEntrance.stoopW * 0.5, primaryEntrance.doorWidth * 0.5 + 0.35) + 0.25;
+      blocked.push([mainDoorCx - halfSpan, mainDoorCx + halfSpan]);
+      if (cfg.basementEntrance) {
+        const baseCx = clamp(mainDoorCx - Math.max(2.4, primary.w * 0.28), primary.x - primary.w * 0.5 + 0.9, mainDoorCx - 1.8);
+        blocked.push([baseCx - 1.25, baseCx + 1.25]);
+      }
+    } else if (side === 'back' && (cfg.rearEntrance || cfg.deliveryEntrance)) {
+      blocked.push([primary.x - 1.5, primary.x + 1.5]);
+    } else if (side === 'left' && (cfg.sideEntrance === 'left' || cfg.sideEntrance === 'both' || cfg.deliveryEntrance)) {
+      blocked.push([primary.z - 1.3, primary.z + 1.3]);
+    } else if (side === 'right' && (cfg.sideEntrance === 'right' || cfg.sideEntrance === 'both')) {
+      blocked.push([primary.z - 1.3, primary.z + 1.3]);
+    }
+
+    // Also block exact window columns reproduced cleanly on Floor 1
+    const withWindowBlocked = [...blocked];
+    if (!(side === 'front' && primary.hasEntrance && cfg.groundUse === 'shop')) {
+      const desiredCols = isLong ? (cfg.windowsX || 3) : (cfg.windowsSide || 3);
+      const shutterPad = cfg.shutters ? 0.62 : 0.34;
+      const totalLength = isLong ? primary.w : primary.d;
+      const winSpans = subtractIntervals(rawMin + 0.1, rawMax - 0.1, blocked);
+      for (const [s, e] of winSpans) {
+        const avail = e - s;
+        if (avail < Math.min(0.85, (cfg.windowWidth || 1.4) * 0.7)) continue;
+        const prop = Math.max(1, Math.round(desiredCols * (avail / Math.max(1, totalLength - 0.9))));
+        const maxFit = Math.max(1, Math.floor(avail / ((cfg.windowWidth || 1.4) + shutterPad)));
+        const wCount = Math.max(1, Math.min(prop, maxFit));
+        const spacing = avail / wCount;
+        const ww = Math.min(cfg.windowWidth || 1.4, spacing * (cfg.shutters ? 0.58 : 0.74), avail - 0.16);
+        const halfW = ww * 0.5 + shutterHalf;
+        for (let j = 0; j < wCount; j++) {
+          const cx = s + (j + 0.5) * spacing;
+          withWindowBlocked.push([cx - halfW, cx + halfW]);
+        }
+      }
+    }
+
+    const slots = [];
+    const pierSpans = subtractIntervals(rawMin, rawMax, withWindowBlocked).filter(([s, e]) => e - s >= 0.48);
+    for (const [s, e] of pierSpans) {
+      const len = e - s;
+      const dw = clamp(len - 0.08, 0.44, 1.78);
+      const dh = clamp(dw * 0.56, 0.36, 0.92);
+      const subCount = len >= 3.2 ? 2 : 1;
+      for (let k = 0; k < subCount; k++) {
+        const coord = subCount === 1
+          ? (s + e) * 0.5
+          : s + len * (k === 0 ? 0.28 : 0.72);
+        const minY = Math.max(grimeTop + dh * 0.5 + 0.06, 0.78);
+        const maxY = Math.max(minY, cfg.floorHeight - dh * 0.5 - 0.28);
+        slots.push({ side, coord, dw, dh, minY, maxY });
+      }
+    }
+
+    // Supplement with dado/spandrel slots above grime and below window sill when piers are scarce
+    const dadoBandH = winBottom - grimeTop;
+    if (slots.length < 2 && dadoBandH >= 0.34) {
+      const freeSpans = subtractIntervals(rawMin, rawMax, blocked).filter(([s, e]) => e - s >= 0.95);
+      for (const [s, e] of freeSpans) {
+        const dw = clamp((e - s) * 0.42, 0.78, 1.5);
+        const dh = clamp(dadoBandH - 0.05, 0.30, 0.52);
+        const yMid = grimeTop + dh * 0.5 + 0.03;
+        const coord = (s + e) * 0.5;
+        if (!slots.some((sl) => Math.abs(sl.coord - coord) < 0.85)) {
+          slots.push({ side, coord, dw, dh, minY: yMid, maxY: yMid });
+        }
+      }
+    }
+    return slots;
+  };
+
+  const slotsBySide = {
+    front: collectSideSlots('front'),
+    right: collectSideSlots('right'),
+    left: collectSideSlots('left'),
+    back: collectSideSlots('back')
+  };
+  const allSlots = [];
+  const sideOrder = ['front', 'right', 'left', 'back'];
+  const maxLen = Math.max(...sideOrder.map((s) => slotsBySide[s].length));
+  for (let row = 0; row < maxLen; row++) {
+    for (const s of sideOrder) {
+      if (slotsBySide[s][row]) allSlots.push(slotsBySide[s][row]);
+    }
+  }
+  if (!allSlots.length) return;
+
+  const r = (seedOffset) => {
+    const x = Math.sin(cfg.seed * 12.9898 + seedOffset * 78.233) * 43758.5453;
+    return x - Math.floor(x);
+  };
+
+  for (let i = 0; i < count; i++) {
+    const slot = allSlots[i % allSlots.length];
+    const lap = Math.floor(i / allSlots.length);
+    const mat = graffitiMaterial(cfg.seed + i * 179, style, i);
+
+    let gx, gz, rotY;
+    const jitter = lap === 0 ? (r(i + 1) - 0.5) * 0.14 : (r(i + 17) - 0.5) * Math.min(0.45, slot.dw * 0.25);
+    const coord = slot.coord + jitter;
+    if (slot.side === 'front') {
+      gx = coord;
+      gz = primary.z + primary.d * 0.5 + surfaceOffset + i * 0.001;
+      rotY = 0;
+    } else if (slot.side === 'back') {
+      gx = coord;
+      gz = primary.z - primary.d * 0.5 - surfaceOffset - i * 0.001;
+      rotY = Math.PI;
+    } else if (slot.side === 'right') {
+      gx = primary.x + primary.w * 0.5 + surfaceOffset + i * 0.001;
+      gz = coord;
+      rotY = Math.PI / 2;
+    } else {
+      gx = primary.x - primary.w * 0.5 - surfaceOffset - i * 0.001;
+      gz = coord;
+      rotY = -Math.PI / 2;
+    }
+
+    const gy = clamp(slot.minY + r(i + 53) * Math.max(0.05, slot.maxY - slot.minY) + (lap * 0.35), slot.minY, slot.maxY);
+    const decalGeo = new THREE.PlaneGeometry(slot.dw, slot.dh);
+    const decalMesh = new THREE.Mesh(decalGeo, mat);
+    decalMesh.position.set(gx, gy, gz);
+    decalMesh.rotation.y = rotY;
+    parent.add(decalMesh);
   }
 }

@@ -16,13 +16,14 @@ import {
   baseForStyle,
   sanitisePreset
 } from './config.js';
-import { segmentsForFloor, chooseFireEscapePlacement, getFireEscapeWallAnchor, makeSeg, subtractIntervals } from './core/layouts.js';
+import { segmentsForFloor, chooseFireEscapePlacement, getFireEscapeWallAnchor, makeSeg, subtractIntervals, computeFireEscapeFlights } from './core/layouts.js';
 import {
   computeDefaultEntranceGameplay,
   computePrimaryEntranceLayout,
   computeCornerEntranceLayout,
   buildEntranceDefinition,
-  computeBuildingEntrances
+  computeBuildingEntrances,
+  computePlayerReferenceSpots
 } from './core/entrances.js';
 import { computeBuildingBounds, generateBuildingBlueprint, validateBuildingBlueprint } from './core/blueprints.js';
 import {
@@ -108,6 +109,8 @@ const view = {
   autoRotate: false,
   wireframe: false,
   entranceDebug: false,
+  playerScaleRef: false,
+  playerRefSpot: 'front_door',
   theatre: false,
   fullscreen: false
 };
@@ -153,7 +156,11 @@ function renderStudioControls() {
     renderControls: renderStudioControls,
     scheduleRebuild,
     toast,
-    onSettingChanged: (key) => {
+    onSettingChanged: (key, value) => {
+      if (key === 'windowLightingTime') {
+        view.lighting = value;
+        updateLighting();
+      }
       if (!['accentFloor', 'accentSide', 'accentFloorColor'].includes(key)) {
         activePreset = null;
         updatePresetList(activePreset);
@@ -216,7 +223,7 @@ export function setEntranceDebug(active) {
   $('#btn-entrance-debug')?.classList.toggle('active', view.entranceDebug);
   const chk = $('#entrance-debug-toggle');
   if (chk) chk.checked = view.entranceDebug;
-  if (activeTab === 'features') renderStudioControls();
+  if (activeTab === 'features' || activeTab === 'entrances') renderStudioControls();
   if (ready) {
     rebuildDebugOverlay(debugGroup, view, buildingGroup);
   }
@@ -225,6 +232,52 @@ export function setEntranceDebug(active) {
 
 export function toggleEntranceDebug() {
   setEntranceDebug(!view.entranceDebug);
+}
+
+export function setPlayerScaleRef(active, spotId = null) {
+  view.playerScaleRef = Boolean(active);
+  if (spotId) view.playerRefSpot = spotId;
+  $('#btn-player-ref')?.classList.toggle('active', view.playerScaleRef);
+  const chk = $('#player-ref-toggle');
+  if (chk) chk.checked = view.playerScaleRef;
+  const sel = $('#player-ref-spot');
+  if (sel && view.playerRefSpot) sel.value = view.playerRefSpot;
+  if (ready) {
+    rebuildDebugOverlay(debugGroup, view, buildingGroup);
+  }
+  toast(view.playerScaleRef ? `Player Scale Reference shown (${view.playerRefSpot})` : 'Player Scale Reference hidden');
+}
+
+function syncPlayerRefSpotOptions(blueprint) {
+  const sel = $('#player-ref-spot');
+  if (!sel || !blueprint) return;
+  const spots = computePlayerReferenceSpots(blueprint);
+  const validIds = new Set(spots.map((s) => s.id));
+  for (const opt of sel.options) {
+    opt.disabled = !validIds.has(opt.value);
+  }
+  if (!validIds.has(view.playerRefSpot) && spots[0]) {
+    view.playerRefSpot = spots[0].id;
+    sel.value = spots[0].id;
+  }
+}
+
+export function setPlayerRefSpot(spotId) {
+  if (!spotId) return;
+  view.playerRefSpot = spotId;
+  const sel = $('#player-ref-spot');
+  if (sel) sel.value = spotId;
+  if (!view.playerScaleRef) {
+    setPlayerScaleRef(true, spotId);
+    return;
+  }
+  if (ready) {
+    rebuildDebugOverlay(debugGroup, view, buildingGroup);
+  }
+}
+
+export function togglePlayerScaleRef() {
+  setPlayerScaleRef(!view.playerScaleRef);
 }
 
 export function scheduleRebuild() {
@@ -291,6 +344,7 @@ export function rebuild() {
 
   buildStats = { mode, buildings: count };
   rebuildEnvironment(environmentGroup, view, state);
+  syncPlayerRefSpotOptions(buildingGroup.children[0]?.userData?.blueprint);
   rebuildDebugOverlay(debugGroup, view, buildingGroup);
 
   buildingGroup.traverse((obj) => {
@@ -350,6 +404,14 @@ export function updateLighting() {
     sun.intensity = 1.3;
     sun.color.set('#fff1d1');
     sun.position.set(28, 45, 20);
+  } else if (mode === 'golden_hour') {
+    scene.background.set('#2c1e28');
+    scene.fog.color.set('#2c1e28');
+    hemi.intensity = 0.75;
+    ambient.intensity = 0.35;
+    sun.intensity = 1.1;
+    sun.color.set('#ff9e4a');
+    sun.position.set(38, 16, 10);
   } else if (mode === 'evening') {
     scene.background.set('#211d2d');
     scene.fog.color.set('#211d2d');
@@ -358,6 +420,22 @@ export function updateLighting() {
     sun.intensity = 0.95;
     sun.color.set('#ffc78b');
     sun.position.set(29, 17, -14);
+  } else if (mode === 'morning') {
+    scene.background.set('#1a2638');
+    scene.fog.color.set('#1a2638');
+    hemi.intensity = 0.82;
+    ambient.intensity = 0.34;
+    sun.intensity = 1.15;
+    sun.color.set('#ffe1b3');
+    sun.position.set(25, 30, -22);
+  } else if (mode === 'late_night') {
+    scene.background.set('#040711');
+    scene.fog.color.set('#040711');
+    hemi.intensity = 0.22;
+    ambient.intensity = 0.12;
+    sun.intensity = 0.18;
+    sun.color.set('#7888b5');
+    sun.position.set(-15, 20, 10);
   } else {
     scene.background.set('#080f22');
     scene.fog.color.set('#080f22');
@@ -529,6 +607,13 @@ export function initUI() {
   $('#entrance-debug-toggle')?.addEventListener('change', (e) => {
     setEntranceDebug(Boolean(e.target.checked));
   });
+  $('#btn-player-ref')?.addEventListener('click', togglePlayerScaleRef);
+  $('#player-ref-toggle')?.addEventListener('change', (e) => {
+    setPlayerScaleRef(Boolean(e.target.checked));
+  });
+  $('#player-ref-spot')?.addEventListener('change', (e) => {
+    setPlayerRefSpot(e.target.value);
+  });
 
   $('#lighting-select')?.addEventListener('change', (e) => {
     view.lighting = e.target.value;
@@ -687,6 +772,7 @@ window.BBuildingBlueprint = {
   computePrimaryEntranceLayout,
   computeCornerEntranceLayout,
   computeBuildingEntrances,
+  computePlayerReferenceSpots,
   computeBuildingBounds,
   generateBuildingBlueprint,
   validateBuildingBlueprint,
@@ -696,6 +782,7 @@ window.BBuildingBlueprint = {
     });
   },
   segmentsForFloor,
+  computeFireEscapeFlights,
   createBuilding
 };
 

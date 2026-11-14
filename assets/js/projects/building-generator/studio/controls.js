@@ -13,6 +13,8 @@ import {
   baseForStyle
 } from '../config.js';
 import { computeDefaultEntranceGameplay } from '../core/entrances.js';
+import { segmentsForFloor, chooseFireEscapePlacement } from '../core/layouts.js';
+import { computeTallStaircaseLayout } from '../core/tall-staircase.js';
 
 export function createInputControl(item, currentValue, options = {}) {
   const { maxFloors = 14 } = options;
@@ -206,12 +208,72 @@ export function applyDependentRules(key, value, state, locks, prevDefaults) {
     needsRerender = true;
   }
 
+  if (['tallStaircase', 'fireEscape'].includes(key)) {
+    needsRerender = true;
+  }
+
+  if (key === 'fireEscapeClearance') {
+    if (value === 'one_way' || value === 'standard') {
+      if (!locks.has('fireEscapeStairWidth')) state.fireEscapeStairWidth = 0.98;
+      if (!locks.has('fireEscapeLandingDepth')) state.fireEscapeLandingDepth = 2.25;
+      if (!locks.has('fireEscapeLadderClearance')) state.fireEscapeLadderClearance = 0;
+      if (!locks.has('fireEscapeWallStandoff')) state.fireEscapeWallStandoff = 0;
+    } else if (value === 'generous') {
+      if (!locks.has('fireEscapeStairWidth')) state.fireEscapeStairWidth = 0.96;
+      if (!locks.has('fireEscapeLandingDepth')) state.fireEscapeLandingDepth = 2.35;
+      if (!locks.has('fireEscapeWallStandoff')) state.fireEscapeWallStandoff = 0;
+    } else {
+      if (!locks.has('fireEscapeStairWidth')) state.fireEscapeStairWidth = 0;
+      if (!locks.has('fireEscapeLandingDepth')) state.fireEscapeLandingDepth = 0;
+    }
+    needsRerender = true;
+  }
+
   if (key === 'accentFloor' || key === 'accentSide') {
     const prev = state.floorOverrides.find((o) => o.floor === (state.accentFloor || 1) && o.side === state.accentSide);
     if (prev) state.accentFloorColor = prev.color;
   }
 
   return needsRerender;
+}
+
+function updateTallStaircaseBanner(box, state) {
+  if (!box) return;
+  if (!state.tallStaircase) {
+    box.style.display = 'none';
+    return;
+  }
+  const groundSegs = segmentsForFloor(state, 0);
+  const convPlacement = chooseFireEscapePlacement(groundSegs, state, rng32((state.seed || 1337) + 313));
+  const layout = computeTallStaircaseLayout(groundSegs, state, convPlacement);
+
+  box.style.display = 'block';
+  box.style.marginTop = '8px';
+  box.style.padding = '8px 10px';
+  box.style.borderRadius = '6px';
+  box.style.fontSize = '0.78rem';
+  box.style.lineHeight = '1.4';
+
+  if (!layout) {
+    box.style.background = 'rgba(220, 140, 40, 0.14)';
+    box.style.border = '1px solid rgba(220, 160, 50, 0.45)';
+    box.style.color = '#ffd59a';
+    box.textContent = 'Secondary Tall Exterior Staircase Notice: Requires at least 2 building floors.';
+    return;
+  }
+
+  if (!layout.feasible) {
+    box.style.background = 'rgba(215, 70, 60, 0.16)';
+    box.style.border = '1px solid rgba(235, 95, 85, 0.5)';
+    box.style.color = '#ffb5ad';
+    box.textContent = `Secondary Tall Exterior Staircase Unavailable: ${layout.limitations.join(' ')}`;
+    return;
+  }
+
+  box.style.background = 'rgba(70, 165, 110, 0.14)';
+  box.style.border = '1px solid rgba(90, 200, 135, 0.42)';
+  box.style.color = '#b8f0cd';
+  box.textContent = `Secondary Tall Staircase Active: Placed on '${layout.side}' facade (${layout.flights.length} flight(s) up to Level ${layout.topSupportedFloor}, ${layout.availableWallSpan.toFixed(2)}m available vs ${layout.requiredWallSpan.toFixed(2)}m required).`;
 }
 
 export function renderSpecializedActions(panel, key, activeTab, state, context) {
@@ -246,6 +308,105 @@ export function renderSpecializedActions(panel, key, activeTab, state, context) 
 
     bar.append(autoFitBtn, debugBtn);
     panel.appendChild(bar);
+
+    if (view.entranceDebug) {
+      const subBar = document.createElement('div');
+      subBar.className = 'studio-debug-subtoggles';
+      subBar.style.display = 'grid';
+      subBar.style.gridTemplateColumns = 'repeat(2, 1fr)';
+      subBar.style.gap = '6px';
+      subBar.style.marginTop = '8px';
+      subBar.style.fontSize = '0.78rem';
+
+      const toggles = [
+        { label: 'Show Volumes', prop: 'showEntranceVolumes' },
+        { label: 'Facing Arrows', prop: 'showEntranceDirections' },
+        { label: 'Entrance Labels', prop: 'showEntranceLabels' },
+        { label: 'Approach Points', prop: 'showEntranceApproach' }
+      ];
+
+      for (const t of toggles) {
+        const lbl = document.createElement('label');
+        lbl.style.display = 'flex';
+        lbl.style.alignItems = 'center';
+        lbl.style.gap = '5px';
+        lbl.style.cursor = 'pointer';
+        const chk = document.createElement('input');
+        chk.type = 'checkbox';
+        chk.checked = view[t.prop] !== false;
+        chk.onchange = () => {
+          view[t.prop] = chk.checked;
+          scheduleRebuild();
+        };
+        lbl.append(chk, document.createTextNode(t.label));
+        subBar.appendChild(lbl);
+      }
+      panel.appendChild(subBar);
+    }
+  }
+
+  if (activeTab === 'features' && key === 'fireEscapeRoofAccess') {
+    const bar = document.createElement('div');
+    bar.className = 'studio-save-row';
+    bar.style.marginTop = '10px';
+
+    const feDebugBtn = document.createElement('button');
+    feDebugBtn.type = 'button';
+    feDebugBtn.className = 'studio-btn ' + (view.fireEscapeDebug ? 'studio-btn-primary' : 'studio-btn-ghost');
+    feDebugBtn.innerHTML = `<i class="fas fa-route"></i> ${view.fireEscapeDebug ? 'Hide Traversal Debug' : 'Show Traversal Debug'}`;
+    feDebugBtn.onclick = () => {
+      view.fireEscapeDebug = !view.fireEscapeDebug;
+      renderControls(panel, activeTab, state, locks, context);
+      scheduleRebuild();
+      if (toast) toast(view.fireEscapeDebug ? 'Fire escape traversal overlays shown' : 'Fire escape traversal overlays hidden');
+    };
+    bar.appendChild(feDebugBtn);
+    panel.appendChild(bar);
+
+    if (view.fireEscapeDebug) {
+      const subBar = document.createElement('div');
+      subBar.className = 'studio-debug-subtoggles';
+      subBar.style.display = 'grid';
+      subBar.style.gridTemplateColumns = 'repeat(2, 1fr)';
+      subBar.style.gap = '6px';
+      subBar.style.marginTop = '8px';
+      subBar.style.fontSize = '0.78rem';
+
+      const toggles = [
+        { label: 'Walkable Landings', prop: 'showFireEscapeLandings' },
+        { label: 'Clearance Volumes', prop: 'showFireEscapeClearance' },
+        { label: 'Connected Route', prop: 'showFireEscapeRoute' },
+        { label: 'Stair Treads', prop: 'showFireEscapeTreads' },
+        { label: 'Stair Flights', prop: 'showFireEscapeStairs' },
+        { label: 'Railing Boundaries', prop: 'showFireEscapeRailings' },
+        { label: 'Ladder Volumes', prop: 'showFireEscapeLadders' }
+      ];
+
+      for (const t of toggles) {
+        const lbl = document.createElement('label');
+        lbl.style.display = 'flex';
+        lbl.style.alignItems = 'center';
+        lbl.style.gap = '5px';
+        lbl.style.cursor = 'pointer';
+        const chk = document.createElement('input');
+        chk.type = 'checkbox';
+        chk.checked = view[t.prop] !== false;
+        chk.onchange = () => {
+          view[t.prop] = chk.checked;
+          scheduleRebuild();
+        };
+        lbl.append(chk, document.createTextNode(t.label));
+        subBar.appendChild(lbl);
+      }
+      panel.appendChild(subBar);
+    }
+  }
+
+  if (activeTab === 'features' && key === 'tallStaircaseRailing') {
+    const statusBox = document.createElement('div');
+    statusBox.id = 'tall-staircase-status';
+    updateTallStaircaseBanner(statusBox, state);
+    panel.appendChild(statusBox);
   }
 
   if (activeTab === 'interior' && key === 'accentFloorColor') {
@@ -310,7 +471,12 @@ export function renderControls(panel, activeTab, state, locks, context = {}) {
 
     const key = item.key;
     const input = createInputControl(item, state[key], { maxFloors: state.floors });
-    const { wrap, valueBadge } = renderFieldLayout(item, state, locks.has(key), input, onToggleLock);
+    const { wrap, valueBadge } = renderFieldLayout(item, state, locks.has(key), input, onToggleLock, { useInlineBooleans: true });
+
+    if (!state.tallStaircase && key.startsWith('tallStaircase') && key !== 'tallStaircase') {
+      input.disabled = true;
+      wrap.style.opacity = '0.52';
+    }
 
     const eventName = ['color', 'text', 'select', 'boolean'].includes(item.type) ? 'change' : 'input';
     input.addEventListener(eventName, () => {
@@ -334,13 +500,16 @@ export function renderControls(panel, activeTab, state, locks, context = {}) {
 
       if (needsRerender) {
         renderControls(panel, activeTab, state, locks, context);
+      } else {
+        const statusEl = panel.querySelector('#tall-staircase-status');
+        if (statusEl) updateTallStaircaseBanner(statusEl, state);
       }
 
       if (['accentFloor', 'accentSide', 'accentFloorColor'].includes(key)) return;
       if (context.scheduleRebuild) context.scheduleRebuild();
     });
 
-    if (['floors', 'footprint', 'groundUse', 'doorStyle', 'entranceSteps', 'accentFloor', 'accentSide'].includes(key)) {
+    if (['floors', 'footprint', 'groundUse', 'doorStyle', 'entranceSteps', 'accentFloor', 'accentSide', 'tallStaircaseSide', 'tallStaircaseLanding', 'tallStaircaseRailing', 'tallStaircaseFloors'].includes(key)) {
       input.addEventListener('change', () => renderControls(panel, activeTab, state, locks, context));
     }
 
@@ -445,7 +614,7 @@ export function randomizeSettings(category, state, locks, context = {}) {
   const r = rng32(Math.floor(Math.random() * 0xffffffff));
 
   for (const key of keys) {
-    if (locks.has(key) || GAMEPLAY_ENTRANCE_KEYS.has(key)) continue;
+    if (locks.has(key) || GAMEPLAY_ENTRANCE_KEYS.has(key) || key === 'tallStaircase') continue;
     const def = Object.values(SCHEMA).flat().find((x) => x.key === key);
     if (!def) continue;
 

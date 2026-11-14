@@ -2,7 +2,8 @@ import { clamp, randBetween, pick } from '../utils.js';
 import { solid, glassMaterial, textureMaterial } from './materials.js';
 import { box, line, worldRoot } from './primitives.js';
 import { subtractIntervals, getFireEscapeWallAnchor } from '../core/layouts.js';
-import { computeCornerEntranceLayout } from '../core/entrances.js';
+import { isWallPointBlockedByTallStaircase } from '../core/tall-staircase.js';
+import { computeCornerEntranceLayout, resolveDoorDimensions } from '../core/entrances.js';
 import { addBalcony } from './details.js';
 
 export function overrideColor(cfg, floor, side, base) {
@@ -28,13 +29,21 @@ export function pickWindowDamageMode(cfg, r, forceBroken = false) {
 
 export function addWindow(parent, side, baseX, baseY, baseZ, cfg, r, width, height, options = {}) {
   const group = worldRoot(parent, baseX, baseY, baseZ);
+  if (options.windowId) {
+    group.name = 'WindowGroup_' + options.windowId;
+  }
   const rotMap = { front: 0, back: Math.PI, left: -Math.PI / 2, right: Math.PI / 2, corner: Math.PI / 4 };
   group.rotation.y = rotMap[side] || 0;
 
   const damageMode = options.damageMode || 'none';
   const frame = solid(cfg.windowFrameColor);
-  const lit = damageMode === 'none' && cfg.windowLighting > 0 && (cfg.windowLighting >= 0.99 || r() < cfg.windowLighting);
-  const glass = glassMaterial(cfg.glassColor, lit);
+  const lit = options.isLit !== undefined
+    ? Boolean(options.isLit)
+    : (damageMode === 'none' && cfg.windowLighting > 0 && (cfg.windowLighting >= 0.99 || r() < cfg.windowLighting));
+  const glass = glassMaterial(cfg.glassColor, lit, {
+    lightingMode: cfg.windowLightingTime || 'day',
+    profile: cfg.windowLightingProfile || 'auto'
+  });
   const dark = solid('#151a1d');
   const trim = solid(cfg.trimColor);
 
@@ -115,7 +124,17 @@ export function addWindow(parent, side, baseX, baseY, baseZ, cfg, r, width, heig
     }
     line(group, [-w * 0.38, rectY - rectH * 0.34, 0.052], [w * 0.32, rectY + rectH * 0.32, 0.052], 0.012, frame);
   } else {
-    box(group, 0, rectY, 0.034, w, rectH, 0.044, glass, { cast: false });
+    const pane = box(group, 0, rectY, 0.034, w, rectH, 0.044, glass, { cast: false });
+    if (pane && options.windowId) {
+      pane.name = 'WindowPane_' + options.windowId;
+      pane.userData = {
+        windowId: options.windowId,
+        roomId: options.roomId,
+        floor: options.floor,
+        facade: side,
+        lit
+      };
+    }
   }
 
   // Curtains
@@ -216,33 +235,32 @@ export function addDoor(parent, side, x, y, z, cfg, wide = false) {
   const rotMap = { front: 0, back: Math.PI, left: -Math.PI / 2, right: Math.PI / 2, corner: Math.PI / 4 };
   group.rotation.y = rotMap[side] || 0;
 
-  const w = wide ? 2.5 : 1.55;
-  const h = cfg.floorHeight * 0.68;
+  const { width: w, height: h } = resolveDoorDimensions(cfg, wide);
   const trim = solid(cfg.trimColor);
   const doorMat = wide ? glassMaterial(cfg.glassColor, cfg.windowLighting > 0.25) : solid(cfg.doorColor);
 
-  // Door frame and trim
-  const jambT = 0.17;
-  box(group, -w * 0.5 - jambT * 0.5, h * 0.5, 0.06, jambT, h + jambT, 0.14, trim);
-  box(group, w * 0.5 + jambT * 0.5, h * 0.5, 0.06, jambT, h + jambT, 0.14, trim);
-  box(group, 0, h + jambT * 0.5, 0.06, w + jambT * 2, jambT, 0.14, trim);
-  box(group, 0, h * 0.5, 0.038, w, h, 0.065, doorMat);
+  // Door frame and human-scaled trim
+  const jambT = 0.11;
+  box(group, -w * 0.5 - jambT * 0.5, h * 0.5, 0.05, jambT, h + jambT, 0.11, trim);
+  box(group, w * 0.5 + jambT * 0.5, h * 0.5, 0.05, jambT, h + jambT, 0.11, trim);
+  box(group, 0, h + jambT * 0.5, 0.05, w + jambT * 2, jambT, 0.11, trim);
+  box(group, 0, h * 0.5, 0.032, w, h, 0.06, doorMat);
   if (wide) {
-    box(group, 0, h * 0.5, 0.075, 0.06, h, 0.04, trim);
+    box(group, 0, h * 0.5, 0.068, 0.05, h, 0.035, trim);
   }
-  box(group, wide ? 0.16 : w * 0.32, h * 0.46, 0.088, 0.08, 0.16, 0.06, solid('#d5b66c'));
-  box(group, 0, h + jambT + 0.08, 0.09, w + 0.56, 0.18, 0.22, trim);
+  box(group, wide ? 0.12 : w * 0.34, h * 0.47, 0.078, 0.06, 0.14, 0.05, solid('#d5b66c'));
+  box(group, 0, h + jambT + 0.055, 0.075, w + 0.34, 0.11, 0.15, trim);
 
   if (cfg.doorStyle === 'stoop') {
     for (const dir of [-1, 1]) {
-      box(group, dir * (w * 0.5 + 0.24), h * 0.5, 0.14, 0.18, h + 0.16, 0.26, trim);
+      box(group, dir * (w * 0.5 + 0.16), h * 0.5, 0.105, 0.12, h + 0.10, 0.18, trim);
     }
-    box(group, 0, h + 0.26, 0.22, w + 0.82, 0.22, 0.48, trim);
+    box(group, 0, h + 0.17, 0.15, w + 0.52, 0.14, 0.30, trim);
   }
   return group;
 }
 
-export function wallForSide(group, seg, index, side, cfg, r, cutaway, seed, firePlacement = null) {
+export function wallForSide(group, seg, index, side, cfg, r, cutaway, seed, firePlacement = null, tallLayout = null) {
   if (cutaway && side === 'front') return;
   if (seg.skipWalls && seg.skipWalls[side]) return;
 
@@ -375,6 +393,23 @@ export function wallForSide(group, seg, index, side, cfg, r, cutaway, seed, fire
     const doorCenter = seg.x - cut * 0.5;
     windowBlocked.push([doorCenter - 1.95, doorCenter + 1.95]);
   }
+  if (index === 0 && side === 'front' && cfg.basementEntrance && seg.hasEntrance) {
+    const mainCx = seg.x - cut * 0.5;
+    const baseCx = clamp(mainCx - Math.max(2.4, seg.w * 0.28), seg.x - seg.w * 0.5 + 0.9, mainCx - 1.8);
+    windowBlocked.push([baseCx - 1.1, baseCx + 1.1]);
+  }
+  if (index === 0 && side === 'back' && (cfg.rearEntrance || cfg.deliveryEntrance)) {
+    const rearExt = seg.isExtension && seg.extIndex === 0;
+    if (rearExt || (!seg.isExtension && !seg.skipWalls?.back)) {
+      windowBlocked.push([seg.x - 1.5, seg.x + 1.5]);
+    }
+  }
+  if (index === 0 && (side === 'left' || side === 'right')) {
+    if ((side === 'left' && (cfg.sideEntrance === 'left' || cfg.sideEntrance === 'both' || cfg.deliveryEntrance)) ||
+        (side === 'right' && (cfg.sideEntrance === 'right' || cfg.sideEntrance === 'both'))) {
+      windowBlocked.push([seg.z - 1.2, seg.z + 1.2]);
+    }
+  }
 
   const windowSpans = subtractIntervals(spanStart + 0.45, spanEnd - 0.45, windowBlocked);
   const totalLength = long ? seg.w : seg.d;
@@ -398,6 +433,10 @@ export function wallForSide(group, seg, index, side, cfg, r, cutaway, seed, fire
 
     for (let j = 0; j < windowCount; j++) {
       const pos = s + (j + 0.5) * spacing;
+      const windowHalfBand = ww * 0.52 + (cfg.shutters ? 0.36 : 0.08);
+      if (isWallPointBlockedByTallStaircase(tallLayout, side, index, pos, windowHalfBand)) {
+        continue;
+      }
       const x = long ? pos : (side === 'left' ? seg.x - seg.w * 0.5 : seg.x + seg.w * 0.5);
       const z = long ? (side === 'front' ? seg.z + seg.d * 0.5 : seg.z - seg.d * 0.5) : pos;
 
@@ -416,10 +455,30 @@ export function wallForSide(group, seg, index, side, cfg, r, cutaway, seed, fire
       }
 
       const hasAC = !hasBalcony && !hasFireHere && cfg.acUnits && (index > 0 || cfg.groundUse === 'residential') && (r() < 0.38 || (index === 1 && j === windowCount - 1));
+      const winId = `win_f${index}_${side}_c${j}`;
+      const roomIndex = Math.floor(j / 2);
+      const roomId = `room_f${index}_${side}_${roomIndex}`;
+
+      const timeMultiplier = cfg.windowLightingTime === 'golden_hour' ? 0.45
+        : cfg.windowLightingTime === 'evening' ? 0.85
+        : cfg.windowLightingTime === 'night' ? 0.55
+        : cfg.windowLightingTime === 'late_night' ? 0.15
+        : cfg.windowLightingTime === 'morning' ? 0.4
+        : (cfg.windowLightingProfile === 'commercial' ? 0.75 : 0.12);
+      const baseLighting = Number.isFinite(Number(cfg.windowLighting)) ? Number(cfg.windowLighting) : 0.2;
+      const litProbability = clamp(baseLighting * (timeMultiplier / 0.2), 0, 1);
+      const roomHash = Math.abs((((cfg.seed || 1337) * 7919 + index * 1013 + roomIndex * 271 + side.charCodeAt(0) * 43) % 10000) / 10000);
+      const isRoomLit = roomHash < litProbability;
+      const isLit = damageMode === 'none' && isRoomLit && (cfg.windowLightingProfile === 'commercial' ? ((((j * 17) % 10) / 10) < 0.92) : true);
+
       addWindow(group, side, x, wy, z, cfg, r, ww, wh, {
         maxW: spacing * 0.88,
         damageMode,
-        hasAC
+        hasAC,
+        windowId: winId,
+        roomId,
+        floor: index,
+        isLit
       });
     }
   }

@@ -19,6 +19,79 @@ export function solid(hex, options = {}) {
   return materials.get(key);
 }
 
+let gratingCanvasCache = null;
+
+function getGratingCanvas(hex) {
+  if (gratingCanvasCache && gratingCanvasCache.hex === hex) {
+    return gratingCanvasCache.canvas;
+  }
+  const size = 128;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const base = new THREE.Color(hex);
+  const highlight = base.clone().lerp(new THREE.Color('#8a9aa3'), 0.28).getStyle();
+  const shadow = base.clone().lerp(new THREE.Color('#14181a'), 0.35).getStyle();
+  const mid = base.getStyle();
+
+  ctx.clearRect(0, 0, size, size);
+
+  const cells = 4;
+  const step = size / cells;
+  const barW = 6;
+  const crossW = 5;
+
+  // Cross-bars (horizontal)
+  for (let i = 0; i < cells; i++) {
+    const y = Math.round(i * step);
+    ctx.fillStyle = shadow;
+    ctx.fillRect(0, y, size, crossW);
+    ctx.fillStyle = mid;
+    ctx.fillRect(0, y, size, crossW - 1);
+  }
+
+  // Primary bearing bars (vertical)
+  for (let i = 0; i < cells; i++) {
+    const x = Math.round(i * step);
+    ctx.fillStyle = shadow;
+    ctx.fillRect(x, 0, barW, size);
+    ctx.fillStyle = mid;
+    ctx.fillRect(x, 0, barW - 1, size);
+    ctx.fillStyle = highlight;
+    ctx.fillRect(x + 1, 0, 1, size);
+  }
+
+  gratingCanvasCache = { hex, canvas };
+  return canvas;
+}
+
+export function gratingMaterial(hex = '#3a4347', width = 1, depth = 1) {
+  const rx = Math.max(1, Math.round(width * 2.5 * 10) / 10);
+  const rz = Math.max(1, Math.round(depth * 2.5 * 10) / 10);
+  const key = `grating:${hex}:${rx}:${rz}`;
+  if (materials.has(key)) return materials.get(key);
+
+  const canvas = getGratingCanvas(hex);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(rx, rz);
+  texture.magFilter = THREE.LinearFilter;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.anisotropy = Math.min(currentMaxAnisotropy || 1, 4);
+
+  const mat = new THREE.MeshLambertMaterial({
+    map: texture,
+    color: 0xffffff,
+    alphaTest: 0.45,
+    side: THREE.DoubleSide
+  });
+
+  materials.set(key, mat);
+  modelTextures.set(key, texture);
+  return mat;
+}
+
 export function puddleMaterial() {
   const key = 'puddle-water';
   if (!materials.has(key)) {
@@ -33,21 +106,147 @@ export function puddleMaterial() {
   return materials.get(key);
 }
 
-export function glassMaterial(hex, lit = false) {
-  const isDay = currentLightingMode === 'day';
-  const key = 'glass:' + hex + ':' + lit + ':' + isDay;
+export function glassMaterial(hex, lit = false, options = {}) {
+  const mode = options.lightingMode || currentLightingMode;
+  const isDay = mode === 'day';
+  const isNight = mode === 'night' || mode === 'late_night' || mode === 'evening';
+  const profile = options.profile || 'auto';
+  const key = 'glass:' + hex + ':' + lit + ':' + mode + ':' + profile;
+
   if (!materials.has(key)) {
     const color = new THREE.Color(hex);
-    if (lit) color.lerp(new THREE.Color('#ffda88'), isDay ? 0.58 : 0.85);
+    let emissiveHex = '#050b10';
+    let emissiveIntensity = 0.08;
+
+    if (lit) {
+      if (profile === 'commercial') {
+        color.lerp(new THREE.Color('#dbeafe'), isDay ? 0.45 : 0.85);
+        emissiveHex = isNight ? '#93c5fd' : '#bfdbfe';
+        emissiveIntensity = isNight ? 0.88 : 0.45;
+      } else if (profile === 'derelict') {
+        color.lerp(new THREE.Color('#a3b18a'), 0.5);
+        emissiveHex = '#4a5335';
+        emissiveIntensity = 0.35;
+      } else {
+        color.lerp(new THREE.Color('#ffd085'), isDay ? 0.58 : 0.88);
+        emissiveHex = isNight ? '#d97706' : '#b45309';
+        emissiveIntensity = isNight ? 0.82 : 0.42;
+      }
+    }
+
     materials.set(key, new THREE.MeshPhongMaterial({
       color,
-      emissive: lit ? (isDay ? '#8f6f38' : '#c79e54') : '#050b10',
-      emissiveIntensity: lit ? (isDay ? 0.42 : 0.72) : 0.08,
+      emissive: emissiveHex,
+      emissiveIntensity,
       shininess: 90,
       specular: '#3d4f58'
     }));
   }
   return materials.get(key);
+}
+
+export function graffitiMaterial(seed, style = 'mixed', variantIdx = 0) {
+  const resolvedStyle = style === 'mixed'
+    ? ['tags', 'stencils', 'posters'][Math.abs(variantIdx + seed) % 3]
+    : style;
+  const key = 'graffiti:' + seed + ':' + resolvedStyle;
+  if (materials.has(key)) return materials.get(key);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  const r = rng32(seed + 419);
+
+  ctx.clearRect(0, 0, 256, 128);
+
+  const palette = ['#ef4444', '#f8fafc', '#38bdf8', '#facc15', '#fb923c', '#ec4899', '#a855f7', '#22d3ee', '#4ade80'];
+  const tagColor = palette[Math.floor(r() * palette.length)];
+  const accentColor = palette[Math.floor(r() * palette.length)];
+
+  if (resolvedStyle === 'stencils') {
+    const labels = ['SECTOR 04', 'NO TRESPASS', 'HIGH VOLT', 'KEEP CLEAR', 'PARAGON PD', 'ZONE B-12'];
+    const text = labels[Math.floor(r() * labels.length)];
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+    ctx.fillRect(16, 14, 224, 100);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#f87171';
+    ctx.strokeRect(20, 18, 216, 92);
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = 'bold 26px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(text, 128, 66);
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(36, 82, 184, 8);
+  } else if (resolvedStyle === 'posters') {
+    const titles = ['NIGHT CITY', 'LIVE SHOW', 'NOCTURNE', 'CLUB APEX', 'SHOWDOWN', 'METRO ART'];
+    const title = titles[Math.floor(r() * titles.length)];
+    // Two overlapping wheatpaste flyers
+    ctx.fillStyle = '#fef3c7';
+    ctx.fillRect(24, 14, 140, 100);
+    ctx.fillStyle = '#991b1b';
+    ctx.fillRect(24, 14, 140, 26);
+    ctx.fillStyle = '#fef3c7';
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(title, 94, 33);
+    ctx.fillStyle = '#1f2937';
+    ctx.font = 'bold 12px monospace';
+    ctx.fillText('TONIGHT 9PM', 94, 72);
+    ctx.fillStyle = '#e0f2fe';
+    ctx.fillRect(142, 26, 92, 84);
+    ctx.fillStyle = '#0369a1';
+    ctx.fillRect(142, 26, 92, 20);
+    ctx.fillStyle = '#0f172a';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText('INFO #12', 188, 76);
+  } else {
+    const tagWords = ['VORTEX', 'BEHR', 'PULSE', 'NEO', 'RUSH', 'CIPHER', 'ECHO', 'APEX', 'FLUX', 'KINGS'];
+    const word = tagWords[Math.floor(r() * tagWords.length)];
+    // Spray-paint halo
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.52)';
+    ctx.beginPath();
+    ctx.ellipse(128, 62, 106, 38, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.font = 'italic bold 44px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.lineWidth = 7;
+    ctx.strokeStyle = '#0f172a';
+    ctx.strokeText(word, 128, 72);
+    ctx.fillStyle = tagColor;
+    ctx.fillText(word, 128, 72);
+
+    ctx.fillStyle = accentColor;
+    ctx.fillRect(46, 80, 164, 5);
+
+    ctx.fillStyle = tagColor;
+    for (let i = 0; i < 5; i++) {
+      const dripX = 56 + r() * 144;
+      const dripH = 12 + r() * 28;
+      ctx.fillRect(dripX, 76, 4, dripH);
+      ctx.beginPath();
+      ctx.arc(dripX + 2, 76 + dripH, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.magFilter = THREE.LinearFilter;
+  const mat = new THREE.MeshLambertMaterial({
+    map: texture,
+    transparent: true,
+    alphaTest: 0.08,
+    opacity: 0.96,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: -2,
+    polygonOffsetUnits: -2
+  });
+
+  materials.set(key, mat);
+  modelTextures.set(key, texture);
+  return mat;
 }
 
 export function textureMaterial(kind, mainHex, secondaryHex, mortarHex, cfg, keySeed, width, height) {

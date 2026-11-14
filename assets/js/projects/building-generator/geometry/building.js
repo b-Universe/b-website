@@ -1,6 +1,7 @@
 import { clamp, copy, rng32 } from '../utils.js';
-import { getStyle } from '../config.js';
+import { getStyle, sanitisePreset } from '../config.js';
 import { segmentsForFloor, chooseFireEscapePlacement } from '../core/layouts.js';
+import { computeTallStaircaseLayout } from '../core/tall-staircase.js';
 import { generateBuildingBlueprint } from '../core/blueprints.js';
 import { solid } from './materials.js';
 import { slabBox } from './primitives.js';
@@ -10,13 +11,23 @@ import {
   addRoof,
   addSetbackTerrace,
   addEntrance,
+  addAdditionalEntrances,
   addFireEscape,
   addRooftopProps,
+  addRooftopHeadhouse,
+  addVentilationFans,
+  addRoofAccessHatch,
+  addRooftopWalkways,
+  addSafetyRailings,
   addVerticalDetails,
-  addVines
+  addVines,
+  addGraffiti
 } from './details.js';
+import { addStraightRunFireEscapeGeometry, addDeterministicRooftopGeometry } from './straight-run-mesh.js';
+import { addTallStaircaseGeometry } from './tall-staircase-mesh.js';
 
-export function createBuilding(cfg, options = {}) {
+export function createBuilding(rawCfg, options = {}) {
+  const cfg = sanitisePreset(rawCfg);
   const root = new THREE.Group();
   root.name = 'B Building ' + getStyle(cfg.style).label;
   const r = rng32((cfg.seed + (options.seedOffset || 0) * 9119) >>> 0);
@@ -30,6 +41,9 @@ export function createBuilding(cfg, options = {}) {
   const groundSegments = segmentsForFloor(cfg, 0);
   const primary = groundSegments[0];
   const firePlacement = chooseFireEscapePlacement(groundSegments, cfg, rng32(cfg.seed + 313));
+  const tallLayout = cfg.tallStaircase
+    ? computeTallStaircaseLayout(groundSegments, cfg, firePlacement)
+    : null;
 
   for (let floor = 0; floor < visibleFloors; floor++) {
     const segments = segmentsForFloor(cfg, floor);
@@ -45,8 +59,9 @@ export function createBuilding(cfg, options = {}) {
           : (j === 0)
       );
       const segFire = isFireTarget ? firePlacement : null;
+      const segTall = j === 0 ? tallLayout : null;
       for (const side of ['front', 'back', 'left', 'right']) {
-        wallForSide(root, seg, floor, side, cfg, r, cutaway, cfg.seed + j * 97 + floor * 17, segFire);
+        wallForSide(root, seg, floor, side, cfg, r, cutaway, cfg.seed + j * 97 + floor * 17, segFire, segTall);
       }
       addCornerChamfer(root, seg, floor, cfg, r, cutaway, cfg.seed + j * 97 + floor * 17);
       addInteriors(root, seg, floor, cfg);
@@ -85,9 +100,18 @@ export function createBuilding(cfg, options = {}) {
 
   if (!cutaway) {
     addEntrance(root, primary, cfg, r);
+    addAdditionalEntrances(root, groundSegments, cfg);
+    addGraffiti(root, groundSegments, cfg);
   }
   if (firePlacement) {
-    addFireEscape(root, primary, firePlacement, cfg);
+    if (cfg.fireEscapeClearance === 'straight_run') {
+      addStraightRunFireEscapeGeometry(root, groundSegments, firePlacement, cfg);
+    } else {
+      addFireEscape(root, primary, firePlacement, cfg);
+    }
+  }
+  if (tallLayout && tallLayout.feasible) {
+    addTallStaircaseGeometry(root, groundSegments, cfg, firePlacement);
   }
 
   if (roofOn) {
@@ -95,7 +119,16 @@ export function createBuilding(cfg, options = {}) {
     for (let j = 0; j < topSegments.length; j++) {
       addRoof(root, topSegments[j], count * fh, cfg, r, j);
     }
-    addRooftopProps(root, topSegments, primary, cfg, r, count * fh);
+    if (cfg.fireEscapeClearance === 'straight_run' || cfg.rooftopCollision) {
+      addDeterministicRooftopGeometry(root, topSegments, primary, cfg);
+    } else {
+      addRooftopProps(root, topSegments, primary, cfg, r, count * fh);
+      addRooftopHeadhouse(root, topSegments, cfg, count * fh);
+      addVentilationFans(root, topSegments, cfg, r, count * fh);
+      addRoofAccessHatch(root, topSegments, cfg, r, count * fh);
+    }
+    addRooftopWalkways(root, topSegments, cfg, count * fh);
+    addSafetyRailings(root, topSegments, cfg, count * fh);
   }
 
   if (!cutaway) {

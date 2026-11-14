@@ -53,14 +53,72 @@ export const BASE = {
   age: 0.18, damage: 0, windowDamageStyle: 'mixed', tarPatches: false, roofPuddles: false, overgrowth: 0, grimeColor: '#282b2a',
   interiorMode: 'none', cutaway: false, inspectedFloor: 0,
   stairwell: true, elevator: false, roomsPerFloor: 4,
-  accentFloor: 0, accentSide: 'front', accentFloorColor: '#b58867', floorOverrides: []
+  accentFloor: 0, accentSide: 'front', accentFloorColor: '#b58867', floorOverrides: [],
+  rearEntrance: false, rearDoorStyle: 'single', sideEntrance: 'none',
+  basementEntrance: false, deliveryEntrance: false,
+  roofAccess: false, roofAccessStyle: 'brick', roofAccessRoof: 'flat', roofAccessDoorSide: 'front',
+  roofAccessWidth: 3.0, roofAccessDepth: 3.4, roofAccessHeight: 2.6,
+  rooftopVents: false, rooftopHatch: false, rooftopWalkways: false, safetyRailings: false, rooftopCollision: false,
+  fireEscapeLadder: 'raised', fireEscapeRoofAccess: true, fireEscapeTreads: true,
+  fireEscapeClearance: 'one_way', fireEscapeLadderClearance: 0.0, fireEscapeStairWidth: 0.98, fireEscapeLandingDepth: 2.25,
+  fireEscapeWallStandoff: 0.0, fireEscapeSupportStyle: 'columns_and_braces', fireEscapeRoofLandingSize: 0.0,
+  tallStaircase: false, tallStaircaseSide: 'auto', tallStaircaseWidth: 1.0, tallStaircaseClearance: 0.34,
+  tallStaircaseFloors: 0, tallStaircaseLanding: 'ground_continuous', tallStaircaseRailing: 'full',
+  doorScale: 1.0, doorWidth: 0, doorHeight: 0,
+  windowLightingTime: 'day', windowLightingProfile: 'auto',
+  graffiti: false, graffitiDensity: 0.4, graffitiStyle: 'mixed'
+};
+
+export const NEW_EXPANSION_DEFAULTS = {
+  rearEntrance: false,
+  rearDoorStyle: 'single',
+  sideEntrance: 'none',
+  basementEntrance: false,
+  deliveryEntrance: false,
+  roofAccess: false,
+  roofAccessStyle: 'brick',
+  roofAccessRoof: 'flat',
+  roofAccessDoorSide: 'front',
+  roofAccessWidth: 3.0,
+  roofAccessDepth: 3.4,
+  roofAccessHeight: 2.6,
+  rooftopVents: false,
+  rooftopHatch: false,
+  rooftopWalkways: false,
+  safetyRailings: false,
+  rooftopCollision: false,
+  fireEscapeLadder: 'raised',
+  fireEscapeRoofAccess: true,
+  fireEscapeTreads: false,
+  fireEscapeClearance: 'legacy',
+  fireEscapeLadderClearance: 0.0,
+  fireEscapeStairWidth: 0,
+  fireEscapeLandingDepth: 0,
+  fireEscapeWallStandoff: 0,
+  fireEscapeSupportStyle: 'columns_and_braces',
+  fireEscapeRoofLandingSize: 0,
+  tallStaircase: false,
+  tallStaircaseSide: 'auto',
+  tallStaircaseWidth: 1.0,
+  tallStaircaseClearance: 0.34,
+  tallStaircaseFloors: 0,
+  tallStaircaseLanding: 'ground_continuous',
+  tallStaircaseRailing: 'full',
+  doorScale: 1.0,
+  doorWidth: 0,
+  doorHeight: 0,
+  windowLightingTime: 'day',
+  windowLightingProfile: 'auto',
+  graffiti: false,
+  graffitiDensity: 0.4,
+  graffitiStyle: 'mixed'
 };
 
 export const CONFIG_KEYS = Object.keys(BASE).filter((k) => k !== 'floorOverrides');
 
 export const PRESETS = {
   paragon_brick: { label: 'Paragon Brick', style: 'brick', seed: 1337, wallColor: '#a64a40', floors: 5, width: 13, depth: 11, curtains: true, acUnits: true, fireEscape: true, rooftopWaterTank: true, rooftopPipes: true },
-  kings_row: { label: "King's Row Brownstone", style: 'brownstone', seed: 4612, width: 9, depth: 14, floors: 4, floorHeight: 3.4, roofType: 'mansard', wallColor: '#946d55', secondaryWallColor: '#6e5344', groundFloorColor: '#8b776b', roofColor: '#4a4040', wallMaterial: 'brick', trimAmount: 0.85, facadeAccent: 'ornate', windowsX: 3, windowsSide: 3, windowStyle: 'arched', windowFrameColor: '#e2c5a7', curtains: true, shutters: true, doorStyle: 'stoop', entranceSteps: 5, fireEscape: false, acUnits: false, balconies: 0, rooftopWaterTank: false, rooftopPipes: false, chimneys: 2, rooftopProps: 0.2 },
+  kings_row: { label: "King's Row Brownstone", style: 'brownstone', seed: 4612, width: 9, depth: 14, floors: 4, floorHeight: 3.4, roofType: 'mansard', wallColor: '#946d55', secondaryWallColor: '#6e5344', groundFloorColor: '#8b776b', roofColor: '#4a4040', wallMaterial: 'brick', trimAmount: 0.85, facadeAccent: 'ornate', windowsX: 3, windowsSide: 3, windowStyle: 'arched', windowFrameColor: '#e2c5a7', curtains: true, shutters: true, doorStyle: 'stoop', entranceSteps: 5, fireEscape: true, acUnits: false, balconies: 0, rooftopWaterTank: false, rooftopPipes: false, chimneys: 2, rooftopProps: 0.2 },
   old_downtown: { label: 'Old Downtown', style: 'commercial', seed: 5821, floors: 7, width: 19, depth: 15, groundUse: 'shop', groundFloorMaterial: 'stone', groundFloorColor: '#777167', wallColor: '#86765e', secondaryWallColor: '#6f6250', roofType: 'flat', trimAmount: 0.85, facadeAccent: 'cornice', windowsX: 7, windowsSide: 5, windowStyle: 'tall', curtains: false, fireEscape: false, acUnits: false, rooftopWaterTank: false, rooftopPipes: true, rooftopProps: 0.75, signage: 'marquee', signText: 'DOWNTOWN' },
   market_street: { label: 'Market Street Shops', style: 'mixed', seed: 3009, width: 16, depth: 11, floors: 4, wallColor: '#a95f4b', secondaryWallColor: '#864b3f', groundUse: 'shop', groundFloorColor: '#625d62', awning: true, awningColor: '#a14248', signage: 'shop', signText: 'THE MARKET', roofType: 'flat', curtains: true, acUnits: true, fireEscape: true, rooftopWaterTank: false, rooftopPipes: true, windowsX: 5 },
   golden_age: { label: 'Golden Age Deco', style: 'artdeco', seed: 1017, floors: 8, width: 17, depth: 14, wallMaterial: 'stone', wallColor: '#bbad8d', secondaryWallColor: '#8d826b', groundFloorColor: '#746e61', trimColor: '#e1c98a', roofColor: '#615c55', facadeAccent: 'vertical', trimAmount: 0.9, windowsX: 6, windowStyle: 'tall', curtains: false, roofType: 'stepped', setback: 1.0, rooftopWaterTank: false, rooftopPipes: false, chimneys: 0, fireEscape: false, acUnits: false, groundUse: 'lobby', doorStyle: 'double', rooftopProps: 0.2 },
@@ -89,7 +147,49 @@ export const OPTIONS = {
   ],
   signage: [['none', 'None'], ['shop', 'Storefront sign'], ['marquee', 'Wall marquee']],
   interiorMode: [['none', 'None'], ['basic', 'Floor plans'], ['apartments', 'Apartments & rooms']],
-  accentSide: [['front', 'Front'], ['back', 'Back'], ['left', 'Left'], ['right', 'Right'], ['all', 'All walls']]
+  accentSide: [['front', 'Front'], ['back', 'Back'], ['left', 'Left'], ['right', 'Right'], ['all', 'All walls']],
+  rearDoorStyle: [['single', 'Single steel door'], ['double', 'Double service doors'], ['metal', 'Security metal door']],
+  sideEntrance: [['none', 'None'], ['left', 'Left wall'], ['right', 'Right wall'], ['both', 'Both sides']],
+  roofAccessStyle: [['brick', 'Brick stairwell'], ['concrete', 'Concrete access'], ['metal', 'Metal utility enclosure'], ['decorative', 'Decorative masonry'], ['industrial', 'Industrial bulkhead']],
+  roofAccessRoof: [['flat', 'Flat coping'], ['sloped', 'Sloped roof']],
+  roofAccessDoorSide: [['front', 'Front (facing +Z)'], ['back', 'Back (facing -Z)'], ['left', 'Left (facing -X)'], ['right', 'Right (facing +X)']],
+  fireEscapeLadder: [
+    ['raised', 'Raised drop ladder (2.2m clearance)'],
+    ['lowered', 'Lowered drop ladder to street'],
+    ['stair', 'Fixed bottom stair flight (street entry)']
+  ],
+  fireEscapeClearance: [
+    ['one_way', 'Classic Single-Direction Fire Escape (Default)'],
+    ['standard', 'Classic Alternating Switchback'],
+    ['generous', 'Large-Model Alternating Switchback'],
+    ['straight_run', 'Straight-Run Vertical Stack'],
+    ['legacy', 'Compact Side Escape (Legacy)']
+  ],
+  fireEscapeSupportStyle: [
+    ['columns_and_braces', 'Columns & Diagonal Braces (Default)'],
+    ['wall_brackets', 'Cantilever Wall Brackets'],
+    ['columns_only', 'Vertical Support Columns']
+  ],
+  tallStaircaseSide: [
+    ['auto', 'Automatic Opposite Wall'],
+    ['left', 'Left Wall'],
+    ['right', 'Right Wall'],
+    ['back', 'Rear Wall'],
+    ['front', 'Front Wall']
+  ],
+  tallStaircaseLanding: [
+    ['ground_continuous', 'Street Entry + Floor Landings'],
+    ['ground_and_roof', 'Street Entry + Floor + Roof Access'],
+    ['elevated_roof', 'Elevated Landings + Drop/Roof Ladders']
+  ],
+  tallStaircaseRailing: [
+    ['full', 'Full Guardrails (Both Sides)'],
+    ['industrial', 'Industrial Heavy Guardrails'],
+    ['open_inner', 'Outer Guardrail Only (Open Wall Side)']
+  ],
+  windowLightingTime: [['day', 'Sunny Day'], ['golden_hour', 'Golden Hour'], ['evening', 'Evening Twilight'], ['night', 'Night'], ['late_night', 'Late Night'], ['morning', 'Dawn / Morning']],
+  windowLightingProfile: [['auto', 'Automatic by style'], ['residential', 'Residential apartments'], ['commercial', 'Offices & Commercial'], ['derelict', 'Derelict / Dark']],
+  graffitiStyle: [['mixed', 'Mixed urban art & tags'], ['tags', 'Spray-paint tags'], ['stencils', 'Industrial stencils'], ['posters', 'Worn street posters']]
 };
 
 export const SCHEMA = {
@@ -135,10 +235,13 @@ export const SCHEMA = {
     { key: 'curtains', name: 'Window curtains', type: 'boolean' },
     { key: 'shutters', name: 'Window shutters', type: 'boolean' }
   ],
-  features: [
-    { group: 'ENTRANCES & STREET' },
+  entrances: [
+    { group: 'PRIMARY STREET ENTRANCE' },
     { key: 'groundUse', name: 'Ground-floor use', type: 'select' },
     { key: 'doorStyle', name: 'Entrance style', type: 'select' },
+    { key: 'doorScale', name: 'Door scale multiplier', min: 0.7, max: 1.3, step: 0.05, unit: 'x', info: 'Modestly scales entrance door dimensions relative to player character.' },
+    { key: 'doorWidth', name: 'Door width override', min: 0, max: 2.8, step: 0.05, unit: 'm', info: 'Overrides doorway opening width (0 preserves archetype standard).' },
+    { key: 'doorHeight', name: 'Door height override', min: 0, max: 3.2, step: 0.05, unit: 'm', info: 'Overrides doorway opening height (0 preserves archetype standard).' },
     { key: 'doorColor', name: 'Door color', type: 'color' },
     { key: 'entranceSteps', name: 'Entrance steps', min: 0, max: 6, step: 1 },
     { key: 'awning', name: 'Shop / door awning', type: 'boolean' },
@@ -146,7 +249,13 @@ export const SCHEMA = {
     { key: 'signage', name: 'Sign type', type: 'select' },
     { key: 'signText', name: 'Sign lettering', type: 'text' },
     { key: 'signColor', name: 'Sign color', type: 'color' },
-    { group: 'GAMEPLAY / ENTRANCES' },
+    { group: 'ADDITIONAL BUILDING ENTRANCES' },
+    { key: 'rearEntrance', name: 'Rear service entrance', type: 'boolean', info: 'Places a rear access door respecting building footprint and extensions.' },
+    { key: 'rearDoorStyle', name: 'Rear door style', type: 'select' },
+    { key: 'sideEntrance', name: 'Side facade entrance', type: 'select', info: 'Places entrance doors on exposed left or right exterior walls.' },
+    { key: 'basementEntrance', name: 'Basement cellar doors', type: 'boolean', info: 'Ground-level angled metal cellar bulkhead access.' },
+    { key: 'deliveryEntrance', name: 'Commercial delivery bay', type: 'boolean', info: 'Roll-up overhead door and loading threshold.' },
+    { group: 'GAMEPLAY & INTERACTION' },
     { key: 'entranceEnabled', name: 'Enable interactive entrance', type: 'boolean', info: 'When disabled or set to Decorative, the entrance remains visually rendered but non-interactive in blueprints.' },
     { key: 'entranceCategory', name: 'Entrance category', type: 'select' },
     { key: 'interactionLabel', name: 'Interaction label', type: 'text' },
@@ -154,17 +263,66 @@ export const SCHEMA = {
     { key: 'interactionDistance', name: 'Interaction distance', min: 1.0, max: 8.0, step: 0.25, unit: 'm' },
     { key: 'triggerWidth', name: 'Trigger width', min: 1.0, max: 8.0, step: 0.1, unit: 'm' },
     { key: 'triggerHeight', name: 'Trigger height', min: 1.8, max: 6.0, step: 0.1, unit: 'm' },
-    { key: 'triggerDepth', name: 'Trigger depth', min: 1.0, max: 8.0, step: 0.1, unit: 'm' },
-    { group: 'EXTERIOR DETAILS' },
-    { key: 'balconies', name: 'Balcony frequency', min: 0, max: 1, step: 0.1 },
-    { key: 'acUnits', name: 'Window A/C units', type: 'boolean' },
-    { key: 'fireEscape', name: 'Exterior fire escape', type: 'boolean' },
-    { key: 'rooftopProps', name: 'Rooftop equipment', min: 0, max: 1, step: 0.1 },
+    { key: 'triggerDepth', name: 'Trigger depth', min: 1.0, max: 8.0, step: 0.1, unit: 'm' }
+  ],
+  rooftop: [
+    { group: 'ROOFTOP STAIRWELL HEADHOUSE' },
+    { key: 'roofAccess', name: 'Rooftop stairwell headhouse', type: 'boolean', info: 'Enclosure containing the upper interior stairwell with roof access door.' },
+    { key: 'roofAccessStyle', name: 'Headhouse architecture', type: 'select' },
+    { key: 'roofAccessRoof', name: 'Headhouse roof style', type: 'select' },
+    { key: 'roofAccessDoorSide', name: 'Access door facing', type: 'select' },
+    { key: 'roofAccessWidth', name: 'Headhouse width', min: 2.0, max: 4.5, step: 0.1, unit: 'm' },
+    { key: 'roofAccessDepth', name: 'Headhouse depth', min: 2.4, max: 5.5, step: 0.1, unit: 'm' },
+    { key: 'roofAccessHeight', name: 'Headhouse height', min: 2.0, max: 3.5, step: 0.1, unit: 'm' },
+    { group: 'ROOFTOP EQUIPMENT & DETAILS' },
+    { key: 'rooftopProps', name: 'Rooftop equipment frequency', min: 0, max: 1, step: 0.1 },
     { key: 'rooftopWaterTank', name: 'Rooftop water tank', type: 'boolean' },
-    { key: 'rooftopPipes', name: 'Exposed pipes & cables', type: 'boolean' },
+    { key: 'rooftopVents', name: 'Industrial ventilation fans', type: 'boolean' },
+    { key: 'rooftopHatch', name: 'Maintenance roof hatch', type: 'boolean' },
+    { key: 'rooftopWalkways', name: 'Roof maintenance walkways', type: 'boolean' },
+    { key: 'safetyRailings', name: 'Perimeter safety railings', type: 'boolean' },
+    { key: 'rooftopPipes', name: 'Exposed pipes & conduits', type: 'boolean' },
     { key: 'skylights', name: 'Rooftop skylights', type: 'boolean' },
     { key: 'chimneys', name: 'Chimneys', min: 0, max: 5, step: 1 },
     { key: 'antennas', name: 'Rooftop antenna', type: 'boolean' },
+    { key: 'rooftopCollision', name: 'Rooftop semantic collision', type: 'boolean', info: 'Exports deterministic collision boxes for substantial rooftop equipment, chimneys, and structures.' }
+  ],
+  lighting: [
+    { group: 'TIME-OF-DAY PREVIEW' },
+    { key: 'windowLightingTime', name: 'Time of day mode', type: 'select', info: 'Simulates ambient lighting, sky color, and interior window illumination.' },
+    { key: 'windowLightingProfile', name: 'Occupancy profile', type: 'select', info: 'Controls statistical distribution and color temperature of illuminated rooms.' },
+    { group: 'WINDOW ILLUMINATION' },
+    { key: 'windowLighting', name: 'Lit windows ratio', min: 0, max: 1, step: 0.05 },
+    { key: 'curtains', name: 'Interior curtains', type: 'boolean' },
+    { key: 'shutters', name: 'Window shutters', type: 'boolean' }
+  ],
+  features: [
+    { group: 'Exterior Fire Escapes' },
+    { key: 'fireEscape', name: 'Enable Exterior Fire Escape', type: 'boolean' },
+    { key: 'fireEscapeClearance', name: 'Fire Escape Layout', type: 'select', info: 'Selects single-direction fire escape (default), alternating switchback, straight-run vertical stack, or legacy compact escape.' },
+    { key: 'fireEscapeLadder', name: 'Bottom Access Mode', type: 'select', info: 'Selects counterweighted drop ladder (raised/lowered) or fixed ground stair flight.' },
+    { key: 'fireEscapeSupportStyle', name: 'Support & Brace Style', type: 'select', info: 'Configures vertical support columns and underside diagonal wall braces.' },
+    { key: 'fireEscapeRoofAccess', name: 'Parapet Roof Access Ladder', type: 'boolean', info: 'Gooseneck ladder connecting top arrival landing to roof deck.' },
+    { key: 'fireEscapeRoofLandingSize', name: 'Roof Access Landing Size', min: 0, max: 2.0, step: 0.05, unit: 'm', info: 'Turnaround staging depth at roof ladder portal (0 uses active layout default).' },
+    { key: 'fireEscapeTreads', name: 'Stair Tread Collision', type: 'boolean', info: 'Export individual physical stair tread positions, railings, and supports for player traversal.' },
+    { key: 'fireEscapeWallStandoff', name: 'Wall Standoff', min: 0, max: 0.6, step: 0.02, unit: 'm', info: 'Clearance between exterior brick face and inner flight stringer (0 uses profile default).' },
+    { key: 'fireEscapeStairWidth', name: 'Stair Tread Clear Width', min: 0, max: 1.3, step: 0.02, unit: 'm', info: 'Stair flight tread clear width (default 0.98m; 0 uses active profile default).' },
+    { key: 'fireEscapeLandingDepth', name: 'Landing Platform Depth', min: 0, max: 3.2, step: 0.05, unit: 'm', info: 'Landing platform depth (default 2.25m; 0 uses active profile default).' },
+    { key: 'fireEscapeLadderClearance', name: 'Ladder Extra Clearance', min: 0, max: 0.3, step: 0.02, unit: 'm', info: 'Additional ladder width and portal clearance for larger character models (default 0m).' },
+    { key: 'tallStaircase', name: 'Enable Secondary Tall Exterior Staircase', type: 'boolean', info: 'Optional continuous 1-unit exterior staircase mounted along an unobstructed facade.' },
+    { key: 'tallStaircaseSide', name: 'Staircase Placement Side', type: 'select', info: 'Chooses an unobstructed wall opposite any conventional fire escape when set to automatic.' },
+    { key: 'tallStaircaseWidth', name: 'Staircase Clear Width', min: 0.8, max: 1.4, step: 0.05, unit: 'm', info: 'Walkable clear width between inner and outer stringers.' },
+    { key: 'tallStaircaseClearance', name: 'Wall Offset Clearance', min: 0.24, max: 0.6, step: 0.02, unit: 'm', info: 'Standoff gap from exterior brick face to inner stair stringer.' },
+    { key: 'tallStaircaseFloors', name: 'Supported Floors', type: 'floor', info: 'Highest elevated landing floor (0 spans all available floors).' },
+    { key: 'tallStaircaseLanding', name: 'Landing Configuration', type: 'select', info: 'Selects street-entry plinth vs elevated drop ladder and top roof parapet ladder.' },
+    { key: 'tallStaircaseRailing', name: 'Railing & Safety Option', type: 'select', info: 'Selects full double guardrails, heavy industrial guardrails, or open inner side.' },
+    { group: 'FACADE ACCENTS' },
+    { key: 'balconies', name: 'Balcony frequency', min: 0, max: 1, step: 0.1 },
+    { key: 'acUnits', name: 'Window A/C units', type: 'boolean' },
+    { group: 'STREET ART & DECALS' },
+    { key: 'graffiti', name: 'Street graffiti & decals', type: 'boolean', info: 'Procedural street art and tags on lower exterior walls avoiding windows/doors.' },
+    { key: 'graffitiDensity', name: 'Graffiti density', min: 0.1, max: 1.0, step: 0.05 },
+    { key: 'graffitiStyle', name: 'Graffiti aesthetic', type: 'select' },
     { group: 'AGE & CHARACTER' },
     { key: 'age', name: 'Weathering / dirt', min: 0, max: 1, step: 0.05 },
     { key: 'damage', name: 'Damaged windows & walls', min: 0, max: 1, step: 0.05 },
@@ -192,6 +350,9 @@ export const SCHEMA = {
 export const CATEGORIES = {
   form: SCHEMA.form.filter((x) => x.key).map((x) => x.key).filter((k) => !['roofColor'].includes(k)),
   facade: SCHEMA.facade.filter((x) => x.key).map((x) => x.key),
+  entrances: SCHEMA.entrances.filter((x) => x.key).map((x) => x.key),
+  rooftop: SCHEMA.rooftop.filter((x) => x.key).map((x) => x.key),
+  lighting: SCHEMA.lighting.filter((x) => x.key).map((x) => x.key),
   features: SCHEMA.features.filter((x) => x.key).map((x) => x.key),
   palette: ['wallColor', 'secondaryWallColor', 'groundFloorColor', 'trimColor', 'windowFrameColor', 'doorColor', 'roofColor', 'awningColor', 'signColor']
 };
@@ -225,6 +386,9 @@ export function sanitisePreset(data) {
       if (!def.key) continue;
       const key = def.key;
       const fallback = baseForStyle(style)[key];
+      if (key === 'fireEscapeClearance' && typeof merged[key] === 'number') {
+        merged[key] = merged[key] > 1.05 ? 'generous' : 'legacy';
+      }
       if (def.type === 'color') merged[key] = colorHex(merged[key]);
       else if (def.type === 'boolean') merged[key] = typeof merged[key] === 'boolean' ? merged[key] : fallback;
       else if (def.type === 'select') merged[key] = OPTIONS[key].some((x) => x[0] === merged[key]) ? merged[key] : fallback;
@@ -239,6 +403,10 @@ export function sanitisePreset(data) {
   merged.floorOverrides = Array.isArray(data.floorOverrides)
     ? data.floorOverrides.slice(0, 80).filter((o) => o && Number.isInteger(o.floor) && o.floor >= 1 && o.floor <= merged.floors && ['front', 'back', 'left', 'right', 'all'].includes(o.side) && /^#[a-f\d]{6}$/i.test(o.color)).map((o) => ({ floor: o.floor, side: o.side, color: o.color }))
     : [];
+  if (merged.fireEscapeClearance !== 'one_way' && merged.fireEscapeClearance !== 'standard') {
+    if (!Object.prototype.hasOwnProperty.call(data, 'fireEscapeStairWidth')) merged.fireEscapeStairWidth = 0;
+    if (!Object.prototype.hasOwnProperty.call(data, 'fireEscapeLandingDepth')) merged.fireEscapeLandingDepth = 0;
+  }
   delete merged.label;
   return merged;
 }
