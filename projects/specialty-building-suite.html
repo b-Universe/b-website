@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3d Specialty Building Suite | B Remastered</title>
+  <meta name="description" content="Categorized procedural library of purpose-built commercial, civic, healthcare, automotive, industrial, hospitality, and municipal buildings with independent building, lot, and City Object Suite layers.">
+  <meta name="portfolio-title" content="3d Specialty Building Suite">
+  <meta name="portfolio-category" content="project">
+  <meta name="portfolio-date" content="2026-11-15">
+  <meta name="portfolio-thumbnail" content="/assets/img/projects/specialty-building-suite/thumbnail.png">
+  <meta name="portfolio-description" content="Purpose-built low-poly procedural generator for gas stations, restaurants, police precincts, hospitals, hotels, gyms, banks, pharmacies, and industrial complexes.">
+  <meta property="og:title" content="3d Specialty Building Suite | B Remastered">
+  <meta property="og:description" content="Purpose-built low-poly procedural generator for gas stations, restaurants, police precincts, hospitals, hotels, gyms, banks, pharmacies, and industrial complexes.">
+  <meta property="og:url" content="https://home.behr.dev/projects/specialty-building-suite.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://home.behr.dev/assets/img/projects/specialty-building-suite/thumbnail.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="3d Specialty Building Suite | B Remastered">
+  <meta name="twitter:description" content="Purpose-built low-poly procedural generator for gas stations, restaurants, police precincts, hospitals, hotels, gyms, banks, pharmacies, and industrial complexes.">
+  <meta name="twitter:image" content="https://home.behr.dev/assets/img/projects/specialty-building-suite/thumbnail.png">
+  <meta name="theme-color" content="#00FFFE">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/projects/specialty-building-suite.css">
+</head>
+<body class="specialty-suite-page">
+  <div class="wrap">
+    <canvas id="starfield"></canvas>
+    <header>
+      <div class="header">
+        <a class="brand" href="/pages/index.html">
+          <div class="logo" aria-hidden="true">B</div>
+          <div class="brand-text-wrap">
+            <div class="brand-title">It's a fun place to be</div>
+            <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+          </div>
+        </a>
+        <div class="nav-wrapper">
+          <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+            <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+            <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+            <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i>Github</a>
+          </nav>
+          <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon" aria-hidden="true"></i><span>Dark</span></button>
+          <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="content-card static-card specialty-project-card">
+        <div class="spec-topline">
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <ol>
+              <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i>Home</a></li>
+              <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a></li>
+              <li><span><i class="fas fa-city" aria-hidden="true"></i>Projects</span></li>
+              <li><span class="breadcrumb-current" aria-current="page">3d Specialty Building Suite</span></li>
+            </ol>
+          </nav>
+          <div class="spec-quick-actions">
+            <button type="button" id="spec-top-rand" class="spec-btn" title="Randomize Unlocked Controls"><i class="fas fa-shuffle"></i> Randomize</button>
+            <button type="button" id="spec-top-seed" class="spec-btn" title="New Deterministic Seed (S)"><i class="fas fa-dice"></i> Seed Variant</button>
+            <button type="button" id="spec-top-bp" class="spec-btn" title="Export Specialty Blueprint Json"><i class="fas fa-file-code"></i> Export Blueprint</button>
+            <button type="button" id="spec-top-glb" class="spec-btn spec-btn-primary" title="Export Binary .Glb (E)"><i class="fas fa-cube"></i> Export .Glb</button>
+          </div>
+        </div>
+
+        <div class="spec-heading">
+          <div>
+            <div class="spec-eyebrow"><span class="spec-status-light"></span> B Remastered · Procedural Worldbuilding Suite</div>
+            <h1>3d Specialty Building Suite</h1>
+            <p class="spec-subtitle">Purpose-Built Commercial, Civic, Healthcare, Automotive &amp; Industrial Buildings With Layered Lots &amp; City Object Integration</p>
+          </div>
+          <div class="spec-pill">Specialty Studio 05</div>
+        </div>
+
+        <section class="spec-shell" aria-label="3d Specialty Building Generator Studio">
+          <!-- Left Column: Categorized Catalog, Presets, Layers & Seeds -->
+          <aside class="spec-panel spec-catalog-panel" aria-label="Building Catalog">
+            <div class="spec-panel-head">
+              <h2><i class="fas fa-building"></i> Building Library</h2>
+              <span id="spec-preset-count" class="spec-pill">Presets</span>
+            </div>
+
+            <div class="spec-filter-stack">
+              <input type="search" id="spec-search-input" class="spec-input" placeholder="Search gas station, hospital, gym..." autocomplete="off">
+              <div class="spec-filter-row">
+                <select id="spec-category-select" class="spec-input" aria-label="Category Filter"></select>
+                <select id="spec-env-select" class="spec-input" aria-label="Environment Tag Filter"></select>
+              </div>
+            </div>
+
+            <div id="spec-family-list" class="spec-family-list"></div>
+
+            <div class="spec-section-subtitle">Architectural Presets</div>
+            <div id="spec-preset-grid" class="spec-preset-grid"></div>
+
+            <div class="spec-section-subtitle">Three-Layer Controls</div>
+            <div class="spec-layer-box">
+              <label class="spec-check-label spec-layer-chip"><input type="checkbox" id="spec-toggle-layer-a" checked> <span>A: Build</span></label>
+              <label class="spec-check-label spec-layer-chip"><input type="checkbox" id="spec-toggle-layer-b" checked> <span>B: Lot</span></label>
+              <label class="spec-check-label spec-layer-chip"><input type="checkbox" id="spec-toggle-layer-c" checked> <span>C: Props</span></label>
+            </div>
+
+            <details class="spec-side-accordion">
+              <summary class="spec-section-subtitle"><i class="fas fa-dice"></i> Seed &amp; Variation</summary>
+              <div class="spec-seed-box">
+                <div class="spec-seed-row">
+                  <input type="number" id="spec-seed-input" class="spec-input" min="1" step="1" value="2026" aria-label="Seed Number">
+                  <button type="button" id="spec-btn-rand-seed" class="spec-btn spec-btn-sm">New Seed</button>
+                </div>
+                <select id="spec-variation-select" class="spec-input" aria-label="Variation Strength"></select>
+                <div class="spec-seed-row">
+                  <button type="button" id="spec-btn-rand-all" class="spec-btn spec-btn-sm"><i class="fas fa-dice"></i> Mix Variation</button>
+                  <button type="button" id="spec-btn-reset-preset" class="spec-btn spec-btn-sm">Reset Preset</button>
+                </div>
+              </div>
+            </details>
+
+            <details class="spec-side-accordion">
+              <summary class="spec-section-subtitle"><i class="fas fa-bookmark"></i> Saved Configurations</summary>
+              <div class="spec-seed-box">
+                <div class="spec-seed-row">
+                  <input type="text" id="spec-save-name-input" class="spec-input" placeholder="Name building config...">
+                  <button type="button" id="spec-btn-save-config" class="spec-btn spec-btn-sm">Save</button>
+                </div>
+                <div id="spec-saved-list" class="spec-saved-list"></div>
+              </div>
+            </details>
+          </aside>
+
+          <!-- Center Stage: 3d Viewport & Telemetry -->
+          <div class="spec-stage">
+            <div class="spec-canvas-wrap">
+              <canvas id="specialty-canvas"></canvas>
+              <div class="spec-canvas-overlay">
+                <div class="spec-stat-badge" id="stat-dims">Loading Geometry...</div>
+                <div class="spec-stat-badge" id="stat-lot">Loading Lot...</div>
+                <div class="spec-stat-badge" id="stat-stats">0 Meshes</div>
+                <div class="spec-stat-badge" id="stat-objects">0 Props Placed</div>
+              </div>
+            </div>
+
+            <div class="spec-viewport-bar">
+              <div class="spec-cam-group">
+                <button type="button" id="spec-cam-full" class="spec-btn spec-btn-sm" title="Full Property View (F)">Full Lot</button>
+                <button type="button" id="spec-cam-street" class="spec-btn spec-btn-sm">Street View</button>
+                <button type="button" id="spec-cam-building" class="spec-btn spec-btn-sm">Building Focus</button>
+                <button type="button" id="spec-cam-roof" class="spec-btn spec-btn-sm">Roof Plan</button>
+              </div>
+              <div class="spec-view-toggles">
+                <label class="spec-check-label"><input type="checkbox" id="spec-toggle-turntable"> <span>Spin</span></label>
+                <label class="spec-check-label"><input type="checkbox" id="spec-toggle-grid" checked> <span>Grid</span></label>
+                <label class="spec-check-label"><input type="checkbox" id="spec-toggle-human" checked> <span>1.82m Ref</span></label>
+                <label class="spec-check-label"><input type="checkbox" id="spec-toggle-gizmos"> <span>Anchors</span></label>
+                <label class="spec-check-label"><input type="checkbox" id="spec-toggle-wire"> <span>Wire</span></label>
+                <label class="spec-check-label"><input type="checkbox" id="spec-toggle-sil"> <span>Silhouette</span></label>
+                <button type="button" id="spec-btn-snapshot" class="spec-btn spec-btn-sm" title="Save Screenshot (P)"><i class="fas fa-camera"></i></button>
+                <button type="button" id="spec-btn-theatre" class="spec-btn spec-btn-sm">Theatre</button>
+                <button type="button" id="spec-fullscreen" class="spec-btn spec-btn-sm">Fullscreen</button>
+              </div>
+            </div>
+
+            <details class="spec-bp-box">
+              <summary><i class="fas fa-code"></i> Live Blueprint Metadata &amp; City Object Suite Dependencies</summary>
+              <pre id="spec-blueprint-preview">{}</pre>
+            </details>
+          </div>
+
+          <!-- Right Column: Context-Sensitive Customization Tabs -->
+          <aside class="spec-panel spec-inspector-panel" aria-label="Customization Inspector">
+            <div id="spec-tabs-bar" class="spec-tabs-bar"></div>
+            <div id="spec-tab-content" class="spec-tab-content"></div>
+          </aside>
+        </section>
+      </section>
+    </main>
+
+    <footer>&copy; <span id="year"></span> B - Built with &hearts; and plain Html/Css/Js by Bear Riley</footer>
+  </div>
+
+  <div id="spec-toast" class="spec-toast" aria-live="polite"></div>
+
+  <script src="/assets/js/scrolling-nebula.js"></script>
+  <script src="/assets/js/global.js"></script>
+  <script src="/assets/js/projects/city-object-suite.js"></script>
+  <script src="/assets/js/projects/specialty-building-suite.js"></script>
+</body>
+</html>
