@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>B - B Remastered 3D Model Generation Tools</title>
+
+    <meta name="portfolio-title" content="B Remastered 3D Model Generation Tools">
+    <meta name="portfolio-category" content="project">
+    <meta name="portfolio-date" content="2026-11-16">
+    <meta name="portfolio-thumbnail" content="/assets/img/projects/b-remastered-3d-model-generation-tools/thumbnail.png">
+    <meta name="portfolio-description" content="Explore the six standalone procedural 3D model generation studios for B Remastered: Buildings, Skyscrapers, Specialty Buildings, Flora & Trees, City Vehicles, and City Objects.">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="B - B Remastered 3D Model Generation Tools">
+    <meta property="og:description" content="Explore the six standalone procedural 3D model generation studios for B Remastered: Buildings, Skyscrapers, Specialty Buildings, Flora & Trees, City Vehicles, and City Objects.">
+    <meta property="og:url" content="https://home.behr.dev/projects/b-remastered-3d-model-generation-tools.html">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://home.behr.dev/assets/img/projects/b-remastered-3d-model-generation-tools/thumbnail.png">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="B - B Remastered 3D Model Generation Tools">
+    <meta name="twitter:description" content="Six procedural 3D asset studios built for B Remastered with deterministic seeds, live Three.js previews, JSON blueprints, and one-click .GLB export.">
+    <meta name="twitter:image" content="https://home.behr.dev/assets/img/projects/b-remastered-3d-model-generation-tools/thumbnail.png">
+    <meta name="theme-color" content="#00FFFE">
+
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/components.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        .gen-hub-card {
+            padding: 40px;
+        }
+        
+        .gen-hub-intro {
+            text-align: center;
+            max-width: 820px;
+            margin: 0 auto 2rem;
+        }
+        
+        .gen-hub-intro p {
+            font-size: 1.05rem;
+        }
+        
+        .gen-hub-grid {
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .gen-tool-card {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 0;
+        }
+        
+        .gen-tool-thumb {
+            display: block;
+            aspect-ratio: 16 / 9;
+            height: auto;
+            border-radius: 0;
+            border-bottom: 1px solid rgba(var(--accent-rgb), 0.25);
+        }
+        
+        .gen-tool-thumb img {
+            transform: none;
+        }
+        
+        .gen-tool-thumb:hover img {
+            transform: scale(1.06);
+        }
+        
+        .gen-tool-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 1.5rem;
+            gap: 0.75rem;
+        }
+        
+        .gen-tool-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+        
+        .gen-tool-body h2 {
+            font-size: 1.65rem;
+            margin-bottom: 0.25rem;
+            text-align: left;
+        }
+        
+        .gen-tool-body p {
+            margin-bottom: 0;
+            font-size: 0.96rem;
+        }
+        
+        .gen-tool-highlights {
+            margin: 0.25rem 0 0.5rem;
+            padding-left: 1.25rem;
+            font-size: 0.9rem;
+        }
+        
+        .gen-tool-highlights li {
+            margin-bottom: 0.25rem;
+        }
+        
+        .gen-tool-actions {
+            margin-top: auto;
+            padding-top: 0.5rem;
+        }
+        
+        @media (max-width: 767px) {
+            .gen-hub-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <canvas id="starfield"></canvas>
+        <header>
+            <div class="header">
+                <a class="brand" href="/pages/index.html">
+                    <div class="logo" aria-hidden="true">B</div>
+                    <div class="brand-text-wrap">
+                        <div class="brand-title">It's a fun place to be</div>
+                        <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+                    </div>
+                </a>
+
+                <div class="nav-wrapper">
+                    <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+                        <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+                        <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i
+                class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+                        <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"
+                aria-hidden="true"></i>Github</a>
+                    </nav>
+                    <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon"
+              aria-hidden="true"></i>Dark</button>
+                    <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+                </div>
+            </div>
+        </header>
+        <main class="main-content">
+            <section class="content-card static-card gen-hub-card">
+                <nav class="breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 20px;">
+                    <ol>
+                        <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+                        <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i> Portfolio</a></li>
+                        <li><span><i class="fas fa-cubes" aria-hidden="true"></i> Projects</span></li>
+                        <li><span class="breadcrumb-current" aria-current="page">B Remastered 3D Model Generation Tools</span></li>
+                    </ol>
+                </nav>
+
+                <div class="gen-hub-intro">
+                    <h1>B Remastered 3D Model Generation Tools</h1>
+                    <p>
+                        A suite of six standalone browser-based procedural 3D asset studios built for <strong>B Remastered</strong>. Every studio pairs deterministic seed-driven geometry and stylized low-poly materials with interactive Three.js viewports,
+                        versioned JSON blueprints, and one-click binary <code>.GLB</code> exports ready for game worlds.
+                    </p>
+                </div>
+
+                <div class="grid-locked grid-cols-2 gen-hub-grid">
+                    <article class="panel gen-tool-card">
+                        <div class="panel-image hover-standard gen-tool-thumb">
+                            <a href="/projects/building-generator.html" aria-label="Open 3D Building Generator">
+                                <img src="/assets/img/projects/building-generator/thumbnail.png" alt="3D Building Generator preview">
+                            </a>
+                        </div>
+                        <div class="gen-tool-body">
+                            <div class="gen-tool-meta">
+                                <span>Studio 01 · Urban Architecture</span>
+                                <span><code>b.building.v1</code></span>
+                            </div>
+                            <h2>3D Building Generator</h2>
+                            <p>
+                                Construct multi-story urban blocks, apartments, and storefronts one brick at a time across 8 architectural styles including Red Brick, Brownstone, Downtown, Art Deco, Modern, and Derelict.
+                            </p>
+                            <ul class="gen-tool-highlights">
+                                <li>Customizable footprints, window bays, fire escapes, stoops, and awnings</li>
+                                <li>Rooftop water tanks, HVAC units, chimneys, antennas, and interior cutaways</li>
+                                <li>Weathering, age, damage, and graffiti controls with <code>.GLB</code> &amp; blueprint export</li>
+                            </ul>
+                            <div class="gen-tool-actions d-grid">
+                                <a href="/projects/building-generator.html" class="btn btn-primary btn-icon-prepend">
+                                    <i class="fas fa-building" aria-hidden="true"></i> Open 3D Building Generator
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="panel gen-tool-card">
+                        <div class="panel-image hover-standard gen-tool-thumb">
+                            <a href="/projects/skyscraper-generator.html" aria-label="Open 3D Skyscraper Generator">
+                                <img src="/assets/img/projects/skyscraper-generator/thumbnail.png" alt="3D Skyscraper Generator preview">
+                            </a>
+                        </div>
+                        <div class="gen-tool-body">
+                            <div class="gen-tool-meta">
+                                <span>Studio 02 · High-Rise Skylines</span>
+                                <span><code>b.skyscraper.v1</code></span>
+                            </div>
+                            <h2>3D Skyscraper Generator</h2>
+                            <p>
+                                Sculpt towering city landmarks and multi-tower complexes across 22 high-rise styles, from Art Deco spires and Neo-Gothic monoliths to curved ribbon glass towers and skybridge-linked twins.
+                            </p>
+                            <ul class="gen-tool-highlights">
+                                <li>Stacked podium, lower, middle, upper, crown, and rooftop spire sections</li>
+                                <li>Twist, taper, setback, slanted-top, and exoskeleton structural sculpting</li>
+                                <li>Silhouette inspection mode, deterministic seeds, and <code>.GLB</code> &amp; blueprint export</li>
+                            </ul>
+                            <div class="gen-tool-actions d-grid">
+                                <a href="/projects/skyscraper-generator.html" class="btn btn-primary btn-icon-prepend">
+                                    <i class="fas fa-city" aria-hidden="true"></i> Open 3D Skyscraper Generator
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="panel gen-tool-card">
+                        <div class="panel-image hover-standard gen-tool-thumb">
+                            <a href="/projects/specialty-building-suite.html" aria-label="Open 3D Specialty Building Suite">
+                                <img src="/assets/img/projects/specialty-building-suite/thumbnail.png" alt="3D Specialty Building Suite preview">
+                            </a>
+                        </div>
+                        <div class="gen-tool-body">
+                            <div class="gen-tool-meta">
+                                <span>Studio 05 · Purpose-Built Lots</span>
+                                <span><code>b.specialty-building.v1</code></span>
+                            </div>
+                            <h2>3D Specialty Building Suite</h2>
+                            <p>
+                                Generate complete purpose-built commercial, civic, healthcare, automotive, hospitality, and industrial properties spanning 10 categories such as gas stations, restaurants, hospitals, banks, and police precincts.
+                            </p>
+                            <ul class="gen-tool-highlights">
+                                <li>Three-layer architecture separating Building, Property Lot, and City Object props</li>
+                                <li>Configurable parking stalls, drive-thru and fuel lanes, signage, and roof types</li>
+                                <li>Era presets, condition weathering, 1.82m scale reference, and layer-scoped <code>.GLB</code> export</li>
+                            </ul>
+                            <div class="gen-tool-actions d-grid">
+                                <a href="/projects/specialty-building-suite.html" class="btn btn-primary btn-icon-prepend">
+                                    <i class="fas fa-store" aria-hidden="true"></i> Open 3D Specialty Building Suite
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="panel gen-tool-card">
+                        <div class="panel-image hover-standard gen-tool-thumb">
+                            <a href="/projects/tree-generator.html" aria-label="Open 3D Flora & Tree Studio">
+                                <img src="/assets/img/projects/tree-generator/thumbnail.png" alt="3D Flora & Tree Studio preview">
+                            </a>
+                        </div>
+                        <div class="gen-tool-body">
+                            <div class="gen-tool-meta">
+                                <span>Botanical Studio · Flora &amp; Groves</span>
+                                <span><code>b.tree.v1</code></span>
+                            </div>
+                            <h2>3D Flora &amp; Tree Studio</h2>
+                            <p>
+                                Craft 20 botanical species across 7 ecosystems-from broadleaf oaks, maples, and sakura to baobabs, redwoods, palms, shrubs, bonsai, and fantasy trees-built for natural parks and city streetscapes.
+                            </p>
+                            <ul class="gen-tool-highlights">
+                                <li>Real-time wind physics, biome grove layouts, and deterministic variation locks</li>
+                                <li>4-stage LOD meshes (<code>LOD0</code>–<code>LOD3</code>) plus foliage billboard atlas generation</li>
+                                <li>Visual 3D flora catalog browser with one-click <code>.GLB</code> and <code>.tree.json</code> export</li>
+                            </ul>
+                            <div class="gen-tool-actions d-grid">
+                                <a href="/projects/tree-generator.html" class="btn btn-primary btn-icon-prepend">
+                                    <i class="fas fa-tree" aria-hidden="true"></i> Open 3D Flora &amp; Tree Studio
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="panel gen-tool-card">
+                        <div class="panel-image hover-standard gen-tool-thumb">
+                            <a href="/projects/city-vehicle-generator.html" aria-label="Open 3D City Vehicles Studio">
+                                <img src="/assets/img/projects/city-vehicle-generator/thumbnail.png" alt="3D City Vehicles Studio preview">
+                            </a>
+                        </div>
+                        <div class="gen-tool-body">
+                            <div class="gen-tool-meta">
+                                <span>Vehicle Studio · Urban Fleet</span>
+                                <span><code>b.vehicle.v1</code></span>
+                            </div>
+                            <h2>3D City Vehicles Studio</h2>
+                            <p>
+                                Design stylized low-poly vehicles across 23 archetypes covering compact cars, sedans, coupes, SUVs, taxis, pickups, cargo vans, box trucks, city &amp; articulated buses, semi trucks, and emergency fleets.
+                            </p>
+                            <ul class="gen-tool-highlights">
+                                <li>Proportional chassis, wheelbase, cab-to-cargo split, roofline, and glass controls</li>
+                                <li>Live headlight illumination, flashing emergency lightbars, and 7 fleet paint palettes</li>
+                                <li>Lock-aware preset randomization with <code>.GLB</code> and <code>.b.vehicle.json</code> blueprint export</li>
+                            </ul>
+                            <div class="gen-tool-actions d-grid">
+                                <a href="/projects/city-vehicle-generator.html" class="btn btn-primary btn-icon-prepend">
+                                    <i class="fas fa-car" aria-hidden="true"></i> Open 3D City Vehicles Studio
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="panel gen-tool-card">
+                        <div class="panel-image hover-standard gen-tool-thumb">
+                            <a href="/projects/city-object-suite.html" aria-label="Open 3D City Object Suite">
+                                <img src="/assets/img/projects/city-object-suite/thumbnail.png" alt="3D City Object Suite preview">
+                            </a>
+                        </div>
+                        <div class="gen-tool-body">
+                            <div class="gen-tool-meta">
+                                <span>Studio 04 · Props &amp; Interiors</span>
+                                <span><code>b.city-object.v1</code></span>
+                            </div>
+                            <h2>3D City Object Suite</h2>
+                            <p>
+                                Browse and customize a massive procedural catalog of 115 single object families and 805 presets across 30 categories-plus 54 multi-object vignette assemblies-spanning sidewalks, rooftops, offices, clinics, arcades, households, and seasonal holiday props.
+                            </p>
+                            <ul class="gen-tool-highlights">
+                                <li>Faceted search by space, environment tag, attachment profile, style, and condition</li>
+                                <li>Interactive screen &amp; sign surfaces, placement anchors, and B-Units dimensions</li>
+                                <li>Thumbnail catalog modal, JSON blueprint import/export, and binary <code>.GLB</code> output</li>
+                            </ul>
+                            <div class="gen-tool-actions d-grid">
+                                <a href="/projects/city-object-suite.html" class="btn btn-primary btn-icon-prepend">
+                                    <i class="fas fa-cubes" aria-hidden="true"></i> Open 3D City Object Suite
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <blockquote class="panel-note">
+                    All six studios run 100% client-side in your browser with Three.js-no external backend required. Share seeds or exported <code>.json</code> blueprints between sessions to reproduce exact models, or drop exported
+                    <code>.GLB</code> meshes straight into your B Remastered scenes.
+                </blockquote>
+            </section>
+        </main>
+        <footer>
+            &copy; <span id="year"></span> B - Built with &hearts; and plain HTML/CSS/JS by Bear Riley
+        </footer>
+    </div>
+
+    <script src="/assets/js/scrolling-nebula.js"></script>
+    <script src="/assets/js/global.js"></script>
+</body>
+
+</html>

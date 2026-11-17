@@ -34,8 +34,15 @@
       '/projects/regex-sandbox.html',
       '/projects/json-yaml-toolbox.html',
       '/scripts/skin-command.html',
+      '/scripts/silky-spawners.html',
+      '/projects/annual-card-package.html',
       '/projects/tree-generator.html',
-      '/projects/building-generator.html'
+      '/projects/building-generator.html',
+      '/projects/skyscraper-generator.html',
+      '/projects/city-vehicle-generator.html',
+      '/projects/city-object-suite.html',
+      '/projects/specialty-building-suite.html',
+      '/projects/b-remastered-3d-model-generation-tools.html'
     ];
 
     let cachedCards = [];
