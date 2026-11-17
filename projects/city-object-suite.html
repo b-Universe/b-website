@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3d City Object Suite | B Remastered</title>
+  <meta name="description" content="Centralized, searchable procedural 3d low-poly urban prop library and export studio for B Remastered. Generate dumpsters, mailboxes, utility pipes, street furniture, traffic signals, streetlights, vendor carts, rooftop Hvac, and composite scenes with Glb and Json blueprint export.">
+  <meta name="portfolio-title" content="3d City Object Suite">
+  <meta name="portfolio-category" content="project">
+  <meta name="portfolio-date" content="2026-11-14">
+  <meta name="portfolio-thumbnail" content="/assets/img/projects/city-object-suite/thumbnail.png">
+  <meta name="portfolio-description" content="Categorized procedural library and export studio for stylized low-poly urban and interior props, street furniture, infrastructure, and composite assemblies.">
+  <meta property="og:title" content="3d City Object Suite | B Remastered">
+  <meta property="og:description" content="Categorized procedural library and export studio for stylized low-poly urban and interior props, street furniture, infrastructure, and composite assemblies.">
+  <meta property="og:url" content="https://home.behr.dev/projects/city-object-suite.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://home.behr.dev/assets/img/projects/city-object-suite/thumbnail.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="3d City Object Suite | B Remastered">
+  <meta name="twitter:description" content="Categorized procedural library and export studio for stylized low-poly urban and interior props, street furniture, infrastructure, and composite assemblies.">
+  <meta name="twitter:image" content="https://home.behr.dev/assets/img/projects/city-object-suite/thumbnail.png">
+  <meta name="theme-color" content="#00FFFE">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/projects/city-object-suite.css">
+</head>
+<body class="object-suite-page">
+  <div class="wrap">
+    <canvas id="starfield"></canvas>
+    <header>
+      <div class="header">
+        <a class="brand" href="/pages/index.html">
+          <div class="logo" aria-hidden="true">B</div>
+          <div class="brand-text-wrap">
+            <div class="brand-title">It's a fun place to be</div>
+            <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+          </div>
+        </a>
+        <div class="nav-wrapper">
+          <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+            <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+            <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i
+                class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+            <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"
+                aria-hidden="true"></i>Github</a>
+          </nav>
+          <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon"
+              aria-hidden="true"></i><span>Dark</span></button>
+          <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="content-card static-card object-suite-project-card">
+        <div class="studio-topline">
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <ol>
+              <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i>Home</a></li>
+              <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a></li>
+              <li><span><i class="fas fa-cubes" aria-hidden="true"></i>Projects</span></li>
+              <li><span class="breadcrumb-current" aria-current="page">3d City Object Suite</span></li>
+            </ol>
+          </nav>
+          <div class="studio-quick-actions">
+            <button type="button" id="btn-catalog-view" class="studio-btn" title="Browse All 3d Models As Categorized Thumbnails">
+              <i class="fa-solid fa-grip"></i> Catalog View
+            </button>
+            <button type="button" id="btn-randomize-all" class="studio-btn ghost" title="Randomize Unlocked Properties">
+              <i class="fa-solid fa-shuffle"></i> Randomize
+            </button>
+            <button type="button" id="btn-variation-seed" class="studio-btn ghost" title="Apply New Deterministic Seed">
+              <i class="fa-solid fa-dice"></i> Seed Variant
+            </button>
+            <button type="button" id="btn-import-top" class="studio-btn ghost" title="Import Json Blueprint Or Config">
+              <i class="fa-solid fa-file-import"></i> Import Json
+            </button>
+            <button type="button" id="btn-export-bp-top" class="studio-btn" title="Export Versioned Json Blueprint">
+              <i class="fa-solid fa-file-code"></i> Export Blueprint
+            </button>
+            <button type="button" id="btn-export-glb-top" class="studio-btn primary" title="Export Binary .Glb Mesh">
+              <i class="fa-solid fa-cube"></i> Export .Glb
+            </button>
+          </div>
+          <input type="file" id="file-import" accept=".json,application/json" hidden>
+        </div>
+        <div class="studio-heading">
+          <div>
+            <div class="studio-eyebrow"><span class="studio-status-light"></span> B Remastered · Urban &amp; Interior Creation Tools</div>
+            <h1>3d City Object Suite</h1>
+            <p class="studio-subtitle">Categorized Procedural Library &amp; Export Studio For Stylized Low-Poly Urban &amp; Interior Props</p>
+          </div>
+          <div class="studio-version">Object Studio <strong>04</strong></div>
+        </div>
+
+        <section class="studio-shell" aria-label="3d City Object Studio">
+      <!-- Left Column: Categorized & Searchable Object Catalog -->
+      <aside class="studio-panel studio-catalog-panel" aria-label="Object Library Catalog">
+        <div class="panel-header">
+          <div class="panel-title-row">
+            <h2><i class="fa-solid fa-layer-group"></i> Object Library</h2>
+            <span id="catalog-match-count" class="catalog-count-pill">85 Families</span>
+          </div>
+          <div class="catalog-search-row">
+            <div class="search-input-wrap">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="search" id="catalog-search-input" placeholder="Search Desks, Dumpsters, Lamps..." autocomplete="off">
+            </div>
+            <button type="button" id="filter-favs-btn" class="studio-btn icon-only" title="Favorites Only">
+              <i class="fa-solid fa-star"></i>
+            </button>
+            <button type="button" id="btn-facets-toggle" class="studio-btn icon-only" title="Faceted Filters">
+              <i class="fa-solid fa-sliders"></i>
+            </button>
+          </div>
+          <div class="catalog-sub-row">
+            <select id="catalog-subcategory-select" class="ctrl-input" aria-label="Filter By Subcategory">
+              <option value="all">All Subcategories</option>
+            </select>
+            <button type="button" id="btn-clear-filters" class="studio-btn ghost small" title="Reset All Filters">Reset</button>
+          </div>
+          <div id="catalog-facets-drawer" class="catalog-facets-drawer">
+            <select id="filter-location" class="ctrl-input" aria-label="Filter By Location Context"></select>
+            <select id="filter-env-tag" class="ctrl-input" aria-label="Filter By Environment Tag"></select>
+            <select id="filter-attachment" class="ctrl-input" aria-label="Filter By Attachment Profile"></select>
+            <select id="filter-style" class="ctrl-input" aria-label="Filter By Architectural Style"></select>
+            <select id="filter-size" class="ctrl-input" aria-label="Filter By Size Class"></select>
+            <select id="filter-role" class="ctrl-input" aria-label="Filter By Functional Role"></select>
+            <select id="filter-tag" class="ctrl-input" aria-label="Filter By Tag"></select>
+          </div>
+        </div>
+
+        <div id="catalog-space-tabs" class="catalog-space-tabs" role="tablist" aria-label="Space Realm Filter"></div>
+        <div id="catalog-category-pills" class="catalog-category-pills" role="tablist" aria-label="Categories"></div>
+        <div id="catalog-family-list" class="catalog-family-list"></div>
+      </aside>
+
+      <!-- Center Column: Viewport & 6-Card Variation Browser -->
+      <div class="studio-center-col">
+        <div class="studio-viewport-frame">
+          <div class="viewport-top-bar">
+            <div id="catalog-breadcrumb" class="catalog-breadcrumb">Waste &amp; Recycling / Commercial Dumpsters</div>
+            <div class="viewport-tools">
+              <select id="lighting-select" class="ctrl-input compact" aria-label="Time Of Day Lighting">
+                <option value="day">Daylight</option>
+                <option value="golden_hour">Golden Hour</option>
+                <option value="dusk">Dusk</option>
+                <option value="night">Night</option>
+              </select>
+              <button type="button" id="btn-reset-cam" class="studio-btn icon-only" title="Reset Camera Frame">
+                <i class="fa-solid fa-crosshairs"></i>
+              </button>
+              <button type="button" id="btn-rotate" class="studio-btn icon-only" title="Auto-Rotate Orbit">
+                <i class="fa-solid fa-arrows-rotate"></i>
+              </button>
+              <button type="button" id="btn-silhouette" class="studio-btn icon-only" title="Clay Silhouette Mode (S)">
+                <i class="fa-solid fa-circle-half-stroke"></i>
+              </button>
+              <button type="button" id="btn-wireframe" class="studio-btn icon-only" title="Wireframe Topology">
+                <i class="fa-solid fa-border-all"></i>
+              </button>
+              <button type="button" id="btn-debug-overlay" class="studio-btn icon-only" title="Placement &amp; Collision Gizmos (E)">
+                <i class="fa-solid fa-vector-square"></i>
+              </button>
+              <button type="button" id="btn-stage-snapshot" class="studio-btn icon-only" title="Save Png Snapshot (P)">
+                <i class="fa-solid fa-camera"></i>
+              </button>
+              <button type="button" id="btn-theatre-quick" class="studio-btn icon-only" title="Theatre Mode (T)">
+                <i class="fa-solid fa-tv"></i>
+              </button>
+              <button type="button" id="btn-fullscreen-quick" class="studio-btn icon-only" title="Fullscreen Viewport (F)">
+                <i class="fa-solid fa-expand"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="object-canvas-wrap" class="object-canvas-wrap">
+            <canvas id="object-canvas"></canvas>
+            <div class="viewport-hud">
+              <span class="hud-pill" id="hud-dims">0.0m × 0.0m × 0.0m</span>
+              <span class="hud-pill" id="hud-bunits">0 × 0 × 0 B</span>
+              <span class="hud-pill" id="hud-tris">0 Tris</span>
+              <span class="hud-pill" id="hud-attach">Ground-Standing</span>
+            </div>
+            <div class="viewport-shortcuts-hint">
+              Drag: Orbit · Scroll: Zoom · S: Clay · E: Gizmos · H: Human Scale · T: Theatre · F: Fullscreen
+            </div>
+          </div>
+        </div>
+
+        <div class="variation-browser-card">
+          <div class="variation-header">
+            <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Deterministic Seed Variations</h3>
+            <div class="variation-actions">
+              <button type="button" id="btn-refresh-variations" class="studio-btn ghost small">
+                <i class="fa-solid fa-rotate"></i> Generate 6 New Variants
+              </button>
+              <button type="button" id="btn-theatre" class="studio-btn ghost small" title="Toggle Theatre Mode">Theatre</button>
+              <button type="button" id="btn-fullscreen" class="studio-btn ghost small" title="Toggle Fullscreen">Fullscreen</button>
+            </div>
+          </div>
+          <div id="variation-browser-grid" class="variation-browser-grid"></div>
+        </div>
+      </div>
+
+      <!-- Right Column: Dynamic Property Controls, Placement, & Export -->
+      <aside class="studio-panel studio-inspector-panel" aria-label="Object Properties And Export">
+        <div class="studio-tabs" role="tablist">
+          <button type="button" class="studio-tab active" data-tab="structure">Structure</button>
+          <button type="button" class="studio-tab" data-tab="details">Details</button>
+          <button type="button" class="studio-tab" data-tab="materials">Materials</button>
+          <button type="button" class="studio-tab" data-tab="placement">Placement</button>
+          <button type="button" class="studio-tab" data-tab="export">Export</button>
+        </div>
+        <div id="studio-tab-content" class="studio-tab-content"></div>
+      </aside>
+        </section>
+      </section>
+    </main>
+    <footer>&copy; <span id="year"></span> B - Built with &hearts; and plain Html/Css/Js by Bear Riley</footer>
+  </div>
+
+  <div id="catalog-view-modal" class="catalog-view-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="catalog-view-title">
+    <div class="ctv-dialog">
+      <header class="ctv-header">
+        <div class="ctv-header-top">
+          <div>
+            <h2 id="catalog-view-title"><i class="fa-solid fa-grip"></i> Categorized 3d Catalog View</h2>
+            <span id="ctv-count-badge" class="ctv-count-badge">Loading Catalog...</span>
+          </div>
+          <button type="button" id="ctv-close-btn" class="studio-btn ghost" aria-label="Close Catalog View">
+            <i class="fa-solid fa-xmark"></i> Close
+          </button>
+        </div>
+        <div class="ctv-toolbar">
+          <div class="ctv-search-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" id="ctv-search-input" placeholder="Search thumbnails by name, space, tag..." autocomplete="off">
+          </div>
+          <div id="ctv-space-filters" class="ctv-space-filters"></div>
+          <select id="ctv-category-select" class="ctv-category-select" aria-label="Filter By Category"></select>
+        </div>
+      </header>
+      <div id="ctv-body" class="ctv-body"></div>
+    </div>
+  </div>
+
+  <div id="studio-toasts" class="studio-toasts" aria-live="polite"></div>
+
+  <script src="/assets/js/scrolling-nebula.js"></script>
+  <script src="/assets/js/global.js"></script>
+  <script src="/assets/js/projects/city-object-suite.js"></script>
+</body>
+</html>
