@@ -8,6 +8,9 @@ const outFile = path.join(repoRoot, 'assets', 'js', 'projects', 'building-genera
 const moduleOrder = [
   'utils.js',
   'core/layouts.js',
+  'core/straight-run-fire-escape.js',
+  'core/tall-staircase.js',
+  'core/rooftop-layout.js',
   'core/entrances.js',
   'config.js',
   'core/blueprints.js',
@@ -15,6 +18,8 @@ const moduleOrder = [
   'geometry/primitives.js',
   'geometry/facades.js',
   'geometry/details.js',
+  'geometry/straight-run-mesh.js',
+  'geometry/tall-staircase-mesh.js',
   'geometry/building.js',
   'studio/preview.js',
   'studio/export.js',

@@ -114,6 +114,12 @@
                     class="fas fa-vector-square"></i> Form</button>
                 <button type="button" role="tab" class="studio-tab" data-tab="facade" aria-selected="false"><i
                     class="fas fa-border-all"></i> Facade</button>
+                <button type="button" role="tab" class="studio-tab" data-tab="entrances" aria-selected="false"><i
+                    class="fas fa-door-closed"></i> Doors</button>
+                <button type="button" role="tab" class="studio-tab" data-tab="rooftop" aria-selected="false"><i
+                    class="fas fa-shield-alt"></i> Roof</button>
+                <button type="button" role="tab" class="studio-tab" data-tab="lighting" aria-selected="false"><i
+                    class="fas fa-lightbulb"></i> Lights</button>
                 <button type="button" role="tab" class="studio-tab" data-tab="features" aria-selected="false"><i
                     class="fas fa-landmark"></i> Details</button>
                 <button type="button" role="tab" class="studio-tab" data-tab="interior" aria-selected="false"><i
@@ -143,6 +149,8 @@
                       class="fas fa-border-all"></i></button>
                   <button id="btn-entrance-debug" class="studio-view-btn" type="button" title="Toggle Entrance Debug Gizmos (E)" aria-label="Toggle Entrance Debug Gizmos"><i
                       class="fas fa-door-open"></i></button>
+                  <button id="btn-player-ref" class="studio-view-btn" type="button" title="Toggle Player Scale Reference" aria-label="Toggle Player Scale Reference"><i
+                      class="fas fa-user"></i></button>
                   <button id="btn-stage-snapshot" class="studio-view-btn" type="button" title="Save snapshot (P)"><i
                       class="fas fa-camera"></i></button>
                   <button id="btn-theatre" class="studio-view-btn" type="button" title="Toggle Theatre Mode (T)" aria-label="Toggle Theatre Mode"><i
@@ -180,6 +188,16 @@
                   </select></label>
                 <label class="studio-check-inline"><input id="ground-grid" type="checkbox" checked /> Grid</label>
                 <label class="studio-check-inline" title="Visualize interactive entrance triggers, anchors, normals, and approach positions"><input id="entrance-debug-toggle" type="checkbox" /> Entrance Debug</label>
+                <label class="studio-check-inline" title="Show 1.82m Player Scale Reference mannequin and 0.60m capsule in Studio Preview only"><input id="player-ref-toggle" type="checkbox" /> Player Scale Ref</label>
+                <label class="studio-select-inline" title="Position Player Scale Reference on entrances, stairs, or landings">Spot <select id="player-ref-spot">
+                    <option value="front_door">Front Door</option>
+                    <option value="front_stoop">Front Stoop</option>
+                    <option value="drop_ladder">Drop Ladder</option>
+                    <option value="stair_landing">Stair Landing</option>
+                    <option value="roof_access">Roof Access</option>
+                    <option value="tall_stair_entry">Tall Stair Entry</option>
+                    <option value="tall_stair_landing">Tall Stair Landing</option>
+                  </select></label>
                 <span class="studio-preview-hint"><i class="far fa-lightbulb"></i> Changes update the model
                   automagically</span>
               </div>
