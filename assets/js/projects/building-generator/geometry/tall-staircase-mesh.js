@@ -12,7 +12,7 @@ function addTallBracket(parent, xPos, yDeckTop, deckT, zWalkMin, zWalkMax, mat, 
   const beamY = yDeckTop - deckT - beamH * 0.5;
   const beamSpan = zWalkMax + 0.08;
   box(parent, xPos, beamY, beamSpan * 0.5 - 0.01, beamW, beamH, beamSpan + 0.02, mat);
-  // Wall mounting plate anchored cleanly at facade surface (z=0.015)
+  // Wall mounting plate at facade surface (z=0.015)
   box(parent, xPos, beamY - 0.16, 0.015, 0.16, 0.42, 0.03, mat);
   // 45-degree diagonal knee brace from lower wall plate to outer underside of cantilever beam
   line(
@@ -45,7 +45,7 @@ function addTallStringerBeam(parent, xStart, yLower, xEnd, yUpper, zPos, mat, he
 function addTallLandingDoorway(parent, door, yTop, zWalkMin, deckT, cfg, steel, trimMat) {
   const dw = door.width;
   const dh = door.height;
-  // Steel threshold apron bridging wall gap cleanly at landing surface elevation
+  // Steel threshold apron at landing elevation
   box(parent, door.localX, yTop - deckT * 0.5, zWalkMin * 0.5, dw + 0.16, deckT, zWalkMin + 0.04, steel);
 
   // Masonry/steel doorway trim and recessed door panel mounted on facade (z = 0.01..0.09)
@@ -145,7 +145,7 @@ export function addTallStaircaseGeometry(parent, groundSegments, cfg, convention
     box(tallGroup, loc.x, loc.yCenter, zWalkMax + 0.025, loc.length, deckThickness + 0.02, 0.05, stringerMat);
     box(tallGroup, loc.x, loc.yCenter, zWalkMin - 0.025, loc.length, deckThickness + 0.02, 0.05, stringerMat);
 
-    // Wall brackets bolted cleanly at both landing ends
+    // Wall brackets at both landing ends
     addTallBracket(tallGroup, loc.xMin + 0.14, loc.yTop, deckThickness, zWalkMin, zWalkMax, steel, heavy);
     addTallBracket(tallGroup, loc.xMax - 0.14, loc.yTop, deckThickness, zWalkMin, zWalkMax, steel, heavy);
 
@@ -174,8 +174,7 @@ export function addTallStaircaseGeometry(parent, groundSegments, cfg, convention
     // End guardrails on first elevated landing (if drop ladder) or topmost landing
     if (landing.floor === 1 && layout.dropLadder) {
       const dl = layout.dropLadder.local;
-      // Outer ladder opening handled cleanly by keeping xMin closed and drop opening at end if needed;
-      // enclose left end of elevated F1 landing
+      // Enclose left end of elevated F1 landing (drop opening sits at outer end)
       box(tallGroup, loc.xMin, loc.yTop + railHeight * 0.5, zPathCenter, 0.05, 0.05, stairWidth + 0.06, steel);
       box(tallGroup, loc.xMin, loc.yTop + railHeight, zPathCenter, 0.05, 0.05, stairWidth + 0.06, steel);
     }

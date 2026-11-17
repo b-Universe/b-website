@@ -931,7 +931,7 @@ function computeFireEscapeFlights(cfg, groundSegments, placement) {
         ? { kind: 'roof_ladder', centerZ: roofCenterZ, portalW }
         : null;
 
-      // Support braces attached cleanly at spandrel piers near deck ends
+      // Support braces at spandrel piers near deck ends
       const hasBraces = supportStyle === 'columns_and_braces' || supportStyle === 'wall_brackets';
       const braceXs = [roundNum(minDeckX + 0.10, 4), roundNum(maxDeckX - 0.10, 4)];
       const braceOutZ = roundNum(supportStyle === 'wall_brackets' ? (totalDeckD - 0.14) : Math.min(totalDeckD - 0.14, stepBackZ + 1.25), 4);
@@ -1702,7 +1702,7 @@ function computeBuildingWindows(cfg, groundSegmentsInput = null, tallLayout = nu
         const roomIndex = Math.floor(c / 2);
         const roomId = `room_f${f}_${side}_${roomIndex}`;
 
-        // Believable room-level occupancy: windows in the same room light up together deterministically
+        // Group same-room windows so occupancy lighting stays consistent
         const roomHash = Math.abs((((cfg.seed || 1337) * 7919 + f * 1013 + roomIndex * 271 + side.charCodeAt(0) * 43) % 10000) / 10000);
         const isRoomLit = roomHash < litProbability;
         const isLit = isRoomLit && (profile === 'commercial' ? ((((c * 17) % 10) / 10) < 0.92) : true);
@@ -1801,7 +1801,7 @@ function getExposedSpanOnSide(seg, side) {
   let minSpan = rawMin + 0.35;
   let maxSpan = rawMax - 0.35;
 
-  // Exclude occluded spans cleanly if non-trivial
+  // Exclude non-trivial occluded spans
   for (const [bStart, bEnd] of blocked) {
     if (bEnd <= minSpan || bStart >= maxSpan) continue;
     const leftLen = bStart - minSpan;
@@ -2069,7 +2069,7 @@ function computeStraightRunFireEscape(groundSegments, placement, cfg) {
     };
   }
 
-  // Distribute slack cleanly across landings up to preferred sizes
+  // Distribute slack across landings up to preferred sizes
   const prefSpan =
     numFlights * flightRun +
     STRAIGHT_RUN_PROFILE.landingLengthPreferred +
@@ -3407,7 +3407,7 @@ function computeDeterministicRooftopLayout(cfg, topSegments, groundMain = null) 
     placedFootprints.push({ x: px, z: pz, hw: halfW, hd: halfD });
   };
 
-  // 1. Rooftop stairwell headhouse
+  // Rooftop stairwell headhouse
   let headhouse = null;
   const headW = Number(cfg.roofAccessWidth) || 2.4;
   const headD = Number(cfg.roofAccessDepth) || 3.2;
@@ -3451,7 +3451,7 @@ function computeDeterministicRooftopLayout(cfg, topSegments, groundMain = null) 
     return Math.abs(px - headHx) < (headW * 0.5 + radius) && Math.abs(pz - headHz) < (headD * 0.5 + radius);
   };
 
-  // 2. Rooftop water tank
+  // Rooftop water tank
   let waterTank = null;
   if (cfg.rooftopWaterTank && b0.maxX > b0.minX && b0.maxZ > b0.minZ) {
     let tx = clamp(mainSeg.x + (mainSeg.w - cut) * 0.2, b0.minX, b0.maxX);
@@ -3509,7 +3509,7 @@ function computeDeterministicRooftopLayout(cfg, topSegments, groundMain = null) 
     cableAnchors.push([tx, roofDeckY + 2.5, tz]);
   }
 
-  // 3. Rooftop ventilation fans (explicit placement)
+  // Rooftop ventilation fans (explicit placement)
   const ventilationFans = [];
   if (cfg.rooftopVents) {
     for (let i = 0; i < 2; i++) {
@@ -3534,7 +3534,7 @@ function computeDeterministicRooftopLayout(cfg, topSegments, groundMain = null) 
     }
   }
 
-  // 4. Maintenance roof hatch
+  // Maintenance roof hatch
   let roofHatch = null;
   if (cfg.rooftopHatch) {
     const hx = mainSeg.x - mainSeg.w * 0.28;
@@ -3556,7 +3556,7 @@ function computeDeterministicRooftopLayout(cfg, topSegments, groundMain = null) 
     fixtures.push({ id: 'roof_hatch_1', category: 'roof_hatch', colliderIds: [hatchCol.id] });
   }
 
-  // 5. Chimneys
+  // Chimneys
   const chimneys = [];
   const chimneyCount = Math.max(0, Math.round(Number(cfg.chimneys) || 0));
   for (let i = 0; i < chimneyCount; i++) {
@@ -3625,7 +3625,7 @@ function computeDeterministicRooftopLayout(cfg, topSegments, groundMain = null) 
     cableAnchors.push([cx, baseHeight + chimH * 0.85, cz]);
   }
 
-  // 6. Rooftop HVAC / mechanical units & exhaust vents
+  // Rooftop HVAC / mechanical units & exhaust vents
   const hvacUnits = [];
   const exhaustVents = [];
   const hvacPositions = [];
@@ -3688,7 +3688,7 @@ function computeDeterministicRooftopLayout(cfg, topSegments, groundMain = null) 
     }
   }
 
-  // 7. Decorative-only antenna & pipes (not emitted into solid colliders)
+  // Decorative-only antenna & pipes (not emitted into solid colliders)
   let antenna = null;
   if (cfg.antennas && b0.maxX > b0.minX && b0.maxZ > b0.minZ) {
     const ax = isPitched ? mainSeg.x - cut * 0.5 : clamp(mainSeg.x - mainSeg.w * 0.28, b0.minX, b0.maxX);
@@ -6532,7 +6532,7 @@ function addFireEscape(parent, seg, placement, cfg) {
         box(group, panel.centerX, y, panel.centerZ, panel.widthX, deckT, panel.depthZ, deckMeshMat);
       }
 
-      // Perimeter fascia beams for crisp steel balcony silhouette
+      // Perimeter fascia beams
       box(group, lp.centerDeckX, y - 0.02, lp.totalDeckD - 0.03, lp.fullDeckW, 0.09, 0.05, steel);
       box(group, lp.minDeckX + 0.03, y - 0.02, lp.stepBackZ + deckD * 0.5, 0.05, 0.09, deckD, steel);
       box(group, lp.maxDeckX - 0.03, y - 0.02, lp.stepBackZ + deckD * 0.5, 0.05, 0.09, deckD, steel);
@@ -6591,7 +6591,7 @@ function addFireEscape(parent, seg, placement, cfg) {
         addFireEscapeFlightMesh(group, flight, stairHW, stairTreadD, steel);
       }
 
-      // Drop ladder mounted cleanly at F1 West (-X) portal
+      // Drop ladder at F1 West (-X) portal
       if (i === 1 && lp.leftPortal) {
         const lx = lp.minDeckX - 0.06 - (extraLadderClearance > 0 ? extraLadderClearance * 0.5 : 0);
         const lz = lp.leftPortal.centerZ;
@@ -6615,7 +6615,7 @@ function addFireEscape(parent, seg, placement, cfg) {
         }
       }
 
-      // Roof access gooseneck ladder mounted cleanly at top arrival turnaround end
+      // Roof access gooseneck ladder at top turnaround
       if (lp.isTopFloor && cfg.fireEscapeRoofAccess !== false) {
         const portal = lp.rightPortal || lp.leftPortal;
         const endSign = lp.rightPortal ? 1 : -1;
@@ -7807,7 +7807,7 @@ function addGraffiti(parent, groundSegments, cfg) {
       blocked.push([primary.z - 1.3, primary.z + 1.3]);
     }
 
-    // Also block exact window columns reproduced cleanly on Floor 1
+    // Block Floor 1 window columns
     const withWindowBlocked = [...blocked];
     if (!(side === 'front' && primary.hasEntrance && cfg.groundUse === 'shop')) {
       const desiredCols = isLong ? (cfg.windowsX || 3) : (cfg.windowsSide || 3);
@@ -7945,7 +7945,7 @@ function addStraightRunFireEscapeGeometry(parent, groundSegments, placement, cfg
     deckThickness
   } = layout.dimensions;
 
-  // 1. Landings & underlying wall support brackets
+  // Landings & underlying wall support brackets
   for (const landing of layout.landings) {
     const loc = landing.local;
     const deckMesh = box(
@@ -7963,7 +7963,7 @@ function addStraightRunFireEscapeGeometry(parent, groundSegments, placement, cfg
       deckMesh.userData = { componentId: landing.id, type: 'landing', floor: landing.floor };
     }
 
-    // Structural underside brackets mounted below deck slab so upper path stays 100% clear
+    // Underside support brackets below deck slab
     if (loc.zMin > 0.05) {
       const spanOut = zWalkMax + 0.04;
       const bracketY = loc.yTop - deckThickness - 0.03;
@@ -7975,11 +7975,11 @@ function addStraightRunFireEscapeGeometry(parent, groundSegments, placement, cfg
     }
   }
 
-  // 2. Vertical railing segments along landings and stepped barrier visual rails
+  // Vertical railing segments along landings and stepped barrier visual rails
   for (const rail of layout.railings) {
     const rl = rail.local;
     const isStairRail = rail.id.includes('_stair_');
-    if (isStairRail) continue; // Rendered smoothly as continuous sloped stair handrails below
+    if (isStairRail) continue; // Handrails are added as continuous sloped rails below
 
     const yBot = rl.y - rl.height * 0.5;
     const yTop = yBot + rl.height;
@@ -8000,7 +8000,7 @@ function addStraightRunFireEscapeGeometry(parent, groundSegments, placement, cfg
     }
   }
 
-  // 3. Straight-run stair flights, individual ~1 B unit treads, sloped stringers & handrails
+  // Straight-run stair flights, individual ~1 B unit treads, sloped stringers & handrails
   for (const flight of layout.flights) {
     const fl = flight.local;
     const treadThickness = flight.treads[0]?.treadMetrics.thickness || 0.0607;
@@ -8066,7 +8066,7 @@ function addStraightRunFireEscapeGeometry(parent, groundSegments, placement, cfg
     }
   }
 
-  // 4. Unobstructed front drop ladder (exact match to fe_ladder_drop)
+  // Front drop ladder (matches fe_ladder_drop)
   if (layout.dropLadder) {
     const dl = layout.dropLadder.local;
     const zHalf = dl.width * 0.5 - 0.025;
@@ -8075,7 +8075,7 @@ function addStraightRunFireEscapeGeometry(parent, groundSegments, placement, cfg
     for (const zOff of [-zHalf, zHalf]) {
       const pz = dl.z + zOff;
       box(feGroup, dl.x, (dl.minY + topBarY) * 0.5, pz, 0.045, topBarY - dl.minY, 0.045, steel);
-      // Connect top handrail smoothly back to F1 landing corner without obstructing center
+      // Connect top handrail to F1 landing corner
       line(feGroup, [dl.x, topBarY - 0.03, pz], [dl.x + 0.14, dl.maxY + railHeight - 0.03, pz], 0.025, steel);
     }
 
@@ -8087,7 +8087,7 @@ function addStraightRunFireEscapeGeometry(parent, groundSegments, placement, cfg
     }
   }
 
-  // 5. Roof access gooseneck ladder reaching parapet top (exact match to fe_ladder_roof)
+  // Roof access gooseneck ladder (matches fe_ladder_roof)
   if (layout.roofLadder) {
     const rl = layout.roofLadder.local;
     const xHalf = rl.width * 0.5 - 0.025;
@@ -8097,7 +8097,7 @@ function addStraightRunFireEscapeGeometry(parent, groundSegments, placement, cfg
       const rx = rl.x + xOff;
       // Vertical rail from F3 portal to above roof parapet
       box(feGroup, rx, (rl.minY + rl.maxY) * 0.5, wallRailZ, 0.045, rl.maxY - rl.minY, 0.045, steel);
-      // Gooseneck return curving cleanly onto roof deck
+      // Gooseneck return onto roof deck
       line(feGroup, [rx, rl.maxY, wallRailZ], [rx, rl.maxY + 0.28, wallRailZ - 0.18], 0.026, steel);
       line(feGroup, [rx, rl.maxY + 0.28, wallRailZ - 0.18], [rx, rl.roofDeckTop, -0.58], 0.026, steel);
     }
@@ -8122,7 +8122,7 @@ function addDeterministicRooftopGeometry(group, topSegments, groundMain, cfg) {
   const pipeMat = solid('#5b6468');
   const cableMat = solid('#1d2225');
 
-  // 1. Rooftop stairwell headhouse
+  // Rooftop stairwell headhouse
   if (layout.headhouse) {
     const hSpec = layout.headhouse;
     let wallMat;
@@ -8164,7 +8164,7 @@ function addDeterministicRooftopGeometry(group, topSegments, groundMain, cfg) {
     box(doorGroup, 0, dh + 0.18, 0.18, 0.08, 0.1, 0.08, solid('#ffe8a3'));
   }
 
-  // 2. Rooftop water tank
+  // Rooftop water tank
   if (layout.waterTank) {
     const wt = layout.waterTank;
     for (const dx of [-0.66, 0.66]) {
@@ -8182,7 +8182,7 @@ function addDeterministicRooftopGeometry(group, topSegments, groundMain, cfg) {
     }
   }
 
-  // 3. Chimneys
+  // Chimneys
   for (const ch of layout.chimneys) {
     const shaft = box(group, ch.x, ch.baseY + ch.chimH * 0.5, ch.z, ch.shaftW, ch.chimH, ch.shaftD, solid('#676663'));
     if (shaft) {
@@ -8196,7 +8196,7 @@ function addDeterministicRooftopGeometry(group, topSegments, groundMain, cfg) {
     }
   }
 
-  // 4. HVAC units
+  // HVAC units
   for (const unit of layout.hvacUnits) {
     const body = box(group, unit.x, unit.baseY + unit.h * 0.5, unit.z, unit.w, unit.h, unit.d, roof);
     if (body) {
@@ -8208,7 +8208,7 @@ function addDeterministicRooftopGeometry(group, topSegments, groundMain, cfg) {
     }
   }
 
-  // 5. Exhaust vents
+  // Exhaust vents
   for (const vent of layout.exhaustVents) {
     const lower = cylinder(group, vent.x, vent.baseY + 0.13, vent.z, vent.radius, vent.radius, 0.26, metal, 8);
     if (lower) {
@@ -8219,7 +8219,7 @@ function addDeterministicRooftopGeometry(group, topSegments, groundMain, cfg) {
     if (upper) upper.userData = { rooftopColliderId: vent.id };
   }
 
-  // 6. Industrial ventilation fans
+  // Industrial ventilation fans
   for (const vf of layout.ventilationFans) {
     const base = box(group, vf.x, vf.baseY + 0.15, vf.z, 1.15, 0.3, 1.15, solid('#3e484f'));
     if (base) {
@@ -8233,7 +8233,7 @@ function addDeterministicRooftopGeometry(group, topSegments, groundMain, cfg) {
     box(group, vf.x, vf.baseY + 0.6, vf.z, 0.92, 0.05, 0.92, solid('#1f262b'));
   }
 
-  // 7. Roof access hatch
+  // Roof access hatch
   if (layout.roofHatch) {
     const rh = layout.roofHatch;
     const curb = box(group, rh.x, rh.baseY + 0.18, rh.z, 1.05, 0.36, 1.05, solid('#475569'));
@@ -8247,7 +8247,7 @@ function addDeterministicRooftopGeometry(group, topSegments, groundMain, cfg) {
     box(group, rh.x, rh.baseY + 0.44, rh.z + 0.42, 0.22, 0.08, 0.05, solid('#e2b855'));
   }
 
-  // 8. Decorative antenna, thin pipes, and cables (explicitly excluded from colliders)
+  // Decorative antenna, pipes, and cables (excluded from colliders)
   if (layout.antenna) {
     const ant = layout.antenna;
     line(group, [ant.x, ant.baseY, ant.z], [ant.x, ant.baseY + 3, ant.z], 0.055, roof);
@@ -8312,7 +8312,7 @@ function addTallBracket(parent, xPos, yDeckTop, deckT, zWalkMin, zWalkMax, mat, 
   const beamY = yDeckTop - deckT - beamH * 0.5;
   const beamSpan = zWalkMax + 0.08;
   box(parent, xPos, beamY, beamSpan * 0.5 - 0.01, beamW, beamH, beamSpan + 0.02, mat);
-  // Wall mounting plate anchored cleanly at facade surface (z=0.015)
+  // Wall mounting plate at facade surface (z=0.015)
   box(parent, xPos, beamY - 0.16, 0.015, 0.16, 0.42, 0.03, mat);
   // 45-degree diagonal knee brace from lower wall plate to outer underside of cantilever beam
   line(
@@ -8345,7 +8345,7 @@ function addTallStringerBeam(parent, xStart, yLower, xEnd, yUpper, zPos, mat, he
 function addTallLandingDoorway(parent, door, yTop, zWalkMin, deckT, cfg, steel, trimMat) {
   const dw = door.width;
   const dh = door.height;
-  // Steel threshold apron bridging wall gap cleanly at landing surface elevation
+  // Steel threshold apron at landing elevation
   box(parent, door.localX, yTop - deckT * 0.5, zWalkMin * 0.5, dw + 0.16, deckT, zWalkMin + 0.04, steel);
 
   // Masonry/steel doorway trim and recessed door panel mounted on facade (z = 0.01..0.09)
@@ -8412,7 +8412,7 @@ function addTallStaircaseGeometry(parent, groundSegments, cfg, conventionalPlace
     deckThickness
   } = layout.dimensions;
 
-  // 1. Street-level concrete approach plinth when starting at ground level
+  // Street-level concrete approach plinth when starting at ground level
   if (layout.groundPlinth) {
     const gp = layout.groundPlinth.local;
     box(tallGroup, gp.x, -0.025, gp.zCenter, gp.length, 0.15, gp.depth + 0.16, plinthMat);
@@ -8425,7 +8425,7 @@ function addTallStaircaseGeometry(parent, groundSegments, cfg, conventionalPlace
     }
   }
 
-  // 2. Elevated landings + structural wall brackets + doorway thresholds
+  // Elevated landings + structural wall brackets + doorway thresholds
   const doorByFloor = new Map();
   for (const d of layout.doorways) {
     doorByFloor.set(d.floor, d);
@@ -8445,7 +8445,7 @@ function addTallStaircaseGeometry(parent, groundSegments, cfg, conventionalPlace
     box(tallGroup, loc.x, loc.yCenter, zWalkMax + 0.025, loc.length, deckThickness + 0.02, 0.05, stringerMat);
     box(tallGroup, loc.x, loc.yCenter, zWalkMin - 0.025, loc.length, deckThickness + 0.02, 0.05, stringerMat);
 
-    // Wall brackets bolted cleanly at both landing ends
+    // Wall brackets at both landing ends
     addTallBracket(tallGroup, loc.xMin + 0.14, loc.yTop, deckThickness, zWalkMin, zWalkMax, steel, heavy);
     addTallBracket(tallGroup, loc.xMax - 0.14, loc.yTop, deckThickness, zWalkMin, zWalkMax, steel, heavy);
 
@@ -8474,8 +8474,7 @@ function addTallStaircaseGeometry(parent, groundSegments, cfg, conventionalPlace
     // End guardrails on first elevated landing (if drop ladder) or topmost landing
     if (landing.floor === 1 && layout.dropLadder) {
       const dl = layout.dropLadder.local;
-      // Outer ladder opening handled cleanly by keeping xMin closed and drop opening at end if needed;
-      // enclose left end of elevated F1 landing
+      // Enclose left end of elevated F1 landing (drop opening sits at outer end)
       box(tallGroup, loc.xMin, loc.yTop + railHeight * 0.5, zPathCenter, 0.05, 0.05, stairWidth + 0.06, steel);
       box(tallGroup, loc.xMin, loc.yTop + railHeight, zPathCenter, 0.05, 0.05, stairWidth + 0.06, steel);
     }
@@ -8486,7 +8485,7 @@ function addTallStaircaseGeometry(parent, groundSegments, cfg, conventionalPlace
     }
   }
 
-  // 3. Continuous 1-unit stair flights + inclined steel stringers + handrails
+  // Continuous 1-unit stair flights + inclined steel stringers + handrails
   for (const flight of layout.flights) {
     const { xStart, xEnd, yLower, yUpper } = flight.local;
     const midX = (xStart + xEnd) * 0.5;
@@ -8526,7 +8525,7 @@ function addTallStaircaseGeometry(parent, groundSegments, cfg, conventionalPlace
     }
   }
 
-  // 4. Optional elevated F1 drop ladder
+  // Optional elevated F1 drop ladder
   if (layout.dropLadder) {
     const dl = layout.dropLadder.local;
     for (const lx of [dl.x - dl.width * 0.5, dl.x + dl.width * 0.5]) {
@@ -8539,7 +8538,7 @@ function addTallStaircaseGeometry(parent, groundSegments, cfg, conventionalPlace
     }
   }
 
-  // 5. Optional rooftop parapet gooseneck ladder aligned to Fk landing
+  // Optional rooftop parapet gooseneck ladder aligned to Fk landing
   if (layout.roofLadder) {
     const rl = layout.roofLadder.local;
     const wallRailZ = rl.z;
@@ -8872,7 +8871,7 @@ function buildFireEscapeDebugGizmos(parent, blueprint, view = {}) {
   const root = worldRoot(parent);
   root.name = 'FireEscapeDebugGizmos';
 
-  // Usable player-clearance envelopes (Requirement 10)
+  // Player-clearance envelopes
   if (showClearance && Array.isArray(feMeta.clearanceVolumes)) {
     for (const cv of feMeta.clearanceVolumes) {
       if (cv.type === 'landing_clearance' && cv.position && cv.dimensions) {
@@ -8915,7 +8914,7 @@ function buildFireEscapeDebugGizmos(parent, blueprint, view = {}) {
     }
   }
 
-  // Connected walking route line from street to rooftop (Requirement 10)
+  // Street-to-rooftop walking route line
   if (showRoute && Array.isArray(feMeta.walkableRoutes)) {
     for (const rDef of feMeta.walkableRoutes) {
       const wps = rDef.waypoints || [];
@@ -8945,7 +8944,7 @@ function buildFireEscapeDebugGizmos(parent, blueprint, view = {}) {
     }
   }
 
-  // Traversal status / warnings billboard (Requirement 11)
+  // Traversal status / warnings billboard
   if (view.showEntranceLabels !== false) {
     const topFloor = (blueprint?.settings?.floors || 5) - 1;
     const floorH = Number(blueprint?.settings?.floorHeight) || 3.3;
@@ -9103,7 +9102,7 @@ function buildPlayerScaleReference(parent, blueprint, view = {}) {
   box(root, 0, 1.67, 0, 0.21, 0.28, 0.22, skin);
   box(root, 0, 1.69, 0.105, 0.15, 0.06, 0.03, visor);
 
-  // Subtle 0.60m capsule footprint ring + 2.05m headroom halo (debug-only, unexported)
+  // 0.60m capsule footprint ring + 2.05m headroom halo
   const capMat = new THREE.MeshBasicMaterial({
     color: '#38bdf8',
     transparent: true,

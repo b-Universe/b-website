@@ -57,7 +57,7 @@ function getExposedSpanOnSide(seg, side) {
   let minSpan = rawMin + 0.35;
   let maxSpan = rawMax - 0.35;
 
-  // Exclude occluded spans cleanly if non-trivial
+  // Exclude non-trivial occluded spans
   for (const [bStart, bEnd] of blocked) {
     if (bEnd <= minSpan || bStart >= maxSpan) continue;
     const leftLen = bStart - minSpan;
@@ -325,7 +325,7 @@ export function computeStraightRunFireEscape(groundSegments, placement, cfg) {
     };
   }
 
-  // Distribute slack cleanly across landings up to preferred sizes
+  // Distribute slack across landings up to preferred sizes
   const prefSpan =
     numFlights * flightRun +
     STRAIGHT_RUN_PROFILE.landingLengthPreferred +

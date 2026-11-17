@@ -878,7 +878,7 @@ export function computeFireEscapeFlights(cfg, groundSegments, placement) {
         ? { kind: 'roof_ladder', centerZ: roofCenterZ, portalW }
         : null;
 
-      // Support braces attached cleanly at spandrel piers near deck ends
+      // Support braces at spandrel piers near deck ends
       const hasBraces = supportStyle === 'columns_and_braces' || supportStyle === 'wall_brackets';
       const braceXs = [roundNum(minDeckX + 0.10, 4), roundNum(maxDeckX - 0.10, 4)];
       const braceOutZ = roundNum(supportStyle === 'wall_brackets' ? (totalDeckD - 0.14) : Math.min(totalDeckD - 0.14, stepBackZ + 1.25), 4);
@@ -1649,7 +1649,7 @@ export function computeBuildingWindows(cfg, groundSegmentsInput = null, tallLayo
         const roomIndex = Math.floor(c / 2);
         const roomId = `room_f${f}_${side}_${roomIndex}`;
 
-        // Believable room-level occupancy: windows in the same room light up together deterministically
+        // Group same-room windows so occupancy lighting stays consistent
         const roomHash = Math.abs((((cfg.seed || 1337) * 7919 + f * 1013 + roomIndex * 271 + side.charCodeAt(0) * 43) % 10000) / 10000);
         const isRoomLit = roomHash < litProbability;
         const isLit = isRoomLit && (profile === 'commercial' ? ((((c * 17) % 10) / 10) < 0.92) : true);

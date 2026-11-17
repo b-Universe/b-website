@@ -172,7 +172,7 @@ export function addFireEscape(parent, seg, placement, cfg) {
         box(group, panel.centerX, y, panel.centerZ, panel.widthX, deckT, panel.depthZ, deckMeshMat);
       }
 
-      // Perimeter fascia beams for crisp steel balcony silhouette
+      // Perimeter fascia beams
       box(group, lp.centerDeckX, y - 0.02, lp.totalDeckD - 0.03, lp.fullDeckW, 0.09, 0.05, steel);
       box(group, lp.minDeckX + 0.03, y - 0.02, lp.stepBackZ + deckD * 0.5, 0.05, 0.09, deckD, steel);
       box(group, lp.maxDeckX - 0.03, y - 0.02, lp.stepBackZ + deckD * 0.5, 0.05, 0.09, deckD, steel);
@@ -231,7 +231,7 @@ export function addFireEscape(parent, seg, placement, cfg) {
         addFireEscapeFlightMesh(group, flight, stairHW, stairTreadD, steel);
       }
 
-      // Drop ladder mounted cleanly at F1 West (-X) portal
+      // Drop ladder at F1 West (-X) portal
       if (i === 1 && lp.leftPortal) {
         const lx = lp.minDeckX - 0.06 - (extraLadderClearance > 0 ? extraLadderClearance * 0.5 : 0);
         const lz = lp.leftPortal.centerZ;
@@ -255,7 +255,7 @@ export function addFireEscape(parent, seg, placement, cfg) {
         }
       }
 
-      // Roof access gooseneck ladder mounted cleanly at top arrival turnaround end
+      // Roof access gooseneck ladder at top turnaround
       if (lp.isTopFloor && cfg.fireEscapeRoofAccess !== false) {
         const portal = lp.rightPortal || lp.leftPortal;
         const endSign = lp.rightPortal ? 1 : -1;
@@ -1447,7 +1447,7 @@ export function addGraffiti(parent, groundSegments, cfg) {
       blocked.push([primary.z - 1.3, primary.z + 1.3]);
     }
 
-    // Also block exact window columns reproduced cleanly on Floor 1
+    // Block Floor 1 window columns
     const withWindowBlocked = [...blocked];
     if (!(side === 'front' && primary.hasEntrance && cfg.groundUse === 'shop')) {
       const desiredCols = isLong ? (cfg.windowsX || 3) : (cfg.windowsSide || 3);

@@ -45,7 +45,7 @@ export function addStraightRunFireEscapeGeometry(parent, groundSegments, placeme
       deckMesh.userData = { componentId: landing.id, type: 'landing', floor: landing.floor };
     }
 
-    // Structural underside brackets mounted below deck slab so upper path stays 100% clear
+    // Underside support brackets below deck slab
     if (loc.zMin > 0.05) {
       const spanOut = zWalkMax + 0.04;
       const bracketY = loc.yTop - deckThickness - 0.03;
@@ -61,7 +61,7 @@ export function addStraightRunFireEscapeGeometry(parent, groundSegments, placeme
   for (const rail of layout.railings) {
     const rl = rail.local;
     const isStairRail = rail.id.includes('_stair_');
-    if (isStairRail) continue; // Rendered smoothly as continuous sloped stair handrails below
+    if (isStairRail) continue; // Handrails are added as continuous sloped rails below
 
     const yBot = rl.y - rl.height * 0.5;
     const yTop = yBot + rl.height;
@@ -148,7 +148,7 @@ export function addStraightRunFireEscapeGeometry(parent, groundSegments, placeme
     }
   }
 
-  // Unobstructed front drop ladder (exact match to fe_ladder_drop)
+  // Front drop ladder (matches fe_ladder_drop)
   if (layout.dropLadder) {
     const dl = layout.dropLadder.local;
     const zHalf = dl.width * 0.5 - 0.025;
@@ -157,7 +157,7 @@ export function addStraightRunFireEscapeGeometry(parent, groundSegments, placeme
     for (const zOff of [-zHalf, zHalf]) {
       const pz = dl.z + zOff;
       box(feGroup, dl.x, (dl.minY + topBarY) * 0.5, pz, 0.045, topBarY - dl.minY, 0.045, steel);
-      // Connect top handrail smoothly back to F1 landing corner without obstructing center
+      // Connect top handrail to F1 landing corner
       line(feGroup, [dl.x, topBarY - 0.03, pz], [dl.x + 0.14, dl.maxY + railHeight - 0.03, pz], 0.025, steel);
     }
 
@@ -169,7 +169,7 @@ export function addStraightRunFireEscapeGeometry(parent, groundSegments, placeme
     }
   }
 
-  // Roof access gooseneck ladder reaching parapet top (exact match to fe_ladder_roof)
+  // Roof access gooseneck ladder (matches fe_ladder_roof)
   if (layout.roofLadder) {
     const rl = layout.roofLadder.local;
     const xHalf = rl.width * 0.5 - 0.025;
@@ -179,7 +179,7 @@ export function addStraightRunFireEscapeGeometry(parent, groundSegments, placeme
       const rx = rl.x + xOff;
       // Vertical rail from F3 portal to above roof parapet
       box(feGroup, rx, (rl.minY + rl.maxY) * 0.5, wallRailZ, 0.045, rl.maxY - rl.minY, 0.045, steel);
-      // Gooseneck return curving cleanly onto roof deck
+      // Gooseneck return onto roof deck
       line(feGroup, [rx, rl.maxY, wallRailZ], [rx, rl.maxY + 0.28, wallRailZ - 0.18], 0.026, steel);
       line(feGroup, [rx, rl.maxY + 0.28, wallRailZ - 0.18], [rx, rl.roofDeckTop, -0.58], 0.026, steel);
     }
@@ -329,7 +329,7 @@ export function addDeterministicRooftopGeometry(group, topSegments, groundMain, 
     box(group, rh.x, rh.baseY + 0.44, rh.z + 0.42, 0.22, 0.08, 0.05, solid('#e2b855'));
   }
 
-  // Decorative antenna, thin pipes, and cables (explicitly excluded from colliders)
+  // Decorative antenna, pipes, and cables (excluded from colliders)
   if (layout.antenna) {
     const ant = layout.antenna;
     line(group, [ant.x, ant.baseY, ant.z], [ant.x, ant.baseY + 3, ant.z], 0.055, roof);

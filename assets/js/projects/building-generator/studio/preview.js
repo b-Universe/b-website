@@ -192,7 +192,7 @@ export function buildFireEscapeDebugGizmos(parent, blueprint, view = {}) {
   const root = worldRoot(parent);
   root.name = 'FireEscapeDebugGizmos';
 
-  // Usable player-clearance envelopes (Requirement 10)
+  // Player-clearance envelopes
   if (showClearance && Array.isArray(feMeta.clearanceVolumes)) {
     for (const cv of feMeta.clearanceVolumes) {
       if (cv.type === 'landing_clearance' && cv.position && cv.dimensions) {
@@ -235,7 +235,7 @@ export function buildFireEscapeDebugGizmos(parent, blueprint, view = {}) {
     }
   }
 
-  // Connected walking route line from street to rooftop (Requirement 10)
+  // Street-to-rooftop walking route line
   if (showRoute && Array.isArray(feMeta.walkableRoutes)) {
     for (const rDef of feMeta.walkableRoutes) {
       const wps = rDef.waypoints || [];
@@ -265,7 +265,7 @@ export function buildFireEscapeDebugGizmos(parent, blueprint, view = {}) {
     }
   }
 
-  // Traversal status / warnings billboard (Requirement 11)
+  // Traversal status / warnings billboard
   if (view.showEntranceLabels !== false) {
     const topFloor = (blueprint?.settings?.floors || 5) - 1;
     const floorH = Number(blueprint?.settings?.floorHeight) || 3.3;
@@ -423,7 +423,7 @@ export function buildPlayerScaleReference(parent, blueprint, view = {}) {
   box(root, 0, 1.67, 0, 0.21, 0.28, 0.22, skin);
   box(root, 0, 1.69, 0.105, 0.15, 0.06, 0.03, visor);
 
-  // Subtle 0.60m capsule footprint ring + 2.05m headroom halo (debug-only, unexported)
+  // 0.60m capsule footprint ring + 2.05m headroom halo
   const capMat = new THREE.MeshBasicMaterial({
     color: '#38bdf8',
     transparent: true,
