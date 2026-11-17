@@ -1,0 +1,165 @@
+import { rng32, pick, mixHex, darkenHex, lightenHex } from '../utils.js';
+
+const HARMONIOUS_SCHEMES = [
+  {
+    name: 'Classic Limestone & Steel',
+    primaryMaterial: 'limestone',
+    primaryColor: '#c2b9aa',
+    secondaryMaterial: 'limestone',
+    secondaryColor: '#a69d8f',
+    framingMaterial: 'steel',
+    framingColor: '#3a4149',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#29455c',
+    mullionMaterial: 'aluminum',
+    mullionColor: '#5b646e',
+    trimMaterial: 'limestone',
+    trimColor: '#dbd3c5',
+    crownMaterial: 'limestone',
+    crownColor: '#cbc2b4',
+    podiumMaterial: 'granite',
+    podiumColor: '#767069'
+  },
+  {
+    name: 'Dark Art Deco Granite',
+    primaryMaterial: 'dark_stone',
+    primaryColor: '#52444c',
+    secondaryMaterial: 'granite',
+    secondaryColor: '#3d3339',
+    framingMaterial: 'granite',
+    framingColor: '#31282e',
+    glassMaterial: 'dark_glass',
+    glassColor: '#1b2434',
+    mullionMaterial: 'bronze',
+    mullionColor: '#52464b',
+    trimMaterial: 'limestone',
+    trimColor: '#7f7077',
+    crownMaterial: 'dark_stone',
+    crownColor: '#5c4b55',
+    podiumMaterial: 'dark_stone',
+    podiumColor: '#382f35'
+  },
+  {
+    name: 'Midnight Steel & Cobalt Glass',
+    primaryMaterial: 'steel',
+    primaryColor: '#252c36',
+    secondaryMaterial: 'steel',
+    secondaryColor: '#343d4a',
+    framingMaterial: 'steel',
+    framingColor: '#1a1f26',
+    glassMaterial: 'reflective_glass',
+    glassColor: '#24466b',
+    mullionMaterial: 'aluminum',
+    mullionColor: '#485669',
+    trimMaterial: 'steel',
+    trimColor: '#505e70',
+    crownMaterial: 'steel',
+    crownColor: '#202630',
+    podiumMaterial: 'dark_stone',
+    podiumColor: '#262b33'
+  },
+  {
+    name: 'Silver Curtain Wall',
+    primaryMaterial: 'aluminum',
+    primaryColor: '#aeb9c2',
+    secondaryMaterial: 'steel',
+    secondaryColor: '#788896',
+    framingMaterial: 'aluminum',
+    framingColor: '#c2ccd4',
+    glassMaterial: 'reflective_glass',
+    glassColor: '#4d7ea6',
+    mullionMaterial: 'aluminum',
+    mullionColor: '#ced7de',
+    trimMaterial: 'aluminum',
+    trimColor: '#dce3e8',
+    crownMaterial: 'aluminum',
+    crownColor: '#b9c4cc',
+    podiumMaterial: 'granite',
+    podiumColor: '#67717a'
+  },
+  {
+    name: 'Warm Granite & Bronze',
+    primaryMaterial: 'granite',
+    primaryColor: '#9c786e',
+    secondaryMaterial: 'bronze',
+    secondaryColor: '#634f45',
+    framingMaterial: 'bronze',
+    framingColor: '#4a3a32',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#365466',
+    mullionMaterial: 'bronze',
+    mullionColor: '#967c5c',
+    trimMaterial: 'limestone',
+    trimColor: '#d1bfb4',
+    crownMaterial: 'copper',
+    crownColor: '#5f8276',
+    podiumMaterial: 'granite',
+    podiumColor: '#785d55'
+  },
+  {
+    name: 'Architectural Concrete',
+    primaryMaterial: 'concrete',
+    primaryColor: '#999c9e',
+    secondaryMaterial: 'concrete',
+    secondaryColor: '#7e8385',
+    framingMaterial: 'concrete',
+    framingColor: '#aeb1b3',
+    glassMaterial: 'dark_glass',
+    glassColor: '#202b36',
+    mullionMaterial: 'steel',
+    mullionColor: '#343b42',
+    trimMaterial: 'concrete',
+    trimColor: '#b8bbbd',
+    crownMaterial: 'concrete',
+    crownColor: '#8c9092',
+    podiumMaterial: 'concrete',
+    podiumColor: '#6c7073'
+  },
+  {
+    name: 'Terracotta Brick & Copper',
+    primaryMaterial: 'brick',
+    primaryColor: '#8c4b3f',
+    secondaryMaterial: 'limestone',
+    secondaryColor: '#baa995',
+    framingMaterial: 'steel',
+    framingColor: '#363b40',
+    glassMaterial: 'dark_glass',
+    glassColor: '#23303d',
+    mullionMaterial: 'bronze',
+    mullionColor: '#4d4137',
+    trimMaterial: 'limestone',
+    trimColor: '#cfc1ad',
+    crownMaterial: 'copper',
+    crownColor: '#5f877b',
+    podiumMaterial: 'granite',
+    podiumColor: '#68625d'
+  }
+];
+
+export function generateCoherentPalette(seed = 2026) {
+  const r = rng32((seed + 517) >>> 0);
+  const base = pick(r, HARMONIOUS_SCHEMES);
+  const tintShift = (r() - 0.5) * 0.14;
+  const shiftFn = tintShift >= 0
+    ? (hex) => lightenHex(hex, tintShift)
+    : (hex) => darkenHex(hex, -tintShift);
+
+  return {
+    primaryMaterial: base.primaryMaterial,
+    primaryColor: shiftFn(base.primaryColor),
+    secondaryMaterial: base.secondaryMaterial,
+    secondaryColor: shiftFn(base.secondaryColor),
+    framingMaterial: base.framingMaterial,
+    framingColor: base.framingColor,
+    glassMaterial: base.glassMaterial,
+    glassColor: mixHex(base.glassColor, '#2e4e6e', r() * 0.25),
+    mullionMaterial: base.mullionMaterial,
+    mullionColor: base.mullionColor,
+    trimMaterial: base.trimMaterial,
+    trimColor: shiftFn(base.trimColor),
+    crownMaterial: base.crownMaterial,
+    crownColor: shiftFn(base.crownColor),
+    podiumMaterial: base.podiumMaterial,
+    podiumColor: base.podiumColor
+  };
+}
