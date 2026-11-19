@@ -2328,5 +2328,49 @@ export function registerCompositeAssemblies() {
       { id: 'asm_thanksgiving_harvest_feast', label: 'Thanksgiving Harvest & Feast', condition: 'clean', paletteFamily: 'wood_office_executive', params: { spacingScale: 1.0, includeSecondaryProps: true, includeClutter: true } }
     ]
   });
+
+  registerObjectFamily({
+    id: 'hanukkah_festival_of_lights_scene',
+    isAssembly: true,
+    categoryId: 'assemblies',
+    categories: ['assemblies', '30_holidays'],
+    subcategory: 'Exterior & Streetscape',
+    subcategories: ['Exterior & Streetscape', 'Holiday Assemblies', 'Hanukkah & Festival of Lights'],
+    label: 'Hanukkah Festival Of Lights Scene',
+    description: 'Giant public plaza 9-branch menorah, illuminated giant yard dreidel, Hanukkah celebration dining table, stick-on Star of David lights, gift stack, latkes platter, and dreidels.',
+    attachmentProfile: 'ground_standing',
+    supportedAttachments: ['ground_standing'],
+    locationContext: 'both',
+    environmentTags: ['holiday', 'hanukkah', 'winter', 'dining_room', 'outdoor_plaza'],
+    architecturalStyle: 'residential',
+    sizeClass: 'assembly',
+    functionalRole: 'assembly',
+    tags: ['assembly', 'hanukkah', 'menorah', 'dreidel', 'latkes', 'festival_of_lights', 'winter'],
+    schema: ASM_COMMON_SCHEMA,
+    getComponents: (cfg) => {
+      const list = [
+        { componentId: 'plaza_menorah', familyId: 'holiday_hanukkah_menorahs_lights', presetId: 'giant_plaza_public_menorah', pos: [-1.75, 0, -0.75], rotDeg: [0, 18, 0] },
+        { componentId: 'yard_dreidel', familyId: 'holiday_hanukkah_traditions_feast', presetId: 'giant_yard_dreidel_display', pos: [1.85, 0, -0.45], rotDeg: [0, -24, 0] },
+        { componentId: 'feast_table', familyId: 'holiday_hanukkah_traditions_feast', presetId: 'hanukkah_celebration_dining_table', pos: [0.05, 0, 0.55], rotDeg: [0, 0, 0] }
+      ];
+      if (cfg.includeSecondaryProps !== false) {
+        list.push(
+          { componentId: 'window_lights', familyId: 'holiday_hanukkah_menorahs_lights', presetId: 'hanukkah_star_window_lights', pos: [0, 2.25, -1.65], rotDeg: [0, 0, 0], overrides: { attachmentProfile: 'wall_mounted' } },
+          { componentId: 'gift_stack', familyId: 'holiday_hanukkah_traditions_feast', presetId: 'hanukkah_blue_silver_gifts_stack', pos: [-1.75, 0, 0.72], rotDeg: [0, 25, 0], overrides: { attachmentProfile: 'surface_placed' } }
+        );
+      }
+      if (cfg.includeClutter !== false) {
+        list.push(
+          { componentId: 'dreidel_set', familyId: 'holiday_hanukkah_traditions_feast', presetId: 'dreidel_and_gelt_coins_set', pos: [0.68, 0.79, 0.65], rotDeg: [0, 14, 0], overrides: { attachmentProfile: 'surface_placed' } },
+          { componentId: 'latkes_tray', familyId: 'holiday_hanukkah_traditions_feast', presetId: 'sufganiyot_latkes_feast_platter', pos: [-0.58, 0.79, 0.48], rotDeg: [0, -12, 0], overrides: { attachmentProfile: 'surface_placed' } }
+        );
+      }
+      return list;
+    },
+    buildGeometry: () => {},
+    presets: [
+      { id: 'asm_hanukkah_festival_of_lights', label: 'Hanukkah Festival Of Lights Scene', condition: 'clean', paletteFamily: 'modern_corporate', params: { spacingScale: 1.0, includeSecondaryProps: true, includeClutter: true } }
+    ]
+  });
 }
 

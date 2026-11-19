@@ -394,12 +394,13 @@ export const OBJECT_CATEGORIES = [
     label: 'Holidays & Seasonal Decor',
     shortLabel: 'Holidays',
     icon: 'fa-holly-berry',
-    description: 'Stick-on building and object string lights, Christmas trees, nutcrackers, Thanksgiving harvest & feast displays, snowmen, and seasonal props.',
+    description: 'Stick-on building and object string lights, Christmas trees, nutcrackers, Thanksgiving harvest & feast displays, Hanukkah menorahs & dreidels, snowmen, and seasonal props.',
     subcategories: [
       'String Lights & Eave Strands',
       'Christmas Trees & Wreaths',
       'Nutcrackers & Holiday Figures',
       'Thanksgiving & Harvest',
+      'Hanukkah & Festival of Lights',
       'Outdoor Lawn & Porch Displays',
       'Indoor Mantle, Gifts & Tabletop',
       'Holiday Assemblies'
@@ -635,5 +636,6 @@ export const ENVIRONMENT_TAGS = [
   'christmas',
   'winter',
   'thanksgiving',
-  'autumn'
+  'autumn',
+  'hanukkah'
 ];

@@ -44,6 +44,7 @@ import { registerGymLockerRecoveryFamilies } from '../generators/gym-locker-reco
 import { registerStreetPostalConstructionFamilies } from '../generators/street-postal-construction.js';
 import { registerHolidayChristmasFamilies } from '../generators/holiday-christmas.js';
 import { registerHolidayThanksgivingFamilies } from '../generators/holiday-thanksgiving.js';
+import { registerHolidayHanukkahFamilies } from '../generators/holiday-hanukkah.js';
 import { registerCompositeAssemblies } from '../generators/composite-assemblies.js';
 
 export { registerCompositeAssemblies, registerGeneratorModule, runRegisteredGeneratorModules };
@@ -85,6 +86,7 @@ export function ensureCityObjectRegistry() {
   registerStreetPostalConstructionFamilies();
   registerHolidayChristmasFamilies();
   registerHolidayThanksgivingFamilies();
+  registerHolidayHanukkahFamilies();
   registerCompositeAssemblies();
   runRegisteredGeneratorModules();
   asmRegistryInitialized = true;
