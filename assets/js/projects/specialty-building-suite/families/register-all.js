@@ -6,6 +6,9 @@ import './civic-government.js';
 import './healthcare.js';
 import './lodging.js';
 import './industrial-utilities.js';
+import './city-civic-cultural.js';
+import './city-transit-parking.js';
+import './city-infrastructure-venues.js';
 import { getAllSpecialtyFamilies } from '../core/registry.js';
 
 let initialized = false;

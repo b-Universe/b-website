@@ -28,9 +28,9 @@ export function applySeedVariation(rawCfg, locks = new Set()) {
   const out = copy(cfg);
   const fam = getSpecialtyFamily(cfg.familyId);
   const minW = fam?.minWidth || 4.0;
-  const maxW = fam?.maxWidth || 48.0;
+  const maxW = fam?.maxWidth || 62.0;
   const minD = fam?.minDepth || 3.5;
-  const maxD = fam?.maxDepth || 36.0;
+  const maxD = fam?.maxDepth || 50.0;
 
   if (!locks.has('width')) {
     out.width = roundNum(clamp(cfg.width * (1 + (streams.structure() - 0.5) * 0.22 * factor), minW, maxW), 1);
@@ -84,11 +84,12 @@ export function randomizeSettings(rawCfg, scope = 'all', locks = new Set()) {
       const raw = randBetween(r, field.min ?? 0, field.max ?? 1);
       next[field.key] = roundNum(Math.round(raw / step) * step, 2);
     } else if (field.type === 'select' && Array.isArray(field.options) && field.options.length > 0) {
+      const getOptId = (opt) => (Array.isArray(opt) ? opt[0] : opt?.id);
       if (field.key === 'lotType' && cfg.includeLot) {
-        const nonEmpty = field.options.filter(([id]) => id !== 'none');
-        next[field.key] = pick(r, nonEmpty)[0];
+        const nonEmpty = field.options.filter((opt) => getOptId(opt) !== 'none');
+        next[field.key] = getOptId(pick(r, nonEmpty));
       } else {
-        next[field.key] = pick(r, field.options)[0];
+        next[field.key] = getOptId(pick(r, field.options));
       }
     } else if (field.type === 'boolean') {
       if (field.key === 'includeBuildingLayer' || field.key === 'includeLot' || field.key === 'includeObjectsLayer') continue;

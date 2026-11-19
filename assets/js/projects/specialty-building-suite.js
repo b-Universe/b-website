@@ -269,7 +269,9 @@ const ENVIRONMENT_TAGS = [
   'nightlife',
   'medical',
   'retail',
-  'service'
+  'service',
+  'transit',
+  'campus'
 ];
 
 const BASE_BUILDING_CONFIG = {
@@ -362,9 +364,9 @@ const SHARED_CONTROL_TABS = [
 
 const SHARED_SCHEMA_FIELDS = [
   // Structure tab
-  { tab: 'structure', group: 'Primary Dimensions', key: 'width', label: 'Building Width', type: 'range', min: 3.5, max: 52, step: 0.5, unit: 'm' },
-  { tab: 'structure', key: 'depth', label: 'Building Depth', type: 'range', min: 3.0, max: 40, step: 0.5, unit: 'm' },
-  { tab: 'structure', key: 'floors', label: 'Floor Count', type: 'range', min: 1, max: 10, step: 1, unit: 'fl' },
+  { tab: 'structure', group: 'Primary Dimensions', key: 'width', label: 'Building Width', type: 'range', min: 3.5, max: 64, step: 0.5, unit: 'm' },
+  { tab: 'structure', key: 'depth', label: 'Building Depth', type: 'range', min: 3.0, max: 52, step: 0.5, unit: 'm' },
+  { tab: 'structure', key: 'floors', label: 'Floor Count', type: 'range', min: 1, max: 12, step: 1, unit: 'fl' },
   { tab: 'structure', key: 'floorHeight', label: 'Floor Height', type: 'range', min: 2.6, max: 7.5, step: 0.1, unit: 'm' },
   {
     tab: 'structure',
@@ -434,8 +436,8 @@ const SHARED_SCHEMA_FIELDS = [
     type: 'select',
     options: LOT_TYPES.map((l) => [l.id, l.label])
   },
-  { tab: 'lot', key: 'lotWidth', label: 'Lot Width', type: 'range', min: 8, max: 72, step: 1, unit: 'm' },
-  { tab: 'lot', key: 'lotDepth', label: 'Lot Depth', type: 'range', min: 8, max: 68, step: 1, unit: 'm' },
+  { tab: 'lot', key: 'lotWidth', label: 'Lot Width', type: 'range', min: 8, max: 96, step: 1, unit: 'm' },
+  { tab: 'lot', key: 'lotDepth', label: 'Lot Depth', type: 'range', min: 8, max: 88, step: 1, unit: 'm' },
   { tab: 'lot', key: 'frontSetback', label: 'Front Setback', type: 'range', min: 1.5, max: 24, step: 0.5, unit: 'm' },
   { tab: 'lot', key: 'sideSetback', label: 'Side Setback', type: 'range', min: 1.0, max: 18, step: 0.5, unit: 'm' },
   {
@@ -673,9 +675,9 @@ function sanitiseSpecialtyConfig(rawCfg = {}) {
   else if (fam && fam.presets[0]) merged.presetId = fam.presets[0].id;
 
   merged.seed = clamp(Math.round(Number(merged.seed) || 2026), 1, 99999999);
-  merged.width = clamp(merged.width, 3.5, 52);
-  merged.depth = clamp(merged.depth, 3.0, 40);
-  merged.floors = clamp(Math.round(Number(merged.floors) || 1), 1, 10);
+  merged.width = clamp(merged.width, 3.5, 64);
+  merged.depth = clamp(merged.depth, 3.0, 52);
+  merged.floors = clamp(Math.round(Number(merged.floors) || 1), 1, 12);
   merged.floorHeight = clamp(merged.floorHeight, 2.6, 7.5);
   merged.roofPitchHeight = clamp(merged.roofPitchHeight, 0.4, 4.5);
   merged.parapetHeight = clamp(merged.parapetHeight, 0.1, 1.5);
@@ -694,8 +696,8 @@ function sanitiseSpecialtyConfig(rawCfg = {}) {
   merged.parkingConfig = validId(PARKING_CONFIGS, merged.parkingConfig, 'front_row');
   merged.sidewalkConfig = validId(SIDEWALK_CONFIGS, merged.sidewalkConfig, 'front_only');
 
-  merged.lotWidth = clamp(Math.max(merged.lotWidth, merged.width + 2), 8, 72);
-  merged.lotDepth = clamp(Math.max(merged.lotDepth, merged.depth + 2), 8, 68);
+  merged.lotWidth = clamp(Math.max(merged.lotWidth, merged.width + 2), 8, 96);
+  merged.lotDepth = clamp(Math.max(merged.lotDepth, merged.depth + 2), 8, 88);
   merged.frontSetback = clamp(merged.frontSetback, 1.5, 24);
   merged.sideSetback = clamp(merged.sideSetback, 1.0, 18);
   merged.parkingCount = clamp(Math.round(Number(merged.parkingCount) || 0), 0, 28);
@@ -782,9 +784,9 @@ function applySeedVariation(rawCfg, locks = new Set()) {
   const out = copy(cfg);
   const fam = getSpecialtyFamily(cfg.familyId);
   const minW = fam?.minWidth || 4.0;
-  const maxW = fam?.maxWidth || 48.0;
+  const maxW = fam?.maxWidth || 62.0;
   const minD = fam?.minDepth || 3.5;
-  const maxD = fam?.maxDepth || 36.0;
+  const maxD = fam?.maxDepth || 50.0;
 
   if (!locks.has('width')) {
     out.width = roundNum(clamp(cfg.width * (1 + (streams.structure() - 0.5) * 0.22 * factor), minW, maxW), 1);
@@ -838,11 +840,12 @@ function randomizeSettings(rawCfg, scope = 'all', locks = new Set()) {
       const raw = randBetween(r, field.min ?? 0, field.max ?? 1);
       next[field.key] = roundNum(Math.round(raw / step) * step, 2);
     } else if (field.type === 'select' && Array.isArray(field.options) && field.options.length > 0) {
+      const getOptId = (opt) => (Array.isArray(opt) ? opt[0] : opt?.id);
       if (field.key === 'lotType' && cfg.includeLot) {
-        const nonEmpty = field.options.filter(([id]) => id !== 'none');
-        next[field.key] = pick(r, nonEmpty)[0];
+        const nonEmpty = field.options.filter((opt) => getOptId(opt) !== 'none');
+        next[field.key] = getOptId(pick(r, nonEmpty));
       } else {
-        next[field.key] = pick(r, field.options)[0];
+        next[field.key] = getOptId(pick(r, field.options));
       }
     } else if (field.type === 'boolean') {
       if (field.key === 'includeBuildingLayer' || field.key === 'includeLot' || field.key === 'includeObjectsLayer') continue;
@@ -1614,7 +1617,7 @@ function computeLotLayout(cfg, buildingBox, placementCtx = null, options = {}) {
 
   // Perimeter fence if industrial or secure facility
   const fences = [];
-  if (options.fencedPerimeter) {
+  if (options.fencedPerimeter || options.industrialFence) {
     fences.push({
       id: 'perimeter_fence',
       minX: minX + 0.3,
@@ -5972,7 +5975,9 @@ function buildHospitalClinicStructure(ctx) {
       const wz = 0.6;
       addBox(attachedGroup, wx, wh * 0.5, wz, ww, wh, wd, wallMat);
       addBox(attachedGroup, wx, wh + 0.14, wz, ww + 0.2, 0.28, wd + 0.2, canopyMat);
-      addFacadeWindows(attachedGroup, wx, wz, ww, wd, wFloors, fh, cfg, [], []);
+      addFacadeWindows(attachedGroup, 'front', wx, wz + wd * 0.5, ww, { ...cfg, floors: wFloors }, ctx.r);
+      addFacadeWindows(attachedGroup, 'back', wx, wz - wd * 0.5, ww, { ...cfg, floors: wFloors }, ctx.r);
+      addFacadeWindows(attachedGroup, side < 0 ? 'left' : 'right', wx + side * ww * 0.5, wz, wd, { ...cfg, floors: wFloors }, ctx.r);
       registerBuildingFootprint(placementCtx, {
         id: side < 0 ? 'hospital_west_wing' : 'hospital_east_wing',
         minX: wx - ww * 0.5,
@@ -6053,7 +6058,7 @@ function planHospitalObjects(ctx, lotLayout) {
     { familyId: 'emergency_safety', presetId: 'municipal_red_fire_hydrant', groupKey: 'site_amenities', anchorId: 'sidewalk_front_left', localOffset: [1.4, 0, 0] }
   ];
   if (cfg.includeRoadsideSign && lotLayout.enabled) {
-    specs.push({ familyId: 'cafe_storefront', presetId: 'illuminated_city_ad_totem', groupKey: 'signage_lighting', anchorId: 'roadside_sign_corner', localOffset: [0, 0, 0] });
+    specs.push({ familyId: 'newspaper_box', presetId: 'illuminated_city_ad_totem', groupKey: 'signage_lighting', anchorId: 'roadside_sign_corner', localOffset: [0, 0, 0] });
   }
   return specs;
 }
@@ -6100,6 +6105,459 @@ registerSpecialtyFamily({
   ],
   buildStructure: buildHospitalClinicStructure,
   planObjects: planHospitalObjects
+});
+
+function addHospitalMassBlock(parent, x, baseY, z, w, d, floors, fh, cfg, r, seedOffset = 0) {
+  const g = new THREE.Group();
+  g.position.set(x, baseY, z);
+  const totalH = floors * fh;
+  const wallMat = surfaceMaterial(cfg.exteriorMaterial, cfg.primaryColor, cfg.condition, cfg.seed + seedOffset, Math.max(2, Math.round(w / 4)), Math.max(1, floors));
+  const trimMat = solidMaterial(cfg.trimColor || '#1f456e');
+
+  addBox(g, 0, totalH * 0.5, 0, w, totalH, d, wallMat);
+  for (let f = 1; f < floors; f++) {
+    addBox(g, 0, f * fh, 0, w + 0.16, 0.14, d + 0.16, trimMat);
+  }
+  for (const sx of [-1, 1]) {
+    for (const sz of [-1, 1]) {
+      addBox(g, sx * (w * 0.5), totalH * 0.5, sz * (d * 0.5), 0.3, totalH, 0.3, trimMat);
+    }
+  }
+
+  const subCfg = { ...cfg, floors, floorHeight: fh };
+  addFacadeWindows(g, 'front', 0, d * 0.5, w, subCfg, r);
+  addFacadeWindows(g, 'back', 0, -d * 0.5, w, subCfg, r);
+  addFacadeWindows(g, 'left', -w * 0.5, 0, d, subCfg, r);
+  addFacadeWindows(g, 'right', w * 0.5, 0, d, subCfg, r);
+
+  const localRoofTop = addRoofStructure(g, 0, totalH, 0, w, d, subCfg);
+  parent.add(g);
+  return baseY + localRoofTop;
+}
+
+function buildLargeHospitalStructure(ctx) {
+  const { cfg, mainBuildingGroup, attachedGroup, placementCtx, r } = ctx;
+  const w = clamp(cfg.width || 28, 16, 48);
+  const d = clamp(cfg.depth || 15, 10, 32);
+  const totalFloors = clamp(cfg.floors || 6, 4, 12);
+  const fh = cfg.floorHeight || 3.6;
+  const podiumFloors = 2;
+  const podiumH = podiumFloors * fh;
+  const upperFloors = Math.max(2, totalFloors - podiumFloors);
+
+  // 1. Two-story clinical podium base
+  const shell = addStandardBuildingShell(mainBuildingGroup, ctx, {
+    width: w,
+    depth: d,
+    floors: podiumFloors,
+    floorHeight: fh,
+    entranceAwning: false,
+    signY: podiumH - 0.35
+  });
+  ctx.entrances.push(...shell.entrances);
+
+  const trimMat = solidMaterial(cfg.trimColor || '#1f456e');
+  const postMat = solidMaterial(cfg.secondaryColor || '#d8e0e6');
+  const crossRed = emissiveMaterial(cfg.accentColor || '#e62e2e', 1.1, cfg.lightingTime);
+  const glassMat = glassMaterial(cfg.glassColor, cfg.lightingTime === 'night' || cfg.lightingTime === 'dusk', { lightingTime: cfg.lightingTime });
+
+  // Double-height glazed lobby curtain bay & grand drop-off porte-cochere
+  addBox(attachedGroup, 0, podiumH * 0.48, d * 0.5 + 0.16, Math.min(8.4, w * 0.34), podiumH * 0.86, 0.35, glassMat);
+  const canopyW = Math.min(9.2, w * 0.38);
+  const canopyD = 4.2;
+  addBox(attachedGroup, 0, 3.55, d * 0.5 + canopyD * 0.5, canopyW, 0.42, canopyD, trimMat);
+  for (const cx of [-canopyW * 0.44, -canopyW * 0.16, canopyW * 0.16, canopyW * 0.44]) {
+    addBox(attachedGroup, cx, 1.72, d * 0.5 + canopyD - 0.25, 0.32, 3.35, 0.32, postMat);
+  }
+  addBox(attachedGroup, 0, 0.12, d * 0.5 + canopyD * 0.48, canopyW + 1.2, 0.24, canopyD + 0.4, postMat);
+
+  // 2. Upper Inpatient Towers driven by campusLayout
+  const layout = cfg.campusLayout || 'twin_towers';
+  let topTowerY = shell.roofTopY;
+  let maxDepth = d + canopyD + 0.6;
+  let leftExtent = -w * 0.5;
+  let rightExtent = w * 0.5;
+  let helipadPos = { x: 0, z: 0 };
+
+  if (layout === 'h_campus') {
+    const spineTop = addHospitalMassBlock(attachedGroup, 0, podiumH, -d * 0.12, w * 0.56, d * 0.52, upperFloors, fh, cfg, r, 11);
+    const wingW = Math.max(5.8, w * 0.24);
+    const wingD = d + 4.4;
+    const westTop = addHospitalMassBlock(attachedGroup, -w * 0.4, 0, 0.4, wingW, wingD, totalFloors - 1, fh, cfg, r, 23);
+    const eastTop = addHospitalMassBlock(attachedGroup, w * 0.4, 0, 0.4, wingW, wingD, totalFloors - 1, fh, cfg, r, 37);
+    registerBuildingFootprint(placementCtx, { id: 'hospital_west_bar', minX: -w * 0.4 - wingW * 0.5, maxX: -w * 0.4 + wingW * 0.5, minZ: 0.4 - wingD * 0.5, maxZ: 0.4 + wingD * 0.5, maxY: westTop });
+    registerBuildingFootprint(placementCtx, { id: 'hospital_east_bar', minX: w * 0.4 - wingW * 0.5, maxX: w * 0.4 + wingW * 0.5, minZ: 0.4 - wingD * 0.5, maxZ: 0.4 + wingD * 0.5, maxY: eastTop });
+    leftExtent = Math.min(leftExtent, -w * 0.4 - wingW * 0.5);
+    rightExtent = Math.max(rightExtent, w * 0.4 + wingW * 0.5);
+    maxDepth = Math.max(maxDepth, wingD + 2.0);
+    topTowerY = spineTop;
+    helipadPos = { x: 0, z: -d * 0.12 };
+  } else if (layout === 'cruciform_tower') {
+    const coreW = Math.max(9.6, w * 0.44);
+    const coreD = Math.max(9.6, d * 0.68);
+    const coreTop = addHospitalMassBlock(attachedGroup, 0, podiumH, 0, coreW, coreD, upperFloors + 1, fh, cfg, r, 19);
+    const armW = Math.max(7.2, w * 0.88);
+    const armD = Math.max(5.4, d * 0.36);
+    addHospitalMassBlock(attachedGroup, 0, podiumH, 0, armW, armD, Math.max(2, upperFloors - 1), fh, cfg, r, 29);
+    const depthArmW = Math.max(5.4, coreW * 0.52);
+    const depthArmD = d + 3.2;
+    addHospitalMassBlock(attachedGroup, 0, podiumH, 0, depthArmW, depthArmD, Math.max(2, upperFloors - 1), fh, cfg, r, 41);
+    maxDepth = Math.max(maxDepth, depthArmD + 1.5);
+    topTowerY = coreTop;
+    helipadPos = { x: 0, z: 0 };
+  } else if (layout === 'l_pavilion') {
+    const mainTop = addHospitalMassBlock(attachedGroup, w * 0.1, podiumH, -d * 0.08, w * 0.72, d * 0.72, upperFloors, fh, cfg, r, 17);
+    const wingW = Math.max(6.8, w * 0.28);
+    const wingD = d + 4.8;
+    const wingX = -w * 0.5 + wingW * 0.45;
+    const wingTop = addHospitalMassBlock(attachedGroup, wingX, 0, 1.4, wingW, wingD, Math.max(3, totalFloors - 1), fh, cfg, r, 43);
+    registerBuildingFootprint(placementCtx, { id: 'hospital_l_pavilion', minX: wingX - wingW * 0.5, maxX: wingX + wingW * 0.5, minZ: 1.4 - wingD * 0.5, maxZ: 1.4 + wingD * 0.5, maxY: wingTop });
+    leftExtent = Math.min(leftExtent, wingX - wingW * 0.5);
+    maxDepth = Math.max(maxDepth, wingD + 2.5);
+    topTowerY = mainTop;
+    helipadPos = { x: w * 0.1, z: -d * 0.08 };
+  } else {
+    // twin_towers default
+    const towerW = Math.max(7.4, w * 0.38);
+    const towerD = Math.max(7.4, d * 0.72);
+    const offset = w * 0.24;
+    const leftTop = addHospitalMassBlock(attachedGroup, -offset, podiumH, -d * 0.06, towerW, towerD, upperFloors, fh, cfg, r, 13);
+    const rightTop = addHospitalMassBlock(attachedGroup, offset, podiumH, -d * 0.06, towerW, towerD, upperFloors, fh, cfg, r, 31);
+    // Glazed central elevator atrium spine linking both towers
+    const linkW = Math.max(2.6, offset * 2 - towerW + 1.2);
+    const linkH = upperFloors * fh * 0.92;
+    addBox(attachedGroup, 0, podiumH + linkH * 0.5, -d * 0.06, linkW, linkH, towerD * 0.62, glassMat);
+    addBox(attachedGroup, 0, podiumH + linkH + 0.14, -d * 0.06, linkW + 0.2, 0.28, towerD * 0.66, trimMat);
+    topTowerY = Math.max(leftTop, rightTop);
+    helipadPos = { x: offset, z: -d * 0.06 };
+  }
+
+  // Glowing oversized hospital cross emblem mounted prominently on upper facade
+  const emblemY = Math.max(podiumH + 2.2, topTowerY - 2.4);
+  const emblemX = layout === 'twin_towers' ? -w * 0.24 : 0;
+  const emblemZ = layout === 'twin_towers' ? d * 0.3 + 0.18 : d * 0.34 + 0.18;
+  addBox(attachedGroup, emblemX, emblemY, emblemZ, 0.56, 1.9, 0.14, crossRed, { cast: false });
+  addBox(attachedGroup, emblemX, emblemY, emblemZ, 1.9, 0.56, 0.14, crossRed, { cast: false });
+
+  // Mechanical penthouse & stair bulkhead on top tower
+  addBox(attachedGroup, helipadPos.x - 2.6, topTowerY + 0.7, helipadPos.z - 1.8, 3.2, 1.4, 2.8, solidMaterial('#78828c'));
+
+  // 3. Elevated Rooftop Helipad
+  let maxH = topTowerY + 1.6;
+  if (cfg.includeHelipad !== false) {
+    const hx = helipadPos.x;
+    const hz = helipadPos.z;
+    const deckY = topTowerY + 0.72;
+    for (const sx of [-2.4, 2.4]) {
+      for (const sz of [-2.4, 2.4]) {
+        addBox(attachedGroup, hx + sx, topTowerY + 0.34, hz + sz, 0.32, 0.68, 0.32, trimMat);
+      }
+    }
+    addBox(attachedGroup, hx, deckY, hz, 7.2, 0.24, 7.2, solidMaterial('#3a424b'));
+    addBox(attachedGroup, hx - 0.9, deckY + 0.14, hz, 0.42, 0.05, 2.9, solidMaterial('#f2c14e'));
+    addBox(attachedGroup, hx + 0.9, deckY + 0.14, hz, 0.42, 0.05, 2.9, solidMaterial('#f2c14e'));
+    addBox(attachedGroup, hx, deckY + 0.14, hz, 1.8, 0.05, 0.42, solidMaterial('#f2c14e'));
+    for (const sx of [-3.3, 3.3]) {
+      for (const sz of [-3.3, 3.3]) {
+        addBox(attachedGroup, hx + sx, deckY + 0.2, hz + sz, 0.26, 0.16, 0.26, emissiveMaterial('#22c55e', 1.2, cfg.lightingTime), { cast: false });
+      }
+    }
+    // Safety perimeter apron & windsock mast
+    addCylinder(attachedGroup, hx + 3.4, deckY + 0.85, hz - 3.3, 0.05, 0.07, 1.6, postMat, 6);
+    addCylinder(attachedGroup, hx + 3.7, deckY + 1.45, hz - 3.3, 0.14, 0.07, 0.65, solidMaterial('#f97316'), 6, { rotZ: Math.PI / 2 });
+    maxH = deckY + 1.8;
+  }
+
+  // 4. Multi-Bay Covered Ambulance Trauma Canopy & Hall on Right Flank
+  if (cfg.includeEmergencyBay !== false) {
+    const bays = clamp(cfg.ambulanceBays || 2, 1, 3);
+    const ex = rightExtent + 0.02;
+    const ez = 0.6;
+    const erW = 4.6;
+    const erD = bays * 3.8 + 1.4;
+    addDoorUnit(attachedGroup, ex, 0, ez, 2.8, 2.6, cfg, { rotY: Math.PI / 2, solidDoor: false });
+    addBox(attachedGroup, ex + erW * 0.5, 3.55, ez, erW, 0.42, erD, solidMaterial('#b82525'));
+    for (let b = 0; b <= bays; b++) {
+      const bz = ez - erD * 0.44 + (b / bays) * (erD * 0.88);
+      addBox(attachedGroup, ex + erW - 0.26, 1.75, bz, 0.3, 3.3, 0.3, postMat);
+    }
+    addSignboardUnit(attachedGroup, ex + erW * 0.5, 3.92, ez + erD * 0.5 + 0.08, 3.8, 0.62, 'Emergency Trauma', '#8c1616', '#ffffff', cfg);
+    addCylinder(attachedGroup, ex + erW - 0.3, 3.95, ez + erD * 0.46, 0.16, 0.16, 0.32, crossRed, 8, { cast: false });
+
+    const erEnt = {
+      id: 'large_hospital_er_trauma',
+      role: 'emergency',
+      label: `Trauma Ambulance Bay (${bays} Lanes)`,
+      position: { x: roundNum(ex, 3), y: 0, z: roundNum(ez, 3) },
+      normal: { x: 1, y: 0, z: 0 },
+      width: erD * 0.72,
+      height: 2.8
+    };
+    ctx.entrances.push(erEnt);
+    registerEntranceClearance(placementCtx, erEnt);
+    registerLaneClearance(placementCtx, {
+      id: 'large_hospital_ambulance_lane',
+      kind: 'ambulance',
+      minX: ex + 0.25,
+      maxX: ex + erW + 1.2,
+      minZ: ez - erD * 0.65,
+      maxZ: ez + erD * 0.65
+    });
+    rightExtent += erW + 0.5;
+  }
+
+  // 5. Attached Multi-Level Parking Deck or Diagnostic Annex + Elevated Glass Skybridge
+  if (cfg.includeParkingDeck || cfg.includeSkybridge) {
+    const laneGap = 4.6;
+    const deckW = cfg.includeParkingDeck ? 9.8 : 7.8;
+    const deckD = Math.max(10.5, d * 0.88);
+    const deckFloors = cfg.includeParkingDeck ? 3 : 2;
+    const deckH = deckFloors * 3.1;
+    const px = leftExtent - laneGap - deckW * 0.5;
+    const pz = 0.2;
+
+    if (cfg.includeParkingDeck) {
+      const deckMat = surfaceMaterial('concrete', '#788088', cfg.condition, cfg.seed + 61, 3, 2);
+      const railMat = solidMaterial('#aeb6be');
+      addBox(attachedGroup, px, 0.12, pz, deckW, 0.24, deckD, deckMat);
+      for (let l = 1; l <= deckFloors; l++) {
+        const ly = l * 3.1;
+        addBox(attachedGroup, px, ly - 0.14, pz, deckW, 0.28, deckD, deckMat);
+        // Perimeter parapet spandrel bumpers
+        addBox(attachedGroup, px, ly + 0.42, pz + deckD * 0.5 - 0.12, deckW, 0.84, 0.22, railMat);
+        addBox(attachedGroup, px, ly + 0.42, pz - deckD * 0.5 + 0.12, deckW, 0.84, 0.22, railMat);
+        addBox(attachedGroup, px - deckW * 0.5 + 0.12, ly + 0.42, pz, 0.22, 0.84, deckD, railMat);
+        addBox(attachedGroup, px + deckW * 0.5 - 0.12, ly + 0.42, pz, 0.22, 0.84, deckD, railMat);
+      }
+      for (const sx of [-1, 0, 1]) {
+        for (const sz of [-1, 1]) {
+          addBox(attachedGroup, px + sx * (deckW * 0.44), deckH * 0.5, pz + sz * (deckD * 0.44), 0.36, deckH, 0.36, trimMat);
+        }
+      }
+      // Corner elevator/stair core with signage
+      addBox(attachedGroup, px + deckW * 0.36, (deckH + 2.4) * 0.5, pz + deckD * 0.38, 2.4, deckH + 2.4, 2.4, surfaceMaterial('concrete', cfg.primaryColor, cfg.condition, cfg.seed + 71, 1, 2));
+      addSignboardUnit(attachedGroup, px, 3.05, pz + deckD * 0.5 + 0.12, 3.4, 0.62, 'Hospital Parking', '#1d3557', '#ffffff', cfg);
+      const parkEnt = {
+        id: 'hospital_parking_deck_portal',
+        role: 'garage',
+        label: 'Visitor Parking Deck Entry',
+        position: { x: roundNum(px - deckW * 0.12, 3), y: 0, z: roundNum(pz + deckD * 0.5, 3) },
+        normal: { x: 0, y: 0, z: 1 },
+        width: 4.2,
+        height: 2.6
+      };
+      ctx.entrances.push(parkEnt);
+      registerEntranceClearance(placementCtx, parkEnt);
+    } else {
+      addHospitalMassBlock(attachedGroup, px, 0, pz, deckW, deckD, 2, fh, cfg, r, 73);
+      addSignboardUnit(attachedGroup, px, 2 * fh - 0.4, pz + deckD * 0.5 + 0.12, 4.2, 0.62, 'Outpatient Pavilion', trimMat.color ? cfg.trimColor : '#1f456e', '#ffffff', cfg);
+    }
+
+    registerBuildingFootprint(placementCtx, {
+      id: 'hospital_west_complex',
+      minX: px - deckW * 0.5,
+      maxX: px + deckW * 0.5,
+      minZ: pz - deckD * 0.5,
+      maxZ: pz + deckD * 0.5,
+      maxY: deckH
+    });
+    registerLaneClearance(placementCtx, {
+      id: 'hospital_skybridge_drive_lane',
+      kind: 'driveway',
+      minX: px + deckW * 0.5 + 0.2,
+      maxX: leftExtent - 0.2,
+      minZ: -deckD * 0.6,
+      maxZ: deckD * 0.6 + 2.0
+    });
+
+    // Elevated Glass Skybridge spanning drive lane cleanly at 2nd floor level
+    if (cfg.includeSkybridge) {
+      const spanLen = (leftExtent - (px + deckW * 0.5)) + 0.6;
+      const midX = (px + deckW * 0.5 + leftExtent) * 0.5;
+      const bridgeY = fh * 1.48;
+      addBox(attachedGroup, midX, bridgeY - 0.95, 0.2, spanLen, 0.28, 2.9, trimMat);
+      addBox(attachedGroup, midX, bridgeY + 1.05, 0.2, spanLen, 0.26, 2.9, trimMat);
+      addBox(attachedGroup, midX, bridgeY + 0.05, 0.2, spanLen, 1.75, 2.65, glassMat);
+    }
+
+    leftExtent = px - deckW * 0.5;
+  }
+
+  // 6. Cryogenic Medical Oxygen Silo Yard on Rear Right
+  if (cfg.includeOxygenYard !== false) {
+    const oxX = w * 0.36;
+    const oxZ = -d * 0.5 - 2.1;
+    const tankMat = solidMaterial('#eef2f6');
+    const bandMat = solidMaterial('#1d70b8');
+    addBox(attachedGroup, oxX, 0.08, oxZ, 3.6, 0.16, 2.2, solidMaterial('#8d969e'));
+    for (const sx of [-0.95, 0.95]) {
+      addCylinder(attachedGroup, oxX + sx, 2.15, oxZ, 0.62, 0.62, 4.1, tankMat, 10);
+      addCylinder(attachedGroup, oxX + sx, 3.4, oxZ, 0.64, 0.64, 0.34, bandMat, 10);
+    }
+    addCylinder(attachedGroup, oxX, 1.15, oxZ + 0.95, 0.1, 0.1, 1.9, solidMaterial('#6c7680'), 8, { rotX: Math.PI / 2 });
+    registerBuildingFootprint(placementCtx, {
+      id: 'hospital_oxygen_yard',
+      minX: oxX - 1.9,
+      maxX: oxX + 1.9,
+      minZ: oxZ - 1.2,
+      maxZ: oxZ + 1.2,
+      maxY: 4.3
+    });
+  }
+
+  registerBuildingFootprint(placementCtx, {
+    id: 'large_hospital_podium',
+    minX: -w * 0.5,
+    maxX: w * 0.5,
+    minZ: -d * 0.5,
+    maxZ: d * 0.5,
+    maxY: podiumH
+  });
+  registerRoofBound(placementCtx, {
+    id: 'main_roof',
+    minX: -w * 0.45,
+    maxX: w * 0.45,
+    minZ: -d * 0.45,
+    maxZ: d * 0.45,
+    y: topTowerY
+  });
+  registerAnchor(placementCtx, { id: 'roof_main', category: 'roof', position: [-w * 0.2, topTowerY, -d * 0.1], surfaceY: topTowerY, rotationY: 0 });
+  registerAnchor(placementCtx, { id: 'roof_center', category: 'roof', position: [0, topTowerY, 0], surfaceY: topTowerY, rotationY: 0 });
+
+  ctx.roofTopY = topTowerY;
+  ctx.buildingBounds = {
+    width: Math.max(w, rightExtent - leftExtent),
+    depth: Math.max(maxDepth, d + canopyD + 2.4),
+    height: maxH
+  };
+  ctx.lotOptions = { rearMargin: 6.0 };
+}
+
+function planLargeHospitalObjects(ctx, lotLayout) {
+  const { cfg } = ctx;
+  const specs = [
+    { familyId: 'emergency_safety', presetId: 'checkpoint_security_booth', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [-6.0, 0, 1.8] },
+    { familyId: 'emergency_safety', presetId: 'campus_emergency_call_box', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [4.6, 0, 1.8] },
+    { familyId: 'emergency_safety', presetId: 'municipal_red_fire_hydrant', groupKey: 'site_amenities', anchorId: 'sidewalk_front_left', localOffset: [0, 0, 0] },
+    { familyId: 'park_planter', presetId: 'architectural_concrete_planter', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [-3.4, 0, 2.2] },
+    { familyId: 'park_planter', presetId: 'architectural_concrete_planter', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [3.4, 0, 2.2] },
+    { familyId: 'street_bench', presetId: 'downtown_metal_slat_bench', groupKey: 'seating_patio', anchorId: 'entrance_main', localOffset: [-4.6, 0, 3.6] },
+    { familyId: 'bike_rack', presetId: 'stainless_u_loop_rack', groupKey: 'site_amenities', anchorId: 'sidewalk_front_right', localOffset: [-1.4, 0, 0] }
+  ];
+  if (lotLayout.enabled && (cfg.frontSetback || 0) >= 8.5) {
+    specs.push({
+      familyId: 'park_planter',
+      presetId: 'ornamental_plaza_fountain',
+      groupKey: 'site_amenities',
+      anchorId: 'sidewalk_front_left',
+      localOffset: [4.5, 0, -2.5]
+    });
+  }
+  if (cfg.includeRoadsideSign && lotLayout.enabled) {
+    specs.push({
+      familyId: 'newspaper_box',
+      presetId: 'illuminated_city_ad_totem',
+      groupKey: 'signage_lighting',
+      anchorId: 'roadside_sign_corner',
+      localOffset: [0, 0, 0]
+    });
+  }
+  return specs;
+}
+
+registerSpecialtyFamily({
+  id: 'large_hospital_complex',
+  categoryId: 'emergency_healthcare',
+  categories: ['emergency_healthcare', 'civic_government'],
+  label: 'Large Hospitals & Medical Complexes',
+  description: 'Multi-tower metropolitan hospitals, teaching medical centers, trauma towers with skybridges, parking decks, and rooftop helipads.',
+  environmentTags: ['medical', 'civic', 'downtown', 'urban', 'campus', 'superhero_city'],
+  supportedLotTypes: ['multi_building_facility', 'civic_plaza', 'standalone_commercial', 'none'],
+  defaultObjectGroups: ['site_amenities', 'seating_patio', 'rooftop_mep', 'waste_utility', 'signage_lighting'],
+  featureSchema: [
+    {
+      key: 'campusLayout',
+      label: 'Hospital Massing Layout',
+      type: 'select',
+      options: [
+        ['twin_towers', 'Twin Patient Towers'],
+        ['h_campus', 'H-Shape Medical Campus'],
+        ['cruciform_tower', 'Cruciform Trauma Tower'],
+        ['l_pavilion', 'L-Wing Medical Pavilion']
+      ]
+    },
+    { key: 'includeSkybridge', label: 'Elevated Glass Skybridge', type: 'boolean' },
+    { key: 'includeParkingDeck', label: 'Attached Visitor Parking Deck', type: 'boolean' },
+    { key: 'includeHelipad', label: 'Elevated Rooftop Helipad', type: 'boolean' },
+    { key: 'ambulanceBays', label: 'Ambulance Trauma Bays', type: 'range', min: 1, max: 3, step: 1 },
+    { key: 'includeOxygenYard', label: 'Cryogenic Oxygen Tank Silos', type: 'boolean' }
+  ],
+  defaults: {
+    width: 28,
+    depth: 15,
+    floors: 6,
+    floorHeight: 3.6,
+    exteriorMaterial: 'concrete',
+    primaryColor: '#dde3e8',
+    secondaryColor: '#eef2f6',
+    trimColor: '#1f456e',
+    accentColor: '#d92626',
+    signText: 'Metro General Hospital',
+    campusLayout: 'twin_towers',
+    includeSkybridge: true,
+    includeParkingDeck: true,
+    includeHelipad: true,
+    ambulanceBays: 2,
+    includeEmergencyBay: true,
+    includeOxygenYard: true,
+    includeServiceEntrance: true,
+    includeRooftopHvac: true,
+    lotType: 'multi_building_facility',
+    lotWidth: 60,
+    lotDepth: 42,
+    frontSetback: 11.5,
+    parkingCount: 12
+  },
+  presets: [
+    {
+      id: 'metro_general_hospital',
+      label: 'Metro General Hospital',
+      environmentTags: ['medical', 'downtown', 'civic'],
+      params: { width: 28, depth: 15, floors: 6, campusLayout: 'twin_towers', exteriorMaterial: 'concrete', primaryColor: '#dde3e8', trimColor: '#1f456e', accentColor: '#d92626', includeSkybridge: true, includeParkingDeck: true, includeHelipad: true, ambulanceBays: 2, lotWidth: 60, lotDepth: 42, frontSetback: 11.5, signText: 'Metro General Hospital' }
+    },
+    {
+      id: 'university_teaching_hospital',
+      label: 'University Teaching Medical Center',
+      environmentTags: ['medical', 'campus', 'urban'],
+      params: { width: 30, depth: 16, floors: 7, campusLayout: 'h_campus', exteriorMaterial: 'brick', primaryColor: '#9c5648', secondaryColor: '#d8cfc0', trimColor: '#25394f', includeSkybridge: true, includeParkingDeck: true, includeHelipad: true, ambulanceBays: 2, lotWidth: 64, lotDepth: 46, frontSetback: 12, signText: 'University Medical Center' }
+    },
+    {
+      id: 'level_one_trauma_tower',
+      label: 'Level-One Trauma & Surgical Tower',
+      environmentTags: ['medical', 'downtown', 'civic'],
+      params: { width: 24, depth: 16, floors: 8, campusLayout: 'cruciform_tower', exteriorMaterial: 'concrete', primaryColor: '#cfd8df', trimColor: '#1e354d', accentColor: '#e62e2e', includeSkybridge: false, includeParkingDeck: true, includeHelipad: true, ambulanceBays: 3, lotWidth: 58, lotDepth: 42, signText: 'Central Trauma Hospital' }
+    },
+    {
+      id: 'paragon_futuristic_medcenter',
+      label: 'Paragon City Med-Center',
+      environmentTags: ['medical', 'superhero_city', 'downtown'],
+      params: { width: 28, depth: 15, floors: 7, architecturalEra: 'futuristic', campusLayout: 'twin_towers', exteriorMaterial: 'glass', primaryColor: '#4a708b', trimColor: '#1e2c3b', accentColor: '#00c2ff', includeSkybridge: true, includeParkingDeck: true, includeHelipad: true, ambulanceBays: 2, lotWidth: 62, lotDepth: 42, signText: 'Paragon Med-Center' }
+    },
+    {
+      id: 'historic_civic_infirmary',
+      label: 'Historic Grand Civic Hospital',
+      environmentTags: ['medical', 'civic', 'retro'],
+      params: { width: 26, depth: 14.5, floors: 5, architecturalEra: 'early_20th', campusLayout: 'h_campus', exteriorMaterial: 'decorative_masonry', primaryColor: '#a87d63', trimColor: '#dcd2c0', windowStyle: 'arched', includeSkybridge: false, includeParkingDeck: false, includeHelipad: false, ambulanceBays: 2, lotType: 'civic_plaza', lotWidth: 52, lotDepth: 38, signText: 'St. Jude Grand Hospital' }
+    },
+    {
+      id: 'regional_specialty_pavilion',
+      label: 'Regional Heart & Surgical Pavilion',
+      environmentTags: ['medical', 'suburban', 'urban'],
+      params: { width: 25, depth: 14, floors: 5, campusLayout: 'l_pavilion', exteriorMaterial: 'concrete', primaryColor: '#e2e6ea', trimColor: '#22577a', accentColor: '#e03e52', windowStyle: 'modern', includeSkybridge: true, includeParkingDeck: true, includeHelipad: true, ambulanceBays: 2, lotWidth: 56, lotDepth: 40, signText: 'Harbor Surgical Institute' }
+    }
+  ],
+  buildStructure: buildLargeHospitalStructure,
+  planObjects: planLargeHospitalObjects
 });
 
   // --- Module: families/lodging.js ---
@@ -6527,6 +6985,1604 @@ registerSpecialtyFamily({
   planObjects: planRepairShopObjects
 });
 
+  // --- Module: families/city-civic-cultural.js ---
+function addCivicMassBlock(parent, x, baseY, z, w, d, floors, fh, cfg, r, seedOffset = 0) {
+  const g = new THREE.Group();
+  g.position.set(x, baseY, z);
+  const totalH = floors * fh;
+  const wallMat = surfaceMaterial(cfg.exteriorMaterial, cfg.primaryColor, cfg.condition, cfg.seed + seedOffset, Math.max(2, Math.round(w / 4)), Math.max(1, floors));
+  const trimMat = solidMaterial(cfg.trimColor || '#424b54');
+
+  addBox(g, 0, totalH * 0.5, 0, w, totalH, d, wallMat);
+  for (let f = 1; f < floors; f++) {
+    addBox(g, 0, f * fh, 0, w + 0.14, 0.14, d + 0.14, trimMat);
+  }
+  const subCfg = { ...cfg, floors, floorHeight: fh };
+  addFacadeWindows(g, 'front', 0, d * 0.5, w, subCfg, r);
+  addFacadeWindows(g, 'back', 0, -d * 0.5, w, subCfg, r);
+  addFacadeWindows(g, 'left', -w * 0.5, 0, d, subCfg, r);
+  addFacadeWindows(g, 'right', w * 0.5, 0, d, subCfg, r);
+
+  const roofTop = addRoofStructure(g, 0, totalH, 0, w, d, subCfg);
+  parent.add(g);
+  return baseY + roofTop;
+}
+
+function addCivicRotundaDome(parent, x, baseY, z, radius, trimMat, domeColor, accentMat) {
+  const domeMat = solidMaterial(domeColor);
+  addCylinder(parent, x, baseY + 1.15, z, radius, radius * 1.04, 2.3, trimMat, 12);
+  addCylinder(parent, x, baseY + 2.55, z, radius * 0.88, radius * 1.0, 0.65, domeMat, 12);
+  addCylinder(parent, x, baseY + 3.45, z, radius * 0.58, radius * 0.88, 1.15, domeMat, 12);
+  addCylinder(parent, x, baseY + 4.35, z, radius * 0.22, radius * 0.58, 0.72, domeMat, 10);
+  addCylinder(parent, x, baseY + 4.95, z, radius * 0.24, radius * 0.24, 0.55, trimMat, 8);
+  addCylinder(parent, x, baseY + 5.75, z, 0.04, 0.16, 1.1, accentMat, 8);
+  return baseY + 6.3;
+}
+
+function addCivicClockTowerCrown(parent, x, baseY, z, sizeW, towerH, wallMat, trimMat, faceMat) {
+  addBox(parent, x, baseY + towerH * 0.5, z, sizeW, towerH, sizeW, wallMat);
+  addBox(parent, x, baseY + towerH + 0.16, z, sizeW + 0.35, 0.32, sizeW + 0.35, trimMat);
+  const faceY = baseY + towerH * 0.68;
+  const off = sizeW * 0.5 + 0.06;
+  addCylinder(parent, x, faceY, z + off, sizeW * 0.32, sizeW * 0.32, 0.1, faceMat, 12, { rotX: Math.PI / 2, cast: false });
+  addCylinder(parent, x, faceY, z - off, sizeW * 0.32, sizeW * 0.32, 0.1, faceMat, 12, { rotX: Math.PI / 2, cast: false });
+  addCylinder(parent, x + off, faceY, z, sizeW * 0.32, sizeW * 0.32, 0.1, faceMat, 12, { rotZ: Math.PI / 2, cast: false });
+  addCylinder(parent, x - off, faceY, z, sizeW * 0.32, sizeW * 0.32, 0.1, faceMat, 12, { rotZ: Math.PI / 2, cast: false });
+  // Stepped pyramid spire
+  addCylinder(parent, x, baseY + towerH + 1.45, z, 0.12, sizeW * 0.62, 2.3, trimMat, 4, { rotY: Math.PI / 4 });
+  return baseY + towerH + 2.6;
+}
+
+function addCivicFlagpole(parent, x, baseY, z, poleColor, flagColor) {
+  addBox(parent, x, baseY + 0.25, z, 0.65, 0.5, 0.65, solidMaterial('#9da6b0'));
+  addCylinder(parent, x, baseY + 3.4, z, 0.05, 0.08, 6.2, solidMaterial(poleColor), 8);
+  addBox(parent, x + 0.62, baseY + 5.9, z, 1.18, 0.7, 0.05, solidMaterial(flagColor));
+}
+
+function buildCityHallStructure(ctx) {
+  const { cfg, mainBuildingGroup, attachedGroup, placementCtx, r } = ctx;
+  const w = clamp(cfg.width || 24, 14, 48);
+  const d = clamp(cfg.depth || 13, 8, 30);
+  const floors = clamp(cfg.floors || 3, 2, 10);
+  const fh = cfg.floorHeight || 3.8;
+  const totalH = floors * fh;
+
+  const shell = addStandardBuildingShell(mainBuildingGroup, ctx, {
+    width: w,
+    depth: d,
+    floors,
+    floorHeight: fh,
+    entranceAwning: false,
+    signY: Math.min(totalH - 0.38, fh * 1.15)
+  });
+  ctx.entrances.push(...shell.entrances);
+
+  const stoneMat = solidMaterial(cfg.secondaryColor || '#dfd8cc');
+  const trimMat = solidMaterial(cfg.trimColor || '#333d47');
+  const accentMat = solidMaterial(cfg.accentColor || '#c99b3b');
+
+  // Grand civic entry stairs + colonnade portico across front
+  const porticoW = Math.min(w * 0.58, 12.6);
+  const porticoD = 2.6;
+  const stepCount = 3;
+  for (let s = 0; s < stepCount; s++) {
+    const t = s / stepCount;
+    addBox(attachedGroup, 0, 0.1 + s * 0.18, d * 0.5 + porticoD * 0.5 + (stepCount - s) * 0.35, porticoW + (stepCount - s) * 0.65, 0.2, porticoD + 1.2 - t * 0.4, stoneMat);
+  }
+  const cols = clamp(cfg.porticoColumns || 6, 4, 8);
+  const colH = Math.min(totalH - 0.45, fh * 2.05);
+  for (let c = 0; c < cols; c++) {
+    const cx = -porticoW * 0.44 + (c / Math.max(1, cols - 1)) * (porticoW * 0.88);
+    addCylinder(attachedGroup, cx, 0.52 + colH * 0.5, d * 0.5 + porticoD - 0.28, 0.26, 0.32, colH, stoneMat, 10);
+  }
+  addBox(attachedGroup, 0, 0.52 + colH + 0.24, d * 0.5 + porticoD * 0.5, porticoW + 0.45, 0.48, porticoD + 0.35, stoneMat);
+
+  // Triangular pediment tiers when classical/rotunda
+  if (cfg.civicCrownStyle !== 'modern_cantilever') {
+    for (let t = 0; t < 4; t++) {
+      const tw = (porticoW + 0.2) * (1 - t * 0.22);
+      addBox(attachedGroup, 0, 0.52 + colH + 0.55 + t * 0.26, d * 0.5 + porticoD * 0.52, tw, 0.24, porticoD * 0.85, trimMat);
+    }
+  }
+
+  // Flanking Civic Wings
+  let spanW = w;
+  if (cfg.includeSideWings !== false && w >= 18) {
+    const ww = clamp(w * 0.24, 4.4, 7.6);
+    const wd = d + 1.8;
+    const wFloors = Math.max(1, floors - 1);
+    for (const side of [-1, 1]) {
+      const wx = side * (w * 0.5 + ww * 0.5 - 0.15);
+      const wingTop = addCivicMassBlock(attachedGroup, wx, 0, 0.2, ww, wd, wFloors, fh, cfg, r, 17 + (side > 0 ? 11 : 0));
+      registerBuildingFootprint(placementCtx, {
+        id: side < 0 ? 'civic_west_wing' : 'civic_east_wing',
+        minX: wx - ww * 0.5,
+        maxX: wx + ww * 0.5,
+        minZ: 0.2 - wd * 0.5,
+        maxZ: 0.2 + wd * 0.5,
+        maxY: wingTop
+      });
+    }
+    spanW = w + ww * 2;
+  }
+
+  // Civic Architectural Crown
+  let topCrownY = shell.roofTopY;
+  const crownStyle = cfg.civicCrownStyle || 'dome_rotunda';
+  if (crownStyle === 'dome_rotunda') {
+    topCrownY = addCivicRotundaDome(attachedGroup, 0, shell.roofTopY, 0, Math.min(w * 0.2, 4.2), stoneMat, cfg.accentColor || '#c99b3b', accentMat);
+  } else if (crownStyle === 'clock_tower') {
+    const wallMat = surfaceMaterial(cfg.exteriorMaterial, cfg.primaryColor, cfg.condition, cfg.seed + 5, 2, 2);
+    const clockFaceMat = emissiveMaterial('#fff4d6', 0.9, cfg.lightingTime);
+    topCrownY = addCivicClockTowerCrown(attachedGroup, 0, shell.roofTopY, d * 0.18, Math.min(w * 0.2, 3.8), 6.2, wallMat, trimMat, clockFaceMat);
+  } else if (crownStyle === 'art_deco_stepped') {
+    for (let s = 0; s < 3; s++) {
+      const scale = 1 - s * 0.26;
+      addBox(attachedGroup, 0, shell.roofTopY + 0.9 + s * 1.55, 0, w * 0.34 * scale, 1.55, d * 0.44 * scale, stoneMat);
+    }
+    addCylinder(attachedGroup, 0, shell.roofTopY + 5.8, 0, 0.08, 0.22, 2.2, accentMat, 8);
+    topCrownY = shell.roofTopY + 6.9;
+  } else {
+    // modern_cantilever
+    addBox(attachedGroup, 0, shell.roofTopY + 0.28, d * 0.25, w * 0.88, 0.44, d * 0.72, accentMat);
+    topCrownY = shell.roofTopY + 0.5;
+  }
+
+  // Twin civic flagpoles flanking entry steps
+  addCivicFlagpole(attachedGroup, -porticoW * 0.5 - 1.2, 0, d * 0.5 + porticoD + 0.6, '#d6dde4', cfg.accentColor || '#1e4d92');
+  addCivicFlagpole(attachedGroup, porticoW * 0.5 + 1.2, 0, d * 0.5 + porticoD + 0.6, '#d6dde4', '#1e4d92');
+
+  registerBuildingFootprint(placementCtx, {
+    id: 'city_hall_main',
+    minX: -w * 0.5,
+    maxX: w * 0.5,
+    minZ: -d * 0.5,
+    maxZ: d * 0.5,
+    maxY: totalH
+  });
+  registerRoofBound(placementCtx, { id: 'main_roof', minX: -w * 0.45, maxX: w * 0.45, minZ: -d * 0.45, maxZ: d * 0.45, y: shell.roofTopY });
+
+  ctx.roofTopY = shell.roofTopY;
+  ctx.buildingBounds = { width: spanW, depth: d + porticoD + 2.2, height: topCrownY };
+  ctx.lotOptions = { rearMargin: 4.5 };
+}
+
+function planCityHallObjects(ctx, lotLayout) {
+  const { cfg } = ctx;
+  const specs = [
+    { familyId: 'bollard_railing', presetId: 'heritage_cast_bollard', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [-4.2, 0, 2.8] },
+    { familyId: 'bollard_railing', presetId: 'heritage_cast_bollard', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [4.2, 0, 2.8] },
+    { familyId: 'bollard_railing', presetId: 'downtown_street_clock', groupKey: 'signage_lighting', anchorId: 'sidewalk_front_left', localOffset: [1.8, 0, 0] },
+    { familyId: 'street_bench', presetId: 'classic_park_wood_bench', groupKey: 'seating_patio', anchorId: 'sidewalk_front_right', localOffset: [-1.8, 0, 0] }
+  ];
+  if (lotLayout.enabled && (cfg.frontSetback || 0) >= 8.5) {
+    specs.push({
+      familyId: 'park_planter',
+      presetId: 'ornamental_plaza_fountain',
+      groupKey: 'site_amenities',
+      anchorId: 'sidewalk_front_left',
+      localOffset: [4.2, 0, -2.6]
+    });
+  }
+  if (cfg.includeExteriorLighting !== false && lotLayout.enabled) {
+    specs.push({ familyId: 'streetlight', presetId: 'downtown_double_boulevard_lamp', groupKey: 'signage_lighting', anchorId: 'sidewalk_front_left', localOffset: [-0.9, 0, 0] });
+  }
+  return specs;
+}
+
+registerSpecialtyFamily({
+  id: 'city_hall_courthouse',
+  categoryId: 'civic_government',
+  categories: ['civic_government', 'municipal_community'],
+  label: 'City Hall & Municipal Courthouses',
+  description: 'Grand domed city halls, county courthouses, Art Deco municipal buildings, and historic town halls with clock towers.',
+  environmentTags: ['civic', 'downtown', 'urban', 'superhero_city'],
+  supportedLotTypes: ['civic_plaza', 'standalone_commercial', 'compact_urban', 'none'],
+  defaultObjectGroups: ['site_amenities', 'seating_patio', 'signage_lighting', 'rooftop_mep'],
+  featureSchema: [
+    {
+      key: 'civicCrownStyle',
+      label: 'Civic Crown Style',
+      type: 'select',
+      options: [
+        ['dome_rotunda', 'Domed Rotunda'],
+        ['clock_tower', 'Central Clock Tower'],
+        ['art_deco_stepped', 'Stepped Art Deco Crown'],
+        ['modern_cantilever', 'Modern Civic Canopy']
+      ]
+    },
+    { key: 'porticoColumns', label: 'Portico Columns', type: 'range', min: 4, max: 8, step: 2 },
+    { key: 'includeSideWings', label: 'Flanking Legislative Wings', type: 'boolean' }
+  ],
+  defaults: {
+    width: 24,
+    depth: 13,
+    floors: 3,
+    floorHeight: 3.9,
+    exteriorMaterial: 'stone',
+    primaryColor: '#cfc5b4',
+    secondaryColor: '#e6dfd2',
+    trimColor: '#36414c',
+    accentColor: '#c99b3b',
+    signageStyle: 'engraved_stone',
+    signText: 'Paragon City Hall',
+    civicCrownStyle: 'dome_rotunda',
+    porticoColumns: 6,
+    includeSideWings: true,
+    includeRooftopHvac: true,
+    lotType: 'civic_plaza',
+    lotWidth: 52,
+    lotDepth: 36,
+    frontSetback: 10.5
+  },
+  presets: [
+    {
+      id: 'grand_domed_city_hall',
+      label: 'Grand Domed City Hall',
+      environmentTags: ['civic', 'downtown'],
+      params: { width: 26, depth: 14, floors: 3, civicCrownStyle: 'dome_rotunda', porticoColumns: 6, exteriorMaterial: 'stone', primaryColor: '#d4cab8', accentColor: '#c99b3b', signText: 'City Hall' }
+    },
+    {
+      id: 'classic_county_courthouse',
+      label: 'Classic County Courthouse',
+      environmentTags: ['civic', 'downtown'],
+      params: { width: 22, depth: 13, floors: 3, civicCrownStyle: 'dome_rotunda', porticoColumns: 6, exteriorMaterial: 'stone', primaryColor: '#cbc0ad', accentColor: '#4c7a6b', signText: 'County Courthouse' }
+    },
+    {
+      id: 'art_deco_municipal_building',
+      label: 'Art Deco Municipal Building',
+      environmentTags: ['civic', 'downtown', 'superhero_city'],
+      params: { width: 24, depth: 13.5, floors: 4, architecturalEra: 'early_20th', civicCrownStyle: 'art_deco_stepped', porticoColumns: 4, exteriorMaterial: 'decorative_masonry', primaryColor: '#b8a996', accentColor: '#b58d3d', roofStyle: 'stepped', signText: 'Municipal Annex' }
+    },
+    {
+      id: 'modern_civic_center',
+      label: 'Modern Civic Center',
+      environmentTags: ['civic', 'urban'],
+      params: { width: 24, depth: 13, floors: 3, civicCrownStyle: 'modern_cantilever', porticoColumns: 4, exteriorMaterial: 'concrete', primaryColor: '#6f7d8c', accentColor: '#1f77b4', windowStyle: 'modern', signText: 'Civic Administration Center' }
+    },
+    {
+      id: 'historic_town_hall',
+      label: 'Historic Brick Clock Town Hall',
+      environmentTags: ['civic', 'retro', 'suburban'],
+      params: { width: 17, depth: 11, floors: 2, architecturalEra: 'early_20th', civicCrownStyle: 'clock_tower', porticoColumns: 4, exteriorMaterial: 'brick', primaryColor: '#8d4337', secondaryColor: '#e2d8c7', windowStyle: 'arched', includeSideWings: false, lotWidth: 36, lotDepth: 28, signText: 'Olde Town Hall' }
+    }
+  ],
+  buildStructure: buildCityHallStructure,
+  planObjects: planCityHallObjects
+});
+
+function buildLibraryMuseumStructure(ctx) {
+  const { cfg, mainBuildingGroup, attachedGroup, placementCtx } = ctx;
+  const w = clamp(cfg.width || 22, 12, 46);
+  const d = clamp(cfg.depth || 13, 8, 30);
+  const floors = clamp(cfg.floors || 2, 1, 6);
+  const fh = cfg.floorHeight || 4.0;
+  const totalH = floors * fh;
+
+  const shell = addStandardBuildingShell(mainBuildingGroup, ctx, {
+    width: w,
+    depth: d,
+    floors,
+    floorHeight: fh,
+    entranceAwning: false,
+    signY: Math.min(totalH - 0.38, fh + 0.35)
+  });
+  ctx.entrances.push(...shell.entrances);
+
+  const trimMat = solidMaterial(cfg.trimColor || '#2f3a45');
+  const stoneMat = solidMaterial(cfg.secondaryColor || '#e2dad0');
+  const glassMat = glassMaterial(cfg.glassColor, cfg.lightingTime === 'night', { lightingTime: cfg.lightingTime });
+
+  // Stepped entry plaza plinth
+  addBox(attachedGroup, 0, 0.14, d * 0.5 + 1.15, Math.min(10, w * 0.48), 0.28, 2.3, stoneMat);
+
+  // Decorative exhibition banner masts across front facade
+  if (cfg.includeBannerPoles !== false) {
+    const bannerColors = [cfg.accentColor || '#c94c24', '#2a7b9b', cfg.accentColor || '#c94c24', '#d9a441'];
+    const count = 4;
+    for (let i = 0; i < count; i++) {
+      const bx = -w * 0.38 + (i / (count - 1)) * (w * 0.76);
+      if (Math.abs(bx) < 2.2) continue;
+      addCylinder(attachedGroup, bx, Math.min(totalH * 0.5, 3.6), d * 0.5 + 0.32, 0.04, 0.04, Math.min(totalH * 0.75, 4.2), trimMat, 6);
+      addBox(attachedGroup, bx, Math.min(totalH * 0.55, 3.8), d * 0.5 + 0.38, 0.65, 1.9, 0.04, solidMaterial(bannerColors[i % bannerColors.length]));
+    }
+  }
+
+  let crownTopY = shell.roofTopY;
+  const crown = cfg.culturalCrown || 'skylight_vault';
+  if (crown === 'skylight_vault') {
+    const vw = w * 0.58;
+    const vd = d * 0.55;
+    for (let s = 0; s < 4; s++) {
+      const stepD = vd * (1 - s * 0.2);
+      addBox(attachedGroup, 0, shell.roofTopY + 0.32 + s * 0.36, 0, vw, 0.38, stepD, glassMat);
+    }
+    crownTopY = shell.roofTopY + 1.85;
+  } else if (crown === 'planetarium_dome') {
+    const px = w * 0.5 + 4.4;
+    const pRadius = 4.6;
+    addCylinder(attachedGroup, px, 2.2, 0, pRadius, pRadius * 1.02, 4.4, surfaceMaterial(cfg.exteriorMaterial, cfg.primaryColor, cfg.condition, cfg.seed + 19, 3, 1), 16);
+    addCylinder(attachedGroup, px, 4.85, 0, pRadius * 0.86, pRadius * 1.0, 0.95, stoneMat, 16);
+    addCylinder(attachedGroup, px, 5.9, 0, pRadius * 0.55, pRadius * 0.86, 1.15, glassMat, 14);
+    addCylinder(attachedGroup, px, 6.75, 0, 0.3, pRadius * 0.55, 0.6, trimMat, 12);
+    registerBuildingFootprint(placementCtx, {
+      id: 'planetarium_rotunda',
+      minX: px - pRadius,
+      maxX: px + pRadius,
+      minZ: -pRadius,
+      maxZ: pRadius,
+      maxY: 7.0
+    });
+    crownTopY = Math.max(crownTopY, 7.1);
+  } else if (crown === 'cantilever_gallery') {
+    const gx = -w * 0.12;
+    const gz = d * 0.5 + 1.4;
+    const gh = Math.max(3.4, fh);
+    addBox(attachedGroup, gx, totalH - gh * 0.45, gz, w * 0.62, gh, 2.8, solidMaterial(cfg.accentColor || '#264653'));
+    addBox(attachedGroup, gx - w * 0.24, (totalH - gh) * 0.5, gz + 0.8, 0.42, totalH - gh, 0.42, trimMat);
+    addBox(attachedGroup, gx + w * 0.24, (totalH - gh) * 0.5, gz + 0.8, 0.42, totalH - gh, 0.42, trimMat);
+  } else {
+    // classical_pediment
+    for (let c = 0; c < 4; c++) {
+      const cx = -3.0 + (c / 3) * 6.0;
+      addCylinder(attachedGroup, cx, totalH * 0.46, d * 0.5 + 1.1, 0.24, 0.28, totalH * 0.86, stoneMat, 10);
+    }
+    addBox(attachedGroup, 0, totalH * 0.9 + 0.25, d * 0.5 + 0.65, 7.6, 0.44, 1.8, stoneMat);
+  }
+
+  registerBuildingFootprint(placementCtx, { id: 'library_museum_body', minX: -w * 0.5, maxX: w * 0.5, minZ: -d * 0.5, maxZ: d * 0.5, maxY: totalH });
+  registerRoofBound(placementCtx, { id: 'main_roof', minX: -w * 0.45, maxX: w * 0.45, minZ: -d * 0.45, maxZ: d * 0.45, y: shell.roofTopY });
+
+  ctx.roofTopY = shell.roofTopY;
+  ctx.buildingBounds = { width: crown === 'planetarium_dome' ? w + 9.2 : w, depth: d + 2.8, height: crownTopY };
+  ctx.lotOptions = { rearMargin: 4.0 };
+}
+
+function planLibraryMuseumObjects(ctx, lotLayout) {
+  const { cfg } = ctx;
+  const specs = [
+    { familyId: 'street_bench', presetId: 'downtown_metal_slat_bench', groupKey: 'seating_patio', anchorId: 'entrance_main', localOffset: [-3.2, 0, 2.0] },
+    { familyId: 'park_planter', presetId: 'architectural_concrete_planter', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [3.2, 0, 2.0] },
+    { familyId: 'newspaper_box', presetId: 'sidewalk_a_frame_sign', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [-1.8, 0, 1.4] },
+    { familyId: 'bike_rack', presetId: 'city_bike_share_dock_station', groupKey: 'site_amenities', anchorId: 'sidewalk_front_right', localOffset: [-1.2, 0, 0] }
+  ];
+  if (lotLayout.enabled && (cfg.frontSetback || 0) >= 8.0) {
+    specs.push({ familyId: 'park_planter', presetId: 'ornamental_plaza_fountain', groupKey: 'site_amenities', anchorId: 'sidewalk_front_left', localOffset: [4.0, 0, -2.2] });
+  }
+  if (cfg.includeExteriorLighting !== false && lotLayout.enabled) {
+    specs.push({ familyId: 'streetlight', presetId: 'heritage_acorn_streetlamp', groupKey: 'signage_lighting', anchorId: 'sidewalk_front_left', localOffset: [-0.8, 0, 0] });
+  }
+  return specs;
+}
+
+registerSpecialtyFamily({
+  id: 'library_museum',
+  categoryId: 'municipal_community',
+  categories: ['municipal_community', 'civic_government', 'entertainment_recreation'],
+  label: 'Public Libraries & Museums',
+  description: 'Carnegie stone libraries, skylit natural history museums, cantilevered modern art galleries, and science planetariums.',
+  environmentTags: ['civic', 'urban', 'downtown', 'campus'],
+  supportedLotTypes: ['civic_plaza', 'standalone_commercial', 'compact_urban', 'none'],
+  defaultObjectGroups: ['site_amenities', 'seating_patio', 'signage_lighting', 'rooftop_mep'],
+  featureSchema: [
+    {
+      key: 'culturalCrown',
+      label: 'Cultural Crown / Wing',
+      type: 'select',
+      options: [
+        ['skylight_vault', 'Glass Skylight Atrium'],
+        ['planetarium_dome', 'Planetarium Dome'],
+        ['classical_pediment', 'Classical Pediment'],
+        ['cantilever_gallery', 'Modern Cantilever Wing']
+      ]
+    },
+    { key: 'includeBannerPoles', label: 'Exhibition Banner Poles', type: 'boolean' }
+  ],
+  defaults: {
+    width: 22,
+    depth: 13,
+    floors: 2,
+    floorHeight: 4.1,
+    exteriorMaterial: 'stone',
+    primaryColor: '#cfc5b4',
+    secondaryColor: '#e6dfd3',
+    trimColor: '#2d3742',
+    accentColor: '#b84a39',
+    signageStyle: 'engraved_stone',
+    signText: 'Central Public Library',
+    culturalCrown: 'skylight_vault',
+    includeBannerPoles: true,
+    lotType: 'civic_plaza',
+    lotWidth: 48,
+    lotDepth: 34,
+    frontSetback: 9.5
+  },
+  presets: [
+    {
+      id: 'carnegie_public_library',
+      label: 'Carnegie Stone Public Library',
+      environmentTags: ['civic', 'urban', 'retro'],
+      params: { width: 19, depth: 11.5, floors: 2, architecturalEra: 'early_20th', culturalCrown: 'classical_pediment', exteriorMaterial: 'stone', primaryColor: '#d4c9b8', windowStyle: 'arched', signText: 'Carnegie Public Library' }
+    },
+    {
+      id: 'grand_natural_history_museum',
+      label: 'Grand Natural History Museum',
+      environmentTags: ['civic', 'downtown'],
+      params: { width: 28, depth: 15, floors: 3, culturalCrown: 'skylight_vault', exteriorMaterial: 'stone', primaryColor: '#cfc3ae', accentColor: '#a63a2e', signText: 'Museum of Natural History', lotWidth: 56, lotDepth: 40 }
+    },
+    {
+      id: 'modern_art_gallery',
+      label: 'Modern Contemporary Art Gallery',
+      environmentTags: ['urban', 'downtown'],
+      params: { width: 22, depth: 12.5, floors: 2, culturalCrown: 'cantilever_gallery', exteriorMaterial: 'concrete', primaryColor: '#dde2e7', accentColor: '#1d4e6b', windowStyle: 'modern', signText: 'Metro Modern Art Gallery' }
+    },
+    {
+      id: 'metropolitan_central_library',
+      label: 'Metropolitan Central Library',
+      environmentTags: ['civic', 'downtown', 'campus'],
+      params: { width: 24, depth: 14, floors: 3, culturalCrown: 'skylight_vault', exteriorMaterial: 'decorative_masonry', primaryColor: '#b38e6d', accentColor: '#2b6cb0', signText: 'Metropolitan Library' }
+    },
+    {
+      id: 'city_science_planetarium',
+      label: 'City Science & Space Planetarium',
+      environmentTags: ['civic', 'campus', 'urban'],
+      params: { width: 20, depth: 13, floors: 2, culturalCrown: 'planetarium_dome', exteriorMaterial: 'concrete', primaryColor: '#566573', accentColor: '#00a8e8', signText: 'City Science Planetarium', lotWidth: 54, lotDepth: 36 }
+    }
+  ],
+  buildStructure: buildLibraryMuseumStructure,
+  planObjects: planLibraryMuseumObjects
+});
+
+function addCampusBasketballCourt(parent, x, z, w, d, fenceMat, rimColor) {
+  const courtMat = solidMaterial('#2e3740');
+  const lineMat = solidMaterial('#edf2f7');
+  const postMat = solidMaterial('#3a424b');
+  const boardMat = solidMaterial('#ffffff');
+  const hoopMat = solidMaterial(rimColor || '#e85d04');
+
+  addBox(parent, x, 0.04, z, w, 0.08, d, courtMat);
+  // Boundary & center lines
+  addBox(parent, x, 0.085, z, w - 0.8, 0.02, 0.08, lineMat, { cast: false });
+  addBox(parent, x - w * 0.44, 0.085, z, 0.08, 0.02, d - 0.8, lineMat, { cast: false });
+  addBox(parent, x + w * 0.44, 0.085, z, 0.08, 0.02, d - 0.8, lineMat, { cast: false });
+  addBox(parent, x, 0.085, z - d * 0.44, w - 0.8, 0.02, 0.08, lineMat, { cast: false });
+  addBox(parent, x, 0.085, z + d * 0.44, w - 0.8, 0.02, 0.08, lineMat, { cast: false });
+
+  // Two basketball stanchions & backboards at ends
+  for (const sz of [-1, 1]) {
+    const bz = z + sz * (d * 0.42);
+    addCylinder(parent, x, 1.6, bz + sz * 0.25, 0.08, 0.1, 3.2, postMat, 8);
+    addBox(parent, x, 2.95, bz, 1.4, 0.9, 0.08, boardMat);
+    addCylinder(parent, x, 2.68, bz - sz * 0.28, 0.24, 0.24, 0.05, hoopMat, 10);
+  }
+
+  // Low Perimeter Rec Fence
+  addBox(parent, x - w * 0.5, 0.9, z, 0.06, 1.8, d, fenceMat);
+  addBox(parent, x, 0.9, z - d * 0.5, w, 1.8, 0.06, fenceMat);
+  addBox(parent, x, 0.9, z + d * 0.5, w, 1.8, 0.06, fenceMat);
+}
+
+function buildSchoolUniversityStructure(ctx) {
+  const { cfg, mainBuildingGroup, attachedGroup, placementCtx } = ctx;
+  const w = clamp(cfg.width || 22, 12, 48);
+  const d = clamp(cfg.depth || 11.5, 7.5, 28);
+  const floors = clamp(cfg.floors || 2, 1, 6);
+  const fh = cfg.floorHeight || 3.6;
+  const totalH = floors * fh;
+
+  const shell = addStandardBuildingShell(mainBuildingGroup, ctx, {
+    width: w,
+    depth: d,
+    floors,
+    floorHeight: fh,
+    entranceAwning: false,
+    signY: Math.min(totalH - 0.35, fh + 0.3)
+  });
+  ctx.entrances.push(...shell.entrances);
+
+  const wallMat = surfaceMaterial(cfg.exteriorMaterial, cfg.primaryColor, cfg.condition, cfg.seed + 19, 3, 2);
+  const stoneMat = solidMaterial(cfg.secondaryColor || '#e2d9c9');
+  const trimMat = solidMaterial(cfg.trimColor || '#2c3947');
+
+  // Arched / stone entry surround + front flagpole
+  addBox(attachedGroup, 0, fh * 0.5, d * 0.5 + 0.28, 4.4, fh, 0.56, stoneMat);
+  addCivicFlagpole(attachedGroup, -4.4, 0, d * 0.5 + 2.4, '#dce2e8', cfg.accentColor || '#1e4d92');
+
+  let crownTop = shell.roofTopY;
+  if (cfg.includeBellTower) {
+    const faceMat = emissiveMaterial('#fff3d1', 0.85, cfg.lightingTime);
+    crownTop = addCivicClockTowerCrown(attachedGroup, 0, shell.roofTopY, d * 0.1, 3.2, 4.8, wallMat, trimMat, faceMat);
+  }
+
+  let leftBound = -w * 0.5;
+  let rightBound = w * 0.5;
+
+  // Attached High-Ceiling Gymnasium / Auditorium Wing on Right Side
+  if (cfg.includeGymWing) {
+    const gw = 10.5;
+    const gd = Math.max(d + 2.6, 13.5);
+    const gh = Math.max(totalH, 6.8);
+    const gx = w * 0.5 + gw * 0.5 - 0.1;
+    addBox(attachedGroup, gx, gh * 0.5, -0.3, gw, gh, gd, wallMat);
+    addRoofStructure(attachedGroup, gx, gh, -0.3, gw, gd, { ...cfg, roofStyle: 'flat' });
+    // Clerestory gym windows high along walls
+    const glassMat = glassMaterial(cfg.glassColor, cfg.lightingTime === 'night', { lightingTime: cfg.lightingTime });
+    addBox(attachedGroup, gx, gh - 1.1, -0.3 + gd * 0.5 + 0.04, gw * 0.72, 0.9, 0.08, glassMat, { cast: false });
+    addDoorUnit(attachedGroup, gx, 0, -0.3 + gd * 0.5, 2.0, 2.3, cfg, { solidDoor: true });
+    registerBuildingFootprint(placementCtx, { id: 'school_gym_wing', minX: gx - gw * 0.5, maxX: gx + gw * 0.5, minZ: -0.3 - gd * 0.5, maxZ: -0.3 + gd * 0.5, maxY: gh });
+    rightBound = gx + gw * 0.5;
+  }
+
+  // Outdoor Basketball / Recreation Court on Left Side
+  if (cfg.includeSportsCourt) {
+    const cw = 8.4;
+    const cd = Math.max(12.2, d + 1.0);
+    const cx = -w * 0.5 - cw * 0.5 - 1.2;
+    addCampusBasketballCourt(attachedGroup, cx, 0, cw, cd, solidMaterial('#687482'), cfg.accentColor);
+    registerBuildingFootprint(placementCtx, { id: 'school_sports_court', minX: cx - cw * 0.5, maxX: cx + cw * 0.5, minZ: -cd * 0.5, maxZ: cd * 0.5, maxY: 3.5 });
+    leftBound = cx - cw * 0.5;
+  }
+
+  registerBuildingFootprint(placementCtx, { id: 'school_main_hall', minX: -w * 0.5, maxX: w * 0.5, minZ: -d * 0.5, maxZ: d * 0.5, maxY: totalH });
+  registerRoofBound(placementCtx, { id: 'main_roof', minX: -w * 0.45, maxX: w * 0.45, minZ: -d * 0.45, maxZ: d * 0.45, y: shell.roofTopY });
+
+  ctx.roofTopY = shell.roofTopY;
+  ctx.buildingBounds = { width: rightBound - leftBound, depth: Math.max(d, 14.5) + 1.5, height: crownTop };
+  ctx.lotOptions = { rearMargin: 4.5 };
+}
+
+function planSchoolUniversityObjects(ctx, lotLayout) {
+  const { cfg } = ctx;
+  const specs = [
+    { familyId: 'bike_rack', presetId: 'serpentine_wave_bike_rack', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [3.2, 0, 1.4] },
+    { familyId: 'emergency_safety', presetId: 'campus_emergency_call_box', groupKey: 'site_amenities', anchorId: 'sidewalk_front_left', localOffset: [0, 0, 0] },
+    { familyId: 'park_planter', presetId: 'park_drinking_fountain', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [-2.6, 0, 1.6] },
+    { familyId: 'street_bench', presetId: 'classic_park_wood_bench', groupKey: 'seating_patio', anchorId: 'sidewalk_front_right', localOffset: [-1.4, 0, 0] }
+  ];
+  if (cfg.includeRoadsideSign && lotLayout.enabled) {
+    specs.push({ familyId: 'newspaper_box', presetId: 'illuminated_city_ad_totem', groupKey: 'signage_lighting', anchorId: 'roadside_sign_corner', localOffset: [0, 0, 0] });
+  }
+  return specs;
+}
+
+registerSpecialtyFamily({
+  id: 'school_university',
+  categoryId: 'municipal_community',
+  categories: ['municipal_community', 'civic_government'],
+  label: 'Schools & University Campus Halls',
+  description: 'Elementary & high schools with gymnasiums and basketball courts, urban academies, and university academic halls.',
+  environmentTags: ['campus', 'civic', 'suburban', 'urban'],
+  supportedLotTypes: ['multi_building_facility', 'civic_plaza', 'standalone_commercial', 'compact_urban', 'none'],
+  defaultObjectGroups: ['site_amenities', 'seating_patio', 'signage_lighting', 'rooftop_mep', 'waste_utility'],
+  featureSchema: [
+    { key: 'includeGymWing', label: 'Attached Gymnasium / Auditorium Wing', type: 'boolean' },
+    { key: 'includeSportsCourt', label: 'Outdoor Basketball / Rec Court', type: 'boolean' },
+    { key: 'includeBellTower', label: 'Central Clock / Bell Tower', type: 'boolean' }
+  ],
+  defaults: {
+    width: 24,
+    depth: 12,
+    floors: 2,
+    floorHeight: 3.6,
+    exteriorMaterial: 'brick',
+    primaryColor: '#994c3d',
+    secondaryColor: '#e2d8c7',
+    trimColor: '#2c3947',
+    accentColor: '#1e4d92',
+    signText: 'Paragon High School',
+    includeGymWing: true,
+    includeSportsCourt: true,
+    includeBellTower: true,
+    lotType: 'multi_building_facility',
+    lotWidth: 56,
+    lotDepth: 38,
+    frontSetback: 9.0
+  },
+  presets: [
+    {
+      id: 'neighborhood_elementary_school',
+      label: 'Neighborhood Elementary School',
+      environmentTags: ['suburban', 'campus', 'civic'],
+      params: { width: 20, depth: 11, floors: 2, includeGymWing: true, includeSportsCourt: true, includeBellTower: false, primaryColor: '#a65744', accentColor: '#2d7a47', signText: 'Oakridge Elementary' }
+    },
+    {
+      id: 'classic_brick_high_school',
+      label: 'Classic Brick High School Campus',
+      environmentTags: ['suburban', 'urban', 'campus'],
+      params: { width: 28, depth: 12.5, floors: 3, includeGymWing: true, includeSportsCourt: true, includeBellTower: true, primaryColor: '#8f3f34', lotWidth: 62, lotDepth: 42, signText: 'Central High School' }
+    },
+    {
+      id: 'urban_charter_academy',
+      label: 'Urban Charter School Building',
+      environmentTags: ['urban', 'campus'],
+      params: { width: 17, depth: 10.5, floors: 3, includeGymWing: false, includeSportsCourt: false, includeBellTower: false, exteriorMaterial: 'brick', lotType: 'compact_urban', lotWidth: 30, lotDepth: 24, signText: 'Harbor Charter Academy' }
+    },
+    {
+      id: 'university_science_hall',
+      label: 'University Science & Engineering Hall',
+      environmentTags: ['campus', 'civic'],
+      params: { width: 24, depth: 13, floors: 3, includeGymWing: false, includeSportsCourt: false, includeBellTower: true, exteriorMaterial: 'stone', primaryColor: '#cfc5b4', accentColor: '#2563eb', windowStyle: 'modern', lotType: 'civic_plaza', signText: 'Science Hall' }
+    },
+    {
+      id: 'historic_collegiate_hall',
+      label: 'Historic Collegiate Gothic Hall',
+      environmentTags: ['campus', 'retro', 'civic'],
+      params: { width: 22, depth: 12, floors: 3, architecturalEra: 'early_20th', includeGymWing: false, includeSportsCourt: false, includeBellTower: true, exteriorMaterial: 'brick', primaryColor: '#7a3b34', windowStyle: 'arched', roofStyle: 'pitched', lotType: 'civic_plaza', signText: 'Founders Hall' }
+    }
+  ],
+  buildStructure: buildSchoolUniversityStructure,
+  planObjects: planSchoolUniversityObjects
+});
+
+  // --- Module: families/city-transit-parking.js ---
+function addTransitClockBadge(parent, x, y, z, radius, trimMat, faceMat) {
+  addCylinder(parent, x, y, z, radius + 0.08, radius + 0.08, 0.14, trimMat, 12, { rotX: Math.PI / 2 });
+  addCylinder(parent, x, y, z + 0.06, radius, radius, 0.06, faceMat, 12, { rotX: Math.PI / 2, cast: false });
+}
+
+function buildTransitStationStructure(ctx) {
+  const { cfg, mainBuildingGroup, attachedGroup, placementCtx } = ctx;
+  const w = clamp(cfg.width || 22, 10, 48);
+  const d = clamp(cfg.depth || 9.5, 6, 24);
+  const fh = cfg.floorHeight || 4.4;
+  const mode = cfg.transitMode || 'bus_terminal';
+  const bays = clamp(cfg.platformBays || 3, 2, 5);
+
+  const shell = addStandardBuildingShell(mainBuildingGroup, ctx, {
+    width: w,
+    depth: d,
+    floors: 1,
+    floorHeight: fh,
+    forceStorefront: true,
+    entranceCount: 2,
+    entranceAwning: false,
+    signY: fh - 0.36
+  });
+  ctx.entrances.push(...shell.entrances);
+
+  const steelMat = solidMaterial(cfg.trimColor || '#26323d');
+  const accentMat = solidMaterial(cfg.accentColor || '#1f77b4');
+  const glassMat = glassMaterial(cfg.glassColor, cfg.lightingTime === 'night', { lightingTime: cfg.lightingTime });
+  const clockFaceMat = emissiveMaterial('#fff4d6', 0.9, cfg.lightingTime);
+  const concMat = surfaceMaterial('concrete', '#8c949c', cfg.condition, cfg.seed + 13, 3, 2);
+
+  // Projecting station clock & illuminated destination sign on headhouse front
+  addTransitClockBadge(attachedGroup, 0, fh + 0.55, d * 0.5 + 0.16, 0.65, steelMat, clockFaceMat);
+
+  let topY = shell.roofTopY + 1.25;
+  let totalDepth = d;
+  let totalSpanW = w;
+
+  if (mode === 'elevated_metro') {
+    // Upper Elevated Viaduct Concourse Deck carried on concrete piers
+    const deckY = fh + 2.2;
+    const deckW = Math.max(w + 8, 28);
+    const deckD = 7.4;
+    addBox(attachedGroup, 0, deckY, -0.5, deckW, 0.48, deckD, concMat);
+    for (const px of [-deckW * 0.36, -deckW * 0.12, deckW * 0.12, deckW * 0.36]) {
+      addCylinder(attachedGroup, px, deckY * 0.5, -0.5, 0.55, 0.65, deckY, concMat, 8);
+    }
+    // Elevated glass concourse canopy + rail guideway track beams
+    addBox(attachedGroup, 0, deckY + 2.6, -0.5, deckW * 0.86, 0.22, deckD * 0.92, steelMat);
+    addBox(attachedGroup, 0, deckY + 1.4, -0.5 + deckD * 0.44, deckW * 0.86, 2.1, 0.14, glassMat);
+    addBox(attachedGroup, 0, deckY + 0.34, -0.5 + deckD * 0.34, deckW, 0.12, 0.25, accentMat);
+    totalSpanW = deckW;
+    topY = deckY + 3.0;
+  } else if (mode === 'subway_headhouse') {
+    // Bold angled steel-and-glass station pavilion canopy extending over front plaza
+    addBox(attachedGroup, 0, fh + 0.45, d * 0.5 + 1.6, w * 0.92, 0.22, 4.0, steelMat);
+    addBox(attachedGroup, -w * 0.38, fh * 0.52, d * 0.5 + 3.3, 0.26, fh, 0.26, accentMat);
+    addBox(attachedGroup, w * 0.38, fh * 0.52, d * 0.5 + 3.3, 0.26, fh, 0.26, accentMat);
+    addSignboardUnit(attachedGroup, 0, fh + 0.62, d * 0.5 + 3.62, 5.2, 0.72, cfg.signText || 'Metro Station', '#16202a', '#ffd166', cfg);
+    totalDepth = d + 3.8;
+  } else if (cfg.includePlatformCanopy !== false) {
+    // Bus Terminal / Union Rail Boarding Islands + Cantilever Canopy on Rear Side
+    const platW = Math.max(w, bays * 5.4);
+    const platD = 6.2;
+    const pz = -d * 0.5 - platD * 0.5 - 0.1;
+    addBox(attachedGroup, 0, 0.12, pz, platW, 0.24, platD, concMat);
+    // Yellow passenger safety edge strip
+    addBox(attachedGroup, 0, 0.245, pz - platD * 0.44, platW, 0.04, 0.34, solidMaterial('#f2c14e'), { cast: false });
+    // Cantilevered steel boarding roof over platform bays
+    addBox(attachedGroup, 0, 3.85, pz, platW, 0.22, platD * 0.88, steelMat);
+    for (let b = 0; b <= bays; b++) {
+      const bx = -platW * 0.44 + (b / bays) * (platW * 0.88);
+      addBox(attachedGroup, bx, 1.95, pz + platD * 0.2, 0.24, 3.7, 0.24, accentMat);
+    }
+    registerBuildingFootprint(placementCtx, {
+      id: 'transit_boarding_platform',
+      minX: -platW * 0.5,
+      maxX: platW * 0.5,
+      minZ: pz - platD * 0.5,
+      maxZ: pz + platD * 0.5,
+      maxY: 4.1
+    });
+    registerLaneClearance(placementCtx, {
+      id: 'transit_bus_rail_lane',
+      kind: 'bus_lane',
+      minX: -platW * 0.55,
+      maxX: platW * 0.55,
+      minZ: pz - platD * 0.5 - 4.2,
+      maxZ: pz - platD * 0.5
+    });
+    registerAnchor(placementCtx, {
+      id: 'transit_platform_shelter',
+      category: 'sidewalk',
+      position: [-platW * 0.22, 0.24, pz],
+      surfaceY: 0.24,
+      rotationY: Math.PI
+    });
+    registerAnchor(placementCtx, {
+      id: 'transit_platform_board',
+      category: 'sidewalk',
+      position: [platW * 0.22, 0.24, pz + 0.5],
+      surfaceY: 0.24,
+      rotationY: 0
+    });
+    totalSpanW = Math.max(w, platW);
+    totalDepth = d + platD + 1.0;
+  }
+
+  registerBuildingFootprint(placementCtx, { id: 'transit_headhouse', minX: -w * 0.5, maxX: w * 0.5, minZ: -d * 0.5, maxZ: d * 0.5, maxY: fh });
+  registerRoofBound(placementCtx, { id: 'main_roof', minX: -w * 0.45, maxX: w * 0.45, minZ: -d * 0.45, maxZ: d * 0.45, y: shell.roofTopY });
+
+  ctx.roofTopY = shell.roofTopY;
+  ctx.buildingBounds = { width: totalSpanW, depth: totalDepth, height: topY };
+  ctx.lotOptions = { rearMargin: 5.2 };
+}
+
+function planTransitStationObjects(ctx, lotLayout) {
+  const { cfg } = ctx;
+  const specs = [
+    { familyId: 'transit_shelter', presetId: 'transit_ticket_vending_machine', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [-2.6, 0, 0.8] },
+    { familyId: 'bike_rack', presetId: 'city_bike_share_dock_station', groupKey: 'site_amenities', anchorId: 'sidewalk_front_right', localOffset: [-1.8, 0, 0] },
+    { familyId: 'bollard_railing', presetId: 'downtown_street_clock', groupKey: 'signage_lighting', anchorId: 'sidewalk_front_left', localOffset: [1.5, 0, 0] },
+    { familyId: 'newspaper_box', presetId: 'quad_newspaper_box_row', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [3.4, 0, 0.8] }
+  ];
+  if (cfg.transitMode === 'subway_headhouse') {
+    specs.push({
+      familyId: 'transit_shelter',
+      presetId: 'subway_stair_entrance_railing',
+      groupKey: 'site_amenities',
+      anchorId: 'sidewalk_front_left',
+      localOffset: [3.2, 0, -1.6]
+    });
+  } else if (cfg.includePlatformCanopy !== false && cfg.transitMode !== 'elevated_metro') {
+    specs.push(
+      { familyId: 'transit_shelter', presetId: 'metro_glass_bus_shelter', groupKey: 'site_amenities', anchorId: 'transit_platform_shelter', localOffset: [0, 0, 0], allowInsideBuilding: true },
+      { familyId: 'transit_shelter', presetId: 'electronic_bus_arrival_board', groupKey: 'signage_lighting', anchorId: 'transit_platform_board', localOffset: [0, 0, 0], allowInsideBuilding: true }
+    );
+  }
+  if (cfg.includeRoadsideSign && lotLayout.enabled) {
+    specs.push({ familyId: 'newspaper_box', presetId: 'illuminated_city_ad_totem', groupKey: 'signage_lighting', anchorId: 'roadside_sign_corner', localOffset: [0, 0, 0] });
+  }
+  return specs;
+}
+
+registerSpecialtyFamily({
+  id: 'transit_station',
+  categoryId: 'automotive_transport',
+  categories: ['automotive_transport', 'municipal_community'],
+  label: 'Transit Stations & Bus Terminals',
+  description: 'Municipal bus terminals, historic union rail depots, elevated metro viaduct stations, and subway plaza headhouses.',
+  environmentTags: ['transit', 'downtown', 'urban', 'civic'],
+  supportedLotTypes: ['standalone_commercial', 'civic_plaza', 'roadside_service', 'compact_urban', 'none'],
+  defaultObjectGroups: ['site_amenities', 'signage_lighting', 'seating_patio', 'rooftop_mep'],
+  featureSchema: [
+    {
+      key: 'transitMode',
+      label: 'Transit Station Mode',
+      type: 'select',
+      options: [
+        ['bus_terminal', 'Municipal Bus Terminal'],
+        ['train_depot', 'Rail / Union Depot'],
+        ['elevated_metro', 'Elevated Metro Station'],
+        ['subway_headhouse', 'Subway Plaza Headhouse']
+      ]
+    },
+    { key: 'platformBays', label: 'Boarding Platform Bays', type: 'range', min: 2, max: 5, step: 1 },
+    { key: 'includePlatformCanopy', label: 'Covered Boarding Platform', type: 'boolean' }
+  ],
+  defaults: {
+    width: 22,
+    depth: 9.5,
+    floors: 1,
+    floorHeight: 4.5,
+    exteriorMaterial: 'concrete',
+    primaryColor: '#7a8794',
+    secondaryColor: '#d9dfe6',
+    trimColor: '#22303d',
+    accentColor: '#1f77b4',
+    signText: 'Central Transit Terminal',
+    transitMode: 'bus_terminal',
+    platformBays: 3,
+    includePlatformCanopy: true,
+    lotType: 'standalone_commercial',
+    lotWidth: 46,
+    lotDepth: 34,
+    frontSetback: 8.5,
+    parkingCount: 4
+  },
+  presets: [
+    {
+      id: 'municipal_bus_terminal',
+      label: 'Municipal Bus Terminal',
+      environmentTags: ['transit', 'urban'],
+      params: { width: 22, depth: 9.5, transitMode: 'bus_terminal', platformBays: 4, primaryColor: '#6f7c88', accentColor: '#2563eb', signText: 'Central Bus Terminal' }
+    },
+    {
+      id: 'elevated_metro_station',
+      label: 'Elevated Metro Viaduct Station',
+      environmentTags: ['transit', 'downtown'],
+      params: { width: 16, depth: 8.5, transitMode: 'elevated_metro', primaryColor: '#566473', accentColor: '#e85d04', signText: 'Skyrail Metro Station', lotType: 'civic_plaza' }
+    },
+    {
+      id: 'historic_union_train_depot',
+      label: 'Historic Brick Union Rail Depot',
+      environmentTags: ['transit', 'retro', 'civic'],
+      params: { width: 24, depth: 10.5, floorHeight: 4.8, architecturalEra: 'early_20th', transitMode: 'train_depot', exteriorMaterial: 'brick', primaryColor: '#8d4337', trimColor: '#dcd2c0', windowStyle: 'arched', roofStyle: 'hip', platformBays: 4, signText: 'Union Rail Depot' }
+    },
+    {
+      id: 'modern_intermodal_transit_hub',
+      label: 'Modern Intermodal Transit Hub',
+      environmentTags: ['transit', 'downtown', 'superhero_city'],
+      params: { width: 26, depth: 11, floorHeight: 4.8, transitMode: 'bus_terminal', exteriorMaterial: 'glass', primaryColor: '#486581', accentColor: '#00a8e8', windowStyle: 'modern', platformBays: 5, signText: 'Paragon Transit Center', lotWidth: 54, lotDepth: 38 }
+    },
+    {
+      id: 'subway_plaza_headhouse',
+      label: 'Urban Subway Plaza Headhouse',
+      environmentTags: ['transit', 'downtown', 'urban'],
+      params: { width: 13, depth: 8, floorHeight: 4.2, transitMode: 'subway_headhouse', exteriorMaterial: 'glass', primaryColor: '#364958', accentColor: '#22c55e', lotType: 'civic_plaza', lotWidth: 30, lotDepth: 26, signText: 'Downtown Metro Entrance' }
+    }
+  ],
+  buildStructure: buildTransitStationStructure,
+  planObjects: planTransitStationObjects
+});
+
+function buildParkingGarageStructure(ctx) {
+  const { cfg, mainBuildingGroup, attachedGroup, placementCtx } = ctx;
+  const w = clamp(cfg.width || 24, 14, 48);
+  const d = clamp(cfg.depth || 16, 10, 32);
+  const levels = clamp(cfg.deckLevels || 4, 2, 7);
+  const levelH = clamp(cfg.floorHeight || 3.1, 2.8, 3.8);
+  const totalH = levels * levelH;
+
+  const concMat = surfaceMaterial(cfg.exteriorMaterial, cfg.primaryColor, cfg.condition, cfg.seed, 3, Math.max(1, levels - 1));
+  const deckDark = solidMaterial('#2a3038');
+  const spandrelMat = solidMaterial(cfg.secondaryColor || '#b8c0c8');
+  const trimMat = solidMaterial(cfg.trimColor || '#2e3842');
+  const stripeMat = solidMaterial(cfg.accentColor || '#f2c14e');
+
+  // Ground base slab
+  addBox(mainBuildingGroup, 0, 0.1, 0, w, 0.2, d, concMat);
+
+  // Stacked open concrete parking decks with horizontal spandrel barriers + dark floor shadows
+  for (let l = 1; l <= levels; l++) {
+    const sy = l * levelH;
+    addBox(mainBuildingGroup, 0, sy - 0.14, 0, w, 0.28, d, concMat);
+    addBox(mainBuildingGroup, 0, sy + 0.01, 0, w - 0.4, 0.04, d - 0.4, deckDark, { cast: false });
+    // Spandrel barrier rails along all 4 sides
+    addBox(mainBuildingGroup, 0, sy - 0.14 + 0.56, d * 0.5 - 0.14, w, 0.92, 0.26, spandrelMat);
+    addBox(mainBuildingGroup, 0, sy - 0.14 + 0.56, -d * 0.5 + 0.14, w, 0.92, 0.26, spandrelMat);
+    addBox(mainBuildingGroup, -w * 0.5 + 0.14, sy - 0.14 + 0.56, 0, 0.26, 0.92, d, spandrelMat);
+    addBox(mainBuildingGroup, w * 0.5 - 0.14, sy - 0.14 + 0.56, 0, 0.26, 0.92, d, spandrelMat);
+    if (l < levels) {
+      // Interior sloped ramp segment visible between decks
+      addBox(attachedGroup, 0, sy - levelH * 0.5, -d * 0.12, w * 0.38, 0.24, d * 0.55, concMat, { rotZ: 0.22 });
+    }
+  }
+
+  // Structural perimeter concrete columns
+  const colsX = Math.max(4, Math.round(w / 5.5));
+  for (let i = 0; i < colsX; i++) {
+    const cx = -w * 0.47 + (i / (colsX - 1)) * (w * 0.94);
+    addBox(mainBuildingGroup, cx, totalH * 0.5, d * 0.5 - 0.18, 0.44, totalH, 0.44, trimMat);
+    addBox(mainBuildingGroup, cx, totalH * 0.5, -d * 0.5 + 0.18, 0.44, totalH, 0.44, trimMat);
+  }
+  for (const sz of [-d * 0.25, 0, d * 0.25]) {
+    addBox(mainBuildingGroup, -w * 0.5 + 0.18, totalH * 0.5, sz, 0.44, totalH, 0.44, trimMat);
+    addBox(mainBuildingGroup, w * 0.5 - 0.18, totalH * 0.5, sz, 0.44, totalH, 0.44, trimMat);
+  }
+
+  // Ground-floor vehicle entry/exit portals & clearance warning bar
+  const portalOffset = Math.min(w * 0.22, 4.2);
+  addBox(attachedGroup, 0, levelH * 0.86, d * 0.5 + 0.12, portalOffset * 2 + 3.6, 0.34, 0.28, stripeMat);
+  addSignboardUnit(attachedGroup, 0, levelH + 0.35, d * 0.5 + 0.18, 4.8, 0.72, cfg.signText || 'Public Parking', '#1d3557', '#ffd166', cfg);
+
+  // Enclosed Elevator & Stair Core Tower on right corner rising above roof deck
+  const coreW = 3.6;
+  const coreD = 3.8;
+  const coreH = totalH + 3.2;
+  const coreX = w * 0.5 - coreW * 0.5 + 0.15;
+  const coreZ = d * 0.5 - coreD * 0.5 + 0.2;
+  addBox(attachedGroup, coreX, coreH * 0.5, coreZ, coreW, coreH, coreD, concMat);
+  addBox(attachedGroup, coreX, coreH * 0.52, coreZ + coreD * 0.5 + 0.04, 1.35, coreH * 0.72, 0.08, glassMaterial(cfg.glassColor, cfg.lightingTime === 'night', { lightingTime: cfg.lightingTime }));
+  addBox(attachedGroup, coreX, coreH + 0.14, coreZ, coreW + 0.25, 0.28, coreD + 0.25, trimMat);
+  addSignboardUnit(attachedGroup, coreX, Math.min(coreH - 0.9, totalH + 1.4), coreZ + coreD * 0.5 + 0.12, 2.4, 0.95, 'P', '#1d4e89', '#ffffff', cfg);
+
+  // Optional ground-floor corner retail storefront bay
+  if (cfg.includeRetailGround) {
+    addBox(attachedGroup, -w * 0.32, levelH * 0.48, d * 0.5 + 0.08, w * 0.28, levelH * 0.85, 0.2, glassMaterial(cfg.glassColor, cfg.lightingTime === 'night', { lightingTime: cfg.lightingTime }));
+  }
+
+  // Register vehicle portals & main stair entry
+  const mainEnt = {
+    id: 'garage_stair_core',
+    role: 'main',
+    label: 'Elevator & Stair Tower Entrance',
+    position: { x: roundNum(coreX, 3), y: 0, z: roundNum(coreZ + coreD * 0.5, 3) },
+    normal: { x: 0, y: 0, z: 1 },
+    width: 1.8,
+    height: 2.3
+  };
+  const entryLane = {
+    id: 'garage_vehicle_entry',
+    role: 'garage',
+    label: 'Parking Vehicle Entry Portal',
+    position: { x: roundNum(-portalOffset * 0.65, 3), y: 0, z: roundNum(d * 0.5, 3) },
+    normal: { x: 0, y: 0, z: 1 },
+    width: 3.4,
+    height: levelH * 0.85
+  };
+  const exitLane = {
+    id: 'garage_vehicle_exit',
+    role: 'garage',
+    label: 'Parking Vehicle Exit Portal',
+    position: { x: roundNum(portalOffset * 0.45, 3), y: 0, z: roundNum(d * 0.5, 3) },
+    normal: { x: 0, y: 0, z: 1 },
+    width: 3.4,
+    height: levelH * 0.85
+  };
+  ctx.entrances.push(mainEnt, entryLane, exitLane);
+  registerEntranceClearance(placementCtx, mainEnt);
+  registerEntranceClearance(placementCtx, entryLane);
+  registerEntranceClearance(placementCtx, exitLane);
+
+  registerLaneClearance(placementCtx, {
+    id: 'garage_front_apron_lane',
+    kind: 'driveway',
+    minX: -portalOffset - 2.2,
+    maxX: portalOffset + 2.2,
+    minZ: d * 0.5 + 0.2,
+    maxZ: d * 0.5 + 5.5
+  });
+  registerAnchor(placementCtx, { id: 'entrance_main', category: 'entrance', position: [coreX, 0, coreZ + coreD * 0.5 + 0.8], surfaceY: 0, rotationY: 0 });
+  registerAnchor(placementCtx, { id: 'garage_gate_post', category: 'sidewalk', position: [-portalOffset * 0.1, 0, d * 0.5 + 1.8], surfaceY: 0, rotationY: 0 });
+  registerBuildingFootprint(placementCtx, { id: 'parking_garage_body', minX: -w * 0.5, maxX: w * 0.5, minZ: -d * 0.5, maxZ: d * 0.5, maxY: totalH });
+  registerRoofBound(placementCtx, { id: 'main_roof', minX: -w * 0.42, maxX: w * 0.42, minZ: -d * 0.42, maxZ: d * 0.42, y: totalH });
+  registerAnchor(placementCtx, { id: 'roof_main', category: 'roof', position: [-w * 0.15, totalH, 0], surfaceY: totalH, rotationY: 0 });
+  registerAnchor(placementCtx, { id: 'roof_center', category: 'roof', position: [0, totalH, 0], surfaceY: totalH, rotationY: 0 });
+
+  ctx.roofTopY = totalH;
+  ctx.buildingBounds = { width: w + 0.6, depth: d + 1.0, height: coreH + 0.4 };
+  ctx.lotOptions = { rearMargin: 3.6 };
+}
+
+function planParkingGarageObjects(ctx, lotLayout) {
+  const { cfg } = ctx;
+  const specs = [
+    { familyId: 'parking_meter', presetId: 'parking_gate_barrier_arm', groupKey: 'site_amenities', anchorId: 'garage_gate_post', localOffset: [0, 0, 0], allowInLane: true },
+    { familyId: 'parking_meter', presetId: 'solar_pay_and_display_kiosk', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [-1.8, 0, 0.4] },
+    { familyId: 'emergency_safety', presetId: 'checkpoint_security_booth', groupKey: 'site_amenities', anchorId: 'garage_gate_post', localOffset: [0, 0, 1.4], allowInLane: true },
+    { familyId: 'traffic_sign_signal', presetId: 'concrete_jersey_barrier', groupKey: 'site_amenities', anchorId: 'sidewalk_front_left', localOffset: [0, 0, 0] }
+  ];
+  if (cfg.includeRoofSolar) {
+    specs.push({
+      familyId: 'rooftop_hvac',
+      presetId: 'commercial_solar_panel_array',
+      groupKey: 'rooftop_mep',
+      anchorId: 'roof_center',
+      placementLayer: 'roof',
+      localOffset: [-2.0, 0, 0]
+    });
+  }
+  if (cfg.includeRoadsideSign && lotLayout.enabled) {
+    specs.push({ familyId: 'newspaper_box', presetId: 'illuminated_city_ad_totem', groupKey: 'signage_lighting', anchorId: 'roadside_sign_corner', localOffset: [0, 0, 0] });
+  }
+  return specs;
+}
+
+registerSpecialtyFamily({
+  id: 'parking_garage',
+  categoryId: 'automotive_transport',
+  categories: ['automotive_transport', 'commercial_services'],
+  label: 'Multi-Story Parking Garages',
+  description: 'Open-deck concrete parking structures with interior ramps, stair towers, gate barriers, rooftop solar, and ground retail.',
+  environmentTags: ['downtown', 'urban', 'medical', 'transit'],
+  supportedLotTypes: ['compact_urban', 'standalone_commercial', 'corner_commercial', 'none'],
+  defaultObjectGroups: ['site_amenities', 'rooftop_mep', 'signage_lighting', 'waste_utility'],
+  featureSchema: [
+    { key: 'deckLevels', label: 'Parking Deck Levels', type: 'range', min: 2, max: 7, step: 1 },
+    { key: 'includeRoofSolar', label: 'Rooftop Solar Panel Canopy', type: 'boolean' },
+    { key: 'includeRetailGround', label: 'Ground-Floor Retail Bay', type: 'boolean' }
+  ],
+  defaults: {
+    width: 24,
+    depth: 16,
+    floors: 5,
+    floorHeight: 3.1,
+    exteriorMaterial: 'concrete',
+    primaryColor: '#8d959d',
+    secondaryColor: '#b7c0c8',
+    trimColor: '#2e3842',
+    accentColor: '#f2c14e',
+    signText: 'Downtown Parking Deck',
+    deckLevels: 5,
+    includeRoofSolar: false,
+    includeRetailGround: false,
+    includeRooftopHvac: false,
+    lotType: 'compact_urban',
+    lotWidth: 34,
+    lotDepth: 28,
+    frontSetback: 6.0,
+    parkingCount: 0
+  },
+  presets: [
+    {
+      id: 'downtown_concrete_parking_deck',
+      label: 'Downtown Concrete Parking Deck',
+      environmentTags: ['downtown', 'urban'],
+      params: { width: 24, depth: 16, deckLevels: 5, primaryColor: '#879099', signText: 'Central Parking Garage' }
+    },
+    {
+      id: 'modern_hospital_transit_garage',
+      label: 'Solar-Topped Medical / Transit Garage',
+      environmentTags: ['medical', 'transit', 'downtown'],
+      params: { width: 26, depth: 17, deckLevels: 6, includeRoofSolar: true, primaryColor: '#a8b2bc', accentColor: '#22c55e', signText: 'Medical Center Parking' }
+    },
+    {
+      id: 'compact_urban_parking_structure',
+      label: 'Mixed-Use Urban Parking Deck',
+      environmentTags: ['urban', 'downtown'],
+      params: { width: 19, depth: 14, deckLevels: 3, includeRetailGround: true, primaryColor: '#75808a', accentColor: '#e07a32', signText: 'Market Street Parking', lotWidth: 28, lotDepth: 24 }
+    },
+    {
+      id: 'retro_spiral_ramp_garage',
+      label: '1970s Brutalist City Garage',
+      environmentTags: ['retro', 'downtown'],
+      params: { width: 22, depth: 16, deckLevels: 4, architecturalEra: '1960s_1970s', primaryColor: '#918c82', secondaryColor: '#736f67', signText: 'Municipal Garage B' }
+    }
+  ],
+  buildStructure: buildParkingGarageStructure,
+  planObjects: planParkingGarageObjects
+});
+
+  // --- Module: families/city-infrastructure-venues.js ---
+function buildPowerSubstationStructure(ctx) {
+  const { cfg, mainBuildingGroup, attachedGroup, placementCtx } = ctx;
+  const w = clamp(cfg.width || 11.5, 7, 30);
+  const d = clamp(cfg.depth || 7.5, 5, 22);
+  const fh = cfg.floorHeight || 4.4;
+  const style = cfg.utilityStyle || 'grid_substation';
+
+  // Control Switchgear Building on Left-Rear quadrant of compound
+  const ctrlX = -w * 0.38;
+  const ctrlZ = -2.2;
+  const shell = addStandardBuildingShell(mainBuildingGroup, ctx, {
+    width: w * 0.56,
+    depth: d * 0.65,
+    x: ctrlX,
+    z: ctrlZ,
+    floors: 1,
+    floorHeight: fh,
+    entranceAwning: false,
+    signY: fh - 0.38
+  });
+  ctx.entrances.push(...shell.entrances);
+
+  const concMat = surfaceMaterial('concrete', '#78828c', cfg.condition, cfg.seed + 19, 3, 2);
+  const steelMat = solidMaterial('#45515e');
+  const copperMat = solidMaterial('#a6633c');
+  const ceramicMat = solidMaterial('#cbd4dc');
+  const warnMat = solidMaterial(cfg.accentColor || '#e85d04');
+
+  // Steam Cogeneration Boiler Wing & Smokestacks
+  let topY = shell.roofTopY;
+  if (style === 'steam_cogen_plant') {
+    const bw = w * 0.42;
+    const bd = d * 0.65;
+    const bh = fh + 2.4;
+    addBox(attachedGroup, ctrlX + w * 0.52, bh * 0.5, ctrlZ, bw, bh, bd, surfaceMaterial(cfg.exteriorMaterial, cfg.primaryColor, cfg.condition, cfg.seed + 31, 2, 2));
+    for (const sz of [ctrlZ - bd * 0.24, ctrlZ + bd * 0.24]) {
+      addCylinder(attachedGroup, ctrlX + w * 0.52, bh + 2.6, sz, 0.52, 0.72, 5.2, solidMaterial('#5a646e'), 10);
+      addCylinder(attachedGroup, ctrlX + w * 0.52, bh + 4.8, sz, 0.55, 0.58, 0.75, warnMat, 10);
+    }
+    topY = bh + 5.2;
+  }
+
+  // Outdoor High-Voltage Transformer & Transmission Gantry Yard
+  const txCount = clamp(cfg.transformerCount || 3, 2, 4);
+  const yardX = w * 0.34;
+  const yardW = txCount * 3.1 + 1.8;
+  const yardD = Math.max(d, 9.2);
+  addBox(attachedGroup, yardX, 0.08, 0.4, yardW, 0.16, yardD, concMat);
+
+  for (let i = 0; i < txCount; i++) {
+    const tx = yardX - yardW * 0.36 + (txCount > 1 ? (i / (txCount - 1)) * (yardW * 0.72) : 0);
+    const tz = 0.2;
+    // Heavy steel transformer oil tank + cooling radiator fin banks + ceramic bushings
+    addBox(attachedGroup, tx, 1.15, tz, 1.75, 1.9, 1.55, solidMaterial('#4e5b68'));
+    addBox(attachedGroup, tx - 0.96, 1.05, tz, 0.22, 1.4, 1.2, steelMat);
+    addBox(attachedGroup, tx + 0.96, 1.05, tz, 0.22, 1.4, 1.2, steelMat);
+    addCylinder(attachedGroup, tx, 2.25, tz + 0.35, 0.35, 0.35, 0.65, solidMaterial('#5c6975'), 8, { rotZ: Math.PI / 2 });
+    for (const bx of [-0.45, 0, 0.45]) {
+      addCylinder(attachedGroup, tx + bx, 2.55, tz - 0.2, 0.1, 0.16, 0.95, ceramicMat, 8);
+      addCylinder(attachedGroup, tx + bx, 2.75, tz - 0.2, 0.18, 0.18, 0.1, warnMat, 8);
+    }
+  }
+
+  // Steel Transmission Gantry Portal Towers & Busbars spanning Yard
+  const gantryH = 6.2;
+  for (const gx of [yardX - yardW * 0.45, yardX + yardW * 0.45]) {
+    addBox(attachedGroup, gx, gantryH * 0.5, -yardD * 0.32, 0.34, gantryH, 0.34, steelMat);
+    addBox(attachedGroup, gx, gantryH * 0.5, yardD * 0.32, 0.34, gantryH, 0.34, steelMat);
+  }
+  addBox(attachedGroup, yardX, gantryH - 0.2, -yardD * 0.32, yardW, 0.32, 0.32, steelMat);
+  addBox(attachedGroup, yardX, gantryH - 0.2, yardD * 0.32, yardW, 0.32, 0.32, steelMat);
+  for (const bz of [-yardD * 0.14, 0, yardD * 0.14]) {
+    addCylinder(attachedGroup, yardX, gantryH - 0.5, bz, 0.05, 0.05, yardW * 0.94, copperMat, 6, { rotZ: Math.PI / 2 });
+  }
+  topY = Math.max(topY, gantryH + 0.4);
+
+  // Solar & Battery Storage Rack Array when solar_battery_yard
+  if (style === 'solar_battery_yard') {
+    const pvMat = solidMaterial('#183a66');
+    for (let r = 0; r < 2; r++) {
+      addBox(attachedGroup, ctrlX + 0.5, 1.15, 2.2 + r * 2.2, w * 0.52, 0.1, 1.5, pvMat, { rotX: -0.32 });
+      addBox(attachedGroup, ctrlX + 0.5, 0.55, 2.2 + r * 2.2, 0.14, 1.1, 0.14, steelMat);
+    }
+  }
+
+  registerBuildingFootprint(placementCtx, { id: 'substation_ctrl', minX: ctrlX - w * 0.28, maxX: ctrlX + w * 0.28, minZ: ctrlZ - d * 0.34, maxZ: ctrlZ + d * 0.34, maxY: fh });
+  registerBuildingFootprint(placementCtx, { id: 'substation_yard', minX: yardX - yardW * 0.5, maxX: yardX + yardW * 0.5, minZ: 0.4 - yardD * 0.5, maxZ: 0.4 + yardD * 0.5, maxY: gantryH });
+  registerRoofBound(placementCtx, { id: 'main_roof', minX: ctrlX - w * 0.25, maxX: ctrlX + w * 0.25, minZ: ctrlZ - d * 0.3, maxZ: ctrlZ + d * 0.3, y: shell.roofTopY });
+
+  ctx.roofTopY = shell.roofTopY;
+  ctx.buildingBounds = { width: Math.max(w, yardX + yardW * 0.5 - (ctrlX - w * 0.28)), depth: Math.max(d, yardD + 2.0), height: topY };
+  ctx.lotOptions = { rearMargin: 4.5, fencedPerimeter: true, fenceHeight: 2.4 };
+}
+
+function planPowerSubstationObjects(ctx) {
+  const { cfg } = ctx;
+  const specs = [
+    { familyId: 'utility_cabinet', presetId: 'green_pad_transformer', groupKey: 'waste_utility', anchorId: 'entrance_main', localOffset: [-2.2, 0, 0.6] },
+    { familyId: 'electrician_repair_equipment', presetId: 'high_voltage_switchgear_cabinet', groupKey: 'service_equipment', anchorId: 'entrance_main', localOffset: [2.2, 0, 0.4] },
+    { familyId: 'electrician_repair_equipment', presetId: 'overhead_cable_tray_conduit_run', groupKey: 'service_equipment', anchorId: 'roof_main', placementLayer: 'roof', localOffset: [0, 0, 0] },
+    { familyId: 'streetlight', presetId: 'wooden_power_utility_pole', groupKey: 'signage_lighting', anchorId: 'sidewalk_front_right', localOffset: [0.8, 0, 0] }
+  ];
+  if (cfg.utilityStyle === 'steam_cogen_plant') {
+    specs.push({ familyId: 'exposed_pipes', presetId: 'industrial_steam_manifold', groupKey: 'service_equipment', position: [0, 0, cfg.depth * 0.38], rotationY: 0 });
+  }
+  return specs;
+}
+
+registerSpecialtyFamily({
+  id: 'power_substation',
+  categoryId: 'industrial_infrastructure',
+  categories: ['industrial_infrastructure', 'municipal_community'],
+  label: 'Power Substations & Utility Plants',
+  description: 'High-voltage electrical substations with step-up transformers and gantry towers, solar yards, and steam cogen plants.',
+  environmentTags: ['industrial', 'urban', 'civic'],
+  supportedLotTypes: ['industrial_service', 'multi_building_facility', 'none'],
+  defaultObjectGroups: ['service_equipment', 'waste_utility', 'signage_lighting'],
+  featureSchema: [
+    {
+      key: 'utilityStyle',
+      label: 'Facility Type',
+      type: 'select',
+      options: [
+        ['grid_substation', 'High-Voltage Grid Substation'],
+        ['urban_brick_substation', 'Urban Brick Substation'],
+        ['solar_battery_yard', 'Solar & Battery Storage Yard'],
+        ['steam_cogen_plant', 'Steam & Cogeneration Plant']
+      ]
+    },
+    { key: 'transformerCount', label: 'Transformer Units', type: 'range', min: 2, max: 4, step: 1 }
+  ],
+  defaults: {
+    width: 15.5,
+    depth: 10.5,
+    floors: 1,
+    floorHeight: 4.4,
+    exteriorMaterial: 'concrete',
+    primaryColor: '#75808a',
+    trimColor: '#36414c',
+    accentColor: '#e85d04',
+    signText: 'Sector 3 Grid Substation',
+    utilityStyle: 'grid_substation',
+    transformerCount: 3,
+    includeDumpsters: false,
+    lotType: 'industrial_service',
+    lotWidth: 34,
+    lotDepth: 26,
+    frontSetback: 7.0,
+    parkingCount: 2
+  },
+  presets: [
+    {
+      id: 'urban_brick_power_substation',
+      label: 'Urban Brick Neighborhood Substation',
+      environmentTags: ['urban', 'industrial'],
+      params: { width: 14.5, depth: 9.5, utilityStyle: 'urban_brick_substation', exteriorMaterial: 'brick', primaryColor: '#8d4c3b', transformerCount: 2, signText: 'Harbor Power Substation' }
+    },
+    {
+      id: 'high_voltage_grid_substation',
+      label: 'High-Voltage Grid Substation',
+      environmentTags: ['industrial', 'civic'],
+      params: { width: 17, depth: 11.5, utilityStyle: 'grid_substation', transformerCount: 4, lotWidth: 38, lotDepth: 28, signText: 'Metro 138kv Substation' }
+    },
+    {
+      id: 'municipal_solar_battery_yard',
+      label: 'Municipal Solar & Battery Yard',
+      environmentTags: ['civic', 'industrial'],
+      params: { width: 16.5, depth: 11, utilityStyle: 'solar_battery_yard', primaryColor: '#d0d7de', accentColor: '#2563eb', transformerCount: 2, signText: 'GreenGrid Storage Yard' }
+    },
+    {
+      id: 'industrial_steam_cogen_plant',
+      label: 'Steam & Cogeneration Plant',
+      environmentTags: ['industrial'],
+      params: { width: 18, depth: 12, utilityStyle: 'steam_cogen_plant', exteriorMaterial: 'industrial_steel', primaryColor: '#566270', accentColor: '#d93829', transformerCount: 3, signText: 'City District Steam Plant' }
+    }
+  ],
+  buildStructure: buildPowerSubstationStructure,
+  planObjects: planPowerSubstationObjects
+});
+
+function buildCinemaTheaterStructure(ctx) {
+  const { cfg, mainBuildingGroup, attachedGroup, placementCtx } = ctx;
+  const w = clamp(cfg.width || 16, 10, 36);
+  const d = clamp(cfg.depth || 20, 12, 38);
+  const fh = cfg.floorHeight || 4.2;
+  const hallH = fh * 2.1;
+
+  // Front lobby foyer shell + dual public entrance portals
+  const lobbyD = 5.4;
+  const lobbyZ = d * 0.5 - lobbyD * 0.5;
+  const shell = addStandardBuildingShell(mainBuildingGroup, ctx, {
+    width: w,
+    depth: lobbyD,
+    x: 0,
+    z: lobbyZ,
+    floors: 2,
+    floorHeight: fh * 0.85,
+    forceStorefront: true,
+    entranceCount: 2,
+    entranceAwning: false,
+    includeSign: false
+  });
+  ctx.entrances.push(...shell.entrances);
+
+  // Rear tall windowless auditorium box stepped higher than lobby
+  const audD = d - lobbyD + 0.4;
+  const audZ = lobbyZ - lobbyD * 0.5 - audD * 0.5 + 0.2;
+  const wallMat = surfaceMaterial(cfg.exteriorMaterial, cfg.primaryColor, cfg.condition, cfg.seed + 29, 3, 2);
+  const trimMat = solidMaterial(cfg.trimColor || '#222831');
+  const accentMat = solidMaterial(cfg.accentColor || '#e63946');
+  const neonMat = emissiveMaterial(cfg.accentColor || '#ffd166', 1.2, cfg.lightingTime);
+  const bulbMat = emissiveMaterial('#fff3b0', 1.15, cfg.lightingTime);
+
+  addBox(attachedGroup, 0, hallH * 0.5, audZ, w + 0.4, hallH, audD, wallMat);
+  addBox(attachedGroup, 0, hallH + 0.22, audZ, w + 0.7, 0.44, audD + 0.4, trimMat);
+
+  // Dramatic Cantilevered Illuminated Marquee Canopy over front sidewalk
+  const mqW = Math.min(w * 0.78, 11.5);
+  const mqH = 1.45;
+  const mqD = 2.6;
+  const mqZ = d * 0.5 + mqD * 0.5 - 0.1;
+  addBox(attachedGroup, 0, 3.65, mqZ, mqW, mqH, mqD, trimMat);
+  addBox(attachedGroup, 0, 3.65 + mqH * 0.48, mqZ, mqW + 0.16, 0.14, mqD + 0.16, neonMat, { cast: false });
+  addBox(attachedGroup, 0, 3.65 - mqH * 0.48, mqZ, mqW + 0.16, 0.14, mqD + 0.16, bulbMat, { cast: false });
+  addSignboardUnit(attachedGroup, 0, 3.65, mqZ + mqD * 0.5 + 0.08, mqW * 0.9, mqH * 0.74, cfg.signText || 'Grand Cinema', '#161b22', '#ffd166', cfg);
+
+  // Vertical Art Deco / Retro Projecting Neon Blade Tower Sign
+  const style = cfg.marqueeStyle || 'art_deco_blade';
+  let topH = hallH + 0.6;
+  if (style === 'art_deco_blade' || style === 'retro_neon_marquee') {
+    addBox(attachedGroup, 0, hallH + 0.85, d * 0.5 + 0.85, 1.35, 6.4, 0.72, trimMat);
+    addBox(attachedGroup, 0, hallH + 0.85, d * 0.5 + 1.24, 0.95, 5.8, 0.12, neonMat, { cast: false });
+    addBox(attachedGroup, 0, hallH + 4.3, d * 0.5 + 0.85, 0.14, 1.4, 0.14, accentMat);
+    topH = hallH + 5.1;
+  }
+
+  // Freestanding Central Glass-and-Brass Ticket Box Office Kiosk
+  if (cfg.includeTicketBooth !== false) {
+    const boothZ = d * 0.5 + 0.85;
+    addBox(attachedGroup, 0, 0.55, boothZ, 1.65, 1.1, 1.55, accentMat);
+    addBox(attachedGroup, 0, 1.62, boothZ, 1.5, 1.05, 1.4, glassMaterial(cfg.glassColor, true, { lightingTime: cfg.lightingTime }));
+    addBox(attachedGroup, 0, 2.25, boothZ, 1.8, 0.24, 1.7, trimMat);
+  }
+
+  registerBuildingFootprint(placementCtx, { id: 'cinema_hall_full', minX: -w * 0.5 - 0.2, maxX: w * 0.5 + 0.2, minZ: -d * 0.5, maxZ: d * 0.5 + 1.6, maxY: hallH });
+  registerRoofBound(placementCtx, { id: 'main_roof', minX: -w * 0.45, maxX: w * 0.45, minZ: audZ - audD * 0.42, maxZ: audZ + audD * 0.42, y: hallH });
+  registerAnchor(placementCtx, { id: 'roof_main', category: 'roof', position: [0, hallH + 0.2, audZ], surfaceY: hallH + 0.2, rotationY: 0 });
+  registerAnchor(placementCtx, { id: 'roof_center', category: 'roof', position: [0, hallH + 0.2, audZ], surfaceY: hallH + 0.2, rotationY: 0 });
+
+  ctx.roofTopY = hallH;
+  ctx.buildingBounds = { width: w + 0.6, depth: d + mqD, height: topH };
+  ctx.lotOptions = { rearMargin: 4.0 };
+}
+
+function planCinemaTheaterObjects(ctx, lotLayout) {
+  const { cfg } = ctx;
+  const specs = [
+    { familyId: 'emergency_safety', presetId: 'steel_crowd_control_barrier', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [-1.4, 0, 2.2] },
+    { familyId: 'emergency_safety', presetId: 'steel_crowd_control_barrier', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [4.2, 0, 2.2] },
+    { familyId: 'arcade_neon_sign_decor', presetId: 'neon_open_window_sign', groupKey: 'signage_lighting', anchorId: 'entrance_main', localOffset: [1.4, 2.1, -0.3], allowElevated: true }
+  ];
+  if (cfg.includePosterCases !== false) {
+    specs.push(
+      { familyId: 'newspaper_box', presetId: 'wall_mounted_poster_case', groupKey: 'signage_lighting', placementLayer: 'wall', position: [-cfg.width * 0.36, 1.35, cfg.depth * 0.5 + 0.08], rotationY: 0 },
+      { familyId: 'newspaper_box', presetId: 'wall_mounted_poster_case', groupKey: 'signage_lighting', placementLayer: 'wall', position: [cfg.width * 0.36, 1.35, cfg.depth * 0.5 + 0.08], rotationY: 0 }
+    );
+  }
+  if (cfg.includeExteriorLighting !== false && lotLayout.enabled) {
+    specs.push({ familyId: 'streetlight', presetId: 'downtown_double_boulevard_lamp', groupKey: 'signage_lighting', anchorId: 'sidewalk_front_left', localOffset: [0, 0, 0] });
+  }
+  if ((cfg.outdoorObjectDensity || 0) >= 0.5 && lotLayout.enabled) {
+    specs.push({ familyId: 'vendor_cart', presetId: 'classic_hot_dog_cart', groupKey: 'site_amenities', anchorId: 'sidewalk_front_right', localOffset: [-1.6, 0, 0], minDensity: 0.5 });
+  }
+  return specs;
+}
+
+registerSpecialtyFamily({
+  id: 'cinema_theater',
+  categoryId: 'entertainment_recreation',
+  categories: ['entertainment_recreation', 'civic_government'],
+  label: 'Movie Theaters & Performing Arts',
+  description: 'Art Deco movie palaces, retro neon cinemas, modern multiplexes, and classic performing arts playhouses.',
+  environmentTags: ['downtown', 'urban', 'nightlife', 'retro'],
+  supportedLotTypes: ['compact_urban', 'corner_commercial', 'standalone_commercial', 'civic_plaza', 'none'],
+  defaultObjectGroups: ['signage_lighting', 'site_amenities', 'waste_utility', 'rooftop_mep'],
+  featureSchema: [
+    {
+      key: 'marqueeStyle',
+      label: 'Marquee Style',
+      type: 'select',
+      options: [
+        ['art_deco_blade', 'Art Deco Vertical Blade'],
+        ['retro_neon_marquee', 'Retro Neon Marquee'],
+        ['modern_multiplex', 'Modern Multiplex Glass'],
+        ['stage_playhouse', 'Classic Performing Arts']
+      ]
+    },
+    { key: 'includeTicketBooth', label: 'Outdoor Ticket Box Office', type: 'boolean' },
+    { key: 'includePosterCases', label: 'Coming-Soon Poster Cases', type: 'boolean' }
+  ],
+  defaults: {
+    width: 16,
+    depth: 20,
+    floors: 2,
+    floorHeight: 4.1,
+    exteriorMaterial: 'brick',
+    primaryColor: '#7a332d',
+    trimColor: '#1f252d',
+    accentColor: '#ffd166',
+    signageStyle: 'neon_marquee',
+    signText: 'Majestic Palace Cinema',
+    marqueeStyle: 'art_deco_blade',
+    includeTicketBooth: true,
+    includePosterCases: true,
+    lightingTime: 'dusk',
+    lotType: 'compact_urban',
+    lotWidth: 26,
+    lotDepth: 34,
+    frontSetback: 6.5,
+    parkingCount: 0
+  },
+  presets: [
+    {
+      id: 'art_deco_movie_palace',
+      label: 'Art Deco Movie Palace',
+      environmentTags: ['downtown', 'retro', 'nightlife'],
+      params: { width: 16, depth: 21, architecturalEra: 'early_20th', marqueeStyle: 'art_deco_blade', exteriorMaterial: 'decorative_masonry', primaryColor: '#b38b67', accentColor: '#ffd166', signText: 'Orpheum Palace' }
+    },
+    {
+      id: 'retro_neon_cinema',
+      label: 'Retro 1950s Neon Cinema',
+      environmentTags: ['retro', 'nightlife', 'urban'],
+      params: { width: 15, depth: 19, architecturalEra: '1940s_1950s', marqueeStyle: 'retro_neon_marquee', exteriorMaterial: 'stucco', primaryColor: '#d9cbb8', accentColor: '#ff3b7f', lightingTime: 'night', signText: 'Starlight Drive Cinema' }
+    },
+    {
+      id: 'modern_multiplex_cinema',
+      label: 'Modern Suburban Multiplex',
+      environmentTags: ['suburban', 'urban'],
+      params: { width: 24, depth: 24, marqueeStyle: 'modern_multiplex', exteriorMaterial: 'concrete', primaryColor: '#3f4b59', accentColor: '#00a8e8', lotType: 'standalone_commercial', lotWidth: 48, lotDepth: 42, frontSetback: 10, parkingCount: 16, signText: 'Metroplex 12 Cinemas' }
+    },
+    {
+      id: 'downtown_performing_arts_theater',
+      label: 'Downtown Performing Arts Playhouse',
+      environmentTags: ['downtown', 'civic'],
+      params: { width: 18, depth: 20, marqueeStyle: 'stage_playhouse', exteriorMaterial: 'stone', primaryColor: '#cfc5b4', accentColor: '#c93b4b', signText: 'Lyric Symphony Hall', lotType: 'civic_plaza' }
+    },
+    {
+      id: 'neighborhood_indie_cinema',
+      label: 'Neighborhood Indie Theater',
+      environmentTags: ['urban', 'nightlife'],
+      params: { width: 12.5, depth: 16.5, marqueeStyle: 'retro_neon_marquee', exteriorMaterial: 'brick', primaryColor: '#693c35', accentColor: '#22c55e', signText: 'Bijou Indie Film' }
+    }
+  ],
+  buildStructure: buildCinemaTheaterStructure,
+  planObjects: planCinemaTheaterObjects
+});
+
+function buildCivicArenaStructure(ctx) {
+  const { cfg, mainBuildingGroup, attachedGroup, placementCtx } = ctx;
+  const w = clamp(cfg.width || 28, 16, 54);
+  const d = clamp(cfg.depth || 22, 14, 42);
+  const bowlH = clamp((cfg.floors || 2) * (cfg.floorHeight || 4.2), 7.2, 16.0);
+
+  const wallMat = surfaceMaterial(cfg.exteriorMaterial, cfg.primaryColor, cfg.condition, cfg.seed, 4, 2);
+  const trimMat = solidMaterial(cfg.trimColor || '#263342');
+  const accentMat = solidMaterial(cfg.accentColor || '#1f77b4');
+  const glassMat = glassMaterial(cfg.glassColor, cfg.lightingTime === 'night', { lightingTime: cfg.lightingTime });
+
+  // Main arena bowl volume
+  addBox(mainBuildingGroup, 0, bowlH * 0.5, -1.0, w, bowlH, d - 2.0, wallMat);
+
+  // Exterior structural rib buttress columns around bowl perimeter
+  const ribs = clamp(Math.round(w / 4.2), 5, 10);
+  for (let i = 0; i < ribs; i++) {
+    const rx = -w * 0.46 + (i / (ribs - 1)) * (w * 0.92);
+    addBox(attachedGroup, rx, bowlH * 0.54, d * 0.5 - 2.0, 0.45, bowlH * 1.04, 0.55, trimMat);
+    addBox(attachedGroup, rx, bowlH * 0.54, -d * 0.5, 0.45, bowlH * 1.04, 0.55, trimMat);
+  }
+
+  // Glazed concourse lobby apron across front with multiple wide public doors
+  const lobbyD = 3.8;
+  const lobbyZ = d * 0.5 - 0.1;
+  const lobbyH = 4.6;
+  addBox(attachedGroup, 0, lobbyH * 0.5, lobbyZ, w * 0.82, lobbyH, lobbyD, glassMat);
+  addBox(attachedGroup, 0, lobbyH + 0.25, lobbyZ + 0.4, w * 0.86, 0.5, lobbyD + 0.9, trimMat);
+  addBox(attachedGroup, 0, lobbyH + 0.58, lobbyZ + lobbyD * 0.5 + 0.42, w * 0.82, 0.16, 0.16, accentMat);
+  addSignboardUnit(attachedGroup, 0, lobbyH + 0.25, lobbyZ + lobbyD * 0.5 + 0.5, Math.min(w * 0.5, 9.0), 0.78, cfg.signText || 'Metro Civic Arena', '#142133', '#ffffff', cfg);
+
+  const entCount = clamp(cfg.entranceCount || 3, 1, 3);
+  for (let e = 0; e < entCount; e++) {
+    const ex = entCount === 1 ? 0 : (-w * 0.26 + (e / (entCount - 1)) * (w * 0.52));
+    const doorZ = lobbyZ + lobbyD * 0.5;
+    addBox(attachedGroup, ex, 1.35, doorZ + 0.04, 2.6, 2.7, 0.12, trimMat);
+    const ent = {
+      id: e === 0 ? 'arena_main_concourse' : `arena_gate_${e + 1}`,
+      role: e === 0 ? 'main' : 'secondary',
+      label: `Concourse Gate ${e + 1}`,
+      position: { x: roundNum(ex, 3), y: 0, z: roundNum(doorZ, 3) },
+      normal: { x: 0, y: 0, z: 1 },
+      width: 2.8,
+      height: 2.7
+    };
+    ctx.entrances.push(ent);
+    registerEntranceClearance(placementCtx, ent);
+  }
+  registerAnchor(placementCtx, { id: 'entrance_main', category: 'entrance', position: [0, 0, lobbyZ + lobbyD * 0.5 + 0.8], surfaceY: 0, rotationY: 0 });
+
+  // Sculptural Arena Roof Crown
+  let roofMaxY = bowlH;
+  const roofKind = cfg.venueRoofStyle || 'barrel_vault';
+  if (roofKind === 'geodesic_dome') {
+    const rRadius = Math.min(w, d - 2) * 0.46;
+    const tiers = 4;
+    for (let t = 0; t < tiers; t++) {
+      const rr = rRadius * (1 - t * 0.2);
+      const nextR = rr * 0.82;
+      addCylinder(attachedGroup, 0, bowlH + t * 1.15 + 0.6, -1.0, nextR, rr, 1.15, t % 2 === 0 ? accentMat : wallMat, 14);
+    }
+    roofMaxY = bowlH + tiers * 1.15 + 0.6;
+  } else if (roofKind === 'modern_truss') {
+    addBox(attachedGroup, 0, bowlH + 0.95, -1.0, w + 1.4, 1.2, d - 0.8, trimMat);
+    addBox(attachedGroup, 0, bowlH + 1.85, -1.0, w * 0.6, 0.6, d * 0.45, glassMat);
+    roofMaxY = bowlH + 2.2;
+  } else {
+    // barrel_vault ribs + stepped arch roof
+    const steps = 5;
+    for (let s = 0; s < steps; s++) {
+      const t = s / steps;
+      const bw = w * (1 - t * 0.12);
+      const bd = (d - 2.2) * (1 - t * 0.72);
+      addBox(attachedGroup, 0, bowlH + s * 0.62 + 0.32, -1.0, bw, 0.64, bd, s % 2 === 0 ? accentMat : trimMat);
+    }
+    roofMaxY = bowlH + steps * 0.62 + 0.4;
+  }
+
+  registerBuildingFootprint(placementCtx, { id: 'civic_arena_main', minX: -w * 0.5 - 0.3, maxX: w * 0.5 + 0.3, minZ: -d * 0.5, maxZ: lobbyZ + lobbyD * 0.5 + 0.4, maxY: roofMaxY });
+  registerRoofBound(placementCtx, { id: 'main_roof', minX: -w * 0.4, maxX: w * 0.4, minZ: -d * 0.35, maxZ: d * 0.25, y: bowlH });
+  registerAnchor(placementCtx, { id: 'roof_main', category: 'roof', position: [-w * 0.22, bowlH, -1.0], surfaceY: bowlH, rotationY: 0 });
+  registerAnchor(placementCtx, { id: 'roof_center', category: 'roof', position: [0, bowlH, -1.0], surfaceY: bowlH, rotationY: 0 });
+
+  ctx.roofTopY = bowlH;
+  ctx.buildingBounds = { width: w + 1.6, depth: d + lobbyD * 0.5, height: roofMaxY };
+  ctx.lotOptions = { rearMargin: 5.0 };
+}
+
+function planCivicArenaObjects(ctx, lotLayout) {
+  const { cfg } = ctx;
+  const specs = [
+    { familyId: 'emergency_safety', presetId: 'steel_crowd_control_barrier', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [-4.5, 0, 1.4] },
+    { familyId: 'emergency_safety', presetId: 'steel_crowd_control_barrier', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [4.5, 0, 1.4] },
+    { familyId: 'bike_rack', presetId: 'city_bike_share_dock_station', groupKey: 'site_amenities', anchorId: 'sidewalk_front_right', localOffset: [-1.5, 0, 0] },
+    { familyId: 'park_planter', presetId: 'architectural_concrete_planter', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [-6.8, 0, 1.2] },
+    { familyId: 'park_planter', presetId: 'architectural_concrete_planter', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [6.8, 0, 1.2] },
+    { familyId: 'park_planter', presetId: 'park_drinking_fountain', groupKey: 'site_amenities', anchorId: 'entrance_main', localOffset: [-2.4, 0, 1.6] }
+  ];
+  if (cfg.includeExteriorLighting !== false && lotLayout.enabled) {
+    specs.push({ familyId: 'streetlight', presetId: 'downtown_double_boulevard_lamp', groupKey: 'signage_lighting', anchorId: 'sidewalk_front_left', localOffset: [0, 0, 0] });
+  }
+  if (cfg.includeRoadsideSign && lotLayout.enabled) {
+    specs.push({ familyId: 'newspaper_box', presetId: 'illuminated_city_ad_totem', groupKey: 'signage_lighting', anchorId: 'roadside_sign_corner', localOffset: [0, 0, 0] });
+  }
+  return specs;
+}
+
+registerSpecialtyFamily({
+  id: 'civic_arena_rec',
+  categoryId: 'municipal_community',
+  categories: ['municipal_community', 'entertainment_recreation'],
+  label: 'Civic Arenas & Convention Halls',
+  description: 'Indoor sports arenas, convention halls, aquatic complexes, and multi-court community recreation centers.',
+  environmentTags: ['civic', 'downtown', 'suburban', 'urban'],
+  supportedLotTypes: ['civic_plaza', 'multi_building_facility', 'standalone_commercial', 'none'],
+  defaultObjectGroups: ['site_amenities', 'signage_lighting', 'rooftop_mep', 'waste_utility'],
+  featureSchema: [
+    {
+      key: 'venueRoofStyle',
+      label: 'Arena Roof Structure',
+      type: 'select',
+      options: [
+        ['barrel_vault', 'Ribbed Barrel Vault'],
+        ['geodesic_dome', 'Stepped Arena Dome'],
+        ['modern_truss', 'Cantilever Steel Truss']
+      ]
+    },
+    { key: 'includePlazaForecourt', label: 'Wide Event Plaza Apron', type: 'boolean' }
+  ],
+  defaults: {
+    width: 30,
+    depth: 24,
+    floors: 2,
+    floorHeight: 4.5,
+    exteriorMaterial: 'concrete',
+    primaryColor: '#5c6a78',
+    trimColor: '#212b36',
+    accentColor: '#1f77b4',
+    signText: 'Paragon Civic Arena',
+    venueRoofStyle: 'barrel_vault',
+    includePlazaForecourt: true,
+    entranceCount: 3,
+    lotType: 'civic_plaza',
+    lotWidth: 58,
+    lotDepth: 46,
+    frontSetback: 11.0,
+    parkingCount: 14
+  },
+  presets: [
+    {
+      id: 'municipal_sports_arena',
+      label: 'Municipal Sports & Concert Arena',
+      environmentTags: ['civic', 'downtown'],
+      params: { width: 32, depth: 26, venueRoofStyle: 'geodesic_dome', accentColor: '#e63946', signText: 'Metro Coliseum Arena', lotWidth: 64, lotDepth: 50 }
+    },
+    {
+      id: 'civic_convention_hall',
+      label: 'City Convention & Expo Center',
+      environmentTags: ['downtown', 'civic'],
+      params: { width: 34, depth: 24, venueRoofStyle: 'modern_truss', exteriorMaterial: 'glass', primaryColor: '#486078', accentColor: '#00a8e8', signText: 'City Convention Center', lotWidth: 64, lotDepth: 48 }
+    },
+    {
+      id: 'indoor_aquatic_center',
+      label: 'Municipal Aquatic & Natatorium Center',
+      environmentTags: ['civic', 'suburban', 'campus'],
+      params: { width: 26, depth: 21, venueRoofStyle: 'barrel_vault', exteriorMaterial: 'concrete', primaryColor: '#cbd6e0', accentColor: '#2a9d8f', signText: 'Harbor Aquatic Center' }
+    },
+    {
+      id: 'neighborhood_community_center',
+      label: 'Large Community Fieldhouse',
+      environmentTags: ['civic', 'suburban', 'urban'],
+      params: { width: 23, depth: 18, venueRoofStyle: 'barrel_vault', exteriorMaterial: 'brick', primaryColor: '#8d4c3b', accentColor: '#2d7a47', entranceCount: 2, lotWidth: 44, lotDepth: 36, signText: 'Oakwood Fieldhouse' }
+    }
+  ],
+  buildStructure: buildCivicArenaStructure,
+  planObjects: planCivicArenaObjects
+});
+
   // --- Module: families/register-all.js ---
 let initialized = false;
 
@@ -6639,7 +8695,7 @@ function createSpecialtyPreview(canvasEl) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#131b26');
 
-  const camera = new THREE.PerspectiveCamera(45, 1.5, 0.2, 420);
+  const camera = new THREE.PerspectiveCamera(45, 1.5, 0.2, 560);
   camera.position.set(22, 16, 26);
 
   const controls = new THREE.OrbitControls(camera, canvasEl);
@@ -6647,7 +8703,7 @@ function createSpecialtyPreview(canvasEl) {
   controls.dampingFactor = 0.08;
   controls.maxPolarAngle = Math.PI * 0.495;
   controls.minDistance = 4;
-  controls.maxDistance = 140;
+  controls.maxDistance = 210;
   controls.target.set(0, 2.5, 0);
 
   // Lights
@@ -6655,16 +8711,16 @@ function createSpecialtyPreview(canvasEl) {
   scene.add(hemiLight);
 
   const sunLight = new THREE.DirectionalLight('#fff2dc', 1.15);
-  sunLight.position.set(26, 36, 24);
+  sunLight.position.set(34, 48, 32);
   sunLight.castShadow = true;
   sunLight.shadow.mapSize.width = 2048;
   sunLight.shadow.mapSize.height = 2048;
   sunLight.shadow.camera.near = 2;
-  sunLight.shadow.camera.far = 140;
-  sunLight.shadow.camera.left = -35;
-  sunLight.shadow.camera.right = 35;
-  sunLight.shadow.camera.top = 35;
-  sunLight.shadow.camera.bottom = -35;
+  sunLight.shadow.camera.far = 190;
+  sunLight.shadow.camera.left = -56;
+  sunLight.shadow.camera.right = 56;
+  sunLight.shadow.camera.top = 56;
+  sunLight.shadow.camera.bottom = -56;
   sunLight.shadow.bias = -0.0005;
   scene.add(sunLight);
 
@@ -6675,12 +8731,12 @@ function createSpecialtyPreview(canvasEl) {
   // Subtle distant backdrop road + ground plane
   const stageGroup = new THREE.Group();
   stageGroup.name = 'PreviewStageGround';
-  const groundMesh = makePreviewOwnedMesh(new THREE.PlaneGeometry(180, 180), '#1b232e', { roughness: 0.96, metalness: 0.02 });
+  const groundMesh = makePreviewOwnedMesh(new THREE.PlaneGeometry(260, 260), '#1b232e', { roughness: 0.96, metalness: 0.02 });
   groundMesh.rotation.x = -Math.PI / 2;
   groundMesh.position.y = -0.02;
   stageGroup.add(groundMesh);
 
-  const gridHelper = new THREE.GridHelper(90, 45, '#2e3e52', '#222d3b');
+  const gridHelper = new THREE.GridHelper(140, 70, '#2e3e52', '#222d3b');
   gridHelper.position.y = -0.01;
   stageGroup.add(gridHelper);
   scene.add(stageGroup);

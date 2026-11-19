@@ -156,9 +156,9 @@ export function sanitiseSpecialtyConfig(rawCfg = {}) {
   else if (fam && fam.presets[0]) merged.presetId = fam.presets[0].id;
 
   merged.seed = clamp(Math.round(Number(merged.seed) || 2026), 1, 99999999);
-  merged.width = clamp(merged.width, 3.5, 52);
-  merged.depth = clamp(merged.depth, 3.0, 40);
-  merged.floors = clamp(Math.round(Number(merged.floors) || 1), 1, 10);
+  merged.width = clamp(merged.width, 3.5, 64);
+  merged.depth = clamp(merged.depth, 3.0, 52);
+  merged.floors = clamp(Math.round(Number(merged.floors) || 1), 1, 12);
   merged.floorHeight = clamp(merged.floorHeight, 2.6, 7.5);
   merged.roofPitchHeight = clamp(merged.roofPitchHeight, 0.4, 4.5);
   merged.parapetHeight = clamp(merged.parapetHeight, 0.1, 1.5);
@@ -177,8 +177,8 @@ export function sanitiseSpecialtyConfig(rawCfg = {}) {
   merged.parkingConfig = validId(PARKING_CONFIGS, merged.parkingConfig, 'front_row');
   merged.sidewalkConfig = validId(SIDEWALK_CONFIGS, merged.sidewalkConfig, 'front_only');
 
-  merged.lotWidth = clamp(Math.max(merged.lotWidth, merged.width + 2), 8, 72);
-  merged.lotDepth = clamp(Math.max(merged.lotDepth, merged.depth + 2), 8, 68);
+  merged.lotWidth = clamp(Math.max(merged.lotWidth, merged.width + 2), 8, 96);
+  merged.lotDepth = clamp(Math.max(merged.lotDepth, merged.depth + 2), 8, 88);
   merged.frontSetback = clamp(merged.frontSetback, 1.5, 24);
   merged.sideSetback = clamp(merged.sideSetback, 1.0, 18);
   merged.parkingCount = clamp(Math.round(Number(merged.parkingCount) || 0), 0, 28);

@@ -139,7 +139,9 @@ export const ENVIRONMENT_TAGS = [
   'nightlife',
   'medical',
   'retail',
-  'service'
+  'service',
+  'transit',
+  'campus'
 ];
 
 export const BASE_BUILDING_CONFIG = {
@@ -232,9 +234,9 @@ export const SHARED_CONTROL_TABS = [
 
 export const SHARED_SCHEMA_FIELDS = [
   // Structure tab
-  { tab: 'structure', group: 'Primary Dimensions', key: 'width', label: 'Building Width', type: 'range', min: 3.5, max: 52, step: 0.5, unit: 'm' },
-  { tab: 'structure', key: 'depth', label: 'Building Depth', type: 'range', min: 3.0, max: 40, step: 0.5, unit: 'm' },
-  { tab: 'structure', key: 'floors', label: 'Floor Count', type: 'range', min: 1, max: 10, step: 1, unit: 'fl' },
+  { tab: 'structure', group: 'Primary Dimensions', key: 'width', label: 'Building Width', type: 'range', min: 3.5, max: 64, step: 0.5, unit: 'm' },
+  { tab: 'structure', key: 'depth', label: 'Building Depth', type: 'range', min: 3.0, max: 52, step: 0.5, unit: 'm' },
+  { tab: 'structure', key: 'floors', label: 'Floor Count', type: 'range', min: 1, max: 12, step: 1, unit: 'fl' },
   { tab: 'structure', key: 'floorHeight', label: 'Floor Height', type: 'range', min: 2.6, max: 7.5, step: 0.1, unit: 'm' },
   {
     tab: 'structure',
@@ -304,8 +306,8 @@ export const SHARED_SCHEMA_FIELDS = [
     type: 'select',
     options: LOT_TYPES.map((l) => [l.id, l.label])
   },
-  { tab: 'lot', key: 'lotWidth', label: 'Lot Width', type: 'range', min: 8, max: 72, step: 1, unit: 'm' },
-  { tab: 'lot', key: 'lotDepth', label: 'Lot Depth', type: 'range', min: 8, max: 68, step: 1, unit: 'm' },
+  { tab: 'lot', key: 'lotWidth', label: 'Lot Width', type: 'range', min: 8, max: 96, step: 1, unit: 'm' },
+  { tab: 'lot', key: 'lotDepth', label: 'Lot Depth', type: 'range', min: 8, max: 88, step: 1, unit: 'm' },
   { tab: 'lot', key: 'frontSetback', label: 'Front Setback', type: 'range', min: 1.5, max: 24, step: 0.5, unit: 'm' },
   { tab: 'lot', key: 'sideSetback', label: 'Side Setback', type: 'range', min: 1.0, max: 18, step: 0.5, unit: 'm' },
   {

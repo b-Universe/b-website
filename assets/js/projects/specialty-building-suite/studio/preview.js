@@ -100,7 +100,7 @@ export function createSpecialtyPreview(canvasEl) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#131b26');
 
-  const camera = new THREE.PerspectiveCamera(45, 1.5, 0.2, 420);
+  const camera = new THREE.PerspectiveCamera(45, 1.5, 0.2, 560);
   camera.position.set(22, 16, 26);
 
   const controls = new THREE.OrbitControls(camera, canvasEl);
@@ -108,7 +108,7 @@ export function createSpecialtyPreview(canvasEl) {
   controls.dampingFactor = 0.08;
   controls.maxPolarAngle = Math.PI * 0.495;
   controls.minDistance = 4;
-  controls.maxDistance = 140;
+  controls.maxDistance = 210;
   controls.target.set(0, 2.5, 0);
 
   // Lights
@@ -116,16 +116,16 @@ export function createSpecialtyPreview(canvasEl) {
   scene.add(hemiLight);
 
   const sunLight = new THREE.DirectionalLight('#fff2dc', 1.15);
-  sunLight.position.set(26, 36, 24);
+  sunLight.position.set(34, 48, 32);
   sunLight.castShadow = true;
   sunLight.shadow.mapSize.width = 2048;
   sunLight.shadow.mapSize.height = 2048;
   sunLight.shadow.camera.near = 2;
-  sunLight.shadow.camera.far = 140;
-  sunLight.shadow.camera.left = -35;
-  sunLight.shadow.camera.right = 35;
-  sunLight.shadow.camera.top = 35;
-  sunLight.shadow.camera.bottom = -35;
+  sunLight.shadow.camera.far = 190;
+  sunLight.shadow.camera.left = -56;
+  sunLight.shadow.camera.right = 56;
+  sunLight.shadow.camera.top = 56;
+  sunLight.shadow.camera.bottom = -56;
   sunLight.shadow.bias = -0.0005;
   scene.add(sunLight);
 
@@ -136,12 +136,12 @@ export function createSpecialtyPreview(canvasEl) {
   // Subtle distant backdrop road + ground plane
   const stageGroup = new THREE.Group();
   stageGroup.name = 'PreviewStageGround';
-  const groundMesh = makePreviewOwnedMesh(new THREE.PlaneGeometry(180, 180), '#1b232e', { roughness: 0.96, metalness: 0.02 });
+  const groundMesh = makePreviewOwnedMesh(new THREE.PlaneGeometry(260, 260), '#1b232e', { roughness: 0.96, metalness: 0.02 });
   groundMesh.rotation.x = -Math.PI / 2;
   groundMesh.position.y = -0.02;
   stageGroup.add(groundMesh);
 
-  const gridHelper = new THREE.GridHelper(90, 45, '#2e3e52', '#222d3b');
+  const gridHelper = new THREE.GridHelper(140, 70, '#2e3e52', '#222d3b');
   gridHelper.position.y = -0.01;
   stageGroup.add(gridHelper);
   scene.add(stageGroup);

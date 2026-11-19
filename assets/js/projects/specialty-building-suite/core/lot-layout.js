@@ -224,7 +224,7 @@ export function computeLotLayout(cfg, buildingBox, placementCtx = null, options 
 
   // Perimeter fence if industrial or secure facility
   const fences = [];
-  if (options.fencedPerimeter) {
+  if (options.fencedPerimeter || options.industrialFence) {
     fences.push({
       id: 'perimeter_fence',
       minX: minX + 0.3,
