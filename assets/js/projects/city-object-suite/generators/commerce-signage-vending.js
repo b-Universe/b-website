@@ -200,12 +200,87 @@ function csvBuildBankAtmMachines(group, cfg, b, mats, meta) {
   meta.interaction = { interactable: true, actionType: 'atm_withdraw' };
 }
 
+function csvAddHollowVendingShell(b, w, bodyH, d, winX, winY, winW, winH, bodyRole = 'primary', backRole = 'darkMetal', sideTrimRole = null) {
+  const baseY = 0.06;
+  const topY = baseY + bodyH;
+  const winLeft = winX - winW * 0.5;
+  const winRight = winX + winW * 0.5;
+  const winBot = winY - winH * 0.5;
+  const winTop = winY + winH * 0.5;
+  const rearD = d * 0.56;
+  const rearZ = -d * 0.5 + rearD * 0.5;
+  const frontD = d - rearD;
+  const frontZ = d * 0.5 - frontD * 0.5;
+
+  // Rear full cabinet wall & inner cavity backplate
+  b.addBox(0, baseY + bodyH * 0.5, rearZ, w, bodyH, rearD, { materialRole: bodyRole, layer: 'body' });
+  b.addBox(winX, winY, rearZ + rearD * 0.5 + 0.01, winW, winH, 0.02, { materialRole: backRole, layer: 'body' });
+
+  // Bottom delivery plinth and top header hood (strictly front depth range)
+  const botH = Math.max(0.08, winBot - baseY);
+  b.addBox(0, baseY + botH * 0.5, frontZ, w, botH, frontD, { materialRole: bodyRole, layer: 'body' });
+  const topH = Math.max(0.08, topY - winTop);
+  b.addBox(0, winTop + topH * 0.5, frontZ, w, topH, frontD, { materialRole: bodyRole, layer: 'body' });
+
+  // Left & right cheek pillars flanking window cavity
+  const leftW = Math.max(0.03, winLeft - (-w * 0.5));
+  b.addBox(-w * 0.5 + leftW * 0.5, winY, frontZ, leftW, winH, frontD, { materialRole: bodyRole, layer: 'body' });
+  const rightW = Math.max(0.03, w * 0.5 - winRight);
+  b.addBox(w * 0.5 - rightW * 0.5, winY, frontZ, rightW, winH, frontD, { materialRole: bodyRole, layer: 'body' });
+
+  if (sideTrimRole) {
+    for (const sx of [-1, 1]) {
+      b.addBox(sx * (w * 0.5 + 0.011), baseY + bodyH * 0.5, 0, 0.022, bodyH * 0.96, d * 0.94, { materialRole: sideTrimRole, layer: 'detail' });
+    }
+  }
+}
+
+function csvAddSnackShowcaseProduct(b, theme, shelf, item, ix, sy, d, itemH) {
+  const iz = d * 0.35;
+  const itemRoles = ['safetyRed', 'warningYellow', 'accent', 'signalGreen'];
+  const role = itemRoles[(shelf + item) % 4];
+  if (theme === 'japanese_retro_drinks' || (theme === 'combo_snacks_drinks' && shelf <= 1)) {
+    const isTall = (shelf + item) % 2 === 1;
+    const ch = isTall ? itemH * 0.95 : itemH * 0.68;
+    const r = isTall ? 0.028 : 0.03;
+    b.addCylinder(ix, sy + ch * 0.5 + 0.01, iz, r * 0.92, r, ch, 8, 'y', role, 'detail');
+    if (isTall) {
+      b.addCylinder(ix, sy + ch + 0.022, iz, 0.014, 0.024, 0.024, 8, 'y', 'whiteTrim', 'detail');
+    }
+  } else if (theme === 'healthy_fresh_market') {
+    if (shelf % 2 === 0) {
+      b.addCylinder(ix, sy + 0.036, iz, 0.052, 0.042, 0.048, 10, 'y', 'whiteTrim', 'detail');
+      b.addCylinder(ix, sy + 0.062, iz, 0.048, 0.05, 0.016, 10, 'y', 'signalGreen', 'detail');
+    } else {
+      b.addTrapezoidBox(ix, sy + itemH * 0.45, iz, 0.085, 0.065, 0.02, 0.065, itemH * 0.78, { materialRole: role, layer: 'detail' });
+    }
+  } else if (theme === 'electronics_travel_kiosk') {
+    b.addBox(ix, sy + itemH * 0.48, iz, 0.092, itemH * 0.84, 0.045, { materialRole: item % 2 === 0 ? 'whiteTrim' : 'accent', layer: 'detail' });
+    b.addBox(ix, sy + itemH * 0.56, iz + 0.024, 0.058, itemH * 0.42, 0.008, { materialRole: 'primary', layer: 'detail' });
+  } else if (theme === 'pharmacy_essentials_vend') {
+    if (item % 2 === 0) {
+      b.addBox(ix, sy + itemH * 0.46, iz, 0.082, itemH * 0.8, 0.048, { materialRole: 'whiteTrim', layer: 'detail' });
+      b.addBox(ix, sy + itemH * 0.52, iz + 0.026, 0.055, 0.022, 0.008, { materialRole: item === 0 ? 'safetyRed' : 'signalGreen', layer: 'detail' });
+    } else {
+      b.addCylinder(ix, sy + itemH * 0.44, iz, 0.026, 0.028, itemH * 0.72, 8, 'y', 'accent', 'detail');
+      b.addCylinder(ix, sy + itemH * 0.84, iz, 0.02, 0.02, 0.02, 8, 'y', 'whiteTrim', 'detail');
+    }
+  } else if (shelf <= 1) {
+    // Slim candy bars on lower trays
+    b.addBox(ix, sy + itemH * 0.36, iz, 0.082, itemH * 0.62, 0.028, { materialRole: role, layer: 'detail', rotXDeg: -14 });
+  } else {
+    // Puffed chip bags on upper trays
+    b.addChamferBox(ix, sy + itemH * 0.48, iz, 0.088, itemH * 0.82, 0.055, 0.012, { materialRole: role, layer: 'detail' });
+  }
+}
+
 function csvBuildSodaAndVendingMachines(group, cfg, b, mats, meta) {
   const kind = cfg.vendingStyle || 'classic_can_soda';
   const w = clamp(cfg.width || 0.94, 0.46, 1.25);
   const h = clamp(cfg.height || 1.88, 0.64, 2.15);
   const d = clamp(cfg.depth || 0.78, 0.42, 0.95);
   const signLabel = cfg.signText || 'Ice Cold Soda';
+  const lit = cfg.lampLit !== false;
 
   if (kind === 'countertop_soda_fountain') {
     const fw = clamp(w, 0.46, 0.84);
@@ -221,7 +296,7 @@ function csvBuildSodaAndVendingMachines(group, cfg, b, mats, meta) {
       x: 0,
       y: fh * 0.8,
       z: fd * 0.315,
-      lit: true
+      lit
     });
     // 4 beverage dispense valves + colored flavor levers + ice push-chute
     const valves = 4;
@@ -237,23 +312,23 @@ function csvBuildSodaAndVendingMachines(group, cfg, b, mats, meta) {
     return;
   }
 
-  // Full-size standing vending units
+  // Full-size standing vending feet
   b.addBox(-w * 0.42, 0.03, -d * 0.38, 0.06, 0.06, 0.06, { materialRole: 'darkMetal', layer: 'body' });
   b.addBox(w * 0.42, 0.03, -d * 0.38, 0.06, 0.06, 0.06, { materialRole: 'darkMetal', layer: 'body' });
   b.addBox(-w * 0.42, 0.03, d * 0.38, 0.06, 0.06, 0.06, { materialRole: 'darkMetal', layer: 'body' });
   b.addBox(w * 0.42, 0.03, d * 0.38, 0.06, 0.06, 0.06, { materialRole: 'darkMetal', layer: 'body' });
 
   const bodyH = h - 0.06;
-  b.addChamferBox(0, 0.06 + bodyH * 0.5, 0, w, bodyH, d, 0.018, { materialRole: 'primary', layer: 'body' });
 
   if (kind === 'classic_can_soda') {
+    b.addChamferBox(0, 0.06 + bodyH * 0.5, 0, w, bodyH, d, 0.018, { materialRole: 'primary', layer: 'body' });
     // Large glowing soda billboard front + right-hand selector column + chrome pickup flap
     b.addBox(-w * 0.13, 0.06 + bodyH * 0.56, d * 0.495, w * 0.64, bodyH * 0.7, 0.025, { materialRole: 'accent', layer: 'detail' });
     objCreateSignPlane(group, signLabel, w * 0.58, bodyH * 0.62, '#c72620', '#fff7e8', {
       x: -w * 0.13,
       y: 0.06 + bodyH * 0.56,
       z: d * 0.512,
-      lit: true
+      lit
     });
     b.addBox(w * 0.31, 0.06 + bodyH * 0.56, d * 0.495, w * 0.22, bodyH * 0.68, 0.025, { materialRole: 'darkMetal', layer: 'detail' });
     const btnColors = ['safetyRed', 'accent', 'signalGreen', 'warningYellow', 'holoEnergy'];
@@ -264,34 +339,108 @@ function csvBuildSodaAndVendingMachines(group, cfg, b, mats, meta) {
     b.addBox(w * 0.31, bodyH * 0.28, d * 0.515, 0.08, 0.1, 0.02, { materialRole: 'chrome', layer: 'detail' });
     b.addBox(-w * 0.1, 0.26, d * 0.49, w * 0.62, 0.18, 0.04, { materialRole: 'chrome', layer: 'detail' });
   } else if (kind === 'glass_spiral_snack') {
-    // Illuminated interior showcase cavity + glass pane + stocked product shelves
+    const stockTheme = cfg.snackStockTheme || 'chips_candy_classic';
+    const shelfCount = clamp(Math.round(cfg.shelfCount || 5), 3, 6);
+    const hasMarquee = cfg.hasHeaderMarquee !== false;
+    const isCleanBack = stockTheme === 'healthy_fresh_market' || stockTheme === 'pharmacy_essentials_vend';
+    const sideTrim = stockTheme === 'retro_woodgrain_candy'
+      ? 'wood'
+      : stockTheme === 'electronics_travel_kiosk'
+        ? 'neonGlow'
+        : null;
+
     const winW = w * 0.64;
-    const winH = bodyH * 0.68;
-    const winY = 0.06 + bodyH * 0.58;
-    b.addBox(-w * 0.12, winY, d * 0.35, winW, winH, d * 0.28, { materialRole: 'darkMetal', layer: 'body' });
-    for (let shelf = 0; shelf < 4; shelf++) {
-      const sy = winY - winH * 0.36 + shelf * (winH * 0.23);
-      b.addBox(-w * 0.12, sy, d * 0.36, winW - 0.04, 0.016, d * 0.24, { materialRole: 'chrome', layer: 'detail' });
-      const itemRoles = ['safetyRed', 'warningYellow', 'accent', 'signalGreen'];
+    const winH = bodyH * 0.62;
+    const winX = -w * 0.12;
+    const winY = 0.06 + bodyH * 0.52;
+
+    csvAddHollowVendingShell(
+      b, w, bodyH, d, winX, winY, winW, winH,
+      'primary',
+      isCleanBack ? 'whiteTrim' : 'darkMetal',
+      sideTrim
+    );
+
+    if (lit) {
+      b.addBox(winX, winY + winH * 0.48, d * 0.3, winW * 0.88, 0.022, 0.04, {
+        materialRole: stockTheme === 'electronics_travel_kiosk' ? 'neonGlow' : 'lampGlow',
+        layer: 'detail'
+      });
+      meta.lightSources.push({
+        id: 'vending_showcase_glow',
+        type: 'point',
+        positionMeters: [winX, winY, d * 0.38],
+        color: stockTheme === 'electronics_travel_kiosk' ? '#70e5ff' : '#fff0c7',
+        intensity: 1.15,
+        rangeMeters: 3.2,
+        enabled: true
+      });
+    }
+
+    const usableSpan = winH * 0.72;
+    const firstShelfY = winY - winH * 0.37;
+    const shelfStep = shelfCount > 1 ? usableSpan / (shelfCount - 1) : 0.2;
+    const itemH = Math.min(0.125, shelfStep * 0.68);
+    for (let shelf = 0; shelf < shelfCount; shelf++) {
+      const sy = firstShelfY + shelf * shelfStep;
+      b.addBox(winX, sy, d * 0.27, winW - 0.04, 0.016, d * 0.34, { materialRole: 'chrome', layer: 'detail' });
+      const railRole = stockTheme === 'japanese_retro_drinks'
+        ? (shelf % 2 === 0 ? 'neonGlow' : 'safetyRed')
+        : 'frame';
+      b.addBox(winX, sy - 0.008, d * 0.445, winW - 0.04, 0.022, 0.012, { materialRole: railRole, layer: 'detail' });
       for (let item = 0; item < 4; item++) {
-        const ix = -w * 0.12 - winW * 0.34 + item * (winW * 0.22);
-        b.addBox(ix, sy + 0.07, d * 0.4, 0.085, 0.12, 0.055, { materialRole: itemRoles[(shelf + item) % 4], layer: 'detail' });
+        const ix = winX - winW * 0.34 + item * (winW * 0.225);
+        b.addPrismRing(ix, sy + 0.04, d * 0.41, 0.032, 0.024, 0.018, 8, 'z', 'chrome', 'detail');
+        csvAddSnackShowcaseProduct(b, stockTheme, shelf, item, ix, sy, d, itemH);
       }
     }
-    b.addBox(-w * 0.12, winY, d * 0.502, winW, winH, 0.014, { materialRole: 'glass', layer: 'detail' });
-    b.addBox(w * 0.32, winY + 0.05, d * 0.49, w * 0.2, 0.58, 0.03, { materialRole: 'frame', layer: 'detail' });
-    objCreateScreenPlane(group, 'info_display', w * 0.16, 0.12, cfg.emissiveColor || '#4de2ff', cfg.condition, cfg.seed, {
+
+    // Translucent glass front & slim bezel trim mullions
+    b.addBox(winX, winY, d * 0.495, winW - 0.01, winH - 0.01, 0.014, { materialRole: 'glass', layer: 'detail' });
+    b.addBox(winX, winY + winH * 0.5, d * 0.5, winW + 0.02, 0.024, 0.02, { materialRole: 'frame', layer: 'detail' });
+    b.addBox(winX, winY - winH * 0.5, d * 0.5, winW + 0.02, 0.024, 0.02, { materialRole: 'frame', layer: 'detail' });
+
+    // Right payment column: digital screen, keypad, bill validator, tap reader, coin return
+    b.addBox(w * 0.32, winY, d * 0.492, w * 0.2, winH * 0.88, 0.024, { materialRole: 'frame', layer: 'detail' });
+    const screenMode = stockTheme === 'electronics_travel_kiosk' ? 'kiosk_menu' : 'info_display';
+    objCreateScreenPlane(group, screenMode, w * 0.16, stockTheme === 'electronics_travel_kiosk' ? 0.22 : 0.12, cfg.emissiveColor || '#4de2ff', cfg.condition, cfg.seed, {
       x: w * 0.32,
-      y: winY + 0.2,
-      z: d * 0.512
+      y: winY + winH * 0.28,
+      z: d * 0.51
     });
-    b.addBox(0, 0.25, d * 0.495, w * 0.78, 0.18, 0.04, { materialRole: 'darkMetal', layer: 'detail' });
+    for (let kr = 0; kr < 4; kr++) {
+      for (let kc = 0; kc < 3; kc++) {
+        b.addBox(w * 0.275 + kc * 0.042, winY + 0.06 - kr * 0.036, d * 0.508, 0.026, 0.022, 0.012, { materialRole: 'chrome', layer: 'detail' });
+      }
+    }
+    b.addBox(w * 0.32, winY - 0.14, d * 0.508, 0.09, 0.032, 0.016, { materialRole: 'darkMetal', layer: 'detail' });
+    b.addBox(w * 0.32, winY - 0.19, d * 0.51, 0.08, 0.05, 0.018, { materialRole: lit ? 'neonGlow' : 'accent', layer: 'detail' });
+    b.addBox(w * 0.32, winY - 0.28, d * 0.508, 0.065, 0.08, 0.02, { materialRole: 'chrome', layer: 'detail' });
+
+    if (hasMarquee) {
+      const signBg = stockTheme === 'retro_woodgrain_candy'
+        ? '#593318'
+        : stockTheme === 'healthy_fresh_market'
+          ? '#1e5c3a'
+          : '#162438';
+      objCreateSignPlane(group, cfg.signText || 'Fresh Snacks', w * 0.78, bodyH * 0.11, signBg, '#ffffff', {
+        x: 0,
+        y: 0.06 + bodyH * 0.91,
+        z: d * 0.506,
+        lit
+      });
+    }
+
+    // Recessed delivery hopper & push flap below window
+    b.addBox(winX, 0.24, d * 0.46, winW * 0.88, 0.18, 0.1, { materialRole: 'darkMetal', layer: 'detail' });
+    b.addBox(winX, 0.25, d * 0.495, winW * 0.84, 0.12, 0.02, { materialRole: 'chrome', layer: 'detail', rotXDeg: 14 });
   } else if (kind === 'hot_coffee_vendor') {
+    b.addChamferBox(0, 0.06 + bodyH * 0.5, 0, w, bodyH, d, 0.018, { materialRole: 'primary', layer: 'body' });
     objCreateSignPlane(group, cfg.signText || 'Fresh Brew', w * 0.8, 0.26, '#382214', '#ffe7bf', {
       x: 0,
       y: h - 0.26,
       z: d * 0.512,
-      lit: true
+      lit
     });
     objCreateScreenPlane(group, 'kiosk_menu', w * 0.46, 0.32, '#f5b841', cfg.condition, cfg.seed, {
       x: -w * 0.14,
@@ -303,36 +452,49 @@ function csvBuildSodaAndVendingMachines(group, cfg, b, mats, meta) {
     b.addCylinder(0, 0.65, d * 0.44, 0.036, 0.028, 0.1, 10, 'y', 'whiteTrim', 'detail');
     b.addBox(w * 0.28, bodyH * 0.6, d * 0.505, 0.16, 0.36, 0.03, { materialRole: 'darkMetal', layer: 'detail' });
   } else if (kind === 'frozen_icecream_vending') {
-    b.addBox(-w * 0.12, bodyH * 0.58, d * 0.498, w * 0.64, bodyH * 0.58, 0.016, { materialRole: 'glass', layer: 'detail' });
-    b.addBox(-w * 0.12, bodyH * 0.58, d * 0.36, w * 0.58, bodyH * 0.52, 0.18, { materialRole: 'whiteTrim', layer: 'body' });
-    b.addBox(-w * 0.12, bodyH * 0.48, d * 0.42, w * 0.48, 0.035, 0.04, { materialRole: 'chrome', layer: 'detail' });
-    objCreateSignPlane(group, cfg.signText || 'Frozen Treats', w * 0.82, 0.24, '#1b6ca8', '#ffffff', {
+    const winW = w * 0.64;
+    const winH = bodyH * 0.58;
+    const winX = -w * 0.12;
+    const winY = 0.06 + bodyH * 0.56;
+    csvAddHollowVendingShell(b, w, bodyH, d, winX, winY, winW, winH, 'primary', 'whiteTrim', null);
+    for (let s = 0; s < 3; s++) {
+      const sy = winY - winH * 0.3 + s * (winH * 0.28);
+      b.addBox(winX, sy, d * 0.3, winW * 0.88, 0.018, d * 0.26, { materialRole: 'chrome', layer: 'detail' });
+      for (let k = -1; k <= 1; k++) {
+        b.addBox(winX + k * (winW * 0.25), sy + 0.055, d * 0.36, 0.11, 0.085, 0.065, { materialRole: (s + k) % 2 === 0 ? 'accent' : 'safetyRed', layer: 'detail' });
+      }
+    }
+    b.addBox(winX, winY, d * 0.495, winW - 0.01, winH - 0.01, 0.016, { materialRole: 'glass', layer: 'detail' });
+    objCreateSignPlane(group, cfg.signText || 'Frozen Treats', w * 0.82, 0.22, '#1b6ca8', '#ffffff', {
       x: 0,
-      y: h - 0.24,
-      z: d * 0.512,
-      lit: true
+      y: h - 0.2,
+      z: d * 0.506,
+      lit
     });
-    b.addBox(w * 0.31, bodyH * 0.58, d * 0.502, w * 0.18, 0.42, 0.03, { materialRole: 'accent', layer: 'detail' });
-    b.addBox(-w * 0.12, 0.28, d * 0.495, w * 0.52, 0.16, 0.04, { materialRole: 'chrome', layer: 'detail' });
+    b.addBox(w * 0.31, winY, d * 0.495, w * 0.18, 0.42, 0.03, { materialRole: 'accent', layer: 'detail' });
+    b.addBox(winX, 0.26, d * 0.495, winW * 0.84, 0.16, 0.04, { materialRole: 'chrome', layer: 'detail' });
   } else {
     // energy_drink_tower_vending
     const tw = clamp(w, 0.58, 0.82);
-    b.addChamferBox(0, 0.06 + bodyH * 0.5, 0, tw, bodyH, d, 0.03, { materialRole: 'darkMetal', layer: 'body' });
-    b.addBox(0, 0.06 + bodyH * 0.56, d * 0.49, tw * 0.72, bodyH * 0.72, 0.02, { materialRole: 'glass', layer: 'detail' });
+    const winW = tw * 0.72;
+    const winH = bodyH * 0.68;
+    const winY = 0.06 + bodyH * 0.54;
+    csvAddHollowVendingShell(b, tw, bodyH, d, 0, winY, winW, winH, 'darkMetal', 'darkMetal', null);
     for (let r = 0; r < 4; r++) {
-      const sy = bodyH * 0.36 + r * 0.26;
-      b.addBox(0, sy, d * 0.36, tw * 0.64, 0.014, 0.18, { materialRole: 'chrome', layer: 'detail' });
+      const sy = winY - winH * 0.34 + r * (winH * 0.23);
+      b.addBox(0, sy, d * 0.29, winW * 0.9, 0.014, 0.22, { materialRole: 'chrome', layer: 'detail' });
       for (let c = -1; c <= 1; c++) {
-        b.addCylinder(c * (tw * 0.18), sy + 0.08, d * 0.4, 0.026, 0.026, 0.14, 8, 'y', 'holoEnergy', 'detail');
+        b.addCylinder(c * (tw * 0.18), sy + 0.075, d * 0.36, 0.026, 0.026, 0.13, 8, 'y', 'holoEnergy', 'detail');
       }
     }
-    b.addBox(-tw * 0.42, bodyH * 0.56, d * 0.48, 0.025, bodyH * 0.72, 0.025, { materialRole: 'neonGlow', layer: 'detail' });
-    b.addBox(tw * 0.42, bodyH * 0.56, d * 0.48, 0.025, bodyH * 0.72, 0.025, { materialRole: 'neonGlow', layer: 'detail' });
+    b.addBox(0, winY, d * 0.495, winW - 0.01, winH - 0.01, 0.016, { materialRole: 'glass', layer: 'detail' });
+    b.addBox(-tw * 0.42, winY, d * 0.49, 0.025, winH, 0.025, { materialRole: 'neonGlow', layer: 'detail' });
+    b.addBox(tw * 0.42, winY, d * 0.49, 0.025, winH, 0.025, { materialRole: 'neonGlow', layer: 'detail' });
     objCreateSignPlane(group, cfg.signText || 'Energy Boost', tw * 0.76, 0.18, '#121821', '#4de2ff', {
       x: 0,
       y: h - 0.16,
-      z: d * 0.512,
-      lit: true
+      z: d * 0.506,
+      lit
     });
   }
 
@@ -718,7 +880,7 @@ export function registerCommerceSignageAndVendingFamilies() {
     sizeClass: 'medium',
     functionalRole: 'functional',
     tags: ['soda', 'vending', 'fountain', 'snacks', 'coffee', 'drink', 'dispenser', 'machine'],
-    materialSlots: ['primary', 'secondary', 'accent', 'frame'],
+    materialSlots: ['primary', 'secondary', 'accent', 'frame', 'wood', 'glass', 'chrome', 'neonGlow'],
     schema: [
       { group: 'Vending Type' },
       {
@@ -735,10 +897,28 @@ export function registerCommerceSignageAndVendingFamilies() {
         ],
         default: 'classic_can_soda'
       },
+      {
+        key: 'snackStockTheme',
+        name: 'Glass Showcase Stock',
+        type: 'select',
+        options: [
+          ['chips_candy_classic', 'Classic Chips & Candy'],
+          ['combo_snacks_drinks', 'Combo Snacks & Cold Drinks'],
+          ['healthy_fresh_market', 'Fresh Food & Salads'],
+          ['japanese_retro_drinks', 'Japanese Hot & Cold Drinks'],
+          ['electronics_travel_kiosk', 'Electronics & Travel Tech'],
+          ['pharmacy_essentials_vend', 'Pharmacy & Travel Essentials'],
+          ['retro_woodgrain_candy', 'Retro 1980s Woodgrain Candy']
+        ],
+        default: 'chips_candy_classic'
+      },
+      { key: 'shelfCount', name: 'Showcase Shelves', type: 'number', min: 3, max: 6, step: 1, default: 5 },
       { key: 'width', name: 'Width', type: 'number', min: 0.46, max: 1.25, step: 0.04, unit: 'm', default: 0.94 },
       { key: 'height', name: 'Height', type: 'number', min: 0.58, max: 2.15, step: 0.04, unit: 'm', default: 1.88 },
       { key: 'depth', name: 'Depth', type: 'number', min: 0.42, max: 0.95, step: 0.04, unit: 'm', default: 0.78 },
-      { key: 'signText', name: 'Marquee Sign Text', type: 'text', default: 'Ice Cold Soda' }
+      { key: 'signText', name: 'Marquee Sign Text', type: 'text', default: 'Ice Cold Soda' },
+      { key: 'hasHeaderMarquee', name: 'Header Marquee Sign', type: 'boolean', default: true },
+      { key: 'lampLit', name: 'Showcase Lights On', type: 'boolean', default: true }
     ],
     presets: [
       {
@@ -810,6 +990,63 @@ export function registerCommerceSignageAndVendingFamilies() {
         accentColor: '#38e8b0',
         emissiveColor: '#38e8b0',
         params: { vendingStyle: 'energy_drink_tower_vending', width: 0.68, height: 1.96, depth: 0.72, signText: 'Energy Boost' }
+      },
+      {
+        id: 'glass_combo_snack_drink_vending',
+        label: 'Glass-Front Snack & Drink Combo',
+        subcategory: 'Breakrooms & Employee Amenities',
+        paletteFamily: 'contemporary_tech',
+        condition: 'clean',
+        primaryMaterial: 'painted_steel',
+        primaryColor: '#253242',
+        accentColor: '#e66c2c',
+        params: { vendingStyle: 'glass_spiral_snack', snackStockTheme: 'combo_snacks_drinks', shelfCount: 5, width: 1.08, height: 1.9, depth: 0.84, signText: 'Snacks & Drinks', hasHeaderMarquee: true, lampLit: true }
+      },
+      {
+        id: 'glass_healthy_fresh_vending',
+        label: 'Fresh Food & Salad Glass Vendor',
+        subcategory: 'Mall Concourses & Kiosks',
+        paletteFamily: 'clean_medical_office',
+        condition: 'new',
+        primaryMaterial: 'painted_aluminum',
+        primaryColor: '#e2eae6',
+        accentColor: '#2f9658',
+        params: { vendingStyle: 'glass_spiral_snack', snackStockTheme: 'healthy_fresh_market', shelfCount: 4, width: 1.08, height: 1.92, depth: 0.84, signText: 'Fresh Market', hasHeaderMarquee: true, lampLit: true }
+      },
+      {
+        id: 'glass_japanese_drink_vending',
+        label: 'Japanese Hot & Cold Drink Vendor',
+        subcategory: 'Vending & Heaters',
+        paletteFamily: 'modern_corporate',
+        condition: 'clean',
+        primaryMaterial: 'painted_steel',
+        primaryColor: '#d9382c',
+        accentColor: '#f2f4f7',
+        params: { vendingStyle: 'glass_spiral_snack', snackStockTheme: 'japanese_retro_drinks', shelfCount: 4, width: 1.04, height: 1.88, depth: 0.78, signText: 'Cold & Hot Drinks', hasHeaderMarquee: true, lampLit: true }
+      },
+      {
+        id: 'glass_electronics_mall_vending',
+        label: 'Mall Tech & Gadget Glass Kiosk',
+        subcategory: 'Mall Concourses & Kiosks',
+        paletteFamily: 'arcade_neon_90s',
+        condition: 'new',
+        primaryMaterial: 'painted_steel',
+        primaryColor: '#1a2029',
+        accentColor: '#3ec7e8',
+        emissiveColor: '#3ec7e8',
+        params: { vendingStyle: 'glass_spiral_snack', snackStockTheme: 'electronics_travel_kiosk', shelfCount: 4, width: 1.12, height: 1.94, depth: 0.82, signText: 'Tech Express', hasHeaderMarquee: true, lampLit: true }
+      },
+      {
+        id: 'glass_retro_brass_candy_vending',
+        label: 'Retro Woodgrain Candy Machine',
+        subcategory: 'Food, Candy & Refreshments',
+        paletteFamily: 'wood_office_executive',
+        condition: 'lightly_worn',
+        primaryMaterial: 'painted_steel',
+        primaryColor: '#5c3b24',
+        woodColor: '#7b4f2e',
+        accentColor: '#d4a63a',
+        params: { vendingStyle: 'glass_spiral_snack', snackStockTheme: 'retro_woodgrain_candy', shelfCount: 5, width: 0.98, height: 1.86, depth: 0.8, signText: 'Candy & Snacks', hasHeaderMarquee: true, lampLit: true }
       }
     ],
     buildGeometry: csvBuildSodaAndVendingMachines

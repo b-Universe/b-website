@@ -44,6 +44,7 @@ const moduleOrder = [
   'generators/holiday-christmas.js',
   'generators/holiday-thanksgiving.js',
   'generators/holiday-hanukkah.js',
+  'generators/concessions-vending-expansion.js',
   'generators/composite-assemblies.js',
   'core/blueprints.js',
   'core/variation.js',

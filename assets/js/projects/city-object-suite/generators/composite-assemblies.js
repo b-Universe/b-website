@@ -2372,5 +2372,50 @@ export function registerCompositeAssemblies() {
       { id: 'asm_hanukkah_festival_of_lights', label: 'Hanukkah Festival Of Lights Scene', condition: 'clean', paletteFamily: 'modern_corporate', params: { spacingScale: 1.0, includeSecondaryProps: true, includeClutter: true } }
     ]
   });
+
+  registerObjectFamily({
+    id: 'concession_vending_arcade_wall',
+    isAssembly: true,
+    categoryId: 'assemblies',
+    categories: ['assemblies', '09_commercial', '25_malls_libraries', 'arcades_entertainment'],
+    subcategory: 'Sidewalk & Commerce',
+    subcategories: ['Sidewalk & Commerce', 'Mall Concourses & Kiosks', 'Food, Candy & Refreshments', 'Vending & Heaters'],
+    label: 'Cinema Concession & Vending Alcove',
+    description: 'Movie theater boxed-candy concession counter topped with pretzel warmer and hot dog roller, flanked by combo glass-front vending, soda machine, pizza kiosk, gumball rack, and condiment island.',
+    attachmentProfile: 'ground_standing',
+    supportedAttachments: ['ground_standing'],
+    locationContext: 'interior',
+    environmentTags: ['mall', 'arcade', 'bowling_alley', 'family_entertainment', 'commercial'],
+    architecturalStyle: 'commercial',
+    sizeClass: 'assembly',
+    functionalRole: 'assembly',
+    tags: ['assembly', 'concession', 'vending', 'cinema', 'arcade', 'mall', 'pretzel', 'hotdog'],
+    schema: ASM_COMMON_SCHEMA,
+    getComponents: (cfg) => {
+      const list = [
+        { componentId: 'cinema_counter', familyId: 'concession_food_equipment', presetId: 'cinema_concession_candy_counter', pos: [-0.85, 0, -0.55], rotDeg: [0, 0, 0] },
+        { componentId: 'snack_combo', familyId: 'soda_vending_machines', presetId: 'glass_combo_snack_drink_vending', pos: [1.15, 0, -0.58], rotDeg: [0, 0, 0] },
+        { componentId: 'soda_machine', familyId: 'soda_vending_machines', presetId: 'classic_can_soda_vending', pos: [2.22, 0, -0.56], rotDeg: [0, 0, 0] }
+      ];
+      if (cfg.includeSecondaryProps !== false) {
+        list.push(
+          { componentId: 'condiment_island', familyId: 'concession_food_equipment', presetId: 'self_serve_condiment_cup_island', pos: [0.35, 0, 1.15], rotDeg: [0, 180, 0] },
+          { componentId: 'gumball_rack', familyId: 'specialty_vending_machines', presetId: 'triple_gumball_capsule_rack', pos: [-2.45, 0, -0.25], rotDeg: [0, 22, 0] },
+          { componentId: 'pizza_kiosk', familyId: 'specialty_vending_machines', presetId: 'hot_pizza_ramen_vending_kiosk', pos: [-2.35, 0, 0.85], rotDeg: [0, 48, 0] }
+        );
+      }
+      if (cfg.includeClutter !== false) {
+        list.push(
+          { componentId: 'pretzel_warmer', familyId: 'concession_food_equipment', presetId: 'countertop_pretzel_warmer_case', pos: [-1.42, 0.96, -0.52], rotDeg: [0, 0, 0], overrides: { attachmentProfile: 'surface_placed' } },
+          { componentId: 'hotdog_roller', familyId: 'concession_food_equipment', presetId: 'hot_dog_roller_sneeze_guard', pos: [-0.25, 0.96, -0.52], rotDeg: [0, 0, 0], overrides: { attachmentProfile: 'surface_placed' } }
+        );
+      }
+      return list;
+    },
+    buildGeometry: () => {},
+    presets: [
+      { id: 'asm_concession_vending_wall', label: 'Cinema Concession & Vending Alcove', condition: 'clean', paletteFamily: 'modern_corporate', params: { spacingScale: 1.0, includeSecondaryProps: true, includeClutter: true } }
+    ]
+  });
 }
 
