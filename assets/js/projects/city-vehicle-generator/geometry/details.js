@@ -285,9 +285,67 @@ export function buildVehicleDetails(batcher, rootGroup, layout, cfg, materialBun
         layer: 'detail'
       });
     }
+  } else if (cfg.sideUtility === 'postal_stripe') {
+    const pLen = Math.max(1.0, d.length - 0.52);
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (d.halfWidth + 0.012), trimY + 0.09, 0, 0.02, 0.075, pLen, {
+        materialRole: 'secondary',
+        layer: 'detail'
+      });
+      batcher.addBox(side * (d.halfWidth + 0.013), trimY + 0.005, 0, 0.02, 0.055, pLen, {
+        materialRole: 'livery',
+        layer: 'detail'
+      });
+      const crestZ = lerp(s.cabin.startZ, s.cabin.endZ, 0.62);
+      batcher.addBox(side * (d.halfWidth + 0.016), trimY + 0.19, crestZ, 0.02, 0.11, 0.18, {
+        materialRole: 'secondary',
+        layer: 'detail'
+      });
+    }
+  } else if (cfg.sideUtility === 'fire_pump_panel') {
+    const bayZ = cfg.bodyFamily === 'cab_over_box'
+      ? lerp(s.rear.startZ, s.rear.endZ, 0.72)
+      : s.cabin.startZ - 0.35;
+    const bayX = d.halfWidth + (cfg.bodyFamily === 'cab_over_box' ? 0.048 : 0.016);
+    const bayY = d.beltY - 0.14;
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * bayX, bayY, bayZ, 0.03, 0.56, 0.78, {
+        materialRole: 'chrome',
+        layer: 'detail'
+      });
+      batcher.addBox(side * (bayX + side * 0.012), bayY + 0.04, bayZ, 0.02, 0.36, 0.66, {
+        materialRole: 'interiorDark',
+        layer: 'detail'
+      });
+      for (const gz of [-0.18, 0, 0.18]) {
+        batcher.addBox(side * (bayX + side * 0.022), bayY + 0.1, bayZ + gz, 0.016, 0.07, 0.07, {
+          materialRole: gz === 0 ? 'amberLight' : 'chrome',
+          layer: 'detail'
+        });
+      }
+      if (cfg.bodyFamily === 'cab_over_box') {
+        const stripeLen = Math.max(1.2, d.length - 0.5);
+        batcher.addBox(side * (bayX - side * 0.025), d.beltY - 0.02, 0, 0.022, 0.1, stripeLen, {
+          materialRole: 'livery',
+          layer: 'detail'
+        });
+      }
+    }
+  } else if (cfg.sideUtility === 'hazard_stripes') {
+    const hazLen = Math.max(1.0, d.length * 0.55);
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (d.halfWidth + 0.016), gc + 0.18, 0, 0.024, 0.11, hazLen, {
+        materialRole: 'checker',
+        layer: 'detail'
+      });
+    }
+    batcher.addBox(0, gc + 0.22, rearZ - 0.045, rearHalfW * 1.78, 0.11, 0.024, {
+      materialRole: 'checker',
+      layer: 'detail'
+    });
   }
 
-  // Role-specific side emblems (police door star/plaque, ambulance medical cross)
+  // Role-specific side emblems (police door star/plaque, ambulance cross, fire, armored, construction, postal)
   if (cfg.roleVariant === 'police') {
     const badgeZ = lerp(s.cabin.startZ, s.cabin.endZ, 0.58);
     for (const side of [-1, 1]) {
@@ -314,10 +372,140 @@ export function buildVehicleDetails(batcher, rootGroup, layout, cfg, materialBun
         layer: 'detail'
       });
     }
+  } else if (cfg.roleVariant === 'fire') {
+    const fBadgeZ = s.cabin.endZ - 0.58;
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (d.halfWidth + 0.016), trimY + 0.12, fBadgeZ, 0.02, 0.17, 0.2, {
+        materialRole: 'amberLight',
+        layer: 'detail'
+      });
+      batcher.addBox(side * (frontHalfW * 0.36), fasciaMidY + fasciaH * 0.24, frontZ + 0.028, 0.12, 0.06, 0.025, {
+        materialRole: 'redLight',
+        layer: 'detail'
+      });
+    }
+  } else if (cfg.roleVariant === 'armored') {
+    const visorZ = lerp(s.cabin.startZ, s.cabin.endZ, 0.62);
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (d.halfWidth + 0.022), d.height - 0.22, visorZ, 0.05, 0.05, 1.35, {
+        materialRole: 'utility',
+        layer: 'detail'
+      });
+      batcher.addBox(side * (d.halfWidth + 0.016), trimY + 0.18, s.rear.startZ + 0.16, 0.04, 0.55, 0.12, {
+        materialRole: 'utility',
+        layer: 'detail'
+      });
+    }
+  } else if (cfg.roleVariant === 'construction') {
+    const markerZ = s.cabin.roofEndZ - 0.04;
+    for (const mx of [-0.32, 0, 0.32]) {
+      batcher.addBox(mx, s.roofMount.cabRoofY + 0.025, markerZ, 0.07, 0.035, 0.07, {
+        materialRole: 'amberLight',
+        layer: 'detail'
+      });
+    }
+  } else if (cfg.roleVariant === 'postal') {
+    batcher.addBox(0, fasciaMidY + fasciaH * 0.26, frontZ + 0.024, 0.28, 0.09, 0.024, {
+      materialRole: 'secondary',
+      layer: 'detail'
+    });
+    batcher.addBox(0, fasciaMidY + fasciaH * 0.26, frontZ + 0.032, 0.2, 0.03, 0.02, {
+      materialRole: 'livery',
+      layer: 'detail'
+    });
   }
 
   // 6. Front & Rear Attachments
-  if (cfg.frontAttachment !== 'none') {
+  if (cfg.frontAttachment === 'loader_bucket') {
+    const raised = Boolean(cfg.doorsOpen);
+    const pivotZ = s.hood.startZ + s.hood.length * 0.36;
+    const pivotY = d.wheelArchTopY + 0.26;
+    const bucketZ = frontZ + (raised ? 0.44 : 0.52);
+    const bucketY = raised ? d.beltY + 0.68 : Math.max(0.06, gc - 0.28);
+    const bW = Math.min(2.45, d.width * 1.04);
+    const armDy = bucketY - pivotY;
+    const armDz = bucketZ - pivotZ;
+    const armLen = Math.hypot(armDy, armDz);
+    const armRotX = Math.atan2(armDz, armDy);
+    for (const side of [-1, 1]) {
+      const armX = side * (d.halfWidth * 0.44);
+      batcher.addBox(armX, (pivotY + bucketY) * 0.5 + 0.08, (pivotZ + bucketZ) * 0.5, 0.13, armLen, 0.16, {
+        rotX: armRotX,
+        materialRole: 'utility',
+        layer: 'detail'
+      });
+      batcher.addCylinder(armX, (pivotY + bucketY) * 0.5 - 0.04, (pivotZ + bucketZ) * 0.5 + 0.08, 0.045, 0.055, armLen * 0.72, 8, 'y', 'chrome', 'detail', 0, armRotX);
+    }
+    batcher.addBox(0, bucketY + 0.22, bucketZ, bW * 0.72, 0.1, 0.12, {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+    const dumpTilt = raised ? degToRad(34) : degToRad(-6);
+    const addBucketBox = (lx, ly, lz, w, h, dBox, role = 'utility', extraRx = 0) => {
+      const cy = Math.cos(dumpTilt);
+      const sy = Math.sin(dumpTilt);
+      const ry = ly * cy - lz * sy;
+      const rz = ly * sy + lz * cy;
+      batcher.addBox(lx, bucketY + ry, bucketZ + rz, w, h, dBox, {
+        rotX: dumpTilt + extraRx,
+        materialRole: role,
+        layer: 'detail'
+      });
+    };
+    addBucketBox(0, 0.04, 0.34, bW, 0.09, 0.68, 'utility');
+    addBucketBox(0, 0.3, 0.04, bW, 0.54, 0.1, 'utility', degToRad(14));
+    for (const side of [-1, 1]) {
+      addBucketBox(side * (bW * 0.5 - 0.04), 0.24, 0.3, 0.08, 0.44, 0.6, 'utility');
+    }
+    for (let t = 0; t < 6; t++) {
+      const tx = lerp(-bW * 0.42, bW * 0.42, t / 5);
+      addBucketBox(tx, 0.02, 0.72, 0.075, 0.055, 0.18, 'chrome');
+    }
+  } else if (cfg.frontAttachment === 'sweeper_brushes') {
+    const barZ = frontZ + 0.2;
+    const brushW = d.width * 0.94;
+    batcher.addBox(0, gc + 0.1, barZ, brushW * 0.72, 0.11, 0.16, {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+    batcher.addBox(0, 0.14, frontZ - 0.28, d.width * 0.68, 0.18, 0.42, {
+      materialRole: 'trim',
+      layer: 'detail'
+    });
+    for (const side of [-1, 1]) {
+      const bx = side * (brushW * 0.46);
+      const bz = frontZ + 0.34;
+      batcher.addBox(side * (brushW * 0.34), gc + 0.02, frontZ + 0.28, 0.32, 0.06, 0.06, {
+        rotY: -side * degToRad(26),
+        materialRole: 'utility',
+        layer: 'detail'
+      });
+      batcher.addCylinder(bx, 0.11, bz, 0.31, 0.36, 0.14, 12, 'y', 'livery', 'detail');
+      batcher.addCylinder(bx, 0.22, bz, 0.11, 0.13, 0.1, 8, 'y', 'trim', 'detail');
+    }
+  } else if (cfg.frontAttachment === 'school_crossing_arm') {
+    const armOut = Boolean(cfg.doorsOpen);
+    const armLen = 0.72;
+    const armZ = armOut ? frontZ + armLen * 0.5 + 0.08 : frontZ + 0.12;
+    const armX = armOut ? d.halfWidth * 0.76 : d.halfWidth * 0.38;
+    batcher.addBox(armX, gc + 0.24, armZ, armOut ? 0.05 : armLen, 0.075, armOut ? armLen : 0.05, {
+      materialRole: 'amberLight',
+      layer: 'detail'
+    });
+    // Driver-side octagonal-look STOP paddle arm at windshield cowl
+    const stopX = armOut ? -(d.halfWidth + 0.32) : -(d.halfWidth + 0.03);
+    const stopZ = s.cabin.endZ - 0.32;
+    batcher.addBox(stopX, d.beltY + 0.12, stopZ, 0.03, 0.26, 0.26, {
+      rotY: armOut ? degToRad(88) : 0,
+      materialRole: 'redLight',
+      layer: 'detail'
+    });
+    batcher.addBox(stopX - (armOut ? 0 : 0.015), d.beltY + 0.12, stopZ + (armOut ? 0.015 : 0), 0.018, 0.06, 0.18, {
+      rotY: armOut ? degToRad(88) : 0,
+      materialRole: 'headlight',
+      layer: 'detail'
+    });
+  } else if (cfg.frontAttachment !== 'none') {
     const attZ = frontZ + 0.12;
     const barW = cfg.frontAttachment === 'bumper_guards' ? grilleW * 0.72 : frontHalfW * 1.45;
     const barH = cfg.frontAttachment === 'bull_bar' ? 0.34 : 0.26;
@@ -429,6 +617,119 @@ export function buildVehicleDetails(batcher, rootGroup, layout, cfg, materialBun
     });
     for (const side of [-1, 1]) {
       batcher.addCylinder(side * (hopW * 0.48), hopMidY, rearZ - 0.35, 0.048, 0.048, hopH * 0.62, 8, 'y', 'chrome', 'detail');
+    }
+  } else if (cfg.rearAttachment === 'gravel_load') {
+    const isDumpTilt = cfg.bodyFamily === 'dump_truck' && cfg.doorsOpen;
+    const pivotZ = s.rear.startZ + 0.28;
+    const pivotY = cfg.bodyFamily === 'dump_truck' ? d.groundClearance + 0.24 : d.groundClearance + 0.16;
+    const tilt = isDumpTilt ? -degToRad(24) : 0;
+    const bedSpanZ = Math.max(0.9, s.rear.length - 0.36);
+    const baseTopY = cfg.bodyFamily === 'dump_truck'
+      ? Math.max(pivotY + 0.65, d.cargoRoofTopY - 0.14)
+      : d.beltY;
+    const localH0 = (baseTopY - pivotY) - 0.12;
+    const gravelW = Math.max(0.8, d.width * 0.78);
+    const gravelMidLz = (s.rear.startZ + s.rear.endZ) * 0.5 - pivotZ;
+    const moundRng = rng32((Number(cfg.seed) || 1024) + 821);
+
+    const addTiltedRock = (lx, ly, lz, w, h, dBox, role = 'utility') => {
+      const cy = Math.cos(tilt);
+      const sy = Math.sin(tilt);
+      const ry = ly * cy - lz * sy;
+      const rz = ly * sy + lz * cy;
+      batcher.addBox(lx, pivotY + ry, pivotZ + rz, w, h, dBox, {
+        rotX: tilt,
+        materialRole: role,
+        layer: 'detail'
+      });
+    };
+
+    addTiltedRock(0, localH0 + 0.08, gravelMidLz, gravelW, 0.34, bedSpanZ, 'utility');
+    addTiltedRock(0, localH0 + 0.28, gravelMidLz, gravelW * 0.72, 0.24, bedSpanZ * 0.76, 'trim');
+    for (let k = 0; k < 6; k++) {
+      const rx = (moundRng() - 0.5) * gravelW * 0.62;
+      const rz = gravelMidLz + (moundRng() - 0.5) * bedSpanZ * 0.68;
+      const rw = 0.24 + moundRng() * 0.22;
+      addTiltedRock(rx, localH0 + 0.36, rz, rw, 0.18 + moundRng() * 0.1, rw, k % 2 === 0 ? 'utility' : 'trim');
+    }
+  } else if (cfg.rearAttachment === 'knuckle_crane') {
+    const out = Boolean(cfg.doorsOpen);
+    const deckY = cfg.bodyFamily === 'flatbed_truck'
+      ? Math.max(d.wheelArchTopY + 0.08, d.beltY - 0.14) + 0.08
+      : d.beltY;
+    const mastZ = s.rear.endZ - 0.44;
+    batcher.addBox(0, deckY + 0.12, mastZ, 0.9, 0.24, 0.62, {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+    // Left & Right stabilizer outriggers (extend outward & downward when doorsOpen is true)
+    const extX = out ? d.halfWidth + 0.45 : d.halfWidth - 0.04;
+    batcher.addBox(0, deckY - 0.04, mastZ, extX * 2, 0.11, 0.14, {
+      materialRole: 'trim',
+      layer: 'detail'
+    });
+    for (const side of [-1, 1]) {
+      const legTop = deckY;
+      const legBot = out ? 0.04 : deckY - 0.38;
+      const legH = legTop - legBot;
+      batcher.addBox(side * extX, (legTop + legBot) * 0.5, mastZ, 0.11, legH, 0.11, {
+        materialRole: 'livery',
+        layer: 'detail'
+      });
+      if (out) {
+        batcher.addBox(side * extX, 0.03, mastZ, 0.24, 0.06, 0.24, {
+          materialRole: 'chrome',
+          layer: 'detail'
+        });
+      }
+    }
+    // Crane turret pillar + main boom + knuckle jib + hook
+    const mastTopY = deckY + 0.92;
+    batcher.addCylinder(0, deckY + 0.58, mastZ, 0.16, 0.2, 0.68, 10, 'y', 'primary', 'detail');
+    const mainEndY = mastTopY + (out ? 0.72 : 0.46);
+    const mainEndZ = mastZ - (out ? 1.15 : 0.78);
+    const mDy = mainEndY - mastTopY;
+    const mDz = mainEndZ - mastZ;
+    batcher.addBox(0, (mastTopY + mainEndY) * 0.5, (mastZ + mainEndZ) * 0.5, 0.14, Math.hypot(mDy, mDz), 0.16, {
+      rotX: Math.atan2(mDz, mDy),
+      materialRole: 'livery',
+      layer: 'detail'
+    });
+    const jibEndY = out ? mainEndY - 0.18 : mainEndY - 0.42;
+    const jibEndZ = out ? mainEndZ - 1.05 : mainEndZ + 0.56;
+    const jDy = jibEndY - mainEndY;
+    const jDz = jibEndZ - mainEndZ;
+    batcher.addBox(0, (mainEndY + jibEndY) * 0.5, (mainEndZ + jibEndZ) * 0.5, 0.11, Math.hypot(jDy, jDz), 0.12, {
+      rotX: Math.atan2(jDz, jDy),
+      materialRole: 'primary',
+      layer: 'detail'
+    });
+    batcher.addCylinder(0, jibEndY - 0.18, jibEndZ, 0.025, 0.025, 0.36, 8, 'y', 'chrome', 'detail');
+    batcher.addBox(0, jibEndY - 0.36, jibEndZ, 0.1, 0.14, 0.12, {
+      materialRole: 'amberLight',
+      layer: 'detail'
+    });
+  } else if (cfg.rearAttachment === 'mixer_chute') {
+    const swung = Boolean(cfg.doorsOpen);
+    const pivotY = d.wheelArchTopY + 0.42;
+    const pivotZ = rearZ - 0.08;
+    const yaw = swung ? degToRad(34) : 0;
+    const chuteLen = 1.08;
+    const cx = Math.sin(yaw) * (chuteLen * 0.46);
+    const cz = pivotZ - Math.cos(yaw) * (chuteLen * 0.46);
+    batcher.addBox(cx, pivotY - 0.14, cz, 0.32, 0.1, chuteLen, {
+      rotX: degToRad(-22),
+      rotY: yaw,
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+    for (const side of [-1, 1]) {
+      batcher.addBox(cx + side * Math.cos(yaw) * 0.14, pivotY - 0.07, cz - side * Math.sin(yaw) * 0.14, 0.035, 0.12, chuteLen, {
+        rotX: degToRad(-22),
+        rotY: yaw,
+        materialRole: 'livery',
+        layer: 'detail'
+      });
     }
   }
 
@@ -570,6 +871,56 @@ export function buildVehicleDetails(batcher, rootGroup, layout, cfg, materialBun
       materialRole: 'trim',
       layer: 'detail'
     });
+  } else if (!isOpenTop && cfg.roofRack === 'ice_cream_cone') {
+    const coneZ = lerp(s.roofMount.minZ, s.roofMount.maxZ, 0.72);
+    batcher.addCylinder(0, rackSurfaceY + 0.05, coneZ, 0.24, 0.28, 0.1, 10, 'y', 'trim', 'detail');
+    batcher.addCylinder(0, rackSurfaceY + 0.28, coneZ, 0.21, 0.06, 0.38, 10, 'y', 'amberLight', 'detail');
+    batcher.addCylinder(0, rackSurfaceY + 0.52, coneZ, 0.19, 0.22, 0.16, 10, 'y', 'secondary', 'detail');
+    batcher.addCylinder(0, rackSurfaceY + 0.65, coneZ, 0.12, 0.17, 0.12, 10, 'y', 'livery', 'detail');
+    batcher.addCylinder(0, rackSurfaceY + 0.74, coneZ, 0.045, 0.05, 0.06, 8, 'y', 'redLight', 'detail');
+    // Loudspeakers & bells up front on cab roof
+    batcher.addCylinder(0.28, rackSurfaceY + 0.08, s.roofMount.maxZ - 0.18, 0.09, 0.035, 0.16, 8, 'z', 'chrome', 'detail');
+  } else if (!isOpenTop && cfg.roofRack === 'fire_ladder') {
+    const turZ = lerp(s.roofMount.minZ, s.roofMount.maxZ, 0.24);
+    const turY = rackSurfaceY + 0.1;
+    const ladLen = Math.max(2.6, s.roofMount.maxZ - s.roofMount.minZ + 1.25);
+    const tilt = cfg.doorsOpen ? -degToRad(22) : 0;
+    batcher.addCylinder(0, turY, turZ, 0.42, 0.46, 0.16, 12, 'y', 'utility', 'detail');
+
+    const addTiltedLadBox = (lx, ly, lz, w, h, dBox, role = 'chrome') => {
+      const cy = Math.cos(tilt);
+      const sy = Math.sin(tilt);
+      const ry = ly * cy - lz * sy;
+      const rz = ly * sy + lz * cy;
+      batcher.addBox(lx, turY + 0.12 + ry, turZ + rz, w, h, dBox, {
+        rotX: tilt,
+        materialRole: role,
+        layer: 'detail'
+      });
+    };
+
+    const ladCenterLz = ladLen * 0.42;
+    for (const side of [-1, 1]) {
+      addTiltedLadBox(side * 0.26, 0.08, ladCenterLz, 0.06, 0.14, ladLen, 'chrome');
+      addTiltedLadBox(side * 0.26, 0.2, ladCenterLz, 0.045, 0.05, ladLen * 0.96, 'utility');
+    }
+    const rungs = Math.max(7, Math.floor(ladLen / 0.36));
+    for (let i = 0; i < rungs; i++) {
+      const rz = lerp(-0.18, ladLen * 0.88, i / (rungs - 1));
+      addTiltedLadBox(0, 0.06, rz, 0.48, 0.035, 0.04, 'chrome');
+    }
+    if (cfg.doorsOpen) {
+      const pLz = 0.85;
+      const topPy = turY + 0.12 - pLz * Math.sin(tilt);
+      const topPz = turZ + pLz * Math.cos(tilt);
+      const botPy = rackSurfaceY + 0.05;
+      const botPz = turZ + 0.38;
+      const pLen = Math.hypot(topPy - botPy, topPz - botPz);
+      const pRx = Math.atan2(topPz - botPz, topPy - botPy);
+      for (const side of [-0.14, 0.14]) {
+        batcher.addCylinder(side, (topPy + botPy) * 0.5, (topPz + botPz) * 0.5, 0.045, 0.055, pLen, 8, 'y', 'chrome', 'detail', 0, pRx);
+      }
+    }
   }
 
   // Antennas (mount on rear fender deck for open convertibles)

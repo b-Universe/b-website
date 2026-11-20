@@ -76,6 +76,18 @@ export const PALETTE_FAMILIES = {
     primaries: ['#567863', '#3f8a88', '#c46c49', '#6f7e91', '#b89454'],
     secondaries: ['#8d6e4c', '#2b3642', '#d6cbb5'],
     stripes: ['#e88b48', '#d9ccb6']
+  },
+  construction_yellow: {
+    label: 'Construction Yellow',
+    primaries: ['#e5a922', '#df961c', '#d8821e', '#e8b830'],
+    secondaries: ['#48505a', '#2c3138', '#68717c'],
+    stripes: ['#1e2228', '#e6ebf0', '#d95326']
+  },
+  postal_municipal: {
+    label: 'Postal & Municipal',
+    primaries: ['#eef2f6', '#e4eaef', '#d9e2ea', '#f5ece0'],
+    secondaries: ['#28568f', '#3d7463', '#c82e28', '#e87a90'],
+    stripes: ['#c93c34', '#28568f', '#f0a629']
   }
 };
 
@@ -105,7 +117,12 @@ export const OPTIONS = {
     ['transit_bus', 'Elongated Transit Bus'],
     ['articulated_bus', 'Articulated Accordion Bus'],
     ['semi_trailer', 'Semi Tractor & Trailer'],
-    ['wedge_futuristic', 'Wedge Retro-Futuristic']
+    ['wedge_futuristic', 'Wedge Retro-Futuristic'],
+    ['dump_truck', 'Heavy Dump Truck'],
+    ['cement_mixer', 'Concrete Mixer Truck'],
+    ['wheel_loader', 'Construction Wheel Loader'],
+    ['flatbed_truck', 'Flatbed / Crane Truck'],
+    ['double_decker', 'Double-Decker Bus']
   ],
   silhouetteFamily: Object.entries(SILHOUETTE_PROFILES).map(([id, def]) => [id, def.label]),
   rooflineStyle: [
@@ -208,10 +225,14 @@ export const OPTIONS = {
     ['civilian', 'Civilian'],
     ['taxi', 'City Taxi'],
     ['delivery', 'Commercial Delivery'],
+    ['postal', 'Postal / Mail'],
     ['food_vendor', 'Street Food Vendor'],
     ['service', 'Utility / Service'],
+    ['construction', 'Heavy Construction'],
     ['police', 'Police / Security'],
     ['ambulance', 'Ambulance / Medical'],
+    ['fire', 'Fire & Rescue'],
+    ['armored', 'Armored Security'],
     ['transit', 'Public Transit']
   ],
   lightBar: [
@@ -227,13 +248,18 @@ export const OPTIONS = {
     ['utility_rack', 'Utility Storage Rack'],
     ['ladder_rack', 'Work Ladder Rack'],
     ['delivery_pod', 'Aerodynamic Roof Pod'],
-    ['bus_ac_unit', 'Rooftop Ac Unit']
+    ['bus_ac_unit', 'Rooftop Ac Unit'],
+    ['ice_cream_cone', 'Rooftop Ice Cream Cone'],
+    ['fire_ladder', 'Fire Turntable Ladder']
   ],
   frontAttachment: [
     ['none', 'None'],
     ['bumper_guards', 'Push Bumper Guards'],
     ['bull_bar', 'Heavy Bull Bar'],
-    ['winch_bumper', 'Service Winch Bumper']
+    ['winch_bumper', 'Service Winch Bumper'],
+    ['loader_bucket', 'Construction Loader Bucket'],
+    ['sweeper_brushes', 'Street Sweeper Brushes'],
+    ['school_crossing_arm', 'School Bus Crossing Arm']
   ],
   rearAttachment: [
     ['none', 'None'],
@@ -242,7 +268,10 @@ export const OPTIONS = {
     ['tow_hook', 'Heavy Tow Hitch'],
     ['tow_boom', 'Wrecker Tow Boom & Winch'],
     ['compactor_hopper', 'Sanitation Rear Hopper'],
-    ['rear_ladder', 'Rear Access Ladder']
+    ['rear_ladder', 'Rear Access Ladder'],
+    ['gravel_load', 'Construction Gravel Load'],
+    ['knuckle_crane', 'Flatbed Knuckle Crane'],
+    ['mixer_chute', 'Concrete Pouring Chute']
   ],
   sideUtility: [
     ['none', 'None'],
@@ -250,7 +279,10 @@ export const OPTIONS = {
     ['utility_bins', 'Side Utility Tool Bins'],
     ['livery_stripe', 'Accent Livery Stripe'],
     ['checker_trim', 'Taxi Checker Trim'],
-    ['serving_window', 'Food Truck Window & Awning']
+    ['serving_window', 'Food Truck Window & Awning'],
+    ['postal_stripe', 'Postal Dual Stripe & Crest'],
+    ['fire_pump_panel', 'Fire Pump & Equipment Bays'],
+    ['hazard_stripes', 'Construction Hazard Chevrons']
   ],
   lightingTime: [
     ['day', 'Daytime'],
@@ -273,9 +305,9 @@ export const SCHEMA = {
     { group: 'Overall Dimensions' },
     { key: 'overallLength', name: 'Overall Length', min: 2.6, max: 15.5, step: 0.05, unit: 'm' },
     { key: 'overallWidth', name: 'Overall Width', min: 1.4, max: 2.65, step: 0.02, unit: 'm' },
-    { key: 'overallHeight', name: 'Overall Height', min: 1.15, max: 3.6, step: 0.02, unit: 'm' },
-    { key: 'groundClearance', name: 'Ground Clearance', min: 0.1, max: 0.55, step: 0.01, unit: 'm' },
-    { key: 'roofHeight', name: 'Greenhouse / Roof Height', min: 0.35, max: 2.1, step: 0.02, unit: 'm' },
+    { key: 'overallHeight', name: 'Overall Height', min: 1.15, max: 4.25, step: 0.02, unit: 'm' },
+    { key: 'groundClearance', name: 'Ground Clearance', min: 0.1, max: 0.62, step: 0.01, unit: 'm' },
+    { key: 'roofHeight', name: 'Greenhouse / Roof Height', min: 0.35, max: 2.85, step: 0.02, unit: 'm' },
     { group: 'Longitudinal Proportions' },
     { key: 'wheelbase', name: 'Wheelbase', min: 1.7, max: 10.5, step: 0.05, unit: 'm' },
     { key: 'frontOverhang', name: 'Front Overhang', min: 0.35, max: 2.5, step: 0.02, unit: 'm' },
@@ -316,7 +348,7 @@ export const SCHEMA = {
     { key: 'windshieldScale', name: 'Windshield Scale', min: 0.65, max: 1.0, step: 0.02 },
     { key: 'sideWindowSegmentation', name: 'Side Window Pillars', min: 1, max: 4, step: 1 },
     { key: 'rearWindowScale', name: 'Rear Window Scale', min: 0.35, max: 1.0, step: 0.02 },
-    { key: 'busWindowBays', name: 'Bus / Van Window Bays', min: 2, max: 9, step: 1 },
+    { key: 'busWindowBays', name: 'Bus / Van Window Bays', min: 2, max: 10, step: 1 },
     { key: 'vanPartialWindows', name: 'Van Partial Panel Windows', type: 'boolean' },
     { key: 'windowTint', name: 'Glass Tint Darkness', min: 0.1, max: 0.85, step: 0.05 },
     { key: 'framelessWindows', name: 'Frameless Flush Glass', type: 'boolean' },
@@ -331,12 +363,12 @@ export const SCHEMA = {
     { key: 'rearAxleOffset', name: 'Rear Axle Shift', min: -0.25, max: 0.25, step: 0.01, unit: 'm' },
     { key: 'steerAngle', name: 'Front Wheel Steer Angle', min: -35, max: 35, step: 1, unit: '°' },
     { group: 'Wheel & Rim Proportions' },
-    { key: 'wheelRadius', name: 'Wheel Radius', min: 0.22, max: 0.56, step: 0.01, unit: 'm' },
-    { key: 'wheelThickness', name: 'Tire Width', min: 0.14, max: 0.38, step: 0.01, unit: 'm' },
+    { key: 'wheelRadius', name: 'Wheel Radius', min: 0.22, max: 0.62, step: 0.01, unit: 'm' },
+    { key: 'wheelThickness', name: 'Tire Width', min: 0.14, max: 0.42, step: 0.01, unit: 'm' },
     { key: 'rimInset', name: 'Rim Dish Inset', min: 0.02, max: 0.12, step: 0.005, unit: 'm' },
     { key: 'hubcapStyle', name: 'Hubcap / Rim Style', type: 'select' },
     { key: 'spokeCount', name: 'Spoke / Lug Count', min: 3, max: 8, step: 1 },
-    { key: 'wheelArchHeight', name: 'Wheel Arch Height', min: 0.26, max: 0.68, step: 0.01, unit: 'm' }
+    { key: 'wheelArchHeight', name: 'Wheel Arch Height', min: 0.26, max: 0.78, step: 0.01, unit: 'm' }
   ],
   details: [
     { group: 'Front & Rear Fascia' },
@@ -465,7 +497,7 @@ export function sanitiseConfig(data) {
   merged.seed = clamp(Math.floor(Number(merged.seed) || 1024), 1, 99999999);
   merged.axleCount = clamp(Math.round(merged.axleCount), 2, 3);
   merged.sideWindowSegmentation = clamp(Math.round(merged.sideWindowSegmentation), 1, 4);
-  merged.busWindowBays = clamp(Math.round(merged.busWindowBays), 2, 9);
+  merged.busWindowBays = clamp(Math.round(merged.busWindowBays), 2, 10);
   merged.spokeCount = clamp(Math.round(merged.spokeCount), 3, 8);
   merged.antennaCount = clamp(Math.round(merged.antennaCount), 0, 2);
 

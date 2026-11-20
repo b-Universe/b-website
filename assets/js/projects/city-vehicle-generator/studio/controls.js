@@ -204,7 +204,7 @@ export function applySeedVariation(state, locks = new Set()) {
   let chosenFamily = state.paletteFamily || presetBase.paletteFamily || 'civilian_neutrals';
   if (!locks.has('paletteFamily')) {
     if (!state.roleVariant || state.roleVariant === 'civilian') {
-      chosenFamily = pick(r, ['civilian_neutrals', 'civic_colors', 'muted_industrial']);
+      chosenFamily = pick(r, ['civilian_neutrals', 'bright_city', 'muted_industrial']);
     } else {
       chosenFamily = presetBase.paletteFamily || chosenFamily;
     }
@@ -291,7 +291,11 @@ export function randomizeSettings(cat, state, locks = new Set(), rngFn = null) {
         }
       }
       if (!locks.has('cabCargoSeparation')) {
-        const isTruck = next.bodyFamily === 'pickup_cab_bed' || next.bodyFamily === 'cab_over_box';
+        const isTruck = next.bodyFamily === 'pickup_cab_bed' ||
+          next.bodyFamily === 'cab_over_box' ||
+          next.bodyFamily === 'dump_truck' ||
+          next.bodyFamily === 'cement_mixer' ||
+          next.bodyFamily === 'flatbed_truck';
         const anchorGap = presetBase.cabCargoSeparation || 0.08;
         next.cabCargoSeparation = isTruck
           ? ctrlSnapValue(anchorGap + (r() * 0.08 - 0.02), ctrlSchemaDefForKey('cabCargoSeparation'))
@@ -334,17 +338,23 @@ export function randomizeSettings(cat, state, locks = new Set(), rngFn = null) {
     }
 
     if (activeCat === 'wheels') {
+      const heavy = next.bodyFamily === 'cab_over_box' ||
+        next.bodyFamily === 'transit_bus' ||
+        next.bodyFamily === 'dump_truck' ||
+        next.bodyFamily === 'cement_mixer' ||
+        next.bodyFamily === 'flatbed_truck' ||
+        next.bodyFamily === 'double_decker' ||
+        next.bodyFamily === 'articulated_bus' ||
+        next.bodyFamily === 'semi_trailer';
       for (const k of CATEGORIES.wheels) {
         if (locks.has(k)) continue;
         const def = ctrlSchemaDefForKey(k);
         if (!def) continue;
         if (def.type === 'boolean') {
-          const heavy = next.bodyFamily === 'cab_over_box' || next.bodyFamily === 'transit_bus';
           next[k] = heavy ? r() > 0.35 : r() > 0.85;
         } else if (def.type === 'select') {
           next[k] = ctrlPickOption(r, OPTIONS[k]);
         } else if (k === 'axleCount') {
-          const heavy = next.bodyFamily === 'cab_over_box' || next.bodyFamily === 'transit_bus';
           next[k] = heavy && next.overallLength > 7.0 ? (r() > 0.45 ? 3 : 2) : 2;
         } else {
           const anchor = presetBase[k] !== undefined ? presetBase[k] : next[k];
@@ -372,7 +382,7 @@ export function randomizeSettings(cat, state, locks = new Set(), rngFn = null) {
     }
 
     if (activeCat === 'variants') {
-      const roles = ['civilian', 'taxi', 'delivery', 'service', 'police', 'ambulance', 'transit'];
+      const roles = ['civilian', 'taxi', 'delivery', 'postal', 'food_vendor', 'service', 'construction', 'police', 'ambulance', 'fire', 'armored', 'transit'];
       const chosenRole = locks.has('roleVariant') ? next.roleVariant : pick(r, roles);
       writeIfUnlocked('roleVariant', chosenRole);
       writeIfUnlocked('taxiSign', chosenRole === 'taxi');
@@ -380,13 +390,13 @@ export function randomizeSettings(cat, state, locks = new Set(), rngFn = null) {
         'lightBar',
         chosenRole === 'police'
           ? 'police_bar'
-          : chosenRole === 'ambulance'
+          : (chosenRole === 'ambulance' || chosenRole === 'fire')
             ? 'ambulance_bar'
-            : chosenRole === 'service'
+            : (chosenRole === 'service' || chosenRole === 'construction' || chosenRole === 'postal')
               ? pick(r, ['amber_work_bar', 'vintage_beacon'])
               : 'none'
       );
-      writeIfUnlocked('busRouteSign', chosenRole === 'transit' || next.bodyFamily === 'transit_bus');
+      writeIfUnlocked('busRouteSign', chosenRole === 'transit' || next.bodyFamily === 'transit_bus' || next.bodyFamily === 'double_decker');
       writeIfUnlocked('roofRack', ctrlPickOption(r, OPTIONS.roofRack));
       writeIfUnlocked('frontAttachment', r() > 0.55 ? ctrlPickOption(r, OPTIONS.frontAttachment) : 'none');
       writeIfUnlocked('rearAttachment', r() > 0.5 ? ctrlPickOption(r, OPTIONS.rearAttachment) : 'none');

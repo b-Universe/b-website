@@ -6,7 +6,10 @@ export function generateCoherentPalette(paletteFamilyId, seed = 1024, roleVarian
 
   let familyKey = paletteFamilyId && PALETTE_FAMILIES[paletteFamilyId] ? paletteFamilyId : 'civilian_neutrals';
   if (roleVariant === 'taxi' && !paletteFamilyId) familyKey = 'taxi_palette';
-  else if ((roleVariant === 'police' || roleVariant === 'ambulance') && !paletteFamilyId) familyKey = 'emergency_palette';
+  else if ((roleVariant === 'police' || roleVariant === 'ambulance' || roleVariant === 'fire') && !paletteFamilyId) familyKey = 'emergency_palette';
+  else if (roleVariant === 'construction' && !paletteFamilyId) familyKey = 'construction_yellow';
+  else if (roleVariant === 'postal' && !paletteFamilyId) familyKey = 'postal_municipal';
+  else if (roleVariant === 'armored' && !paletteFamilyId) familyKey = 'muted_industrial';
   else if ((roleVariant === 'delivery' || roleVariant === 'service') && !paletteFamilyId) familyKey = 'service_utility';
 
   const fam = PALETTE_FAMILIES[familyKey] || PALETTE_FAMILIES.civilian_neutrals;

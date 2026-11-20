@@ -8,25 +8,25 @@ export function resolveVehicleLayout(rawCfg) {
 
   const length = clamp(cfg.overallLength, 2.6, 15.5);
   const width = clamp(cfg.overallWidth, 1.4, 2.65);
-  const height = clamp(cfg.overallHeight, 1.15, 3.6);
+  const height = clamp(cfg.overallHeight, 1.15, 4.25);
   const halfW = width * 0.5;
 
   // Wheel sizing guardrails against body height & length
   const maxWheelByHeight = (height - 0.46) * 0.48;
   const maxWheelByLength = length * 0.19;
-  const wheelRadius = clamp(cfg.wheelRadius, 0.22, Math.min(0.56, maxWheelByHeight, maxWheelByLength));
+  const wheelRadius = clamp(cfg.wheelRadius, 0.22, Math.min(0.62, maxWheelByHeight, maxWheelByLength));
   if (Math.abs(wheelRadius - cfg.wheelRadius) > 0.005) {
     warnings.push(`Clamped wheelRadius from ${roundNum(cfg.wheelRadius, 2)}m to ${roundNum(wheelRadius, 2)}m to prevent body clipping`);
   }
 
-  const wheelThickness = clamp(cfg.wheelThickness, 0.14, Math.min(0.38, width * 0.22));
+  const wheelThickness = clamp(cfg.wheelThickness, 0.14, Math.min(0.42, width * 0.22));
   const tireHalfW = wheelThickness * 0.5;
   const isDualRear = Boolean(cfg.dualRearWheels);
   const rearTireSpan = isDualRear ? wheelThickness * 2.08 : wheelThickness;
 
   // Ground clearance guardrail relative to wheel radius
   const minClearance = Math.max(0.1, wheelRadius * 0.36);
-  const maxClearance = Math.min(0.55, wheelRadius * 1.15);
+  const maxClearance = Math.min(0.62, wheelRadius * 1.15);
   const groundClearance = clamp(cfg.groundClearance, minClearance, maxClearance);
   if (Math.abs(groundClearance - cfg.groundClearance) > 0.005) {
     warnings.push(`Clamped groundClearance to ${roundNum(groundClearance, 2)}m to stay coherent with wheel radius`);
@@ -61,7 +61,10 @@ export function resolveVehicleLayout(rawCfg) {
   const hasCabCargoGap = cfg.bodyFamily === 'pickup_cab_bed' ||
     cfg.bodyFamily === 'cab_over_box' ||
     cfg.bodyFamily === 'articulated_bus' ||
-    cfg.bodyFamily === 'semi_trailer';
+    cfg.bodyFamily === 'semi_trailer' ||
+    cfg.bodyFamily === 'dump_truck' ||
+    cfg.bodyFamily === 'cement_mixer' ||
+    cfg.bodyFamily === 'flatbed_truck';
   let gapLen = 0;
   if (cfg.bodyFamily === 'articulated_bus') {
     gapLen = clamp(Math.max(cfg.cabCargoSeparation, 0.42), 0.35, 0.65);
@@ -72,13 +75,13 @@ export function resolveVehicleLayout(rawCfg) {
   }
   const availableL = Math.max(2.0, length - gapLen);
 
-  const minHood = (cfg.bodyFamily === 'transit_bus' || cfg.bodyFamily === 'articulated_bus')
+  const minHood = (cfg.bodyFamily === 'transit_bus' || cfg.bodyFamily === 'articulated_bus' || cfg.bodyFamily === 'double_decker')
     ? 0.12
-    : cfg.bodyFamily === 'cab_over_box'
+    : (cfg.bodyFamily === 'cab_over_box' || cfg.bodyFamily === 'dump_truck' || cfg.bodyFamily === 'cement_mixer' || cfg.bodyFamily === 'flatbed_truck')
       ? 0.26
       : 0.42;
   const minCabin = Math.max(0.85, availableL * 0.2);
-  const minCargo = (cfg.bodyFamily === 'transit_bus' || cfg.bodyFamily === 'articulated_bus') ? 0.24 : 0.28;
+  const minCargo = (cfg.bodyFamily === 'transit_bus' || cfg.bodyFamily === 'articulated_bus' || cfg.bodyFamily === 'double_decker') ? 0.24 : 0.28;
 
   let hReq = Math.max(minHood, cfg.hoodLength);
   let cReq = Math.max(minCabin, cfg.cabinLength);
@@ -199,22 +202,34 @@ export function resolveVehicleLayout(rawCfg) {
     cabinBottomStartZ = rearStartZ + Math.min(0.28, cargoLen * 0.25);
     cabinTopStartZ = clamp(cabinBottomStartZ + rwRakeZ, cabinBottomStartZ + 0.06, roofFrontZ - 0.35);
     cargoRoofTopY = height;
-  } else if (cfg.bodyFamily === 'van_monobox' || cfg.bodyFamily === 'transit_bus' || cfg.bodyFamily === 'articulated_bus') {
+  } else if (cfg.bodyFamily === 'van_monobox' || cfg.bodyFamily === 'transit_bus' || cfg.bodyFamily === 'articulated_bus' || cfg.bodyFamily === 'double_decker') {
     hasContinuousGreenhouseOverCargo = true;
     const rwRakeZ = clamp(Math.tan(degToRad(cfg.rearWindowAngle)) * greenhouseH * 0.3, 0.04, 0.32);
     cabinBottomStartZ = rearStartZ + 0.06;
     cabinTopStartZ = clamp(cabinBottomStartZ + rwRakeZ, cabinBottomStartZ + 0.04, roofFrontZ - 0.45);
     cargoRoofTopY = height;
-  } else if (cfg.bodyFamily === 'pickup_cab_bed') {
+  } else if (cfg.bodyFamily === 'pickup_cab_bed' || cfg.bodyFamily === 'wheel_loader') {
     cabinBottomStartZ = cabinStartZ;
     cabinTopStartZ = clamp(cabinStartZ + Math.tan(degToRad(cfg.rearWindowAngle)) * greenhouseH * 0.25, cabinStartZ + 0.04, roofFrontZ - 0.25);
     cargoRoofTopY = beltY;
-  } else if (cfg.bodyFamily === 'cab_over_box' || cfg.bodyFamily === 'semi_trailer') {
+  } else if (
+    cfg.bodyFamily === 'cab_over_box' ||
+    cfg.bodyFamily === 'semi_trailer' ||
+    cfg.bodyFamily === 'dump_truck' ||
+    cfg.bodyFamily === 'cement_mixer' ||
+    cfg.bodyFamily === 'flatbed_truck'
+  ) {
     cabinBottomStartZ = cabinStartZ;
     cabinTopStartZ = clamp(cabinStartZ + 0.08, cabinStartZ + 0.04, roofFrontZ - 0.25);
     cargoRoofTopY = cfg.bodyFamily === 'semi_trailer'
       ? Math.min(height + 0.35, Math.max(height, beltY + greenhouseH + 0.15))
-      : Math.min(height + 0.22, Math.max(height, beltY + greenhouseH));
+      : cfg.bodyFamily === 'dump_truck'
+        ? Math.min(height + 0.12, Math.max(beltY + 0.85, height - 0.08))
+        : cfg.bodyFamily === 'cement_mixer'
+          ? Math.min(height + 0.42, height + 0.28)
+          : cfg.bodyFamily === 'flatbed_truck'
+            ? beltY + 0.12
+            : Math.min(height + 0.22, Math.max(height, beltY + greenhouseH));
   } else {
     // three_box, fastback, wedge_futuristic
     const trunkDeckReq = clamp(cfg.trunkLength, 0.15, cargoLen * 0.96);

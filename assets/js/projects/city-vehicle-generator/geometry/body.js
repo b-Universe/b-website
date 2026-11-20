@@ -211,7 +211,7 @@ function buildCargoBox(batcher, layout, cfg) {
   const z1 = s.rear.endZ;
   const boxTopY = d.cargoRoofTopY;
   const boxHalfW = Math.min(1.36, d.halfWidth + 0.04);
-  const boxRole = cfg.roleVariant === 'ambulance' ? 'primary' : 'secondary';
+  const boxRole = (cfg.roleVariant === 'ambulance' || cfg.roleVariant === 'fire') ? 'primary' : 'secondary';
 
   // Lofted lower box skirt with rear wheel arches + full-height upper box
   buildLoftedHullSpan(batcher, z0, z1, layout, cfg, boxRole, {
@@ -264,6 +264,271 @@ function buildCargoBox(batcher, layout, cfg) {
   }
 }
 
+function buildDumpBed(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const s = layout.sections;
+  const z0 = s.rear.startZ;
+  const z1 = s.rear.endZ;
+  const bedLen = Math.max(1.4, z1 - z0);
+  const halfW = Math.min(1.3, d.halfWidth + 0.03);
+  const bedFloorY = d.groundClearance + 0.24;
+  const bedTopY = Math.max(bedFloorY + 0.65, d.cargoRoofTopY - 0.14);
+  const sideH = bedTopY - bedFloorY;
+  const pivotZ = z0 + 0.28;
+  const pivotY = bedFloorY;
+  const tilt = cfg.doorsOpen ? -degToRad(24) : 0;
+
+  // Exposed steel subframe & rear hinge trunnions
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW * 0.45), bedFloorY - 0.09, (z0 + z1) * 0.5, 0.12, 0.12, bedLen * 0.9, {
+      materialRole: 'chassisDark',
+      layer: 'chassis'
+    });
+  }
+
+  const addBedBox = (lx, ly, lz, w, h, dBox, role = 'secondary', localRx = 0) => {
+    const cy = Math.cos(tilt);
+    const sy = Math.sin(tilt);
+    const ry = ly * cy - lz * sy;
+    const rz = ly * sy + lz * cy;
+    batcher.addBox(lx, pivotY + ry, pivotZ + rz, w, h, dBox, {
+      rotX: tilt + localRx,
+      materialRole: role,
+      layer: 'body'
+    });
+  };
+
+  const bedLocalMidZ = (z0 + z1) * 0.5 - pivotZ;
+  const bedLocalFrontZ = z1 - 0.1 - pivotZ;
+  const bedLocalRearZ = z0 + 0.08 - pivotZ;
+
+  // Steel bed floor, side walls, structural ribs & top spill rails
+  addBedBox(0, 0.055, bedLocalMidZ, halfW * 2, 0.11, bedLen, 'secondary');
+  for (const side of [-1, 1]) {
+    addBedBox(side * (halfW - 0.065), sideH * 0.5 + 0.05, bedLocalMidZ, 0.12, sideH, bedLen, 'secondary');
+    addBedBox(side * (halfW - 0.045), sideH + 0.08, bedLocalMidZ, 0.16, 0.08, bedLen + 0.04, 'utility');
+    const ribs = 4;
+    for (let i = 0; i < ribs; i++) {
+      const rz = lerp(bedLocalRearZ + 0.25, bedLocalFrontZ - 0.25, i / Math.max(1, ribs - 1));
+      addBedBox(side * (halfW + 0.015), sideH * 0.5 + 0.06, rz, 0.055, sideH * 0.92, 0.12, 'utility');
+    }
+  }
+
+  // Front bulkhead & cab-protector canopy lip clearing above cab roof
+  const canopyLocalY = Math.max(sideH + 0.12, d.height - pivotY + 0.08);
+  addBedBox(0, canopyLocalY * 0.5 + 0.02, bedLocalFrontZ, halfW * 2, canopyLocalY + 0.04, 0.12, 'secondary');
+  addBedBox(0, canopyLocalY + 0.045, bedLocalFrontZ + 0.34, halfW * 1.94, 0.09, 0.72, 'primary');
+
+  // Hinged rear tailgate (hangs vertical/ajar when bed tilts open)
+  const gateSwing = cfg.doorsOpen ? -tilt + degToRad(8) : 0;
+  addBedBox(0, sideH * 0.5 + 0.05, bedLocalRearZ, halfW * 1.88, sideH * 0.92, 0.09, 'secondary', gateSwing);
+
+  // Exposed hydraulic telescopic lift piston when tilted
+  if (cfg.doorsOpen) {
+    const baseZ = z1 - 0.75;
+    const baseY = d.groundClearance + 0.18;
+    const targetLz = bedLocalFrontZ - 0.55;
+    const topY = pivotY - targetLz * Math.sin(tilt);
+    const topZ = pivotZ + targetLz * Math.cos(tilt);
+    const midY = (baseY + topY) * 0.5;
+    const midZ = (baseZ + topZ) * 0.5;
+    const pistonLen = Math.hypot(topY - baseY, topZ - baseZ);
+    const pistonRx = Math.atan2(topZ - baseZ, topY - baseY);
+    batcher.addCylinder(0, midY, midZ, 0.075, 0.095, pistonLen, 10, 'y', 'chrome', 'detail', 0, pistonRx);
+  }
+}
+
+function buildCementMixerDrum(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const s = layout.sections;
+  const z0 = s.rear.startZ;
+  const z1 = s.rear.endZ;
+  const bedLen = Math.max(1.8, z1 - z0);
+  const deckY = d.groundClearance + 0.24;
+  const halfW = d.halfWidth;
+
+  // Heavy subframe rails & rear wheel fenders
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW * 0.44), deckY + 0.04, (z0 + z1) * 0.5, 0.12, 0.12, bedLen, {
+      materialRole: 'chassisDark',
+      layer: 'chassis'
+    });
+    batcher.addBox(side * (halfW - 0.14), d.wheelArchTopY + 0.05, lerp(z0, z1, 0.34), 0.34, 0.05, Math.min(bedLen * 0.65, 2.35), {
+      materialRole: 'trim',
+      layer: 'detail'
+    });
+  }
+
+  // Front mixer pedestal & cylindrical water wash tank behind cab
+  const frontPedZ = z1 - 0.38;
+  const rearPedZ = z0 + 0.36;
+  const drumMidZ = lerp(rearPedZ, frontPedZ, 0.5);
+  const drumMidY = Math.max(deckY + 0.85, (d.beltY + d.cargoRoofTopY) * 0.5 - 0.04);
+  const pedH = Math.max(0.55, drumMidY - deckY - 0.15);
+  batcher.addBox(0, deckY + pedH * 0.5, frontPedZ, halfW * 0.92, pedH, 0.42, {
+    materialRole: 'chassisDark',
+    layer: 'body'
+  });
+  batcher.addCylinder(0, deckY + pedH + 0.18, frontPedZ + 0.12, 0.24, 0.24, halfW * 1.12, 10, 'x', 'chrome', 'detail');
+
+  // Rear roller A-frame cradle & elevated top charging hopper
+  const rearSupportH = Math.max(0.75, drumMidY - deckY + 0.24);
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * 0.38, deckY + rearSupportH * 0.5, rearPedZ, 0.12, rearSupportH, 0.26, {
+      materialRole: 'utility',
+      layer: 'body'
+    });
+  }
+  batcher.addBox(0, deckY + rearSupportH + 0.28, rearPedZ - 0.08, 0.72, 0.42, 0.46, {
+    materialRole: 'utility',
+    layer: 'detail'
+  });
+
+  // 5-segment coaxial low-poly concrete drum pitched +16 deg up toward the rear
+  const tiltRad = degToRad(16);
+  const drumSpan = Math.max(2.2, (frontPedZ - rearPedZ) * 0.94);
+  const segSpecs = [
+    { u: 0.38, rRear: 0.76, rFront: 0.54, role: 'secondary' },
+    { u: 0.19, rRear: 0.92, rFront: 0.76, role: 'livery' },
+    { u: 0.0, rRear: 0.94, rFront: 0.92, role: 'secondary' },
+    { u: -0.2, rRear: 0.78, rFront: 0.94, role: 'livery' },
+    { u: -0.39, rRear: 0.48, rFront: 0.78, role: 'secondary' }
+  ];
+  const segLen = drumSpan / segSpecs.length;
+  const maxR = Math.min(0.95, halfW - 0.16);
+  const rScale = maxR / 0.94;
+
+  for (const seg of segSpecs) {
+    const uDist = seg.u * drumSpan;
+    const cy = drumMidY - uDist * Math.sin(tiltRad);
+    const cz = drumMidZ + uDist * Math.cos(tiltRad);
+    batcher.addCylinder(0, cy, cz, seg.rFront * rScale, seg.rRear * rScale, segLen * 1.03, 12, 'z', seg.role, 'body', 0, tiltRad);
+  }
+}
+
+function buildFlatbedDeck(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const s = layout.sections;
+  const z0 = s.rear.startZ;
+  const z1 = s.rear.endZ;
+  const bedLen = Math.max(1.5, z1 - z0);
+  const bedMidZ = (z0 + z1) * 0.5;
+  const deckY = Math.max(d.wheelArchTopY + 0.08, d.beltY - 0.14);
+  const halfW = Math.min(1.32, d.halfWidth + 0.02);
+
+  // Under-deck chassis frame, side toolboxes & deck platform
+  batcher.addBox(0, deckY, bedMidZ, halfW * 2, 0.14, bedLen, {
+    materialRole: 'utility',
+    layer: 'body'
+  });
+  batcher.addBox(0, deckY + 0.08, bedMidZ, halfW * 1.9, 0.03, bedLen - 0.08, {
+    materialRole: 'secondary',
+    layer: 'body'
+  });
+
+  // Behind-cab mesh headache guard rack
+  const guardH = Math.max(0.65, d.height - deckY - 0.06);
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW - 0.08), deckY + guardH * 0.5, z1 - 0.06, 0.08, guardH, 0.08, {
+      materialRole: 'trim',
+      layer: 'body'
+    });
+    batcher.addBox(side * (halfW * 0.72), deckY - 0.24, bedMidZ + bedLen * 0.16, 0.36, 0.34, Math.min(1.1, bedLen * 0.28), {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+  }
+  batcher.addBox(0, deckY + guardH, z1 - 0.06, halfW * 1.94, 0.08, 0.09, {
+    materialRole: 'trim',
+    layer: 'body'
+  });
+  batcher.addBox(0, deckY + guardH * 0.65, z1 - 0.06, halfW * 1.84, guardH * 0.52, 0.04, {
+    materialRole: 'chassisDark',
+    layer: 'detail'
+  });
+
+  // Foldable side stake rails (drop down on hinge when doorsOpen is true)
+  const stakeRotZ = cfg.doorsOpen ? degToRad(90) : 0;
+  for (const side of [-1, 1]) {
+    const railX = side * (halfW - 0.04);
+    if (cfg.doorsOpen) {
+      batcher.addBox(railX + side * 0.18, deckY - 0.06, bedMidZ, 0.32, 0.045, bedLen * 0.88, {
+        materialRole: 'trim',
+        layer: 'detail'
+      });
+    } else {
+      batcher.addBox(railX, deckY + 0.34, bedMidZ, 0.045, 0.07, bedLen * 0.9, {
+        rotZ: stakeRotZ,
+        materialRole: 'trim',
+        layer: 'detail'
+      });
+      const posts = 4;
+      for (let i = 0; i < posts; i++) {
+        const pz = lerp(z0 + 0.22, z1 - 0.25, i / (posts - 1));
+        batcher.addBox(railX, deckY + 0.2, pz, 0.05, 0.3, 0.05, {
+          materialRole: 'trim',
+          layer: 'detail'
+        });
+      }
+    }
+  }
+
+  // Tied-down steel I-beam / timber bundle cargo on rear half of bed
+  const cargoMidZ = lerp(z0 + 0.35, z1 - 0.95, 0.42);
+  const cargoLen = Math.max(0.95, bedLen * 0.48);
+  for (const ox of [-0.36, 0, 0.36]) {
+    batcher.addBox(ox, deckY + 0.21, cargoMidZ, 0.24, 0.22, cargoLen, {
+      materialRole: ox === 0 ? 'primary' : 'chrome',
+      layer: 'detail'
+    });
+  }
+  for (const sz of [cargoMidZ - cargoLen * 0.3, cargoMidZ + cargoLen * 0.3]) {
+    batcher.addBox(0, deckY + 0.22, sz, 1.04, 0.25, 0.05, {
+      materialRole: 'livery',
+      layer: 'detail'
+    });
+  }
+}
+
+function buildWheelLoaderBody(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const s = layout.sections;
+  const cab = s.cabin;
+  const halfW = d.halfWidth;
+  const beltY = d.beltY;
+  const gc = d.groundClearance;
+
+  // Rear heavy engine counterweight hood & radiator grille block
+  buildLoftedHullSpan(batcher, s.rear.startZ, cab.endZ, layout, cfg, 'primary', {
+    fixedTopY: beltY,
+    extraZs: [s.rear.endZ, cab.startZ]
+  });
+  const counterH = Math.max(0.45, beltY - gc - 0.14);
+  batcher.addBox(0, beltY - counterH * 0.38, s.rear.startZ - 0.03, halfW * 1.72, counterH * 0.84, 0.22, {
+    materialRole: 'secondary',
+    layer: 'body'
+  });
+  batcher.addBox(0, beltY - 0.12, s.rear.startZ - 0.12, halfW * 1.38, counterH * 0.56, 0.06, {
+    materialRole: 'chassisDark',
+    layer: 'detail'
+  });
+
+  // Center-front lower articulated loader frame & twin heavy boom pivot towers
+  const frontMidZ = (s.hood.startZ + s.hood.endZ) * 0.5;
+  const frontTopY = Math.max(gc + 0.38, d.wheelArchTopY - 0.08);
+  batcher.addBox(0, (gc + frontTopY) * 0.5, frontMidZ, halfW * 0.92, frontTopY - gc, s.hood.length, {
+    materialRole: 'secondary',
+    layer: 'body'
+  });
+  const towerH = Math.max(0.48, beltY - frontTopY + 0.24);
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW * 0.44), frontTopY + towerH * 0.42, s.hood.startZ + s.hood.length * 0.36, 0.18, towerH, 0.58, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+  }
+}
+
 function buildArticulatedBellows(batcher, layout, cfg) {
   if (cfg.bodyFamily !== 'articulated_bus') return;
   const s = layout.sections;
@@ -289,10 +554,7 @@ function buildArticulatedBellows(batcher, layout, cfg) {
     });
   }
 
-  batcher.addCylinder(0, d.groundClearance + 0.14, (gapStart + gapEnd) * 0.5, d.halfWidth * 0.78, d.halfWidth * 0.78, 0.08, 12, {
-    materialRole: 'chassis',
-    layer: 'chassis'
-  });
+  batcher.addCylinder(0, d.groundClearance + 0.14, (gapStart + gapEnd) * 0.5, d.halfWidth * 0.78, d.halfWidth * 0.78, 0.08, 12, 'y', 'chassisDark', 'chassis');
 }
 
 function buildCabinInterior(batcher, layout, cfg) {
@@ -301,7 +563,9 @@ function buildCabinInterior(batcher, layout, cfg) {
   const cab = s.cabin;
   const roofHalfW = d.halfWidth * d.roofWidthRatio;
   const eaveY = d.height - clamp(0.08 + cfg.roofRounding * 0.16, 0.07, 0.14);
-  const ghH = Math.max(0.28, eaveY - d.beltY);
+  const isDoubleDecker = cfg.bodyFamily === 'double_decker';
+  const midDeckY = isDoubleDecker ? lerp(d.beltY, eaveY, 0.46) : eaveY;
+  const ghH = Math.max(0.28, (isDoubleDecker ? midDeckY - 0.1 : eaveY) - d.beltY);
   const floorY = d.groundClearance + 0.14;
   const seatCushionY = Math.max(floorY + 0.1, d.beltY - clamp(ghH * 0.42, 0.18, 0.3));
   const backH = clamp(ghH * 0.68, 0.28, 0.44);
@@ -311,7 +575,8 @@ function buildCabinInterior(batcher, layout, cfg) {
   const headCenterY = Math.min(backCenterY + backH * 0.5 + headH * 0.45, maxHeadTopY - headH * 0.5);
   const frontSeatZ = clamp(cab.endZ - 0.88, cab.startZ + 0.28, cab.endZ - 0.52);
   const dashZ = clamp(cab.endZ - 0.26, frontSeatZ + 0.34, cab.endZ - 0.16);
-  const driverX = -clamp(d.halfWidth * 0.42, 0.28, 0.52);
+  const driverSide = cfg.roleVariant === 'postal' ? 1 : -1;
+  const driverX = driverSide * clamp(d.halfWidth * 0.42, 0.28, 0.52);
 
   // Dashboard & center console tunnel
   batcher.addBox(0, d.beltY - 0.16, dashZ, d.halfWidth * 1.56, 0.26, 0.32, {
@@ -323,17 +588,13 @@ function buildCabinInterior(batcher, layout, cfg) {
     layer: 'interior'
   });
 
-  // Steering column & steering wheel on driver side (-X)
+  // Steering column & steering wheel on driver side (-X standard, +X curb-side for RHD postal)
   batcher.addBox(driverX, d.beltY - 0.06, dashZ - 0.14, 0.06, 0.06, 0.24, {
     rotX: degToRad(-24),
     materialRole: 'trim',
     layer: 'interior'
   });
-  batcher.addCylinder(driverX, d.beltY - 0.01, dashZ - 0.26, 0.15, 0.15, 0.035, 10, {
-    rotX: degToRad(26),
-    materialRole: 'tire',
-    layer: 'interior'
-  });
+  batcher.addCylinder(driverX, d.beltY - 0.01, dashZ - 0.26, 0.15, 0.15, 0.035, 10, 'z', 'tire', 'interior', 0, degToRad(26));
 
   // Front driver & passenger bucket seats
   for (const side of [-1, 1]) {
@@ -353,12 +614,18 @@ function buildCabinInterior(batcher, layout, cfg) {
     });
   }
 
-  // Rear bench or multi-row passenger seats
-  if (cfg.bodyFamily === 'transit_bus' || cfg.bodyFamily === 'articulated_bus') {
+  // Rear bench or multi-row passenger seats (supports transit, articulated & double-decker buses)
+  if (cfg.bodyFamily === 'transit_bus' || cfg.bodyFamily === 'articulated_bus' || isDoubleDecker) {
     const startZ = s.rear.startZ + 0.48;
     const endZ = cab.endZ - 1.1;
     const gapStart = cfg.bodyFamily === 'articulated_bus' ? s.rear.endZ - 0.2 : 999;
     const gapEnd = cfg.bodyFamily === 'articulated_bus' ? s.cabin.startZ + 0.2 : -999;
+    if (isDoubleDecker) {
+      batcher.addBox(0, midDeckY, (s.rear.startZ + cab.endZ) * 0.5, d.halfWidth * 1.72, 0.12, s.rear.length + s.cabin.length - 0.3, {
+        materialRole: 'interiorDark',
+        layer: 'interior'
+      });
+    }
     for (let z = startZ; z <= endZ; z += 0.72) {
       if (z >= gapStart && z <= gapEnd) continue;
       for (const side of [-1, 1]) {
@@ -371,6 +638,16 @@ function buildCabinInterior(batcher, layout, cfg) {
           materialRole: 'secondary',
           layer: 'interior'
         });
+        if (isDoubleDecker) {
+          batcher.addBox(seatX, midDeckY + 0.22, z, 0.42, 0.1, 0.36, {
+            materialRole: 'interiorDark',
+            layer: 'interior'
+          });
+          batcher.addBox(seatX, midDeckY + 0.46, z - 0.14, 0.4, 0.42, 0.08, {
+            materialRole: 'secondary',
+            layer: 'interior'
+          });
+        }
       }
     }
   } else if (
@@ -589,14 +866,47 @@ function buildCabinStructure(batcher, layout, cfg) {
     addHeadlinerSpan(rCapStart + 0.04, rCapEnd - 0.04);
   }
 
-  // Sloped Rear Cab Bulkhead for Pickups, Box Trucks & Semis when solid rear wall is used
-  if ((cfg.bodyFamily === 'pickup_cab_bed' || cfg.bodyFamily === 'cab_over_box' || cfg.bodyFamily === 'semi_trailer') && cfg.rearWindowScale <= 0.36) {
+  // Sloped Rear Cab Bulkhead for Pickups, Box Trucks, Construction Rigs & Semis when solid rear wall is used
+  const hasSeparateCabBulkhead = cfg.bodyFamily === 'pickup_cab_bed' ||
+    cfg.bodyFamily === 'cab_over_box' ||
+    cfg.bodyFamily === 'semi_trailer' ||
+    cfg.bodyFamily === 'dump_truck' ||
+    cfg.bodyFamily === 'cement_mixer' ||
+    cfg.bodyFamily === 'flatbed_truck';
+  if (hasSeparateCabBulkhead && cfg.rearWindowScale <= 0.36) {
     const bzBot = cab.greenhouseBottomStartZ + 0.03;
     const bzTop = cab.roofStartZ - 0.02;
     const bdy = (eaveY - beltY) + 0.02;
     const bLen = Math.hypot(bdy, bzTop - bzBot);
     batcher.addBox(0, (beltY + eaveY) * 0.5, (bzBot + bzTop) * 0.5, (beltHalfW + roofHalfW) * 0.88, bLen, 0.075, {
       rotX: Math.atan2(bzTop - bzBot, bdy),
+      materialRole: 'primary',
+      layer: 'body'
+    });
+  }
+
+  // Horizontal mid-deck structural fascia ring for double-decker buses
+  if (cfg.bodyFamily === 'double_decker') {
+    const midDeckY = lerp(beltY, eaveY, 0.46);
+    const midHw = lerp(beltHalfW, roofHalfW, 0.46);
+    const midZRear = lerp(cab.greenhouseBottomStartZ + 0.025, cab.roofStartZ - 0.025, 0.46);
+    const midZFront = lerp(cab.endZ - 0.025, cab.roofEndZ + 0.025, 0.46);
+    const midSpan = Math.max(1.0, midZFront - midZRear);
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (midHw + 0.008), midDeckY, (midZRear + midZFront) * 0.5, 0.055, 0.22, midSpan + 0.04, {
+        materialRole: 'primary',
+        layer: 'body'
+      });
+      batcher.addBox(side * (midHw + 0.024), midDeckY, (midZRear + midZFront) * 0.5, 0.024, 0.1, midSpan + 0.02, {
+        materialRole: 'secondary',
+        layer: 'detail'
+      });
+    }
+    batcher.addBox(0, midDeckY, midZFront, midHw * 2 + 0.01, 0.22, 0.065, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+    batcher.addBox(0, midDeckY, midZRear, midHw * 2 + 0.01, 0.22, 0.065, {
       materialRole: 'primary',
       layer: 'body'
     });
@@ -674,6 +984,23 @@ export function buildVehicleBody(batcher, layout, cfg) {
     buildLoftedHullSpan(batcher, s.cabin.startZ, s.hood.endZ, layout, cfg, 'primary', {
       extraZs: [s.hood.startZ]
     });
+  } else if (cfg.bodyFamily === 'dump_truck') {
+    buildDumpBed(batcher, layout, cfg);
+    buildLoftedHullSpan(batcher, s.cabin.startZ, s.hood.endZ, layout, cfg, 'primary', {
+      extraZs: [s.hood.startZ, s.hood.startZ + s.hood.length * 0.5]
+    });
+  } else if (cfg.bodyFamily === 'cement_mixer') {
+    buildCementMixerDrum(batcher, layout, cfg);
+    buildLoftedHullSpan(batcher, s.cabin.startZ, s.hood.endZ, layout, cfg, 'primary', {
+      extraZs: [s.hood.startZ, s.hood.startZ + s.hood.length * 0.5]
+    });
+  } else if (cfg.bodyFamily === 'flatbed_truck') {
+    buildFlatbedDeck(batcher, layout, cfg);
+    buildLoftedHullSpan(batcher, s.cabin.startZ, s.hood.endZ, layout, cfg, 'primary', {
+      extraZs: [s.hood.startZ, s.hood.startZ + s.hood.length * 0.5]
+    });
+  } else if (cfg.bodyFamily === 'wheel_loader') {
+    buildWheelLoaderBody(batcher, layout, cfg);
   } else if (cfg.bodyFamily === 'articulated_bus') {
     buildLoftedHullSpan(batcher, s.rear.startZ, s.rear.endZ, layout, cfg, 'primary', {
       extraZs: [s.rear.startZ + 0.45]

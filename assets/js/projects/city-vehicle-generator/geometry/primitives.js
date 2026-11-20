@@ -284,7 +284,7 @@ export class VehicleBatcher {
     this.partCount++;
   }
 
-  addCylinder(cx, cy, cz, rTop, rBottom, h, sides = 12, axis = 'y', materialRole = 'tire', layer = 'wheel', rotY = 0) {
+  addCylinder(cx, cy, cz, rTop, rBottom, h, sides = 12, axis = 'y', materialRole = 'tire', layer = 'wheel', rotY = 0, rotX = 0) {
     if (h <= 0.002 || (rTop <= 0.001 && rBottom <= 0.001)) return;
     const halfH = h * 0.5;
     const ringTop = [];
@@ -303,8 +303,8 @@ export class VehicleBatcher {
         oy = -lz;
         oz = ly;
       }
-      if (rotY) {
-        const [rx, ry, rz] = rotatePointXYZ(ox, oy, oz, 0, rotY, 0);
+      if (rotY || rotX) {
+        const [rx, ry, rz] = rotatePointXYZ(ox, oy, oz, rotX, rotY, 0);
         return [cx + rx, cy + ry, cz + rz];
       }
       return [cx + ox, cy + oy, cz + oz];

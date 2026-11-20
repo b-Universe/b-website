@@ -91,7 +91,19 @@ const ARCHETYPES = [
   { id: 'tow_truck', label: 'City Tow Wrecker', icon: 'fa-truck-monster', preset: 'tow_truck', bodyFamily: 'pickup_cab_bed' },
   { id: 'garbage_truck', label: 'Sanitation Truck', icon: 'fa-recycle', preset: 'garbage_truck', bodyFamily: 'cab_over_box' },
   { id: 'articulated_bus', label: 'Articulated Bus', icon: 'fa-bus', preset: 'articulated_bus', bodyFamily: 'articulated_bus' },
-  { id: 'semi_truck', label: 'Semi Tractor-Trailer', icon: 'fa-trailer', preset: 'semi_truck', bodyFamily: 'semi_trailer' }
+  { id: 'semi_truck', label: 'Semi Tractor-Trailer', icon: 'fa-trailer', preset: 'semi_truck', bodyFamily: 'semi_trailer' },
+  { id: 'mail_truck', label: 'Postal Mail Truck', icon: 'fa-envelope', preset: 'mail_truck', bodyFamily: 'van_monobox' },
+  { id: 'micro_city_car', label: 'Micro City Car', icon: 'fa-car-side', preset: 'micro_city_car', bodyFamily: 'two_box' },
+  { id: 'ice_cream_van', label: 'Ice Cream Truck', icon: 'fa-ice-cream', preset: 'ice_cream_van', bodyFamily: 'van_monobox' },
+  { id: 'dump_truck', label: 'Heavy Dump Truck', icon: 'fa-truck-loading', preset: 'dump_truck', bodyFamily: 'dump_truck' },
+  { id: 'cement_mixer', label: 'Concrete Mixer Truck', icon: 'fa-truck', preset: 'cement_mixer', bodyFamily: 'cement_mixer' },
+  { id: 'wheel_loader', label: 'Wheel Loader', icon: 'fa-snowplow', preset: 'wheel_loader', bodyFamily: 'wheel_loader' },
+  { id: 'flatbed_crane', label: 'Flatbed Crane Truck', icon: 'fa-dolly-flatbed', preset: 'flatbed_crane', bodyFamily: 'flatbed_truck' },
+  { id: 'fire_engine', label: 'Fire Ladder Engine', icon: 'fa-fire-extinguisher', preset: 'fire_engine', bodyFamily: 'cab_over_box' },
+  { id: 'street_sweeper', label: 'Street Sweeper', icon: 'fa-broom', preset: 'street_sweeper', bodyFamily: 'van_monobox' },
+  { id: 'double_decker_bus', label: 'Double-Decker Bus', icon: 'fa-bus', preset: 'double_decker_bus', bodyFamily: 'double_decker' },
+  { id: 'armored_truck', label: 'Armored Bank Truck', icon: 'fa-shield-alt', preset: 'armored_truck', bodyFamily: 'van_monobox' },
+  { id: 'school_bus', label: 'City School Bus', icon: 'fa-bus-alt', preset: 'school_bus', bodyFamily: 'transit_bus' }
 ];
 
 const SILHOUETTE_PROFILES = {
@@ -105,7 +117,12 @@ const SILHOUETTE_PROFILES = {
   rounded_transit_bus: { label: 'Transit Bus', boxiness: 0.86, taper: 0.04, curvature: 0.16 },
   rigid_utility_truck: { label: 'Rigid Utility Truck', boxiness: 0.9, taper: 0.04, curvature: 0.15 },
   retro_futuristic_car: { label: 'Retro-Futuristic Car', boxiness: 0.52, taper: 0.22, curvature: 0.44 },
-  service_pickup: { label: 'Service Pickup', boxiness: 0.8, taper: 0.08, curvature: 0.22 }
+  service_pickup: { label: 'Service Pickup', boxiness: 0.8, taper: 0.08, curvature: 0.22 },
+  micro_bubble: { label: 'Micro City Car', boxiness: 0.48, taper: 0.16, curvature: 0.42 },
+  postal_step_van: { label: 'Postal Step Van', boxiness: 0.94, taper: 0.03, curvature: 0.12 },
+  heavy_construction: { label: 'Heavy Construction Rig', boxiness: 0.92, taper: 0.04, curvature: 0.14 },
+  double_decker_transit: { label: 'Double-Decker Transit', boxiness: 0.9, taper: 0.03, curvature: 0.14 },
+  armored_courier: { label: 'Armored Courier', boxiness: 0.95, taper: 0.05, curvature: 0.12 }
 };
 
 const PRESET_DEFINITIONS = {
@@ -2396,6 +2413,1206 @@ const PRESET_DEFINITIONS = {
     busRouteSign: false,
     interiorDetail: true,
     signText: 'Paragon Freight'
+  },
+
+  mail_truck: {
+    label: 'Postal Mail Truck',
+    style: 'mail_truck',
+    seed: 1907,
+    bodyFamily: 'van_monobox',
+    silhouetteFamily: 'postal_step_van',
+    overallLength: 4.18,
+    overallWidth: 1.82,
+    overallHeight: 2.16,
+    wheelbase: 2.58,
+    frontOverhang: 0.72,
+    rearOverhang: 0.88,
+    groundClearance: 0.21,
+    hoodLength: 0.88,
+    cabinLength: 3.3,
+    cargoLength: 1.92,
+    roofHeight: 0.96,
+    cabCargoSeparation: 0,
+    rooflineStyle: 'flat',
+    hoodSlope: 0.32,
+    windshieldAngle: 14,
+    rearWindowAngle: 6,
+    trunkLength: 0.14,
+    bodyTaper: 0.03,
+    cabinCurvature: 0.14,
+    fenderFlare: 0.05,
+    wheelArchSize: 0.09,
+    bodyBoxiness: 0.94,
+    frontFaceWidth: 0.94,
+    bodySideInset: 0.03,
+    roofRounding: 0.08,
+    cornerChamfer: 0.07,
+    wedgeProfile: 0.02,
+    doorLayout: 'van_sliding',
+    slidingDoor: true,
+    busDoorPlacement: 'none',
+    rearCargoDoor: 'rollup_shutter',
+    windshieldScale: 0.94,
+    sideWindowSegmentation: 2,
+    rearWindowScale: 0.42,
+    busWindowBays: 3,
+    vanPartialWindows: false,
+    windowTint: 0.25,
+    framelessWindows: false,
+    wraparoundGlass: false,
+    axleCount: 2,
+    dualRearWheels: false,
+    wheelRadius: 0.32,
+    wheelThickness: 0.2,
+    trackWidth: 1.56,
+    rimInset: 0.05,
+    hubcapStyle: 'solid_steel',
+    spokeCount: 5,
+    wheelArchHeight: 0.44,
+    frontAxleOffset: 0,
+    rearAxleOffset: 0,
+    bumperStyle: 'stepped_utility',
+    headlightStyle: 'round_classic',
+    taillightStyle: 'vertical_stack',
+    grilleStyle: 'slatted',
+    mirrorStyle: 'truck_tow',
+    doorHandleStyle: 'bar',
+    sideTrim: 'lower_cladding',
+    mudguards: true,
+    sideSteps: true,
+    exhaustStyle: 'single',
+    licensePlates: true,
+    antennaCount: 1,
+    paletteFamily: 'postal_municipal',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#eef2f6',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#28568f',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#232830',
+    bumperMaterial: 'plastic_trim',
+    bumperColor: '#252b33',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#b5bec7',
+    tireMaterial: 'dark_rubber',
+    tireColor: '#1a1d21',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#283c4e',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#8d96a0',
+    liveryStripeColor: '#c93c34',
+    colorVariation: 0.08,
+    wearLevel: 'slightly_used',
+    roleVariant: 'postal',
+    taxiSign: false,
+    lightBar: 'amber_work_bar',
+    roofRack: 'none',
+    frontAttachment: 'none',
+    rearAttachment: 'cargo_step',
+    sideUtility: 'postal_stripe',
+    busRouteSign: false,
+    interiorDetail: true,
+    signText: 'B City Post'
+  },
+
+  micro_city_car: {
+    label: 'Micro City Car',
+    style: 'micro_city_car',
+    seed: 1923,
+    bodyFamily: 'two_box',
+    silhouetteFamily: 'micro_bubble',
+    overallLength: 2.78,
+    overallWidth: 1.56,
+    overallHeight: 1.52,
+    wheelbase: 1.88,
+    frontOverhang: 0.45,
+    rearOverhang: 0.45,
+    groundClearance: 0.15,
+    hoodLength: 0.56,
+    cabinLength: 1.66,
+    cargoLength: 0.56,
+    roofHeight: 0.62,
+    cabCargoSeparation: 0,
+    rooflineStyle: 'domed',
+    hoodSlope: 0.34,
+    windshieldAngle: 28,
+    rearWindowAngle: 18,
+    trunkLength: 0.24,
+    bodyTaper: 0.14,
+    cabinCurvature: 0.42,
+    fenderFlare: 0.04,
+    wheelArchSize: 0.075,
+    bodyBoxiness: 0.48,
+    frontFaceWidth: 0.88,
+    bodySideInset: 0.05,
+    roofRounding: 0.2,
+    cornerChamfer: 0.14,
+    wedgeProfile: 0.08,
+    doorLayout: '2_door',
+    slidingDoor: false,
+    busDoorPlacement: 'none',
+    rearCargoDoor: 'liftgate',
+    windshieldScale: 0.94,
+    sideWindowSegmentation: 2,
+    rearWindowScale: 0.86,
+    busWindowBays: 2,
+    vanPartialWindows: false,
+    windowTint: 0.28,
+    framelessWindows: false,
+    wraparoundGlass: true,
+    axleCount: 2,
+    dualRearWheels: false,
+    wheelRadius: 0.26,
+    wheelThickness: 0.17,
+    trackWidth: 1.38,
+    rimInset: 0.045,
+    hubcapStyle: 'aero_disc',
+    spokeCount: 4,
+    wheelArchHeight: 0.36,
+    frontAxleOffset: 0,
+    rearAxleOffset: 0,
+    bumperStyle: 'integrated',
+    headlightStyle: 'round_classic',
+    taillightStyle: 'round_dual',
+    grilleStyle: 'minimal_ev',
+    mirrorStyle: 'compact',
+    doorHandleStyle: 'flush',
+    sideTrim: 'lower_cladding',
+    mudguards: false,
+    sideSteps: false,
+    exhaustStyle: 'hidden',
+    licensePlates: true,
+    antennaCount: 1,
+    paletteFamily: 'bright_city',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#3da69a',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#e4eaf0',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#232931',
+    bumperMaterial: 'painted_metal',
+    bumperColor: '#369288',
+    wheelRimMaterial: 'chrome_metal',
+    wheelRimColor: '#cfd6de',
+    tireMaterial: 'dark_rubber',
+    tireColor: '#1b1e22',
+    glassMaterial: 'reflective_glass',
+    glassColor: '#2f526e',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#98a2ac',
+    liveryStripeColor: '#e8a233',
+    colorVariation: 0.08,
+    wearLevel: 'clean',
+    roleVariant: 'civilian',
+    taxiSign: false,
+    lightBar: 'none',
+    roofRack: 'none',
+    frontAttachment: 'none',
+    rearAttachment: 'none',
+    sideUtility: 'livery_stripe',
+    busRouteSign: false,
+    interiorDetail: true,
+    signText: 'Pocket Evo'
+  },
+
+  ice_cream_van: {
+    label: 'Ice Cream Truck',
+    style: 'ice_cream_van',
+    seed: 1941,
+    bodyFamily: 'van_monobox',
+    silhouetteFamily: 'tall_van',
+    overallLength: 5.15,
+    overallWidth: 2.02,
+    overallHeight: 2.48,
+    wheelbase: 3.12,
+    frontOverhang: 0.92,
+    rearOverhang: 1.11,
+    groundClearance: 0.22,
+    hoodLength: 0.72,
+    cabinLength: 4.43,
+    cargoLength: 2.85,
+    roofHeight: 1.18,
+    cabCargoSeparation: 0,
+    rooflineStyle: 'stepped_van',
+    hoodSlope: 0.36,
+    windshieldAngle: 20,
+    rearWindowAngle: 8,
+    trunkLength: 0.15,
+    bodyTaper: 0.05,
+    cabinCurvature: 0.2,
+    fenderFlare: 0.05,
+    wheelArchSize: 0.1,
+    bodyBoxiness: 0.84,
+    frontFaceWidth: 0.92,
+    bodySideInset: 0.04,
+    roofRounding: 0.14,
+    cornerChamfer: 0.1,
+    wedgeProfile: 0.02,
+    doorLayout: 'van_sliding',
+    slidingDoor: false,
+    busDoorPlacement: 'none',
+    rearCargoDoor: 'double_barn',
+    windshieldScale: 0.94,
+    sideWindowSegmentation: 2,
+    rearWindowScale: 0.56,
+    busWindowBays: 3,
+    vanPartialWindows: true,
+    windowTint: 0.26,
+    framelessWindows: false,
+    wraparoundGlass: true,
+    axleCount: 2,
+    dualRearWheels: false,
+    wheelRadius: 0.35,
+    wheelThickness: 0.22,
+    trackWidth: 1.76,
+    rimInset: 0.055,
+    hubcapStyle: 'classic_dish',
+    spokeCount: 5,
+    wheelArchHeight: 0.44,
+    frontAxleOffset: 0,
+    rearAxleOffset: 0,
+    bumperStyle: 'chrome_classic',
+    headlightStyle: 'round_classic',
+    taillightStyle: 'round_dual',
+    grilleStyle: 'slatted',
+    mirrorStyle: 'standard',
+    doorHandleStyle: 'bar',
+    sideTrim: 'chrome_band',
+    mudguards: true,
+    sideSteps: true,
+    exhaustStyle: 'single',
+    licensePlates: true,
+    antennaCount: 1,
+    paletteFamily: 'postal_municipal',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#f5ece0',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#e87a90',
+    trimMaterial: 'chrome_metal',
+    trimColor: '#c3ccd4',
+    bumperMaterial: 'chrome_metal',
+    bumperColor: '#cbd4dc',
+    wheelRimMaterial: 'chrome_metal',
+    wheelRimColor: '#cfd8e0',
+    tireMaterial: 'dark_rubber',
+    tireColor: '#1b1e22',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#294256',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#c8d1da',
+    liveryStripeColor: '#6ec5d8',
+    colorVariation: 0.08,
+    wearLevel: 'clean',
+    roleVariant: 'food_vendor',
+    taxiSign: false,
+    lightBar: 'none',
+    roofRack: 'ice_cream_cone',
+    frontAttachment: 'none',
+    rearAttachment: 'cargo_step',
+    sideUtility: 'serving_window',
+    busRouteSign: false,
+    interiorDetail: true,
+    signText: 'Sweet Scoops'
+  },
+
+  dump_truck: {
+    label: 'Heavy Dump Truck',
+    style: 'dump_truck',
+    seed: 1963,
+    bodyFamily: 'dump_truck',
+    silhouetteFamily: 'heavy_construction',
+    overallLength: 7.35,
+    overallWidth: 2.42,
+    overallHeight: 2.86,
+    wheelbase: 4.35,
+    frontOverhang: 1.25,
+    rearOverhang: 1.75,
+    groundClearance: 0.36,
+    hoodLength: 1.28,
+    cabinLength: 1.78,
+    cargoLength: 4.15,
+    roofHeight: 1.12,
+    cabCargoSeparation: 0.14,
+    rooflineStyle: 'flat',
+    hoodSlope: 0.18,
+    windshieldAngle: 20,
+    rearWindowAngle: 8,
+    trunkLength: 0.2,
+    bodyTaper: 0.04,
+    cabinCurvature: 0.18,
+    fenderFlare: 0.08,
+    wheelArchSize: 0.14,
+    bodyBoxiness: 0.92,
+    frontFaceWidth: 0.95,
+    bodySideInset: 0.04,
+    roofRounding: 0.07,
+    cornerChamfer: 0.08,
+    wedgeProfile: 0,
+    doorLayout: 'truck_cab',
+    slidingDoor: false,
+    busDoorPlacement: 'none',
+    rearCargoDoor: 'tailgate',
+    windshieldScale: 0.92,
+    sideWindowSegmentation: 1,
+    rearWindowScale: 0.36,
+    busWindowBays: 2,
+    vanPartialWindows: false,
+    windowTint: 0.26,
+    framelessWindows: false,
+    wraparoundGlass: false,
+    axleCount: 3,
+    dualRearWheels: true,
+    wheelRadius: 0.48,
+    wheelThickness: 0.29,
+    trackWidth: 2.04,
+    rimInset: 0.08,
+    hubcapStyle: 'heavy_lug',
+    spokeCount: 8,
+    wheelArchHeight: 0.68,
+    frontAxleOffset: 0,
+    rearAxleOffset: 0,
+    bumperStyle: 'heavy_duty',
+    headlightStyle: 'twin_quad',
+    taillightStyle: 'vertical_stack',
+    grilleStyle: 'heavy_horizontal',
+    mirrorStyle: 'truck_tow',
+    doorHandleStyle: 'bar',
+    sideTrim: 'lower_cladding',
+    mudguards: true,
+    sideSteps: true,
+    exhaustStyle: 'vertical_stack',
+    licensePlates: true,
+    antennaCount: 1,
+    paletteFamily: 'construction_yellow',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#e5a922',
+    bodySecondaryMaterial: 'utility_metal',
+    bodySecondaryColor: '#555f6b',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#232830',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#373e47',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#9da7b1',
+    tireMaterial: 'dark_rubber',
+    tireColor: '#171a1e',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#223446',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#6f7984',
+    liveryStripeColor: '#1e2228',
+    colorVariation: 0.16,
+    wearLevel: 'worn',
+    roleVariant: 'construction',
+    taxiSign: false,
+    lightBar: 'amber_work_bar',
+    roofRack: 'none',
+    frontAttachment: 'bull_bar',
+    rearAttachment: 'gravel_load',
+    sideUtility: 'hazard_stripes',
+    busRouteSign: false,
+    interiorDetail: true,
+    signText: 'B Quarry Dump'
+  },
+
+  cement_mixer: {
+    label: 'Concrete Mixer Truck',
+    style: 'cement_mixer',
+    seed: 1989,
+    bodyFamily: 'cement_mixer',
+    silhouetteFamily: 'heavy_construction',
+    overallLength: 7.85,
+    overallWidth: 2.44,
+    overallHeight: 3.15,
+    wheelbase: 4.65,
+    frontOverhang: 1.25,
+    rearOverhang: 1.95,
+    groundClearance: 0.36,
+    hoodLength: 1.25,
+    cabinLength: 1.75,
+    cargoLength: 4.68,
+    roofHeight: 1.18,
+    cabCargoSeparation: 0.16,
+    rooflineStyle: 'flat',
+    hoodSlope: 0.2,
+    windshieldAngle: 20,
+    rearWindowAngle: 8,
+    trunkLength: 0.2,
+    bodyTaper: 0.04,
+    cabinCurvature: 0.18,
+    fenderFlare: 0.08,
+    wheelArchSize: 0.14,
+    bodyBoxiness: 0.9,
+    frontFaceWidth: 0.95,
+    bodySideInset: 0.04,
+    roofRounding: 0.07,
+    cornerChamfer: 0.08,
+    wedgeProfile: 0,
+    doorLayout: 'truck_cab',
+    slidingDoor: false,
+    busDoorPlacement: 'none',
+    rearCargoDoor: 'none',
+    windshieldScale: 0.92,
+    sideWindowSegmentation: 1,
+    rearWindowScale: 0.36,
+    busWindowBays: 2,
+    vanPartialWindows: false,
+    windowTint: 0.26,
+    framelessWindows: false,
+    wraparoundGlass: false,
+    axleCount: 3,
+    dualRearWheels: true,
+    wheelRadius: 0.48,
+    wheelThickness: 0.29,
+    trackWidth: 2.06,
+    rimInset: 0.08,
+    hubcapStyle: 'heavy_lug',
+    spokeCount: 8,
+    wheelArchHeight: 0.68,
+    frontAxleOffset: 0,
+    rearAxleOffset: 0,
+    bumperStyle: 'heavy_duty',
+    headlightStyle: 'twin_quad',
+    taillightStyle: 'vertical_stack',
+    grilleStyle: 'heavy_horizontal',
+    mirrorStyle: 'truck_tow',
+    doorHandleStyle: 'bar',
+    sideTrim: 'lower_cladding',
+    mudguards: true,
+    sideSteps: true,
+    exhaustStyle: 'vertical_stack',
+    licensePlates: true,
+    antennaCount: 1,
+    paletteFamily: 'construction_yellow',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#e5a922',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#dce2e8',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#232830',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#373e47',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#a6b0ba',
+    tireMaterial: 'dark_rubber',
+    tireColor: '#171a1e',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#223446',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#69727b',
+    liveryStripeColor: '#d95326',
+    colorVariation: 0.14,
+    wearLevel: 'worn',
+    roleVariant: 'construction',
+    taxiSign: false,
+    lightBar: 'amber_work_bar',
+    roofRack: 'none',
+    frontAttachment: 'bumper_guards',
+    rearAttachment: 'mixer_chute',
+    sideUtility: 'hazard_stripes',
+    busRouteSign: false,
+    interiorDetail: true,
+    signText: 'Ready Mix 04'
+  },
+
+  wheel_loader: {
+    label: 'Construction Wheel Loader',
+    style: 'wheel_loader',
+    seed: 2011,
+    bodyFamily: 'wheel_loader',
+    silhouetteFamily: 'heavy_construction',
+    overallLength: 5.55,
+    overallWidth: 2.32,
+    overallHeight: 2.86,
+    wheelbase: 3.1,
+    frontOverhang: 1.25,
+    rearOverhang: 1.2,
+    groundClearance: 0.44,
+    hoodLength: 1.55,
+    cabinLength: 1.85,
+    cargoLength: 2.15,
+    roofHeight: 1.48,
+    cabCargoSeparation: 0,
+    rooflineStyle: 'flat',
+    hoodSlope: 0.44,
+    windshieldAngle: 10,
+    rearWindowAngle: 10,
+    trunkLength: 0.15,
+    bodyTaper: 0.06,
+    cabinCurvature: 0.2,
+    fenderFlare: 0.12,
+    wheelArchSize: 0.16,
+    bodyBoxiness: 0.92,
+    frontFaceWidth: 0.84,
+    bodySideInset: 0.05,
+    roofRounding: 0.06,
+    cornerChamfer: 0.08,
+    wedgeProfile: 0,
+    doorLayout: 'truck_cab',
+    slidingDoor: false,
+    busDoorPlacement: 'none',
+    rearCargoDoor: 'none',
+    windshieldScale: 0.94,
+    sideWindowSegmentation: 1,
+    rearWindowScale: 0.86,
+    busWindowBays: 2,
+    vanPartialWindows: false,
+    windowTint: 0.22,
+    framelessWindows: false,
+    wraparoundGlass: true,
+    axleCount: 2,
+    dualRearWheels: false,
+    wheelRadius: 0.54,
+    wheelThickness: 0.34,
+    trackWidth: 1.98,
+    rimInset: 0.09,
+    hubcapStyle: 'heavy_lug',
+    spokeCount: 8,
+    wheelArchHeight: 0.72,
+    frontAxleOffset: 0,
+    rearAxleOffset: 0,
+    bumperStyle: 'heavy_duty',
+    headlightStyle: 'round_classic',
+    taillightStyle: 'vertical_stack',
+    grilleStyle: 'heavy_horizontal',
+    mirrorStyle: 'standard',
+    doorHandleStyle: 'bar',
+    sideTrim: 'none',
+    mudguards: true,
+    sideSteps: true,
+    exhaustStyle: 'vertical_stack',
+    licensePlates: false,
+    antennaCount: 1,
+    paletteFamily: 'construction_yellow',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#e5a922',
+    bodySecondaryMaterial: 'utility_metal',
+    bodySecondaryColor: '#2b3138',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#21262c',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#2c323a',
+    wheelRimMaterial: 'painted_metal',
+    wheelRimColor: '#d99a1c',
+    tireMaterial: 'dark_rubber',
+    tireColor: '#16181c',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#263a4d',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#48505a',
+    liveryStripeColor: '#1e2228',
+    colorVariation: 0.16,
+    wearLevel: 'worn',
+    roleVariant: 'construction',
+    taxiSign: false,
+    lightBar: 'amber_work_bar',
+    roofRack: 'none',
+    frontAttachment: 'loader_bucket',
+    rearAttachment: 'none',
+    sideUtility: 'hazard_stripes',
+    busRouteSign: false,
+    interiorDetail: true,
+    signText: 'B Loader 90'
+  },
+
+  flatbed_crane: {
+    label: 'Flatbed Crane Truck',
+    style: 'flatbed_crane',
+    seed: 2033,
+    bodyFamily: 'flatbed_truck',
+    silhouetteFamily: 'heavy_construction',
+    overallLength: 7.75,
+    overallWidth: 2.38,
+    overallHeight: 2.74,
+    wheelbase: 4.55,
+    frontOverhang: 1.25,
+    rearOverhang: 1.95,
+    groundClearance: 0.34,
+    hoodLength: 1.22,
+    cabinLength: 1.82,
+    cargoLength: 4.52,
+    roofHeight: 1.12,
+    cabCargoSeparation: 0.16,
+    rooflineStyle: 'flat',
+    hoodSlope: 0.22,
+    windshieldAngle: 20,
+    rearWindowAngle: 8,
+    trunkLength: 0.2,
+    bodyTaper: 0.04,
+    cabinCurvature: 0.18,
+    fenderFlare: 0.07,
+    wheelArchSize: 0.13,
+    bodyBoxiness: 0.9,
+    frontFaceWidth: 0.95,
+    bodySideInset: 0.04,
+    roofRounding: 0.08,
+    cornerChamfer: 0.08,
+    wedgeProfile: 0,
+    doorLayout: 'truck_cab',
+    slidingDoor: false,
+    busDoorPlacement: 'none',
+    rearCargoDoor: 'none',
+    windshieldScale: 0.92,
+    sideWindowSegmentation: 1,
+    rearWindowScale: 0.36,
+    busWindowBays: 2,
+    vanPartialWindows: false,
+    windowTint: 0.26,
+    framelessWindows: false,
+    wraparoundGlass: false,
+    axleCount: 3,
+    dualRearWheels: true,
+    wheelRadius: 0.46,
+    wheelThickness: 0.28,
+    trackWidth: 2.02,
+    rimInset: 0.075,
+    hubcapStyle: 'heavy_lug',
+    spokeCount: 8,
+    wheelArchHeight: 0.66,
+    frontAxleOffset: 0,
+    rearAxleOffset: 0,
+    bumperStyle: 'heavy_duty',
+    headlightStyle: 'twin_quad',
+    taillightStyle: 'vertical_stack',
+    grilleStyle: 'heavy_horizontal',
+    mirrorStyle: 'truck_tow',
+    doorHandleStyle: 'bar',
+    sideTrim: 'lower_cladding',
+    mudguards: true,
+    sideSteps: true,
+    exhaustStyle: 'vertical_stack',
+    licensePlates: true,
+    antennaCount: 1,
+    paletteFamily: 'service_utility',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#d9842b',
+    bodySecondaryMaterial: 'utility_metal',
+    bodySecondaryColor: '#47525e',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#232830',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#373e47',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#aeb8c2',
+    tireMaterial: 'dark_rubber',
+    tireColor: '#181b1f',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#223446',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#6d7782',
+    liveryStripeColor: '#e6edf5',
+    colorVariation: 0.14,
+    wearLevel: 'worn',
+    roleVariant: 'construction',
+    taxiSign: false,
+    lightBar: 'amber_work_bar',
+    roofRack: 'none',
+    frontAttachment: 'winch_bumper',
+    rearAttachment: 'knuckle_crane',
+    sideUtility: 'hazard_stripes',
+    busRouteSign: false,
+    interiorDetail: true,
+    signText: 'Ironworks Rig'
+  },
+
+  fire_engine: {
+    label: 'Fire Ladder Engine',
+    style: 'fire_engine',
+    seed: 2059,
+    bodyFamily: 'cab_over_box',
+    silhouetteFamily: 'rigid_utility_truck',
+    overallLength: 8.65,
+    overallWidth: 2.44,
+    overallHeight: 2.92,
+    wheelbase: 5.15,
+    frontOverhang: 1.45,
+    rearOverhang: 2.05,
+    groundClearance: 0.34,
+    hoodLength: 0.48,
+    cabinLength: 2.38,
+    cargoLength: 5.55,
+    roofHeight: 1.24,
+    cabCargoSeparation: 0.12,
+    rooflineStyle: 'flat',
+    hoodSlope: 0.42,
+    windshieldAngle: 12,
+    rearWindowAngle: 6,
+    trunkLength: 0.18,
+    bodyTaper: 0.03,
+    cabinCurvature: 0.14,
+    fenderFlare: 0.07,
+    wheelArchSize: 0.13,
+    bodyBoxiness: 0.94,
+    frontFaceWidth: 0.97,
+    bodySideInset: 0.03,
+    roofRounding: 0.07,
+    cornerChamfer: 0.08,
+    wedgeProfile: 0,
+    doorLayout: '4_door',
+    slidingDoor: false,
+    busDoorPlacement: 'none',
+    rearCargoDoor: 'rollup_shutter',
+    windshieldScale: 0.95,
+    sideWindowSegmentation: 2,
+    rearWindowScale: 0.38,
+    busWindowBays: 3,
+    vanPartialWindows: false,
+    windowTint: 0.22,
+    framelessWindows: false,
+    wraparoundGlass: true,
+    axleCount: 3,
+    dualRearWheels: true,
+    wheelRadius: 0.46,
+    wheelThickness: 0.28,
+    trackWidth: 2.08,
+    rimInset: 0.075,
+    hubcapStyle: 'heavy_lug',
+    spokeCount: 8,
+    wheelArchHeight: 0.66,
+    frontAxleOffset: 0,
+    rearAxleOffset: 0,
+    bumperStyle: 'chrome_classic',
+    headlightStyle: 'twin_quad',
+    taillightStyle: 'vertical_stack',
+    grilleStyle: 'heavy_horizontal',
+    mirrorStyle: 'truck_tow',
+    doorHandleStyle: 'bar',
+    sideTrim: 'chrome_band',
+    mudguards: true,
+    sideSteps: true,
+    exhaustStyle: 'vertical_stack',
+    licensePlates: true,
+    antennaCount: 2,
+    paletteFamily: 'emergency_palette',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#c82e28',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#dce2e8',
+    trimMaterial: 'chrome_metal',
+    trimColor: '#c8d1da',
+    bumperMaterial: 'chrome_metal',
+    bumperColor: '#cfd8e0',
+    wheelRimMaterial: 'chrome_metal',
+    wheelRimColor: '#cfd8e0',
+    tireMaterial: 'dark_rubber',
+    tireColor: '#181b1f',
+    glassMaterial: 'reflective_glass',
+    glassColor: '#2c4860',
+    utilityMaterial: 'chrome_metal',
+    utilityColor: '#c2cbd4',
+    liveryStripeColor: '#f2f5f8',
+    colorVariation: 0.08,
+    wearLevel: 'clean',
+    roleVariant: 'fire',
+    taxiSign: false,
+    lightBar: 'ambulance_bar',
+    roofRack: 'fire_ladder',
+    frontAttachment: 'bumper_guards',
+    rearAttachment: 'rear_ladder',
+    sideUtility: 'fire_pump_panel',
+    busRouteSign: false,
+    interiorDetail: true,
+    signText: 'Engine 07'
+  },
+
+  street_sweeper: {
+    label: 'Street Sweeper',
+    style: 'street_sweeper',
+    seed: 2081,
+    bodyFamily: 'van_monobox',
+    silhouetteFamily: 'rigid_utility_truck',
+    overallLength: 4.95,
+    overallWidth: 2.02,
+    overallHeight: 2.42,
+    wheelbase: 2.95,
+    frontOverhang: 0.95,
+    rearOverhang: 1.05,
+    groundClearance: 0.26,
+    hoodLength: 0.38,
+    cabinLength: 4.57,
+    cargoLength: 2.95,
+    roofHeight: 1.15,
+    cabCargoSeparation: 0,
+    rooflineStyle: 'stepped_van',
+    hoodSlope: 0.48,
+    windshieldAngle: 10,
+    rearWindowAngle: 6,
+    trunkLength: 0.14,
+    bodyTaper: 0.04,
+    cabinCurvature: 0.15,
+    fenderFlare: 0.06,
+    wheelArchSize: 0.11,
+    bodyBoxiness: 0.9,
+    frontFaceWidth: 0.94,
+    bodySideInset: 0.04,
+    roofRounding: 0.09,
+    cornerChamfer: 0.08,
+    wedgeProfile: 0,
+    doorLayout: 'truck_cab',
+    slidingDoor: false,
+    busDoorPlacement: 'none',
+    rearCargoDoor: 'double_barn',
+    windshieldScale: 0.96,
+    sideWindowSegmentation: 2,
+    rearWindowScale: 0.38,
+    busWindowBays: 3,
+    vanPartialWindows: false,
+    windowTint: 0.22,
+    framelessWindows: false,
+    wraparoundGlass: true,
+    axleCount: 2,
+    dualRearWheels: true,
+    wheelRadius: 0.36,
+    wheelThickness: 0.24,
+    trackWidth: 1.74,
+    rimInset: 0.06,
+    hubcapStyle: 'heavy_lug',
+    spokeCount: 6,
+    wheelArchHeight: 0.48,
+    frontAxleOffset: 0,
+    rearAxleOffset: 0,
+    bumperStyle: 'stepped_utility',
+    headlightStyle: 'rectangular',
+    taillightStyle: 'vertical_stack',
+    grilleStyle: 'mesh',
+    mirrorStyle: 'truck_tow',
+    doorHandleStyle: 'bar',
+    sideTrim: 'lower_cladding',
+    mudguards: true,
+    sideSteps: true,
+    exhaustStyle: 'vertical_stack',
+    licensePlates: true,
+    antennaCount: 1,
+    paletteFamily: 'service_utility',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#e8edf2',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#df7a26',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#232830',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#3b434d',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#a6b0ba',
+    tireMaterial: 'dark_rubber',
+    tireColor: '#191c20',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#263a4c',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#8d96a0',
+    liveryStripeColor: '#df7a26',
+    colorVariation: 0.12,
+    wearLevel: 'municipal_worn',
+    roleVariant: 'service',
+    taxiSign: false,
+    lightBar: 'amber_work_bar',
+    roofRack: 'none',
+    frontAttachment: 'sweeper_brushes',
+    rearAttachment: 'cargo_step',
+    sideUtility: 'hazard_stripes',
+    busRouteSign: false,
+    interiorDetail: true,
+    signText: 'Street Clean'
+  },
+
+  double_decker_bus: {
+    label: 'Double-Decker Bus',
+    style: 'double_decker_bus',
+    seed: 2107,
+    bodyFamily: 'double_decker',
+    silhouetteFamily: 'double_decker_transit',
+    overallLength: 10.8,
+    overallWidth: 2.48,
+    overallHeight: 3.92,
+    wheelbase: 6.1,
+    frontOverhang: 2.1,
+    rearOverhang: 2.6,
+    groundClearance: 0.25,
+    hoodLength: 0.28,
+    cabinLength: 10.12,
+    cargoLength: 0.4,
+    roofHeight: 2.68,
+    cabCargoSeparation: 0,
+    rooflineStyle: 'raised_transit',
+    hoodSlope: 0.35,
+    windshieldAngle: 8,
+    rearWindowAngle: 6,
+    trunkLength: 0.16,
+    bodyTaper: 0.03,
+    cabinCurvature: 0.14,
+    fenderFlare: 0.04,
+    wheelArchSize: 0.11,
+    bodyBoxiness: 0.9,
+    frontFaceWidth: 0.97,
+    bodySideInset: 0.03,
+    roofRounding: 0.11,
+    cornerChamfer: 0.09,
+    wedgeProfile: 0,
+    doorLayout: 'transit_bus',
+    slidingDoor: false,
+    busDoorPlacement: 'front_and_mid',
+    rearCargoDoor: 'none',
+    windshieldScale: 0.98,
+    sideWindowSegmentation: 4,
+    rearWindowScale: 0.72,
+    busWindowBays: 8,
+    vanPartialWindows: false,
+    windowTint: 0.4,
+    framelessWindows: false,
+    wraparoundGlass: true,
+    axleCount: 3,
+    dualRearWheels: true,
+    wheelRadius: 0.46,
+    wheelThickness: 0.28,
+    trackWidth: 2.12,
+    rimInset: 0.075,
+    hubcapStyle: 'heavy_lug',
+    spokeCount: 8,
+    wheelArchHeight: 0.56,
+    frontAxleOffset: 0,
+    rearAxleOffset: 0,
+    bumperStyle: 'stepped_utility',
+    headlightStyle: 'twin_quad',
+    taillightStyle: 'vertical_stack',
+    grilleStyle: 'mesh',
+    mirrorStyle: 'bus_extended',
+    doorHandleStyle: 'none',
+    sideTrim: 'lower_cladding',
+    mudguards: true,
+    sideSteps: false,
+    exhaustStyle: 'vertical_stack',
+    licensePlates: true,
+    antennaCount: 2,
+    paletteFamily: 'bright_city',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#c6342c',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#efe7d8',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#21262e',
+    bumperMaterial: 'plastic_trim',
+    bumperColor: '#20252c',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#b0bac4',
+    tireMaterial: 'dark_rubber',
+    tireColor: '#191c20',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#1e3040',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#c3ccd5',
+    liveryStripeColor: '#efe7d8',
+    colorVariation: 0.08,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    taxiSign: false,
+    lightBar: 'none',
+    roofRack: 'bus_ac_unit',
+    frontAttachment: 'none',
+    rearAttachment: 'none',
+    sideUtility: 'livery_stripe',
+    busRouteSign: true,
+    interiorDetail: true,
+    signText: 'Downtown Loop'
+  },
+
+  armored_truck: {
+    label: 'Armored Bank Truck',
+    style: 'armored_truck',
+    seed: 2131,
+    bodyFamily: 'van_monobox',
+    silhouetteFamily: 'armored_courier',
+    overallLength: 6.15,
+    overallWidth: 2.18,
+    overallHeight: 2.52,
+    wheelbase: 3.72,
+    frontOverhang: 1.12,
+    rearOverhang: 1.31,
+    groundClearance: 0.29,
+    hoodLength: 1.15,
+    cabinLength: 5.0,
+    cargoLength: 3.35,
+    roofHeight: 1.08,
+    cabCargoSeparation: 0,
+    rooflineStyle: 'flat',
+    hoodSlope: 0.24,
+    windshieldAngle: 20,
+    rearWindowAngle: 6,
+    trunkLength: 0.14,
+    bodyTaper: 0.04,
+    cabinCurvature: 0.12,
+    fenderFlare: 0.08,
+    wheelArchSize: 0.12,
+    bodyBoxiness: 0.95,
+    frontFaceWidth: 0.95,
+    bodySideInset: 0.03,
+    roofRounding: 0.06,
+    cornerChamfer: 0.07,
+    wedgeProfile: 0,
+    doorLayout: 'van_sliding',
+    slidingDoor: false,
+    busDoorPlacement: 'none',
+    rearCargoDoor: 'double_barn',
+    windshieldScale: 0.76,
+    sideWindowSegmentation: 2,
+    rearWindowScale: 0.35,
+    busWindowBays: 3,
+    vanPartialWindows: true,
+    windowTint: 0.75,
+    framelessWindows: false,
+    wraparoundGlass: false,
+    axleCount: 2,
+    dualRearWheels: true,
+    wheelRadius: 0.42,
+    wheelThickness: 0.26,
+    trackWidth: 1.88,
+    rimInset: 0.07,
+    hubcapStyle: 'heavy_lug',
+    spokeCount: 8,
+    wheelArchHeight: 0.56,
+    frontAxleOffset: 0,
+    rearAxleOffset: 0,
+    bumperStyle: 'heavy_duty',
+    headlightStyle: 'twin_quad',
+    taillightStyle: 'vertical_stack',
+    grilleStyle: 'heavy_horizontal',
+    mirrorStyle: 'truck_tow',
+    doorHandleStyle: 'bar',
+    sideTrim: 'lower_cladding',
+    mudguards: true,
+    sideSteps: true,
+    exhaustStyle: 'single',
+    licensePlates: true,
+    antennaCount: 2,
+    paletteFamily: 'muted_industrial',
+    bodyPrimaryMaterial: 'matte_body',
+    bodyPrimaryColor: '#28384c',
+    bodySecondaryMaterial: 'utility_metal',
+    bodySecondaryColor: '#5e6a77',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1d2229',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#2b323b',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#8d96a0',
+    tireMaterial: 'dark_rubber',
+    tireColor: '#16191d',
+    glassMaterial: 'dark_glass',
+    glassColor: '#131d28',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#6f7a86',
+    liveryStripeColor: '#c9a63a',
+    colorVariation: 0.09,
+    wearLevel: 'clean',
+    roleVariant: 'armored',
+    taxiSign: false,
+    lightBar: 'none',
+    roofRack: 'none',
+    frontAttachment: 'bull_bar',
+    rearAttachment: 'cargo_step',
+    sideUtility: 'livery_stripe',
+    busRouteSign: false,
+    interiorDetail: true,
+    signText: 'Vault Guard'
+  },
+
+  school_bus: {
+    label: 'City School Bus',
+    style: 'school_bus',
+    seed: 2153,
+    bodyFamily: 'transit_bus',
+    silhouetteFamily: 'rounded_transit_bus',
+    overallLength: 9.65,
+    overallWidth: 2.42,
+    overallHeight: 2.94,
+    wheelbase: 5.85,
+    frontOverhang: 1.55,
+    rearOverhang: 2.25,
+    groundClearance: 0.3,
+    hoodLength: 1.55,
+    cabinLength: 7.75,
+    cargoLength: 0.35,
+    roofHeight: 1.44,
+    cabCargoSeparation: 0,
+    rooflineStyle: 'raised_transit',
+    hoodSlope: 0.2,
+    windshieldAngle: 14,
+    rearWindowAngle: 6,
+    trunkLength: 0.16,
+    bodyTaper: 0.04,
+    cabinCurvature: 0.16,
+    fenderFlare: 0.06,
+    wheelArchSize: 0.12,
+    bodyBoxiness: 0.88,
+    frontFaceWidth: 0.94,
+    bodySideInset: 0.03,
+    roofRounding: 0.12,
+    cornerChamfer: 0.09,
+    wedgeProfile: 0,
+    doorLayout: 'transit_bus',
+    slidingDoor: false,
+    busDoorPlacement: 'front_only',
+    rearCargoDoor: 'none',
+    windshieldScale: 0.95,
+    sideWindowSegmentation: 4,
+    rearWindowScale: 0.68,
+    busWindowBays: 8,
+    vanPartialWindows: false,
+    windowTint: 0.35,
+    framelessWindows: false,
+    wraparoundGlass: false,
+    axleCount: 2,
+    dualRearWheels: true,
+    wheelRadius: 0.45,
+    wheelThickness: 0.27,
+    trackWidth: 2.06,
+    rimInset: 0.075,
+    hubcapStyle: 'solid_steel',
+    spokeCount: 8,
+    wheelArchHeight: 0.56,
+    frontAxleOffset: 0,
+    rearAxleOffset: 0,
+    bumperStyle: 'heavy_duty',
+    headlightStyle: 'round_classic',
+    taillightStyle: 'round_dual',
+    grilleStyle: 'heavy_horizontal',
+    mirrorStyle: 'bus_extended',
+    doorHandleStyle: 'none',
+    sideTrim: 'rub_strip',
+    mudguards: true,
+    sideSteps: false,
+    exhaustStyle: 'single',
+    licensePlates: true,
+    antennaCount: 1,
+    paletteFamily: 'taxi_palette',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#e8a820',
+    bodySecondaryMaterial: 'plastic_trim',
+    bodySecondaryColor: '#1d2228',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1a1e24',
+    bumperMaterial: 'plastic_trim',
+    bumperColor: '#1d2228',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#252a30',
+    tireMaterial: 'dark_rubber',
+    tireColor: '#171a1e',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#203242',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#c3ccd4',
+    liveryStripeColor: '#1d2228',
+    colorVariation: 0.08,
+    wearLevel: 'slightly_used',
+    roleVariant: 'transit',
+    taxiSign: false,
+    lightBar: 'amber_work_bar',
+    roofRack: 'none',
+    frontAttachment: 'school_crossing_arm',
+    rearAttachment: 'none',
+    sideUtility: 'livery_stripe',
+    busRouteSign: true,
+    interiorDetail: true,
+    signText: 'B District 12'
   }
 };
 
@@ -2475,6 +3692,18 @@ const PALETTE_FAMILIES = {
     primaries: ['#567863', '#3f8a88', '#c46c49', '#6f7e91', '#b89454'],
     secondaries: ['#8d6e4c', '#2b3642', '#d6cbb5'],
     stripes: ['#e88b48', '#d9ccb6']
+  },
+  construction_yellow: {
+    label: 'Construction Yellow',
+    primaries: ['#e5a922', '#df961c', '#d8821e', '#e8b830'],
+    secondaries: ['#48505a', '#2c3138', '#68717c'],
+    stripes: ['#1e2228', '#e6ebf0', '#d95326']
+  },
+  postal_municipal: {
+    label: 'Postal & Municipal',
+    primaries: ['#eef2f6', '#e4eaef', '#d9e2ea', '#f5ece0'],
+    secondaries: ['#28568f', '#3d7463', '#c82e28', '#e87a90'],
+    stripes: ['#c93c34', '#28568f', '#f0a629']
   }
 };
 
@@ -2503,7 +3732,12 @@ const OPTIONS = {
     ['transit_bus', 'Elongated Transit Bus'],
     ['articulated_bus', 'Articulated Accordion Bus'],
     ['semi_trailer', 'Semi Tractor & Trailer'],
-    ['wedge_futuristic', 'Wedge Retro-Futuristic']
+    ['wedge_futuristic', 'Wedge Retro-Futuristic'],
+    ['dump_truck', 'Heavy Dump Truck'],
+    ['cement_mixer', 'Concrete Mixer Truck'],
+    ['wheel_loader', 'Construction Wheel Loader'],
+    ['flatbed_truck', 'Flatbed / Crane Truck'],
+    ['double_decker', 'Double-Decker Bus']
   ],
   silhouetteFamily: Object.entries(SILHOUETTE_PROFILES).map(([id, def]) => [id, def.label]),
   rooflineStyle: [
@@ -2606,10 +3840,14 @@ const OPTIONS = {
     ['civilian', 'Civilian'],
     ['taxi', 'City Taxi'],
     ['delivery', 'Commercial Delivery'],
+    ['postal', 'Postal / Mail'],
     ['food_vendor', 'Street Food Vendor'],
     ['service', 'Utility / Service'],
+    ['construction', 'Heavy Construction'],
     ['police', 'Police / Security'],
     ['ambulance', 'Ambulance / Medical'],
+    ['fire', 'Fire & Rescue'],
+    ['armored', 'Armored Security'],
     ['transit', 'Public Transit']
   ],
   lightBar: [
@@ -2625,13 +3863,18 @@ const OPTIONS = {
     ['utility_rack', 'Utility Storage Rack'],
     ['ladder_rack', 'Work Ladder Rack'],
     ['delivery_pod', 'Aerodynamic Roof Pod'],
-    ['bus_ac_unit', 'Rooftop Ac Unit']
+    ['bus_ac_unit', 'Rooftop Ac Unit'],
+    ['ice_cream_cone', 'Rooftop Ice Cream Cone'],
+    ['fire_ladder', 'Fire Turntable Ladder']
   ],
   frontAttachment: [
     ['none', 'None'],
     ['bumper_guards', 'Push Bumper Guards'],
     ['bull_bar', 'Heavy Bull Bar'],
-    ['winch_bumper', 'Service Winch Bumper']
+    ['winch_bumper', 'Service Winch Bumper'],
+    ['loader_bucket', 'Construction Loader Bucket'],
+    ['sweeper_brushes', 'Street Sweeper Brushes'],
+    ['school_crossing_arm', 'School Bus Crossing Arm']
   ],
   rearAttachment: [
     ['none', 'None'],
@@ -2640,7 +3883,10 @@ const OPTIONS = {
     ['tow_hook', 'Heavy Tow Hitch'],
     ['tow_boom', 'Wrecker Tow Boom & Winch'],
     ['compactor_hopper', 'Sanitation Rear Hopper'],
-    ['rear_ladder', 'Rear Access Ladder']
+    ['rear_ladder', 'Rear Access Ladder'],
+    ['gravel_load', 'Construction Gravel Load'],
+    ['knuckle_crane', 'Flatbed Knuckle Crane'],
+    ['mixer_chute', 'Concrete Pouring Chute']
   ],
   sideUtility: [
     ['none', 'None'],
@@ -2648,7 +3894,10 @@ const OPTIONS = {
     ['utility_bins', 'Side Utility Tool Bins'],
     ['livery_stripe', 'Accent Livery Stripe'],
     ['checker_trim', 'Taxi Checker Trim'],
-    ['serving_window', 'Food Truck Window & Awning']
+    ['serving_window', 'Food Truck Window & Awning'],
+    ['postal_stripe', 'Postal Dual Stripe & Crest'],
+    ['fire_pump_panel', 'Fire Pump & Equipment Bays'],
+    ['hazard_stripes', 'Construction Hazard Chevrons']
   ],
   lightingTime: [
     ['day', 'Daytime'],
@@ -2671,9 +3920,9 @@ const SCHEMA = {
     { group: 'Overall Dimensions' },
     { key: 'overallLength', name: 'Overall Length', min: 2.6, max: 15.5, step: 0.05, unit: 'm' },
     { key: 'overallWidth', name: 'Overall Width', min: 1.4, max: 2.65, step: 0.02, unit: 'm' },
-    { key: 'overallHeight', name: 'Overall Height', min: 1.15, max: 3.6, step: 0.02, unit: 'm' },
-    { key: 'groundClearance', name: 'Ground Clearance', min: 0.1, max: 0.55, step: 0.01, unit: 'm' },
-    { key: 'roofHeight', name: 'Greenhouse / Roof Height', min: 0.35, max: 2.1, step: 0.02, unit: 'm' },
+    { key: 'overallHeight', name: 'Overall Height', min: 1.15, max: 4.25, step: 0.02, unit: 'm' },
+    { key: 'groundClearance', name: 'Ground Clearance', min: 0.1, max: 0.62, step: 0.01, unit: 'm' },
+    { key: 'roofHeight', name: 'Greenhouse / Roof Height', min: 0.35, max: 2.85, step: 0.02, unit: 'm' },
     { group: 'Longitudinal Proportions' },
     { key: 'wheelbase', name: 'Wheelbase', min: 1.7, max: 10.5, step: 0.05, unit: 'm' },
     { key: 'frontOverhang', name: 'Front Overhang', min: 0.35, max: 2.5, step: 0.02, unit: 'm' },
@@ -2714,7 +3963,7 @@ const SCHEMA = {
     { key: 'windshieldScale', name: 'Windshield Scale', min: 0.65, max: 1.0, step: 0.02 },
     { key: 'sideWindowSegmentation', name: 'Side Window Pillars', min: 1, max: 4, step: 1 },
     { key: 'rearWindowScale', name: 'Rear Window Scale', min: 0.35, max: 1.0, step: 0.02 },
-    { key: 'busWindowBays', name: 'Bus / Van Window Bays', min: 2, max: 9, step: 1 },
+    { key: 'busWindowBays', name: 'Bus / Van Window Bays', min: 2, max: 10, step: 1 },
     { key: 'vanPartialWindows', name: 'Van Partial Panel Windows', type: 'boolean' },
     { key: 'windowTint', name: 'Glass Tint Darkness', min: 0.1, max: 0.85, step: 0.05 },
     { key: 'framelessWindows', name: 'Frameless Flush Glass', type: 'boolean' },
@@ -2729,12 +3978,12 @@ const SCHEMA = {
     { key: 'rearAxleOffset', name: 'Rear Axle Shift', min: -0.25, max: 0.25, step: 0.01, unit: 'm' },
     { key: 'steerAngle', name: 'Front Wheel Steer Angle', min: -35, max: 35, step: 1, unit: '°' },
     { group: 'Wheel & Rim Proportions' },
-    { key: 'wheelRadius', name: 'Wheel Radius', min: 0.22, max: 0.56, step: 0.01, unit: 'm' },
-    { key: 'wheelThickness', name: 'Tire Width', min: 0.14, max: 0.38, step: 0.01, unit: 'm' },
+    { key: 'wheelRadius', name: 'Wheel Radius', min: 0.22, max: 0.62, step: 0.01, unit: 'm' },
+    { key: 'wheelThickness', name: 'Tire Width', min: 0.14, max: 0.42, step: 0.01, unit: 'm' },
     { key: 'rimInset', name: 'Rim Dish Inset', min: 0.02, max: 0.12, step: 0.005, unit: 'm' },
     { key: 'hubcapStyle', name: 'Hubcap / Rim Style', type: 'select' },
     { key: 'spokeCount', name: 'Spoke / Lug Count', min: 3, max: 8, step: 1 },
-    { key: 'wheelArchHeight', name: 'Wheel Arch Height', min: 0.26, max: 0.68, step: 0.01, unit: 'm' }
+    { key: 'wheelArchHeight', name: 'Wheel Arch Height', min: 0.26, max: 0.78, step: 0.01, unit: 'm' }
   ],
   details: [
     { group: 'Front & Rear Fascia' },
@@ -2863,7 +4112,7 @@ function sanitiseConfig(data) {
   merged.seed = clamp(Math.floor(Number(merged.seed) || 1024), 1, 99999999);
   merged.axleCount = clamp(Math.round(merged.axleCount), 2, 3);
   merged.sideWindowSegmentation = clamp(Math.round(merged.sideWindowSegmentation), 1, 4);
-  merged.busWindowBays = clamp(Math.round(merged.busWindowBays), 2, 9);
+  merged.busWindowBays = clamp(Math.round(merged.busWindowBays), 2, 10);
   merged.spokeCount = clamp(Math.round(merged.spokeCount), 3, 8);
   merged.antennaCount = clamp(Math.round(merged.antennaCount), 0, 2);
 
@@ -2892,25 +4141,25 @@ function resolveVehicleLayout(rawCfg) {
 
   const length = clamp(cfg.overallLength, 2.6, 15.5);
   const width = clamp(cfg.overallWidth, 1.4, 2.65);
-  const height = clamp(cfg.overallHeight, 1.15, 3.6);
+  const height = clamp(cfg.overallHeight, 1.15, 4.25);
   const halfW = width * 0.5;
 
   // Wheel sizing guardrails against body height & length
   const maxWheelByHeight = (height - 0.46) * 0.48;
   const maxWheelByLength = length * 0.19;
-  const wheelRadius = clamp(cfg.wheelRadius, 0.22, Math.min(0.56, maxWheelByHeight, maxWheelByLength));
+  const wheelRadius = clamp(cfg.wheelRadius, 0.22, Math.min(0.62, maxWheelByHeight, maxWheelByLength));
   if (Math.abs(wheelRadius - cfg.wheelRadius) > 0.005) {
     warnings.push(`Clamped wheelRadius from ${roundNum(cfg.wheelRadius, 2)}m to ${roundNum(wheelRadius, 2)}m to prevent body clipping`);
   }
 
-  const wheelThickness = clamp(cfg.wheelThickness, 0.14, Math.min(0.38, width * 0.22));
+  const wheelThickness = clamp(cfg.wheelThickness, 0.14, Math.min(0.42, width * 0.22));
   const tireHalfW = wheelThickness * 0.5;
   const isDualRear = Boolean(cfg.dualRearWheels);
   const rearTireSpan = isDualRear ? wheelThickness * 2.08 : wheelThickness;
 
   // Ground clearance guardrail relative to wheel radius
   const minClearance = Math.max(0.1, wheelRadius * 0.36);
-  const maxClearance = Math.min(0.55, wheelRadius * 1.15);
+  const maxClearance = Math.min(0.62, wheelRadius * 1.15);
   const groundClearance = clamp(cfg.groundClearance, minClearance, maxClearance);
   if (Math.abs(groundClearance - cfg.groundClearance) > 0.005) {
     warnings.push(`Clamped groundClearance to ${roundNum(groundClearance, 2)}m to stay coherent with wheel radius`);
@@ -2945,7 +4194,10 @@ function resolveVehicleLayout(rawCfg) {
   const hasCabCargoGap = cfg.bodyFamily === 'pickup_cab_bed' ||
     cfg.bodyFamily === 'cab_over_box' ||
     cfg.bodyFamily === 'articulated_bus' ||
-    cfg.bodyFamily === 'semi_trailer';
+    cfg.bodyFamily === 'semi_trailer' ||
+    cfg.bodyFamily === 'dump_truck' ||
+    cfg.bodyFamily === 'cement_mixer' ||
+    cfg.bodyFamily === 'flatbed_truck';
   let gapLen = 0;
   if (cfg.bodyFamily === 'articulated_bus') {
     gapLen = clamp(Math.max(cfg.cabCargoSeparation, 0.42), 0.35, 0.65);
@@ -2956,13 +4208,13 @@ function resolveVehicleLayout(rawCfg) {
   }
   const availableL = Math.max(2.0, length - gapLen);
 
-  const minHood = (cfg.bodyFamily === 'transit_bus' || cfg.bodyFamily === 'articulated_bus')
+  const minHood = (cfg.bodyFamily === 'transit_bus' || cfg.bodyFamily === 'articulated_bus' || cfg.bodyFamily === 'double_decker')
     ? 0.12
-    : cfg.bodyFamily === 'cab_over_box'
+    : (cfg.bodyFamily === 'cab_over_box' || cfg.bodyFamily === 'dump_truck' || cfg.bodyFamily === 'cement_mixer' || cfg.bodyFamily === 'flatbed_truck')
       ? 0.26
       : 0.42;
   const minCabin = Math.max(0.85, availableL * 0.2);
-  const minCargo = (cfg.bodyFamily === 'transit_bus' || cfg.bodyFamily === 'articulated_bus') ? 0.24 : 0.28;
+  const minCargo = (cfg.bodyFamily === 'transit_bus' || cfg.bodyFamily === 'articulated_bus' || cfg.bodyFamily === 'double_decker') ? 0.24 : 0.28;
 
   let hReq = Math.max(minHood, cfg.hoodLength);
   let cReq = Math.max(minCabin, cfg.cabinLength);
@@ -3083,22 +4335,34 @@ function resolveVehicleLayout(rawCfg) {
     cabinBottomStartZ = rearStartZ + Math.min(0.28, cargoLen * 0.25);
     cabinTopStartZ = clamp(cabinBottomStartZ + rwRakeZ, cabinBottomStartZ + 0.06, roofFrontZ - 0.35);
     cargoRoofTopY = height;
-  } else if (cfg.bodyFamily === 'van_monobox' || cfg.bodyFamily === 'transit_bus' || cfg.bodyFamily === 'articulated_bus') {
+  } else if (cfg.bodyFamily === 'van_monobox' || cfg.bodyFamily === 'transit_bus' || cfg.bodyFamily === 'articulated_bus' || cfg.bodyFamily === 'double_decker') {
     hasContinuousGreenhouseOverCargo = true;
     const rwRakeZ = clamp(Math.tan(degToRad(cfg.rearWindowAngle)) * greenhouseH * 0.3, 0.04, 0.32);
     cabinBottomStartZ = rearStartZ + 0.06;
     cabinTopStartZ = clamp(cabinBottomStartZ + rwRakeZ, cabinBottomStartZ + 0.04, roofFrontZ - 0.45);
     cargoRoofTopY = height;
-  } else if (cfg.bodyFamily === 'pickup_cab_bed') {
+  } else if (cfg.bodyFamily === 'pickup_cab_bed' || cfg.bodyFamily === 'wheel_loader') {
     cabinBottomStartZ = cabinStartZ;
     cabinTopStartZ = clamp(cabinStartZ + Math.tan(degToRad(cfg.rearWindowAngle)) * greenhouseH * 0.25, cabinStartZ + 0.04, roofFrontZ - 0.25);
     cargoRoofTopY = beltY;
-  } else if (cfg.bodyFamily === 'cab_over_box' || cfg.bodyFamily === 'semi_trailer') {
+  } else if (
+    cfg.bodyFamily === 'cab_over_box' ||
+    cfg.bodyFamily === 'semi_trailer' ||
+    cfg.bodyFamily === 'dump_truck' ||
+    cfg.bodyFamily === 'cement_mixer' ||
+    cfg.bodyFamily === 'flatbed_truck'
+  ) {
     cabinBottomStartZ = cabinStartZ;
     cabinTopStartZ = clamp(cabinStartZ + 0.08, cabinStartZ + 0.04, roofFrontZ - 0.25);
     cargoRoofTopY = cfg.bodyFamily === 'semi_trailer'
       ? Math.min(height + 0.35, Math.max(height, beltY + greenhouseH + 0.15))
-      : Math.min(height + 0.22, Math.max(height, beltY + greenhouseH));
+      : cfg.bodyFamily === 'dump_truck'
+        ? Math.min(height + 0.12, Math.max(beltY + 0.85, height - 0.08))
+        : cfg.bodyFamily === 'cement_mixer'
+          ? Math.min(height + 0.42, height + 0.28)
+          : cfg.bodyFamily === 'flatbed_truck'
+            ? beltY + 0.12
+            : Math.min(height + 0.22, Math.max(height, beltY + greenhouseH));
   } else {
     // three_box, fastback, wedge_futuristic
     const trunkDeckReq = clamp(cfg.trunkLength, 0.15, cargoLen * 0.96);
@@ -3238,10 +4502,24 @@ function computeVehicleBounds(cfg, layout) {
   );
   const accessoryExtraH = (cfg.lightBar !== 'none' ? 0.16 : 0) +
     (cfg.taxiSign ? 0.18 : 0) +
-    (cfg.roofRack !== 'none' ? 0.22 : 0);
+    (cfg.roofRack === 'ice_cream_cone'
+      ? 0.78
+      : cfg.roofRack === 'fire_ladder'
+        ? 0.48
+        : (cfg.roofRack !== 'none' ? 0.22 : 0));
   const topY = roundNum(Math.max(d.height, d.cargoRoofTopY) + accessoryExtraH, 4);
-  const minZ = roundNum(-d.length * 0.5 - (cfg.rearAttachment !== 'none' ? 0.16 : 0.06), 4);
-  const maxZ = roundNum(d.length * 0.5 + (cfg.frontAttachment !== 'none' ? 0.18 : 0.06), 4);
+  const rearExtra = cfg.rearAttachment === 'compactor_hopper'
+    ? 0.62
+    : cfg.rearAttachment === 'mixer_chute'
+      ? 0.5
+      : (cfg.rearAttachment !== 'none' ? 0.16 : 0.06);
+  const frontExtra = cfg.frontAttachment === 'loader_bucket'
+    ? 0.88
+    : cfg.frontAttachment === 'sweeper_brushes'
+      ? 0.48
+      : (cfg.frontAttachment !== 'none' ? 0.18 : 0.06);
+  const minZ = roundNum(-d.length * 0.5 - rearExtra, 4);
+  const maxZ = roundNum(d.length * 0.5 + frontExtra, 4);
 
   const totalWidth = roundNum(maxHalfW * 2, 4);
   const totalLength = roundNum(maxZ - minZ, 4);
@@ -3471,7 +4749,10 @@ function generateCoherentPalette(paletteFamilyId, seed = 1024, roleVariant = 'ci
 
   let familyKey = paletteFamilyId && PALETTE_FAMILIES[paletteFamilyId] ? paletteFamilyId : 'civilian_neutrals';
   if (roleVariant === 'taxi' && !paletteFamilyId) familyKey = 'taxi_palette';
-  else if ((roleVariant === 'police' || roleVariant === 'ambulance') && !paletteFamilyId) familyKey = 'emergency_palette';
+  else if ((roleVariant === 'police' || roleVariant === 'ambulance' || roleVariant === 'fire') && !paletteFamilyId) familyKey = 'emergency_palette';
+  else if (roleVariant === 'construction' && !paletteFamilyId) familyKey = 'construction_yellow';
+  else if (roleVariant === 'postal' && !paletteFamilyId) familyKey = 'postal_municipal';
+  else if (roleVariant === 'armored' && !paletteFamilyId) familyKey = 'muted_industrial';
   else if ((roleVariant === 'delivery' || roleVariant === 'service') && !paletteFamilyId) familyKey = 'service_utility';
 
   const fam = PALETTE_FAMILIES[familyKey] || PALETTE_FAMILIES.civilian_neutrals;
@@ -4122,7 +5403,7 @@ class VehicleBatcher {
     this.partCount++;
   }
 
-  addCylinder(cx, cy, cz, rTop, rBottom, h, sides = 12, axis = 'y', materialRole = 'tire', layer = 'wheel', rotY = 0) {
+  addCylinder(cx, cy, cz, rTop, rBottom, h, sides = 12, axis = 'y', materialRole = 'tire', layer = 'wheel', rotY = 0, rotX = 0) {
     if (h <= 0.002 || (rTop <= 0.001 && rBottom <= 0.001)) return;
     const halfH = h * 0.5;
     const ringTop = [];
@@ -4141,8 +5422,8 @@ class VehicleBatcher {
         oy = -lz;
         oz = ly;
       }
-      if (rotY) {
-        const [rx, ry, rz] = rotatePointXYZ(ox, oy, oz, 0, rotY, 0);
+      if (rotY || rotX) {
+        const [rx, ry, rz] = rotatePointXYZ(ox, oy, oz, rotX, rotY, 0);
         return [cx + rx, cy + ry, cz + rz];
       }
       return [cx + ox, cy + oy, cz + oz];
@@ -4763,7 +6044,7 @@ function buildCargoBox(batcher, layout, cfg) {
   const z1 = s.rear.endZ;
   const boxTopY = d.cargoRoofTopY;
   const boxHalfW = Math.min(1.36, d.halfWidth + 0.04);
-  const boxRole = cfg.roleVariant === 'ambulance' ? 'primary' : 'secondary';
+  const boxRole = (cfg.roleVariant === 'ambulance' || cfg.roleVariant === 'fire') ? 'primary' : 'secondary';
 
   // Lofted lower box skirt with rear wheel arches + full-height upper box
   buildLoftedHullSpan(batcher, z0, z1, layout, cfg, boxRole, {
@@ -4816,6 +6097,271 @@ function buildCargoBox(batcher, layout, cfg) {
   }
 }
 
+function buildDumpBed(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const s = layout.sections;
+  const z0 = s.rear.startZ;
+  const z1 = s.rear.endZ;
+  const bedLen = Math.max(1.4, z1 - z0);
+  const halfW = Math.min(1.3, d.halfWidth + 0.03);
+  const bedFloorY = d.groundClearance + 0.24;
+  const bedTopY = Math.max(bedFloorY + 0.65, d.cargoRoofTopY - 0.14);
+  const sideH = bedTopY - bedFloorY;
+  const pivotZ = z0 + 0.28;
+  const pivotY = bedFloorY;
+  const tilt = cfg.doorsOpen ? -degToRad(24) : 0;
+
+  // Exposed steel subframe & rear hinge trunnions
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW * 0.45), bedFloorY - 0.09, (z0 + z1) * 0.5, 0.12, 0.12, bedLen * 0.9, {
+      materialRole: 'chassisDark',
+      layer: 'chassis'
+    });
+  }
+
+  const addBedBox = (lx, ly, lz, w, h, dBox, role = 'secondary', localRx = 0) => {
+    const cy = Math.cos(tilt);
+    const sy = Math.sin(tilt);
+    const ry = ly * cy - lz * sy;
+    const rz = ly * sy + lz * cy;
+    batcher.addBox(lx, pivotY + ry, pivotZ + rz, w, h, dBox, {
+      rotX: tilt + localRx,
+      materialRole: role,
+      layer: 'body'
+    });
+  };
+
+  const bedLocalMidZ = (z0 + z1) * 0.5 - pivotZ;
+  const bedLocalFrontZ = z1 - 0.1 - pivotZ;
+  const bedLocalRearZ = z0 + 0.08 - pivotZ;
+
+  // Steel bed floor, side walls, structural ribs & top spill rails
+  addBedBox(0, 0.055, bedLocalMidZ, halfW * 2, 0.11, bedLen, 'secondary');
+  for (const side of [-1, 1]) {
+    addBedBox(side * (halfW - 0.065), sideH * 0.5 + 0.05, bedLocalMidZ, 0.12, sideH, bedLen, 'secondary');
+    addBedBox(side * (halfW - 0.045), sideH + 0.08, bedLocalMidZ, 0.16, 0.08, bedLen + 0.04, 'utility');
+    const ribs = 4;
+    for (let i = 0; i < ribs; i++) {
+      const rz = lerp(bedLocalRearZ + 0.25, bedLocalFrontZ - 0.25, i / Math.max(1, ribs - 1));
+      addBedBox(side * (halfW + 0.015), sideH * 0.5 + 0.06, rz, 0.055, sideH * 0.92, 0.12, 'utility');
+    }
+  }
+
+  // Front bulkhead & cab-protector canopy lip clearing above cab roof
+  const canopyLocalY = Math.max(sideH + 0.12, d.height - pivotY + 0.08);
+  addBedBox(0, canopyLocalY * 0.5 + 0.02, bedLocalFrontZ, halfW * 2, canopyLocalY + 0.04, 0.12, 'secondary');
+  addBedBox(0, canopyLocalY + 0.045, bedLocalFrontZ + 0.34, halfW * 1.94, 0.09, 0.72, 'primary');
+
+  // Hinged rear tailgate (hangs vertical/ajar when bed tilts open)
+  const gateSwing = cfg.doorsOpen ? -tilt + degToRad(8) : 0;
+  addBedBox(0, sideH * 0.5 + 0.05, bedLocalRearZ, halfW * 1.88, sideH * 0.92, 0.09, 'secondary', gateSwing);
+
+  // Exposed hydraulic telescopic lift piston when tilted
+  if (cfg.doorsOpen) {
+    const baseZ = z1 - 0.75;
+    const baseY = d.groundClearance + 0.18;
+    const targetLz = bedLocalFrontZ - 0.55;
+    const topY = pivotY - targetLz * Math.sin(tilt);
+    const topZ = pivotZ + targetLz * Math.cos(tilt);
+    const midY = (baseY + topY) * 0.5;
+    const midZ = (baseZ + topZ) * 0.5;
+    const pistonLen = Math.hypot(topY - baseY, topZ - baseZ);
+    const pistonRx = Math.atan2(topZ - baseZ, topY - baseY);
+    batcher.addCylinder(0, midY, midZ, 0.075, 0.095, pistonLen, 10, 'y', 'chrome', 'detail', 0, pistonRx);
+  }
+}
+
+function buildCementMixerDrum(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const s = layout.sections;
+  const z0 = s.rear.startZ;
+  const z1 = s.rear.endZ;
+  const bedLen = Math.max(1.8, z1 - z0);
+  const deckY = d.groundClearance + 0.24;
+  const halfW = d.halfWidth;
+
+  // Heavy subframe rails & rear wheel fenders
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW * 0.44), deckY + 0.04, (z0 + z1) * 0.5, 0.12, 0.12, bedLen, {
+      materialRole: 'chassisDark',
+      layer: 'chassis'
+    });
+    batcher.addBox(side * (halfW - 0.14), d.wheelArchTopY + 0.05, lerp(z0, z1, 0.34), 0.34, 0.05, Math.min(bedLen * 0.65, 2.35), {
+      materialRole: 'trim',
+      layer: 'detail'
+    });
+  }
+
+  // Front mixer pedestal & cylindrical water wash tank behind cab
+  const frontPedZ = z1 - 0.38;
+  const rearPedZ = z0 + 0.36;
+  const drumMidZ = lerp(rearPedZ, frontPedZ, 0.5);
+  const drumMidY = Math.max(deckY + 0.85, (d.beltY + d.cargoRoofTopY) * 0.5 - 0.04);
+  const pedH = Math.max(0.55, drumMidY - deckY - 0.15);
+  batcher.addBox(0, deckY + pedH * 0.5, frontPedZ, halfW * 0.92, pedH, 0.42, {
+    materialRole: 'chassisDark',
+    layer: 'body'
+  });
+  batcher.addCylinder(0, deckY + pedH + 0.18, frontPedZ + 0.12, 0.24, 0.24, halfW * 1.12, 10, 'x', 'chrome', 'detail');
+
+  // Rear roller A-frame cradle & elevated top charging hopper
+  const rearSupportH = Math.max(0.75, drumMidY - deckY + 0.24);
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * 0.38, deckY + rearSupportH * 0.5, rearPedZ, 0.12, rearSupportH, 0.26, {
+      materialRole: 'utility',
+      layer: 'body'
+    });
+  }
+  batcher.addBox(0, deckY + rearSupportH + 0.28, rearPedZ - 0.08, 0.72, 0.42, 0.46, {
+    materialRole: 'utility',
+    layer: 'detail'
+  });
+
+  // 5-segment coaxial low-poly concrete drum pitched +16 deg up toward the rear
+  const tiltRad = degToRad(16);
+  const drumSpan = Math.max(2.2, (frontPedZ - rearPedZ) * 0.94);
+  const segSpecs = [
+    { u: 0.38, rRear: 0.76, rFront: 0.54, role: 'secondary' },
+    { u: 0.19, rRear: 0.92, rFront: 0.76, role: 'livery' },
+    { u: 0.0, rRear: 0.94, rFront: 0.92, role: 'secondary' },
+    { u: -0.2, rRear: 0.78, rFront: 0.94, role: 'livery' },
+    { u: -0.39, rRear: 0.48, rFront: 0.78, role: 'secondary' }
+  ];
+  const segLen = drumSpan / segSpecs.length;
+  const maxR = Math.min(0.95, halfW - 0.16);
+  const rScale = maxR / 0.94;
+
+  for (const seg of segSpecs) {
+    const uDist = seg.u * drumSpan;
+    const cy = drumMidY - uDist * Math.sin(tiltRad);
+    const cz = drumMidZ + uDist * Math.cos(tiltRad);
+    batcher.addCylinder(0, cy, cz, seg.rFront * rScale, seg.rRear * rScale, segLen * 1.03, 12, 'z', seg.role, 'body', 0, tiltRad);
+  }
+}
+
+function buildFlatbedDeck(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const s = layout.sections;
+  const z0 = s.rear.startZ;
+  const z1 = s.rear.endZ;
+  const bedLen = Math.max(1.5, z1 - z0);
+  const bedMidZ = (z0 + z1) * 0.5;
+  const deckY = Math.max(d.wheelArchTopY + 0.08, d.beltY - 0.14);
+  const halfW = Math.min(1.32, d.halfWidth + 0.02);
+
+  // Under-deck chassis frame, side toolboxes & deck platform
+  batcher.addBox(0, deckY, bedMidZ, halfW * 2, 0.14, bedLen, {
+    materialRole: 'utility',
+    layer: 'body'
+  });
+  batcher.addBox(0, deckY + 0.08, bedMidZ, halfW * 1.9, 0.03, bedLen - 0.08, {
+    materialRole: 'secondary',
+    layer: 'body'
+  });
+
+  // Behind-cab mesh headache guard rack
+  const guardH = Math.max(0.65, d.height - deckY - 0.06);
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW - 0.08), deckY + guardH * 0.5, z1 - 0.06, 0.08, guardH, 0.08, {
+      materialRole: 'trim',
+      layer: 'body'
+    });
+    batcher.addBox(side * (halfW * 0.72), deckY - 0.24, bedMidZ + bedLen * 0.16, 0.36, 0.34, Math.min(1.1, bedLen * 0.28), {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+  }
+  batcher.addBox(0, deckY + guardH, z1 - 0.06, halfW * 1.94, 0.08, 0.09, {
+    materialRole: 'trim',
+    layer: 'body'
+  });
+  batcher.addBox(0, deckY + guardH * 0.65, z1 - 0.06, halfW * 1.84, guardH * 0.52, 0.04, {
+    materialRole: 'chassisDark',
+    layer: 'detail'
+  });
+
+  // Foldable side stake rails (drop down on hinge when doorsOpen is true)
+  const stakeRotZ = cfg.doorsOpen ? degToRad(90) : 0;
+  for (const side of [-1, 1]) {
+    const railX = side * (halfW - 0.04);
+    if (cfg.doorsOpen) {
+      batcher.addBox(railX + side * 0.18, deckY - 0.06, bedMidZ, 0.32, 0.045, bedLen * 0.88, {
+        materialRole: 'trim',
+        layer: 'detail'
+      });
+    } else {
+      batcher.addBox(railX, deckY + 0.34, bedMidZ, 0.045, 0.07, bedLen * 0.9, {
+        rotZ: stakeRotZ,
+        materialRole: 'trim',
+        layer: 'detail'
+      });
+      const posts = 4;
+      for (let i = 0; i < posts; i++) {
+        const pz = lerp(z0 + 0.22, z1 - 0.25, i / (posts - 1));
+        batcher.addBox(railX, deckY + 0.2, pz, 0.05, 0.3, 0.05, {
+          materialRole: 'trim',
+          layer: 'detail'
+        });
+      }
+    }
+  }
+
+  // Tied-down steel I-beam / timber bundle cargo on rear half of bed
+  const cargoMidZ = lerp(z0 + 0.35, z1 - 0.95, 0.42);
+  const cargoLen = Math.max(0.95, bedLen * 0.48);
+  for (const ox of [-0.36, 0, 0.36]) {
+    batcher.addBox(ox, deckY + 0.21, cargoMidZ, 0.24, 0.22, cargoLen, {
+      materialRole: ox === 0 ? 'primary' : 'chrome',
+      layer: 'detail'
+    });
+  }
+  for (const sz of [cargoMidZ - cargoLen * 0.3, cargoMidZ + cargoLen * 0.3]) {
+    batcher.addBox(0, deckY + 0.22, sz, 1.04, 0.25, 0.05, {
+      materialRole: 'livery',
+      layer: 'detail'
+    });
+  }
+}
+
+function buildWheelLoaderBody(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const s = layout.sections;
+  const cab = s.cabin;
+  const halfW = d.halfWidth;
+  const beltY = d.beltY;
+  const gc = d.groundClearance;
+
+  // Rear heavy engine counterweight hood & radiator grille block
+  buildLoftedHullSpan(batcher, s.rear.startZ, cab.endZ, layout, cfg, 'primary', {
+    fixedTopY: beltY,
+    extraZs: [s.rear.endZ, cab.startZ]
+  });
+  const counterH = Math.max(0.45, beltY - gc - 0.14);
+  batcher.addBox(0, beltY - counterH * 0.38, s.rear.startZ - 0.03, halfW * 1.72, counterH * 0.84, 0.22, {
+    materialRole: 'secondary',
+    layer: 'body'
+  });
+  batcher.addBox(0, beltY - 0.12, s.rear.startZ - 0.12, halfW * 1.38, counterH * 0.56, 0.06, {
+    materialRole: 'chassisDark',
+    layer: 'detail'
+  });
+
+  // Center-front lower articulated loader frame & twin heavy boom pivot towers
+  const frontMidZ = (s.hood.startZ + s.hood.endZ) * 0.5;
+  const frontTopY = Math.max(gc + 0.38, d.wheelArchTopY - 0.08);
+  batcher.addBox(0, (gc + frontTopY) * 0.5, frontMidZ, halfW * 0.92, frontTopY - gc, s.hood.length, {
+    materialRole: 'secondary',
+    layer: 'body'
+  });
+  const towerH = Math.max(0.48, beltY - frontTopY + 0.24);
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW * 0.44), frontTopY + towerH * 0.42, s.hood.startZ + s.hood.length * 0.36, 0.18, towerH, 0.58, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+  }
+}
+
 function buildArticulatedBellows(batcher, layout, cfg) {
   if (cfg.bodyFamily !== 'articulated_bus') return;
   const s = layout.sections;
@@ -4841,10 +6387,7 @@ function buildArticulatedBellows(batcher, layout, cfg) {
     });
   }
 
-  batcher.addCylinder(0, d.groundClearance + 0.14, (gapStart + gapEnd) * 0.5, d.halfWidth * 0.78, d.halfWidth * 0.78, 0.08, 12, {
-    materialRole: 'chassis',
-    layer: 'chassis'
-  });
+  batcher.addCylinder(0, d.groundClearance + 0.14, (gapStart + gapEnd) * 0.5, d.halfWidth * 0.78, d.halfWidth * 0.78, 0.08, 12, 'y', 'chassisDark', 'chassis');
 }
 
 function buildCabinInterior(batcher, layout, cfg) {
@@ -4853,7 +6396,9 @@ function buildCabinInterior(batcher, layout, cfg) {
   const cab = s.cabin;
   const roofHalfW = d.halfWidth * d.roofWidthRatio;
   const eaveY = d.height - clamp(0.08 + cfg.roofRounding * 0.16, 0.07, 0.14);
-  const ghH = Math.max(0.28, eaveY - d.beltY);
+  const isDoubleDecker = cfg.bodyFamily === 'double_decker';
+  const midDeckY = isDoubleDecker ? lerp(d.beltY, eaveY, 0.46) : eaveY;
+  const ghH = Math.max(0.28, (isDoubleDecker ? midDeckY - 0.1 : eaveY) - d.beltY);
   const floorY = d.groundClearance + 0.14;
   const seatCushionY = Math.max(floorY + 0.1, d.beltY - clamp(ghH * 0.42, 0.18, 0.3));
   const backH = clamp(ghH * 0.68, 0.28, 0.44);
@@ -4863,7 +6408,8 @@ function buildCabinInterior(batcher, layout, cfg) {
   const headCenterY = Math.min(backCenterY + backH * 0.5 + headH * 0.45, maxHeadTopY - headH * 0.5);
   const frontSeatZ = clamp(cab.endZ - 0.88, cab.startZ + 0.28, cab.endZ - 0.52);
   const dashZ = clamp(cab.endZ - 0.26, frontSeatZ + 0.34, cab.endZ - 0.16);
-  const driverX = -clamp(d.halfWidth * 0.42, 0.28, 0.52);
+  const driverSide = cfg.roleVariant === 'postal' ? 1 : -1;
+  const driverX = driverSide * clamp(d.halfWidth * 0.42, 0.28, 0.52);
 
   // Dashboard & center console tunnel
   batcher.addBox(0, d.beltY - 0.16, dashZ, d.halfWidth * 1.56, 0.26, 0.32, {
@@ -4875,17 +6421,13 @@ function buildCabinInterior(batcher, layout, cfg) {
     layer: 'interior'
   });
 
-  // Steering column & steering wheel on driver side (-X)
+  // Steering column & steering wheel on driver side (-X standard, +X curb-side for RHD postal)
   batcher.addBox(driverX, d.beltY - 0.06, dashZ - 0.14, 0.06, 0.06, 0.24, {
     rotX: degToRad(-24),
     materialRole: 'trim',
     layer: 'interior'
   });
-  batcher.addCylinder(driverX, d.beltY - 0.01, dashZ - 0.26, 0.15, 0.15, 0.035, 10, {
-    rotX: degToRad(26),
-    materialRole: 'tire',
-    layer: 'interior'
-  });
+  batcher.addCylinder(driverX, d.beltY - 0.01, dashZ - 0.26, 0.15, 0.15, 0.035, 10, 'z', 'tire', 'interior', 0, degToRad(26));
 
   // Front driver & passenger bucket seats
   for (const side of [-1, 1]) {
@@ -4905,12 +6447,18 @@ function buildCabinInterior(batcher, layout, cfg) {
     });
   }
 
-  // Rear bench or multi-row passenger seats
-  if (cfg.bodyFamily === 'transit_bus' || cfg.bodyFamily === 'articulated_bus') {
+  // Rear bench or multi-row passenger seats (supports transit, articulated & double-decker buses)
+  if (cfg.bodyFamily === 'transit_bus' || cfg.bodyFamily === 'articulated_bus' || isDoubleDecker) {
     const startZ = s.rear.startZ + 0.48;
     const endZ = cab.endZ - 1.1;
     const gapStart = cfg.bodyFamily === 'articulated_bus' ? s.rear.endZ - 0.2 : 999;
     const gapEnd = cfg.bodyFamily === 'articulated_bus' ? s.cabin.startZ + 0.2 : -999;
+    if (isDoubleDecker) {
+      batcher.addBox(0, midDeckY, (s.rear.startZ + cab.endZ) * 0.5, d.halfWidth * 1.72, 0.12, s.rear.length + s.cabin.length - 0.3, {
+        materialRole: 'interiorDark',
+        layer: 'interior'
+      });
+    }
     for (let z = startZ; z <= endZ; z += 0.72) {
       if (z >= gapStart && z <= gapEnd) continue;
       for (const side of [-1, 1]) {
@@ -4923,6 +6471,16 @@ function buildCabinInterior(batcher, layout, cfg) {
           materialRole: 'secondary',
           layer: 'interior'
         });
+        if (isDoubleDecker) {
+          batcher.addBox(seatX, midDeckY + 0.22, z, 0.42, 0.1, 0.36, {
+            materialRole: 'interiorDark',
+            layer: 'interior'
+          });
+          batcher.addBox(seatX, midDeckY + 0.46, z - 0.14, 0.4, 0.42, 0.08, {
+            materialRole: 'secondary',
+            layer: 'interior'
+          });
+        }
       }
     }
   } else if (
@@ -5141,14 +6699,47 @@ function buildCabinStructure(batcher, layout, cfg) {
     addHeadlinerSpan(rCapStart + 0.04, rCapEnd - 0.04);
   }
 
-  // Sloped Rear Cab Bulkhead for Pickups, Box Trucks & Semis when solid rear wall is used
-  if ((cfg.bodyFamily === 'pickup_cab_bed' || cfg.bodyFamily === 'cab_over_box' || cfg.bodyFamily === 'semi_trailer') && cfg.rearWindowScale <= 0.36) {
+  // Sloped Rear Cab Bulkhead for Pickups, Box Trucks, Construction Rigs & Semis when solid rear wall is used
+  const hasSeparateCabBulkhead = cfg.bodyFamily === 'pickup_cab_bed' ||
+    cfg.bodyFamily === 'cab_over_box' ||
+    cfg.bodyFamily === 'semi_trailer' ||
+    cfg.bodyFamily === 'dump_truck' ||
+    cfg.bodyFamily === 'cement_mixer' ||
+    cfg.bodyFamily === 'flatbed_truck';
+  if (hasSeparateCabBulkhead && cfg.rearWindowScale <= 0.36) {
     const bzBot = cab.greenhouseBottomStartZ + 0.03;
     const bzTop = cab.roofStartZ - 0.02;
     const bdy = (eaveY - beltY) + 0.02;
     const bLen = Math.hypot(bdy, bzTop - bzBot);
     batcher.addBox(0, (beltY + eaveY) * 0.5, (bzBot + bzTop) * 0.5, (beltHalfW + roofHalfW) * 0.88, bLen, 0.075, {
       rotX: Math.atan2(bzTop - bzBot, bdy),
+      materialRole: 'primary',
+      layer: 'body'
+    });
+  }
+
+  // Horizontal mid-deck structural fascia ring for double-decker buses
+  if (cfg.bodyFamily === 'double_decker') {
+    const midDeckY = lerp(beltY, eaveY, 0.46);
+    const midHw = lerp(beltHalfW, roofHalfW, 0.46);
+    const midZRear = lerp(cab.greenhouseBottomStartZ + 0.025, cab.roofStartZ - 0.025, 0.46);
+    const midZFront = lerp(cab.endZ - 0.025, cab.roofEndZ + 0.025, 0.46);
+    const midSpan = Math.max(1.0, midZFront - midZRear);
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (midHw + 0.008), midDeckY, (midZRear + midZFront) * 0.5, 0.055, 0.22, midSpan + 0.04, {
+        materialRole: 'primary',
+        layer: 'body'
+      });
+      batcher.addBox(side * (midHw + 0.024), midDeckY, (midZRear + midZFront) * 0.5, 0.024, 0.1, midSpan + 0.02, {
+        materialRole: 'secondary',
+        layer: 'detail'
+      });
+    }
+    batcher.addBox(0, midDeckY, midZFront, midHw * 2 + 0.01, 0.22, 0.065, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+    batcher.addBox(0, midDeckY, midZRear, midHw * 2 + 0.01, 0.22, 0.065, {
       materialRole: 'primary',
       layer: 'body'
     });
@@ -5226,6 +6817,23 @@ function buildVehicleBody(batcher, layout, cfg) {
     buildLoftedHullSpan(batcher, s.cabin.startZ, s.hood.endZ, layout, cfg, 'primary', {
       extraZs: [s.hood.startZ]
     });
+  } else if (cfg.bodyFamily === 'dump_truck') {
+    buildDumpBed(batcher, layout, cfg);
+    buildLoftedHullSpan(batcher, s.cabin.startZ, s.hood.endZ, layout, cfg, 'primary', {
+      extraZs: [s.hood.startZ, s.hood.startZ + s.hood.length * 0.5]
+    });
+  } else if (cfg.bodyFamily === 'cement_mixer') {
+    buildCementMixerDrum(batcher, layout, cfg);
+    buildLoftedHullSpan(batcher, s.cabin.startZ, s.hood.endZ, layout, cfg, 'primary', {
+      extraZs: [s.hood.startZ, s.hood.startZ + s.hood.length * 0.5]
+    });
+  } else if (cfg.bodyFamily === 'flatbed_truck') {
+    buildFlatbedDeck(batcher, layout, cfg);
+    buildLoftedHullSpan(batcher, s.cabin.startZ, s.hood.endZ, layout, cfg, 'primary', {
+      extraZs: [s.hood.startZ, s.hood.startZ + s.hood.length * 0.5]
+    });
+  } else if (cfg.bodyFamily === 'wheel_loader') {
+    buildWheelLoaderBody(batcher, layout, cfg);
   } else if (cfg.bodyFamily === 'articulated_bus') {
     buildLoftedHullSpan(batcher, s.rear.startZ, s.rear.endZ, layout, cfg, 'primary', {
       extraZs: [s.rear.startZ + 0.45]
@@ -5390,13 +6998,26 @@ function buildVehicleDoorsAndWindows(batcher, layout, cfg) {
   const beltHalfW = d.halfWidth * 0.96;
   const roofHalfW = d.halfWidth * d.roofWidthRatio;
   const flushOffset = cfg.framelessWindows ? 0.012 : -0.008;
+  const isCargoBox = cfg.bodyFamily === 'cab_over_box' || cfg.bodyFamily === 'semi_trailer';
+  const isOpenTop = cfg.bodyFamily === 'convertible_open';
+  const isArticulated = cfg.bodyFamily === 'articulated_bus';
+  const isDoubleDecker = cfg.bodyFamily === 'double_decker';
+  const isCargoVanSolid = cfg.bodyFamily === 'van_monobox' && cfg.doorLayout !== 'transit_bus';
+  const midDeckY = isDoubleDecker ? lerp(beltY, roofEaveY, 0.46) : roofEaveY;
+  const midHalfW = isDoubleDecker ? lerp(beltHalfW, roofHalfW, 0.46) : roofHalfW;
 
-  // Front Windshield (trapezoidal glass + body cheeks)
+  // Front Windshield (trapezoidal glass + body cheeks, dual deck when double_decker)
   const wsBotY = beltY - 0.01;
   const wsTopY = roofEaveY + 0.015;
   const wsZBot = cab.endZ - 0.025;
   const wsZTop = cab.roofEndZ + 0.025;
-  addFramedTrapezoidWindshield(batcher, wsZBot, wsZTop, wsBotY, wsTopY, beltHalfW - 0.03, roofHalfW - 0.03, cfg.windshieldScale, 'glass', 'glazing', true);
+  if (isDoubleDecker) {
+    const wsZMid = lerp(wsZBot, wsZTop, 0.46);
+    addFramedTrapezoidWindshield(batcher, wsZBot, wsZMid, wsBotY, midDeckY - 0.1, beltHalfW - 0.03, midHalfW - 0.03, cfg.windshieldScale, 'glass', 'glazing', true);
+    addFramedTrapezoidWindshield(batcher, wsZMid, wsZTop, midDeckY + 0.1, wsTopY, midHalfW - 0.03, roofHalfW - 0.03, cfg.windshieldScale, 'glass', 'glazing', true);
+  } else {
+    addFramedTrapezoidWindshield(batcher, wsZBot, wsZTop, wsBotY, wsTopY, beltHalfW - 0.03, roofHalfW - 0.03, cfg.windshieldScale, 'glass', 'glazing', true);
+  }
 
   // Wraparound windshield corner glass accent on modern hatch/bus/retro-futuristic
   if (cfg.wraparoundGlass) {
@@ -5420,14 +7041,15 @@ function buildVehicleDoorsAndWindows(batcher, layout, cfg) {
   }
 
   // Rear Window or Solid Trapezoid Closure
-  const isCargoBox = cfg.bodyFamily === 'cab_over_box' || cfg.bodyFamily === 'semi_trailer';
-  const isOpenTop = cfg.bodyFamily === 'convertible_open';
-  const isArticulated = cfg.bodyFamily === 'articulated_bus';
-  const isCargoVanSolid = cfg.bodyFamily === 'van_monobox' && cfg.doorLayout !== 'transit_bus';
   if (!isOpenTop) {
     const rwZBot = cab.greenhouseBottomStartZ + 0.025;
     const rwZTop = cab.roofStartZ - 0.025;
-    if (!isCargoBox && cfg.rearWindowScale > 0.36) {
+    if (isDoubleDecker) {
+      const rwZMid = lerp(rwZBot, rwZTop, 0.46);
+      const ddRwScale = cfg.rearWindowScale > 0.36 ? cfg.rearWindowScale : 0;
+      addFramedTrapezoidWindshield(batcher, rwZBot, rwZMid, wsBotY, midDeckY - 0.1, beltHalfW - 0.03, midHalfW - 0.03, ddRwScale, 'glass', 'glazing', false);
+      addFramedTrapezoidWindshield(batcher, rwZMid, rwZTop, midDeckY + 0.1, wsTopY, midHalfW - 0.03, roofHalfW - 0.03, ddRwScale, 'glass', 'glazing', false);
+    } else if (!isCargoBox && cfg.rearWindowScale > 0.36) {
       const rwScale = isCargoVanSolid ? Math.min(0.65, cfg.rearWindowScale) : cfg.rearWindowScale;
       const rwBotY = isCargoVanSolid ? beltY + 0.12 : wsBotY;
       addFramedTrapezoidWindshield(batcher, rwZBot, rwZTop, rwBotY, wsTopY, beltHalfW - 0.03, roofHalfW - 0.03, rwScale, 'glass', 'glazing', false);
@@ -5448,6 +7070,7 @@ function buildVehicleDoorsAndWindows(batcher, layout, cfg) {
   const winTopY = roofEaveY + 0.015;
   const sideHwBot = beltHalfW - 0.025;
   const sideHwTop = roofHalfW - 0.025;
+  const sideHwMid = isDoubleDecker ? midHalfW - 0.025 : sideHwTop;
 
   if (isOpenTop) {
     // Low rolled-down door glass trim strip on front doors only
@@ -5484,18 +7107,35 @@ function buildVehicleDoorsAndWindows(batcher, layout, cfg) {
       const mulTopZ = lerp(zTopRear, zTopFront, i / bays);
       const mulInGap = isArticulated && mulBotZ > gapMinZ && mulBotZ < gapMaxZ;
       const mulOnDoor = layout.busDoors.some((bd) => Math.abs(mulBotZ - bd.z) < bd.width * 0.45);
-      for (const side of [-1, 1]) {
-        if (side === 1 && onBusDoor) continue;
-        addTrapezoidSideBay(batcher, side, bzBotA, bzBotB, bzTopA, bzTopB, winBotY, winTopY, sideHwBot, sideHwTop, flushOffset, 'glass', 'glazing');
-        if (i > 0 && !mulInGap && !(side === 1 && mulOnDoor)) {
-          addSlopedSidePillar(batcher, side, mulBotZ, mulTopZ, mullionW, winBotY, winTopY, sideHwBot, sideHwTop, 'trim');
+      if (isDoubleDecker) {
+        const bzMidA = lerp(bzBotA, bzTopA, 0.46);
+        const bzMidB = lerp(bzBotB, bzTopB, 0.46);
+        const mulMidZ = lerp(mulBotZ, mulTopZ, 0.46);
+        for (const side of [-1, 1]) {
+          addTrapezoidSideBay(batcher, side, bzMidA, bzMidB, bzTopA, bzTopB, midDeckY + 0.105, winTopY, sideHwMid, sideHwTop, flushOffset, 'glass', 'glazing');
+          if (i > 0) {
+            addSlopedSidePillar(batcher, side, mulMidZ, mulTopZ, mullionW, midDeckY + 0.105, winTopY, sideHwMid, sideHwTop, 'trim');
+          }
+          if (side === 1 && onBusDoor) continue;
+          addTrapezoidSideBay(batcher, side, bzBotA, bzBotB, bzMidA, bzMidB, winBotY, midDeckY - 0.105, sideHwBot, sideHwMid, flushOffset, 'glass', 'glazing');
+          if (i > 0 && !(side === 1 && mulOnDoor)) {
+            addSlopedSidePillar(batcher, side, mulBotZ, mulMidZ, mullionW, winBotY, midDeckY - 0.105, sideHwBot, sideHwMid, 'trim');
+          }
+        }
+      } else {
+        for (const side of [-1, 1]) {
+          if (side === 1 && onBusDoor) continue;
+          addTrapezoidSideBay(batcher, side, bzBotA, bzBotB, bzTopA, bzTopB, winBotY, winTopY, sideHwBot, sideHwTop, flushOffset, 'glass', 'glazing');
+          if (i > 0 && !mulInGap && !(side === 1 && mulOnDoor)) {
+            addSlopedSidePillar(batcher, side, mulBotZ, mulTopZ, mullionW, winBotY, winTopY, sideHwBot, sideHwTop, 'trim');
+          }
         }
       }
     }
 
     // Build recessed Bus Folding Entry Doors on curb side (+X)
     for (const bd of layout.busDoors) {
-      const doorTopY = winTopY - 0.025;
+      const doorTopY = isDoubleDecker ? midDeckY - 0.115 : winTopY - 0.025;
       const doorBotY = d.groundClearance + 0.06;
       const doorH = doorTopY - doorBotY;
       const doorHalfW = bd.width * 0.5 - 0.03;
@@ -6027,9 +7667,67 @@ function buildVehicleDetails(batcher, rootGroup, layout, cfg, materialBundle) {
         layer: 'detail'
       });
     }
+  } else if (cfg.sideUtility === 'postal_stripe') {
+    const pLen = Math.max(1.0, d.length - 0.52);
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (d.halfWidth + 0.012), trimY + 0.09, 0, 0.02, 0.075, pLen, {
+        materialRole: 'secondary',
+        layer: 'detail'
+      });
+      batcher.addBox(side * (d.halfWidth + 0.013), trimY + 0.005, 0, 0.02, 0.055, pLen, {
+        materialRole: 'livery',
+        layer: 'detail'
+      });
+      const crestZ = lerp(s.cabin.startZ, s.cabin.endZ, 0.62);
+      batcher.addBox(side * (d.halfWidth + 0.016), trimY + 0.19, crestZ, 0.02, 0.11, 0.18, {
+        materialRole: 'secondary',
+        layer: 'detail'
+      });
+    }
+  } else if (cfg.sideUtility === 'fire_pump_panel') {
+    const bayZ = cfg.bodyFamily === 'cab_over_box'
+      ? lerp(s.rear.startZ, s.rear.endZ, 0.72)
+      : s.cabin.startZ - 0.35;
+    const bayX = d.halfWidth + (cfg.bodyFamily === 'cab_over_box' ? 0.048 : 0.016);
+    const bayY = d.beltY - 0.14;
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * bayX, bayY, bayZ, 0.03, 0.56, 0.78, {
+        materialRole: 'chrome',
+        layer: 'detail'
+      });
+      batcher.addBox(side * (bayX + side * 0.012), bayY + 0.04, bayZ, 0.02, 0.36, 0.66, {
+        materialRole: 'interiorDark',
+        layer: 'detail'
+      });
+      for (const gz of [-0.18, 0, 0.18]) {
+        batcher.addBox(side * (bayX + side * 0.022), bayY + 0.1, bayZ + gz, 0.016, 0.07, 0.07, {
+          materialRole: gz === 0 ? 'amberLight' : 'chrome',
+          layer: 'detail'
+        });
+      }
+      if (cfg.bodyFamily === 'cab_over_box') {
+        const stripeLen = Math.max(1.2, d.length - 0.5);
+        batcher.addBox(side * (bayX - side * 0.025), d.beltY - 0.02, 0, 0.022, 0.1, stripeLen, {
+          materialRole: 'livery',
+          layer: 'detail'
+        });
+      }
+    }
+  } else if (cfg.sideUtility === 'hazard_stripes') {
+    const hazLen = Math.max(1.0, d.length * 0.55);
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (d.halfWidth + 0.016), gc + 0.18, 0, 0.024, 0.11, hazLen, {
+        materialRole: 'checker',
+        layer: 'detail'
+      });
+    }
+    batcher.addBox(0, gc + 0.22, rearZ - 0.045, rearHalfW * 1.78, 0.11, 0.024, {
+      materialRole: 'checker',
+      layer: 'detail'
+    });
   }
 
-  // Role-specific side emblems (police door star/plaque, ambulance medical cross)
+  // Role-specific side emblems (police door star/plaque, ambulance cross, fire, armored, construction, postal)
   if (cfg.roleVariant === 'police') {
     const badgeZ = lerp(s.cabin.startZ, s.cabin.endZ, 0.58);
     for (const side of [-1, 1]) {
@@ -6056,10 +7754,140 @@ function buildVehicleDetails(batcher, rootGroup, layout, cfg, materialBundle) {
         layer: 'detail'
       });
     }
+  } else if (cfg.roleVariant === 'fire') {
+    const fBadgeZ = s.cabin.endZ - 0.58;
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (d.halfWidth + 0.016), trimY + 0.12, fBadgeZ, 0.02, 0.17, 0.2, {
+        materialRole: 'amberLight',
+        layer: 'detail'
+      });
+      batcher.addBox(side * (frontHalfW * 0.36), fasciaMidY + fasciaH * 0.24, frontZ + 0.028, 0.12, 0.06, 0.025, {
+        materialRole: 'redLight',
+        layer: 'detail'
+      });
+    }
+  } else if (cfg.roleVariant === 'armored') {
+    const visorZ = lerp(s.cabin.startZ, s.cabin.endZ, 0.62);
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (d.halfWidth + 0.022), d.height - 0.22, visorZ, 0.05, 0.05, 1.35, {
+        materialRole: 'utility',
+        layer: 'detail'
+      });
+      batcher.addBox(side * (d.halfWidth + 0.016), trimY + 0.18, s.rear.startZ + 0.16, 0.04, 0.55, 0.12, {
+        materialRole: 'utility',
+        layer: 'detail'
+      });
+    }
+  } else if (cfg.roleVariant === 'construction') {
+    const markerZ = s.cabin.roofEndZ - 0.04;
+    for (const mx of [-0.32, 0, 0.32]) {
+      batcher.addBox(mx, s.roofMount.cabRoofY + 0.025, markerZ, 0.07, 0.035, 0.07, {
+        materialRole: 'amberLight',
+        layer: 'detail'
+      });
+    }
+  } else if (cfg.roleVariant === 'postal') {
+    batcher.addBox(0, fasciaMidY + fasciaH * 0.26, frontZ + 0.024, 0.28, 0.09, 0.024, {
+      materialRole: 'secondary',
+      layer: 'detail'
+    });
+    batcher.addBox(0, fasciaMidY + fasciaH * 0.26, frontZ + 0.032, 0.2, 0.03, 0.02, {
+      materialRole: 'livery',
+      layer: 'detail'
+    });
   }
 
   // 6. Front & Rear Attachments
-  if (cfg.frontAttachment !== 'none') {
+  if (cfg.frontAttachment === 'loader_bucket') {
+    const raised = Boolean(cfg.doorsOpen);
+    const pivotZ = s.hood.startZ + s.hood.length * 0.36;
+    const pivotY = d.wheelArchTopY + 0.26;
+    const bucketZ = frontZ + (raised ? 0.44 : 0.52);
+    const bucketY = raised ? d.beltY + 0.68 : Math.max(0.06, gc - 0.28);
+    const bW = Math.min(2.45, d.width * 1.04);
+    const armDy = bucketY - pivotY;
+    const armDz = bucketZ - pivotZ;
+    const armLen = Math.hypot(armDy, armDz);
+    const armRotX = Math.atan2(armDz, armDy);
+    for (const side of [-1, 1]) {
+      const armX = side * (d.halfWidth * 0.44);
+      batcher.addBox(armX, (pivotY + bucketY) * 0.5 + 0.08, (pivotZ + bucketZ) * 0.5, 0.13, armLen, 0.16, {
+        rotX: armRotX,
+        materialRole: 'utility',
+        layer: 'detail'
+      });
+      batcher.addCylinder(armX, (pivotY + bucketY) * 0.5 - 0.04, (pivotZ + bucketZ) * 0.5 + 0.08, 0.045, 0.055, armLen * 0.72, 8, 'y', 'chrome', 'detail', 0, armRotX);
+    }
+    batcher.addBox(0, bucketY + 0.22, bucketZ, bW * 0.72, 0.1, 0.12, {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+    const dumpTilt = raised ? degToRad(34) : degToRad(-6);
+    const addBucketBox = (lx, ly, lz, w, h, dBox, role = 'utility', extraRx = 0) => {
+      const cy = Math.cos(dumpTilt);
+      const sy = Math.sin(dumpTilt);
+      const ry = ly * cy - lz * sy;
+      const rz = ly * sy + lz * cy;
+      batcher.addBox(lx, bucketY + ry, bucketZ + rz, w, h, dBox, {
+        rotX: dumpTilt + extraRx,
+        materialRole: role,
+        layer: 'detail'
+      });
+    };
+    addBucketBox(0, 0.04, 0.34, bW, 0.09, 0.68, 'utility');
+    addBucketBox(0, 0.3, 0.04, bW, 0.54, 0.1, 'utility', degToRad(14));
+    for (const side of [-1, 1]) {
+      addBucketBox(side * (bW * 0.5 - 0.04), 0.24, 0.3, 0.08, 0.44, 0.6, 'utility');
+    }
+    for (let t = 0; t < 6; t++) {
+      const tx = lerp(-bW * 0.42, bW * 0.42, t / 5);
+      addBucketBox(tx, 0.02, 0.72, 0.075, 0.055, 0.18, 'chrome');
+    }
+  } else if (cfg.frontAttachment === 'sweeper_brushes') {
+    const barZ = frontZ + 0.2;
+    const brushW = d.width * 0.94;
+    batcher.addBox(0, gc + 0.1, barZ, brushW * 0.72, 0.11, 0.16, {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+    batcher.addBox(0, 0.14, frontZ - 0.28, d.width * 0.68, 0.18, 0.42, {
+      materialRole: 'trim',
+      layer: 'detail'
+    });
+    for (const side of [-1, 1]) {
+      const bx = side * (brushW * 0.46);
+      const bz = frontZ + 0.34;
+      batcher.addBox(side * (brushW * 0.34), gc + 0.02, frontZ + 0.28, 0.32, 0.06, 0.06, {
+        rotY: -side * degToRad(26),
+        materialRole: 'utility',
+        layer: 'detail'
+      });
+      batcher.addCylinder(bx, 0.11, bz, 0.31, 0.36, 0.14, 12, 'y', 'livery', 'detail');
+      batcher.addCylinder(bx, 0.22, bz, 0.11, 0.13, 0.1, 8, 'y', 'trim', 'detail');
+    }
+  } else if (cfg.frontAttachment === 'school_crossing_arm') {
+    const armOut = Boolean(cfg.doorsOpen);
+    const armLen = 0.72;
+    const armZ = armOut ? frontZ + armLen * 0.5 + 0.08 : frontZ + 0.12;
+    const armX = armOut ? d.halfWidth * 0.76 : d.halfWidth * 0.38;
+    batcher.addBox(armX, gc + 0.24, armZ, armOut ? 0.05 : armLen, 0.075, armOut ? armLen : 0.05, {
+      materialRole: 'amberLight',
+      layer: 'detail'
+    });
+    // Driver-side octagonal-look STOP paddle arm at windshield cowl
+    const stopX = armOut ? -(d.halfWidth + 0.32) : -(d.halfWidth + 0.03);
+    const stopZ = s.cabin.endZ - 0.32;
+    batcher.addBox(stopX, d.beltY + 0.12, stopZ, 0.03, 0.26, 0.26, {
+      rotY: armOut ? degToRad(88) : 0,
+      materialRole: 'redLight',
+      layer: 'detail'
+    });
+    batcher.addBox(stopX - (armOut ? 0 : 0.015), d.beltY + 0.12, stopZ + (armOut ? 0.015 : 0), 0.018, 0.06, 0.18, {
+      rotY: armOut ? degToRad(88) : 0,
+      materialRole: 'headlight',
+      layer: 'detail'
+    });
+  } else if (cfg.frontAttachment !== 'none') {
     const attZ = frontZ + 0.12;
     const barW = cfg.frontAttachment === 'bumper_guards' ? grilleW * 0.72 : frontHalfW * 1.45;
     const barH = cfg.frontAttachment === 'bull_bar' ? 0.34 : 0.26;
@@ -6171,6 +7999,119 @@ function buildVehicleDetails(batcher, rootGroup, layout, cfg, materialBundle) {
     });
     for (const side of [-1, 1]) {
       batcher.addCylinder(side * (hopW * 0.48), hopMidY, rearZ - 0.35, 0.048, 0.048, hopH * 0.62, 8, 'y', 'chrome', 'detail');
+    }
+  } else if (cfg.rearAttachment === 'gravel_load') {
+    const isDumpTilt = cfg.bodyFamily === 'dump_truck' && cfg.doorsOpen;
+    const pivotZ = s.rear.startZ + 0.28;
+    const pivotY = cfg.bodyFamily === 'dump_truck' ? d.groundClearance + 0.24 : d.groundClearance + 0.16;
+    const tilt = isDumpTilt ? -degToRad(24) : 0;
+    const bedSpanZ = Math.max(0.9, s.rear.length - 0.36);
+    const baseTopY = cfg.bodyFamily === 'dump_truck'
+      ? Math.max(pivotY + 0.65, d.cargoRoofTopY - 0.14)
+      : d.beltY;
+    const localH0 = (baseTopY - pivotY) - 0.12;
+    const gravelW = Math.max(0.8, d.width * 0.78);
+    const gravelMidLz = (s.rear.startZ + s.rear.endZ) * 0.5 - pivotZ;
+    const moundRng = rng32((Number(cfg.seed) || 1024) + 821);
+
+    const addTiltedRock = (lx, ly, lz, w, h, dBox, role = 'utility') => {
+      const cy = Math.cos(tilt);
+      const sy = Math.sin(tilt);
+      const ry = ly * cy - lz * sy;
+      const rz = ly * sy + lz * cy;
+      batcher.addBox(lx, pivotY + ry, pivotZ + rz, w, h, dBox, {
+        rotX: tilt,
+        materialRole: role,
+        layer: 'detail'
+      });
+    };
+
+    addTiltedRock(0, localH0 + 0.08, gravelMidLz, gravelW, 0.34, bedSpanZ, 'utility');
+    addTiltedRock(0, localH0 + 0.28, gravelMidLz, gravelW * 0.72, 0.24, bedSpanZ * 0.76, 'trim');
+    for (let k = 0; k < 6; k++) {
+      const rx = (moundRng() - 0.5) * gravelW * 0.62;
+      const rz = gravelMidLz + (moundRng() - 0.5) * bedSpanZ * 0.68;
+      const rw = 0.24 + moundRng() * 0.22;
+      addTiltedRock(rx, localH0 + 0.36, rz, rw, 0.18 + moundRng() * 0.1, rw, k % 2 === 0 ? 'utility' : 'trim');
+    }
+  } else if (cfg.rearAttachment === 'knuckle_crane') {
+    const out = Boolean(cfg.doorsOpen);
+    const deckY = cfg.bodyFamily === 'flatbed_truck'
+      ? Math.max(d.wheelArchTopY + 0.08, d.beltY - 0.14) + 0.08
+      : d.beltY;
+    const mastZ = s.rear.endZ - 0.44;
+    batcher.addBox(0, deckY + 0.12, mastZ, 0.9, 0.24, 0.62, {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+    // Left & Right stabilizer outriggers (extend outward & downward when doorsOpen is true)
+    const extX = out ? d.halfWidth + 0.45 : d.halfWidth - 0.04;
+    batcher.addBox(0, deckY - 0.04, mastZ, extX * 2, 0.11, 0.14, {
+      materialRole: 'trim',
+      layer: 'detail'
+    });
+    for (const side of [-1, 1]) {
+      const legTop = deckY;
+      const legBot = out ? 0.04 : deckY - 0.38;
+      const legH = legTop - legBot;
+      batcher.addBox(side * extX, (legTop + legBot) * 0.5, mastZ, 0.11, legH, 0.11, {
+        materialRole: 'livery',
+        layer: 'detail'
+      });
+      if (out) {
+        batcher.addBox(side * extX, 0.03, mastZ, 0.24, 0.06, 0.24, {
+          materialRole: 'chrome',
+          layer: 'detail'
+        });
+      }
+    }
+    // Crane turret pillar + main boom + knuckle jib + hook
+    const mastTopY = deckY + 0.92;
+    batcher.addCylinder(0, deckY + 0.58, mastZ, 0.16, 0.2, 0.68, 10, 'y', 'primary', 'detail');
+    const mainEndY = mastTopY + (out ? 0.72 : 0.46);
+    const mainEndZ = mastZ - (out ? 1.15 : 0.78);
+    const mDy = mainEndY - mastTopY;
+    const mDz = mainEndZ - mastZ;
+    batcher.addBox(0, (mastTopY + mainEndY) * 0.5, (mastZ + mainEndZ) * 0.5, 0.14, Math.hypot(mDy, mDz), 0.16, {
+      rotX: Math.atan2(mDz, mDy),
+      materialRole: 'livery',
+      layer: 'detail'
+    });
+    const jibEndY = out ? mainEndY - 0.18 : mainEndY - 0.42;
+    const jibEndZ = out ? mainEndZ - 1.05 : mainEndZ + 0.56;
+    const jDy = jibEndY - mainEndY;
+    const jDz = jibEndZ - mainEndZ;
+    batcher.addBox(0, (mainEndY + jibEndY) * 0.5, (mainEndZ + jibEndZ) * 0.5, 0.11, Math.hypot(jDy, jDz), 0.12, {
+      rotX: Math.atan2(jDz, jDy),
+      materialRole: 'primary',
+      layer: 'detail'
+    });
+    batcher.addCylinder(0, jibEndY - 0.18, jibEndZ, 0.025, 0.025, 0.36, 8, 'y', 'chrome', 'detail');
+    batcher.addBox(0, jibEndY - 0.36, jibEndZ, 0.1, 0.14, 0.12, {
+      materialRole: 'amberLight',
+      layer: 'detail'
+    });
+  } else if (cfg.rearAttachment === 'mixer_chute') {
+    const swung = Boolean(cfg.doorsOpen);
+    const pivotY = d.wheelArchTopY + 0.42;
+    const pivotZ = rearZ - 0.08;
+    const yaw = swung ? degToRad(34) : 0;
+    const chuteLen = 1.08;
+    const cx = Math.sin(yaw) * (chuteLen * 0.46);
+    const cz = pivotZ - Math.cos(yaw) * (chuteLen * 0.46);
+    batcher.addBox(cx, pivotY - 0.14, cz, 0.32, 0.1, chuteLen, {
+      rotX: degToRad(-22),
+      rotY: yaw,
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+    for (const side of [-1, 1]) {
+      batcher.addBox(cx + side * Math.cos(yaw) * 0.14, pivotY - 0.07, cz - side * Math.sin(yaw) * 0.14, 0.035, 0.12, chuteLen, {
+        rotX: degToRad(-22),
+        rotY: yaw,
+        materialRole: 'livery',
+        layer: 'detail'
+      });
     }
   }
 
@@ -6312,6 +8253,56 @@ function buildVehicleDetails(batcher, rootGroup, layout, cfg, materialBundle) {
       materialRole: 'trim',
       layer: 'detail'
     });
+  } else if (!isOpenTop && cfg.roofRack === 'ice_cream_cone') {
+    const coneZ = lerp(s.roofMount.minZ, s.roofMount.maxZ, 0.72);
+    batcher.addCylinder(0, rackSurfaceY + 0.05, coneZ, 0.24, 0.28, 0.1, 10, 'y', 'trim', 'detail');
+    batcher.addCylinder(0, rackSurfaceY + 0.28, coneZ, 0.21, 0.06, 0.38, 10, 'y', 'amberLight', 'detail');
+    batcher.addCylinder(0, rackSurfaceY + 0.52, coneZ, 0.19, 0.22, 0.16, 10, 'y', 'secondary', 'detail');
+    batcher.addCylinder(0, rackSurfaceY + 0.65, coneZ, 0.12, 0.17, 0.12, 10, 'y', 'livery', 'detail');
+    batcher.addCylinder(0, rackSurfaceY + 0.74, coneZ, 0.045, 0.05, 0.06, 8, 'y', 'redLight', 'detail');
+    // Loudspeakers & bells up front on cab roof
+    batcher.addCylinder(0.28, rackSurfaceY + 0.08, s.roofMount.maxZ - 0.18, 0.09, 0.035, 0.16, 8, 'z', 'chrome', 'detail');
+  } else if (!isOpenTop && cfg.roofRack === 'fire_ladder') {
+    const turZ = lerp(s.roofMount.minZ, s.roofMount.maxZ, 0.24);
+    const turY = rackSurfaceY + 0.1;
+    const ladLen = Math.max(2.6, s.roofMount.maxZ - s.roofMount.minZ + 1.25);
+    const tilt = cfg.doorsOpen ? -degToRad(22) : 0;
+    batcher.addCylinder(0, turY, turZ, 0.42, 0.46, 0.16, 12, 'y', 'utility', 'detail');
+
+    const addTiltedLadBox = (lx, ly, lz, w, h, dBox, role = 'chrome') => {
+      const cy = Math.cos(tilt);
+      const sy = Math.sin(tilt);
+      const ry = ly * cy - lz * sy;
+      const rz = ly * sy + lz * cy;
+      batcher.addBox(lx, turY + 0.12 + ry, turZ + rz, w, h, dBox, {
+        rotX: tilt,
+        materialRole: role,
+        layer: 'detail'
+      });
+    };
+
+    const ladCenterLz = ladLen * 0.42;
+    for (const side of [-1, 1]) {
+      addTiltedLadBox(side * 0.26, 0.08, ladCenterLz, 0.06, 0.14, ladLen, 'chrome');
+      addTiltedLadBox(side * 0.26, 0.2, ladCenterLz, 0.045, 0.05, ladLen * 0.96, 'utility');
+    }
+    const rungs = Math.max(7, Math.floor(ladLen / 0.36));
+    for (let i = 0; i < rungs; i++) {
+      const rz = lerp(-0.18, ladLen * 0.88, i / (rungs - 1));
+      addTiltedLadBox(0, 0.06, rz, 0.48, 0.035, 0.04, 'chrome');
+    }
+    if (cfg.doorsOpen) {
+      const pLz = 0.85;
+      const topPy = turY + 0.12 - pLz * Math.sin(tilt);
+      const topPz = turZ + pLz * Math.cos(tilt);
+      const botPy = rackSurfaceY + 0.05;
+      const botPz = turZ + 0.38;
+      const pLen = Math.hypot(topPy - botPy, topPz - botPz);
+      const pRx = Math.atan2(topPz - botPz, topPy - botPy);
+      for (const side of [-0.14, 0.14]) {
+        batcher.addCylinder(side, (topPy + botPy) * 0.5, (topPz + botPz) * 0.5, 0.045, 0.055, pLen, 8, 'y', 'chrome', 'detail', 0, pRx);
+      }
+    }
   }
 
   // Antennas (mount on rear fender deck for open convertibles)
@@ -6794,18 +8785,30 @@ function buildTrafficFleetPack(state, count = 8) {
   const fleetPool = [
     'sedan',
     'compact_car',
+    'micro_city_car',
     'taxi',
     'suv',
+    'mail_truck',
     'delivery_van',
     'city_bus',
-    'police',
+    'double_decker_bus',
+    'school_bus',
+    'police_car',
+    'fire_engine',
+    'ambulance',
+    'street_sweeper',
+    'ice_cream_van',
     'food_truck',
     'convertible',
     'pickup',
     'box_truck',
     'tow_truck',
     'garbage_truck',
-    'ambulance'
+    'dump_truck',
+    'cement_mixer',
+    'wheel_loader',
+    'flatbed_crane',
+    'armored_truck'
   ];
 
   const targetCount = Math.max(1, Math.min(32, Math.round(Number(count) || 8)));
@@ -6818,7 +8821,7 @@ function buildTrafficFleetPack(state, count = 8) {
     const vr = rng32(vSeed);
     const roleVariant = presetBase.roleVariant || 'civilian';
     const palFamily = roleVariant === 'civilian'
-      ? pick(vr, ['civilian_neutrals', 'civic_colors', 'muted_industrial'])
+      ? pick(vr, ['civilian_neutrals', 'bright_city', 'muted_industrial'])
       : (presetBase.paletteFamily || 'service_utility');
     const pal = generateCoherentPalette(palFamily, vSeed + 17, roleVariant);
     const cfg = sanitiseConfig({
@@ -7131,7 +9134,7 @@ function applySeedVariation(state, locks = new Set()) {
   let chosenFamily = state.paletteFamily || presetBase.paletteFamily || 'civilian_neutrals';
   if (!locks.has('paletteFamily')) {
     if (!state.roleVariant || state.roleVariant === 'civilian') {
-      chosenFamily = pick(r, ['civilian_neutrals', 'civic_colors', 'muted_industrial']);
+      chosenFamily = pick(r, ['civilian_neutrals', 'bright_city', 'muted_industrial']);
     } else {
       chosenFamily = presetBase.paletteFamily || chosenFamily;
     }
@@ -7218,7 +9221,11 @@ function randomizeSettings(cat, state, locks = new Set(), rngFn = null) {
         }
       }
       if (!locks.has('cabCargoSeparation')) {
-        const isTruck = next.bodyFamily === 'pickup_cab_bed' || next.bodyFamily === 'cab_over_box';
+        const isTruck = next.bodyFamily === 'pickup_cab_bed' ||
+          next.bodyFamily === 'cab_over_box' ||
+          next.bodyFamily === 'dump_truck' ||
+          next.bodyFamily === 'cement_mixer' ||
+          next.bodyFamily === 'flatbed_truck';
         const anchorGap = presetBase.cabCargoSeparation || 0.08;
         next.cabCargoSeparation = isTruck
           ? ctrlSnapValue(anchorGap + (r() * 0.08 - 0.02), ctrlSchemaDefForKey('cabCargoSeparation'))
@@ -7261,17 +9268,23 @@ function randomizeSettings(cat, state, locks = new Set(), rngFn = null) {
     }
 
     if (activeCat === 'wheels') {
+      const heavy = next.bodyFamily === 'cab_over_box' ||
+        next.bodyFamily === 'transit_bus' ||
+        next.bodyFamily === 'dump_truck' ||
+        next.bodyFamily === 'cement_mixer' ||
+        next.bodyFamily === 'flatbed_truck' ||
+        next.bodyFamily === 'double_decker' ||
+        next.bodyFamily === 'articulated_bus' ||
+        next.bodyFamily === 'semi_trailer';
       for (const k of CATEGORIES.wheels) {
         if (locks.has(k)) continue;
         const def = ctrlSchemaDefForKey(k);
         if (!def) continue;
         if (def.type === 'boolean') {
-          const heavy = next.bodyFamily === 'cab_over_box' || next.bodyFamily === 'transit_bus';
           next[k] = heavy ? r() > 0.35 : r() > 0.85;
         } else if (def.type === 'select') {
           next[k] = ctrlPickOption(r, OPTIONS[k]);
         } else if (k === 'axleCount') {
-          const heavy = next.bodyFamily === 'cab_over_box' || next.bodyFamily === 'transit_bus';
           next[k] = heavy && next.overallLength > 7.0 ? (r() > 0.45 ? 3 : 2) : 2;
         } else {
           const anchor = presetBase[k] !== undefined ? presetBase[k] : next[k];
@@ -7299,7 +9312,7 @@ function randomizeSettings(cat, state, locks = new Set(), rngFn = null) {
     }
 
     if (activeCat === 'variants') {
-      const roles = ['civilian', 'taxi', 'delivery', 'service', 'police', 'ambulance', 'transit'];
+      const roles = ['civilian', 'taxi', 'delivery', 'postal', 'food_vendor', 'service', 'construction', 'police', 'ambulance', 'fire', 'armored', 'transit'];
       const chosenRole = locks.has('roleVariant') ? next.roleVariant : pick(r, roles);
       writeIfUnlocked('roleVariant', chosenRole);
       writeIfUnlocked('taxiSign', chosenRole === 'taxi');
@@ -7307,13 +9320,13 @@ function randomizeSettings(cat, state, locks = new Set(), rngFn = null) {
         'lightBar',
         chosenRole === 'police'
           ? 'police_bar'
-          : chosenRole === 'ambulance'
+          : (chosenRole === 'ambulance' || chosenRole === 'fire')
             ? 'ambulance_bar'
-            : chosenRole === 'service'
+            : (chosenRole === 'service' || chosenRole === 'construction' || chosenRole === 'postal')
               ? pick(r, ['amber_work_bar', 'vintage_beacon'])
               : 'none'
       );
-      writeIfUnlocked('busRouteSign', chosenRole === 'transit' || next.bodyFamily === 'transit_bus');
+      writeIfUnlocked('busRouteSign', chosenRole === 'transit' || next.bodyFamily === 'transit_bus' || next.bodyFamily === 'double_decker');
       writeIfUnlocked('roofRack', ctrlPickOption(r, OPTIONS.roofRack));
       writeIfUnlocked('frontAttachment', r() > 0.55 ? ctrlPickOption(r, OPTIONS.frontAttachment) : 'none');
       writeIfUnlocked('rearAttachment', r() > 0.5 ? ctrlPickOption(r, OPTIONS.rearAttachment) : 'none');

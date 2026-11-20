@@ -53,18 +53,30 @@ export function buildTrafficFleetPack(state, count = 8) {
   const fleetPool = [
     'sedan',
     'compact_car',
+    'micro_city_car',
     'taxi',
     'suv',
+    'mail_truck',
     'delivery_van',
     'city_bus',
-    'police',
+    'double_decker_bus',
+    'school_bus',
+    'police_car',
+    'fire_engine',
+    'ambulance',
+    'street_sweeper',
+    'ice_cream_van',
     'food_truck',
     'convertible',
     'pickup',
     'box_truck',
     'tow_truck',
     'garbage_truck',
-    'ambulance'
+    'dump_truck',
+    'cement_mixer',
+    'wheel_loader',
+    'flatbed_crane',
+    'armored_truck'
   ];
 
   const targetCount = Math.max(1, Math.min(32, Math.round(Number(count) || 8)));
@@ -77,7 +89,7 @@ export function buildTrafficFleetPack(state, count = 8) {
     const vr = rng32(vSeed);
     const roleVariant = presetBase.roleVariant || 'civilian';
     const palFamily = roleVariant === 'civilian'
-      ? pick(vr, ['civilian_neutrals', 'civic_colors', 'muted_industrial'])
+      ? pick(vr, ['civilian_neutrals', 'bright_city', 'muted_industrial'])
       : (presetBase.paletteFamily || 'service_utility');
     const pal = generateCoherentPalette(palFamily, vSeed + 17, roleVariant);
     const cfg = sanitiseConfig({

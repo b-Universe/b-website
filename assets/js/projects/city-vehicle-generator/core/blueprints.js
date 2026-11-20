@@ -28,10 +28,24 @@ export function computeVehicleBounds(cfg, layout) {
   );
   const accessoryExtraH = (cfg.lightBar !== 'none' ? 0.16 : 0) +
     (cfg.taxiSign ? 0.18 : 0) +
-    (cfg.roofRack !== 'none' ? 0.22 : 0);
+    (cfg.roofRack === 'ice_cream_cone'
+      ? 0.78
+      : cfg.roofRack === 'fire_ladder'
+        ? 0.48
+        : (cfg.roofRack !== 'none' ? 0.22 : 0));
   const topY = roundNum(Math.max(d.height, d.cargoRoofTopY) + accessoryExtraH, 4);
-  const minZ = roundNum(-d.length * 0.5 - (cfg.rearAttachment !== 'none' ? 0.16 : 0.06), 4);
-  const maxZ = roundNum(d.length * 0.5 + (cfg.frontAttachment !== 'none' ? 0.18 : 0.06), 4);
+  const rearExtra = cfg.rearAttachment === 'compactor_hopper'
+    ? 0.62
+    : cfg.rearAttachment === 'mixer_chute'
+      ? 0.5
+      : (cfg.rearAttachment !== 'none' ? 0.16 : 0.06);
+  const frontExtra = cfg.frontAttachment === 'loader_bucket'
+    ? 0.88
+    : cfg.frontAttachment === 'sweeper_brushes'
+      ? 0.48
+      : (cfg.frontAttachment !== 'none' ? 0.18 : 0.06);
+  const minZ = roundNum(-d.length * 0.5 - rearExtra, 4);
+  const maxZ = roundNum(d.length * 0.5 + frontExtra, 4);
 
   const totalWidth = roundNum(maxHalfW * 2, 4);
   const totalLength = roundNum(maxZ - minZ, 4);

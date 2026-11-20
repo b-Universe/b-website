@@ -146,13 +146,26 @@ export function buildVehicleDoorsAndWindows(batcher, layout, cfg) {
   const beltHalfW = d.halfWidth * 0.96;
   const roofHalfW = d.halfWidth * d.roofWidthRatio;
   const flushOffset = cfg.framelessWindows ? 0.012 : -0.008;
+  const isCargoBox = cfg.bodyFamily === 'cab_over_box' || cfg.bodyFamily === 'semi_trailer';
+  const isOpenTop = cfg.bodyFamily === 'convertible_open';
+  const isArticulated = cfg.bodyFamily === 'articulated_bus';
+  const isDoubleDecker = cfg.bodyFamily === 'double_decker';
+  const isCargoVanSolid = cfg.bodyFamily === 'van_monobox' && cfg.doorLayout !== 'transit_bus';
+  const midDeckY = isDoubleDecker ? lerp(beltY, roofEaveY, 0.46) : roofEaveY;
+  const midHalfW = isDoubleDecker ? lerp(beltHalfW, roofHalfW, 0.46) : roofHalfW;
 
-  // Front Windshield (trapezoidal glass + body cheeks)
+  // Front Windshield (trapezoidal glass + body cheeks, dual deck when double_decker)
   const wsBotY = beltY - 0.01;
   const wsTopY = roofEaveY + 0.015;
   const wsZBot = cab.endZ - 0.025;
   const wsZTop = cab.roofEndZ + 0.025;
-  addFramedTrapezoidWindshield(batcher, wsZBot, wsZTop, wsBotY, wsTopY, beltHalfW - 0.03, roofHalfW - 0.03, cfg.windshieldScale, 'glass', 'glazing', true);
+  if (isDoubleDecker) {
+    const wsZMid = lerp(wsZBot, wsZTop, 0.46);
+    addFramedTrapezoidWindshield(batcher, wsZBot, wsZMid, wsBotY, midDeckY - 0.1, beltHalfW - 0.03, midHalfW - 0.03, cfg.windshieldScale, 'glass', 'glazing', true);
+    addFramedTrapezoidWindshield(batcher, wsZMid, wsZTop, midDeckY + 0.1, wsTopY, midHalfW - 0.03, roofHalfW - 0.03, cfg.windshieldScale, 'glass', 'glazing', true);
+  } else {
+    addFramedTrapezoidWindshield(batcher, wsZBot, wsZTop, wsBotY, wsTopY, beltHalfW - 0.03, roofHalfW - 0.03, cfg.windshieldScale, 'glass', 'glazing', true);
+  }
 
   // Wraparound windshield corner glass accent on modern hatch/bus/retro-futuristic
   if (cfg.wraparoundGlass) {
@@ -176,14 +189,15 @@ export function buildVehicleDoorsAndWindows(batcher, layout, cfg) {
   }
 
   // Rear Window or Solid Trapezoid Closure
-  const isCargoBox = cfg.bodyFamily === 'cab_over_box' || cfg.bodyFamily === 'semi_trailer';
-  const isOpenTop = cfg.bodyFamily === 'convertible_open';
-  const isArticulated = cfg.bodyFamily === 'articulated_bus';
-  const isCargoVanSolid = cfg.bodyFamily === 'van_monobox' && cfg.doorLayout !== 'transit_bus';
   if (!isOpenTop) {
     const rwZBot = cab.greenhouseBottomStartZ + 0.025;
     const rwZTop = cab.roofStartZ - 0.025;
-    if (!isCargoBox && cfg.rearWindowScale > 0.36) {
+    if (isDoubleDecker) {
+      const rwZMid = lerp(rwZBot, rwZTop, 0.46);
+      const ddRwScale = cfg.rearWindowScale > 0.36 ? cfg.rearWindowScale : 0;
+      addFramedTrapezoidWindshield(batcher, rwZBot, rwZMid, wsBotY, midDeckY - 0.1, beltHalfW - 0.03, midHalfW - 0.03, ddRwScale, 'glass', 'glazing', false);
+      addFramedTrapezoidWindshield(batcher, rwZMid, rwZTop, midDeckY + 0.1, wsTopY, midHalfW - 0.03, roofHalfW - 0.03, ddRwScale, 'glass', 'glazing', false);
+    } else if (!isCargoBox && cfg.rearWindowScale > 0.36) {
       const rwScale = isCargoVanSolid ? Math.min(0.65, cfg.rearWindowScale) : cfg.rearWindowScale;
       const rwBotY = isCargoVanSolid ? beltY + 0.12 : wsBotY;
       addFramedTrapezoidWindshield(batcher, rwZBot, rwZTop, rwBotY, wsTopY, beltHalfW - 0.03, roofHalfW - 0.03, rwScale, 'glass', 'glazing', false);
@@ -204,6 +218,7 @@ export function buildVehicleDoorsAndWindows(batcher, layout, cfg) {
   const winTopY = roofEaveY + 0.015;
   const sideHwBot = beltHalfW - 0.025;
   const sideHwTop = roofHalfW - 0.025;
+  const sideHwMid = isDoubleDecker ? midHalfW - 0.025 : sideHwTop;
 
   if (isOpenTop) {
     // Low rolled-down door glass trim strip on front doors only
@@ -240,18 +255,35 @@ export function buildVehicleDoorsAndWindows(batcher, layout, cfg) {
       const mulTopZ = lerp(zTopRear, zTopFront, i / bays);
       const mulInGap = isArticulated && mulBotZ > gapMinZ && mulBotZ < gapMaxZ;
       const mulOnDoor = layout.busDoors.some((bd) => Math.abs(mulBotZ - bd.z) < bd.width * 0.45);
-      for (const side of [-1, 1]) {
-        if (side === 1 && onBusDoor) continue;
-        addTrapezoidSideBay(batcher, side, bzBotA, bzBotB, bzTopA, bzTopB, winBotY, winTopY, sideHwBot, sideHwTop, flushOffset, 'glass', 'glazing');
-        if (i > 0 && !mulInGap && !(side === 1 && mulOnDoor)) {
-          addSlopedSidePillar(batcher, side, mulBotZ, mulTopZ, mullionW, winBotY, winTopY, sideHwBot, sideHwTop, 'trim');
+      if (isDoubleDecker) {
+        const bzMidA = lerp(bzBotA, bzTopA, 0.46);
+        const bzMidB = lerp(bzBotB, bzTopB, 0.46);
+        const mulMidZ = lerp(mulBotZ, mulTopZ, 0.46);
+        for (const side of [-1, 1]) {
+          addTrapezoidSideBay(batcher, side, bzMidA, bzMidB, bzTopA, bzTopB, midDeckY + 0.105, winTopY, sideHwMid, sideHwTop, flushOffset, 'glass', 'glazing');
+          if (i > 0) {
+            addSlopedSidePillar(batcher, side, mulMidZ, mulTopZ, mullionW, midDeckY + 0.105, winTopY, sideHwMid, sideHwTop, 'trim');
+          }
+          if (side === 1 && onBusDoor) continue;
+          addTrapezoidSideBay(batcher, side, bzBotA, bzBotB, bzMidA, bzMidB, winBotY, midDeckY - 0.105, sideHwBot, sideHwMid, flushOffset, 'glass', 'glazing');
+          if (i > 0 && !(side === 1 && mulOnDoor)) {
+            addSlopedSidePillar(batcher, side, mulBotZ, mulMidZ, mullionW, winBotY, midDeckY - 0.105, sideHwBot, sideHwMid, 'trim');
+          }
+        }
+      } else {
+        for (const side of [-1, 1]) {
+          if (side === 1 && onBusDoor) continue;
+          addTrapezoidSideBay(batcher, side, bzBotA, bzBotB, bzTopA, bzTopB, winBotY, winTopY, sideHwBot, sideHwTop, flushOffset, 'glass', 'glazing');
+          if (i > 0 && !mulInGap && !(side === 1 && mulOnDoor)) {
+            addSlopedSidePillar(batcher, side, mulBotZ, mulTopZ, mullionW, winBotY, winTopY, sideHwBot, sideHwTop, 'trim');
+          }
         }
       }
     }
 
     // Build recessed Bus Folding Entry Doors on curb side (+X)
     for (const bd of layout.busDoors) {
-      const doorTopY = winTopY - 0.025;
+      const doorTopY = isDoubleDecker ? midDeckY - 0.115 : winTopY - 0.025;
       const doorBotY = d.groundClearance + 0.06;
       const doorH = doorTopY - doorBotY;
       const doorHalfW = bd.width * 0.5 - 0.03;
