@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>B - 3D City Vehicles Generator (B Remastered)</title>
+  <meta name="portfolio-title" content="B Remastered 3D City Vehicles Generator" />
+  <meta name="portfolio-category" content="project" />
+  <meta name="portfolio-date" content="2026-11-15" />
+  <meta name="portfolio-thumbnail" content="/assets/img/projects/city-vehicle-generator/thumbnail.png" />
+  <meta name="portfolio-description"
+    content="Standalone procedural 3d low-poly city cars and urban vehicles generator for B Remastered." />
+  <meta property="og:title" content="B - 3D City Vehicles Generator" />
+  <meta property="og:description"
+    content="Design compacts, sedans, vans, box trucks, city buses, and emergency vehicles with live Glb and Json blueprint export." />
+  <meta property="og:url" content="https://home.behr.dev/projects/city-vehicle-generator.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://home.behr.dev/assets/img/projects/city-vehicle-generator/thumbnail.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="B - 3D City Vehicles Generator" />
+  <meta name="twitter:description"
+    content="Generate and customize low-poly city cars, vans, trucks, and transit vehicles in 3D." />
+  <meta name="twitter:image" content="https://home.behr.dev/assets/img/projects/city-vehicle-generator/thumbnail.png" />
+  <meta name="theme-color" content="#00FFFE" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="/assets/css/styles.css" />
+  <link rel="stylesheet" href="/assets/css/components.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="/assets/css/projects/city-vehicle-generator.css" />
+</head>
+<body class="vehicle-page">
+  <div class="wrap">
+    <canvas id="starfield"></canvas>
+    <header>
+      <div class="header">
+        <a class="brand" href="/pages/index.html">
+          <div class="logo" aria-hidden="true">B</div>
+          <div class="brand-text-wrap">
+            <div class="brand-title">It's a fun place to be</div>
+            <div class="brand-subtitle">Explore my projects, concept ideas, and blogs here!</div>
+          </div>
+        </a>
+        <div class="nav-wrapper">
+          <nav id="main-nav" class="main-navigation" aria-label="Main navigation">
+            <a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a>
+            <a href="https://paypal.com/paypalme/TheBearRiley" target="_blank" rel="noopener noreferrer"><i
+                class="fas fa-heart" aria-hidden="true"></i>Donate</a>
+            <a href="https://github.com/BehrRiley" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"
+                aria-hidden="true"></i>Github</a>
+          </nav>
+          <button id="theme-toggle" class="theme-button" title="Toggle theme"><i class="fa-solid fa-moon"
+              aria-hidden="true"></i><span>Dark</span></button>
+          <button id="hamburger" class="mobile-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+        </div>
+      </div>
+    </header>
+    <main class="main-content">
+      <section class="content-card static-card vehicle-project-card" id="vehicle-studio"
+        aria-label="3D City Vehicle Generator Studio">
+        <div class="studio-topline">
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <ol>
+              <li><a href="/pages/index.html"><i class="fas fa-home" aria-hidden="true"></i>Home</a></li>
+              <li><a href="/pages/portfolio.html"><i class="fas fa-briefcase" aria-hidden="true"></i>Portfolio</a></li>
+              <li><span><i class="fas fa-cubes" aria-hidden="true"></i>Projects</span></li>
+              <li><span class="breadcrumb-current" aria-current="page">3D City Vehicles Generator</span></li>
+            </ol>
+          </nav>
+          <div class="studio-quick-actions">
+            <button type="button" class="studio-btn studio-btn-ghost" id="btn-theatre-quick"
+              title="Toggle Theatre Mode (T)"><i class="fa-solid fa-expand"></i><span> Theatre View</span></button>
+            <button type="button" class="studio-btn studio-btn-ghost" id="btn-fullscreen-quick"
+              title="Toggle Full-Screen Mode (F)"><i class="fa-solid fa-up-right-and-down-left-from-center"></i><span>
+                Full Screen</span></button>
+            <button type="button" class="studio-btn studio-btn-ghost" id="btn-screenshot"
+              title="Save a picture of the preview"><i class="fa-solid fa-camera"></i><span> Save Snapshot</span></button>
+            <button type="button" class="studio-btn studio-btn-ghost" id="btn-export-blueprint-top"
+              title="Export Vehicle Blueprint (.b.vehicle.json)"><i class="fa-solid fa-file-code"></i><span> Export
+                Blueprint</span></button>
+            <button type="button" class="studio-btn studio-btn-primary" id="btn-export-glb"><i
+                class="fa-solid fa-cube"></i><span> Export 3d Glb</span></button>
+          </div>
+        </div>
+        <div class="studio-heading">
+          <div>
+            <div class="studio-eyebrow"><span class="studio-status-light"></span>B Remastered Asset Pipeline</div>
+            <h1>Procedural 3D City Vehicles Studio</h1>
+            <p>Generate stylized low-poly urban cars, transit buses, cargo vans, utility trucks, and fleet variants
+              built for B Remastered.</p>
+          </div>
+          <div class="studio-version"><span>Schema</span><strong>b.vehicle.v1</strong></div>
+        </div>
+      <div class="studio-style-bar">
+        <div class="studio-style-bar-head">
+          <div>
+            <strong>Vehicle Archetypes</strong>
+            <span class="studio-hint" id="active-style-name">Family Sedan</span>
+          </div>
+
+          <div class="studio-seed-controls">
+            <label class="studio-seed-box" for="seed-input">
+              <span>Seed</span>
+              <input id="seed-input" type="number" min="1" max="99999999" value="2048" />
+            </label>
+            <button type="button" class="studio-mini-btn" id="btn-new-seed"><i class="fa-solid fa-rotate"></i> New Seed</button>
+            <button type="button" class="studio-btn studio-btn-primary" id="btn-random-all"><i class="fa-solid fa-dice"></i> Randomize All</button>
+          </div>
+        </div>
+
+        <div class="style-picker" id="style-picker" role="group" aria-label="Vehicle Archetypes"></div>
+      </div>
+
+      <div class="studio-shell">
+        <aside class="studio-controls-panel" aria-label="Vehicle Design Controls">
+          <div class="studio-tabs" role="tablist">
+            <button type="button" class="studio-tab" data-tab="presets" role="tab">Presets</button>
+            <button type="button" class="studio-tab active" data-tab="structure" role="tab">Structure</button>
+            <button type="button" class="studio-tab" data-tab="body" role="tab">Body</button>
+            <button type="button" class="studio-tab" data-tab="doors" role="tab">Doors &amp; Glass</button>
+            <button type="button" class="studio-tab" data-tab="wheels" role="tab">Wheels</button>
+            <button type="button" class="studio-tab" data-tab="details" role="tab">Details</button>
+            <button type="button" class="studio-tab" data-tab="materials" role="tab">Materials</button>
+            <button type="button" class="studio-tab" data-tab="variants" role="tab">Variants</button>
+            <button type="button" class="studio-tab" data-tab="scene" role="tab">Lighting</button>
+            <button type="button" class="studio-tab" data-tab="export" role="tab">Export</button>
+          </div>
+
+          <div class="studio-controls-scroll" id="studio-controls"></div>
+        </aside>
+
+        <div class="studio-viewport-panel">
+          <div class="studio-viewport-frame">
+            <div class="studio-viewport-toolbar">
+              <div class="studio-toolbar-group" aria-label="Camera Focus">
+                <button type="button" class="studio-mini-btn active" data-focus="hero">Hero 3/4</button>
+                <button type="button" class="studio-mini-btn" data-focus="profile">Side Profile</button>
+                <button type="button" class="studio-mini-btn" data-focus="street">Street Angle</button>
+                <button type="button" class="studio-mini-btn" id="btn-reset-camera" title="Reset Camera"><i class="fa-solid fa-crosshairs"></i></button>
+              </div>
+
+              <div class="studio-toolbar-group" aria-label="Viewport Tools">
+                <button type="button" class="studio-mini-btn" id="btn-rotate" title="Toggle Turntable Spin"><i class="fa-solid fa-sync"></i> Spin</button>
+                <button type="button" class="studio-mini-btn" id="btn-silhouette" title="Silhouette Readability (S)"><i class="fa-solid fa-circle-half-stroke"></i> Silhouette</button>
+                <button type="button" class="studio-mini-btn" id="btn-wireframe" title="Toggle Wireframe"><i class="fa-solid fa-border-all"></i> Wire</button>
+                <button type="button" class="studio-mini-btn" id="btn-debug-overlay" title="Toggle Collision &amp; Axle Gizmos (E)"><i class="fa-solid fa-ruler-combined"></i> Gizmos</button>
+                <button type="button" class="studio-mini-btn" id="btn-stage-snapshot" title="Save Png Snapshot (P)"><i class="fa-solid fa-camera"></i></button>
+                <button type="button" class="studio-mini-btn" id="btn-theatre" title="Toggle Theatre Mode (T)"><i class="fa-solid fa-expand"></i></button>
+                <button type="button" class="studio-mini-btn" id="btn-fullscreen" title="Toggle Full Screen (F)"><i class="fa-solid fa-maximize"></i></button>
+              </div>
+            </div>
+
+            <div class="studio-stage" id="vehicle-stage">
+              <canvas id="vehicle-canvas"></canvas>
+              <div class="studio-stage-hud">
+                <span class="studio-hud-pill" id="stat-length">4.55m</span>
+                <span class="studio-hud-pill" id="stat-wheelbase">2.70m</span>
+                <span class="studio-hud-pill" id="stat-axles">2 Axles</span>
+                <span class="studio-hud-pill" id="stat-triangles">0 Tris</span>
+                <span class="studio-hud-pill studio-status-pill" id="studio-status">Initializing...</span>
+              </div>
+            </div>
+
+            <div class="studio-viewport-footer">
+              <div class="studio-hint" id="scene-label">Family Sedan (three_box)</div>
+
+              <div class="studio-env-controls">
+                <label>
+                  Stage
+                  <select id="environment-select" class="studio-select">
+                    <option value="street" selected>City Street Lane</option>
+                    <option value="parking_lot">Urban Parking Bay</option>
+                    <option value="city_curb">Curb &amp; Sidewalk</option>
+                    <option value="studio">Clean Turntable Pad</option>
+                    <option value="none">Void + Grid</option>
+                  </select>
+                </label>
+
+                <label>
+                  Time
+                  <select id="lighting-select" class="studio-select">
+                    <option value="day" selected>Daytime</option>
+                    <option value="golden_hour">Golden Hour</option>
+                    <option value="dusk">Dusk Twilight</option>
+                    <option value="night">Nighttime</option>
+                  </select>
+                </label>
+
+                <label class="studio-check-row">
+                  <input type="checkbox" id="ground-grid" checked /> Grid
+                </label>
+                <label class="studio-check-row">
+                  <input type="checkbox" id="silhouette-toggle" /> Silhouette
+                </label>
+                <label class="studio-check-row">
+                  <input type="checkbox" id="debug-overlay-toggle" /> Gizmos
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="studio-hotkey-bar">
+            <span><kbd>S</kbd> Silhouette</span>
+            <span><kbd>E</kbd> Collision Gizmos</span>
+            <span><kbd>T</kbd> Theatre Mode</span>
+            <span><kbd>F</kbd> Full Screen</span>
+            <span><kbd>P</kbd> Png Snapshot</span>
+            <span><kbd>Esc</kbd> Exit Full Screen</span>
+          </div>
+        </div>
+
+        <aside class="studio-right-panel" aria-label="Vehicle Presets and Export">
+          <div>
+            <div class="studio-group-label">Vehicle Presets</div>
+            <div class="preset-list" id="preset-list"></div>
+          </div>
+
+          <div>
+            <div class="studio-group-label">Category Randomizers</div>
+            <div class="studio-rand-grid">
+              <button type="button" class="studio-mini-btn" data-rand-cat="structure"><i class="fa-solid fa-ruler"></i> Structure</button>
+              <button type="button" class="studio-mini-btn" data-rand-cat="body"><i class="fa-solid fa-car-side"></i> Body Shape</button>
+              <button type="button" class="studio-mini-btn" data-rand-cat="materials"><i class="fa-solid fa-palette"></i> Palette</button>
+              <button type="button" class="studio-mini-btn" data-rand-cat="variants"><i class="fa-solid fa-truck-pickup"></i> Equipment</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="studio-group-label">Custom Fleet Library</div>
+            <div class="studio-custom-save">
+              <input type="text" id="custom-name" class="studio-input" placeholder="Save Current Name..." maxlength="40" />
+              <button type="button" class="studio-mini-btn" id="btn-save-custom">Save</button>
+            </div>
+            <div class="studio-custom-list" id="custom-presets"></div>
+          </div>
+
+          <div>
+            <div class="studio-group-label">Export &amp; Import</div>
+            <div class="studio-export-actions">
+              <button type="button" class="studio-btn studio-btn-primary" id="btn-export-glb-side"><i class="fa-solid fa-cube"></i> Export 3d Glb</button>
+              <button type="button" class="studio-btn" id="btn-export-blueprint"><i class="fa-solid fa-diagram-project"></i> Export Blueprint (b.vehicle.v1)</button>
+              <button type="button" class="studio-btn" id="btn-export-fleet"><i class="fa-solid fa-car-on"></i> Export Traffic Fleet Pack</button>
+              <button type="button" class="studio-btn" id="btn-export-json"><i class="fa-solid fa-file-export"></i> Export Settings Json</button>
+              <button type="button" class="studio-btn" id="btn-import-json"><i class="fa-solid fa-file-import"></i> Import Json File</button>
+              <button type="button" class="studio-btn" id="btn-screenshot-side"><i class="fa-solid fa-camera"></i> Capture Png Preview</button>
+              <input type="file" id="file-import" accept=".json" hidden />
+            </div>
+          </div>
+        </aside>
+        </div>
+        <div class="studio-toasts" id="studio-toasts" role="status" aria-live="polite"></div>
+      </section>
+    </main>
+    <footer>&copy; <span id="year"></span> B - Built with &hearts; and plain HTML/CSS/JS by Bear Riley</footer>
+  </div>
+
+  <script src="/assets/js/scrolling-nebula.js"></script>
+  <script src="/assets/js/global.js"></script>
+  <script src="/assets/js/projects/city-vehicle-generator.js"></script>
+</body>
+</html>
