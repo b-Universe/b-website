@@ -8,15 +8,17 @@ import {
   buildTreeStoryProps,
   buildTreeTaperedLimb,
   buildTreeTrunkDetails,
+  getTreeFoliageColorOptions,
   treeColorizeGeometry,
   treeJitterGeometryVertices,
   treeMergeBufferGeometries
 } from './primitives.js';
 import { buildPlacedTreeDetails } from './details.js';
 
-function buildShrubProceduralFoliage(cfg, dims, foliageGeos, rng) {
+function buildShrubProceduralFoliage(cfg, dims, foliageGeos, rng, simulateTextureError = false) {
   const { clusterCount, polyDetail, spread, height, isLod1 } = dims;
   const clusters = [];
+  const leafOpts = (extra = {}) => getTreeFoliageColorOptions(cfg, { simulateTextureError, ...extra });
 
   for (let c = 0; c < clusterCount; c++) {
     const angle = (c / clusterCount) * Math.PI * 2 + rng() * 0.5;
@@ -35,10 +37,10 @@ function buildShrubProceduralFoliage(cfg, dims, foliageGeos, rng) {
     const cz = Math.sin(angle) * dist;
     jittered.translate(cx, cy, cz);
 
-    foliageGeos.push(treeColorizeGeometry(jittered, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, {
+    foliageGeos.push(treeColorizeGeometry(jittered, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, leafOpts({
       variance: cfg.colorVar,
       snowCoverage: cfg.snow * 0.5
-    }));
+    })));
 
     clusters.push({ cx, cy, cz, cSize, rx, ry, rz });
   }
@@ -67,7 +69,7 @@ function buildShrubProceduralFoliage(cfg, dims, foliageGeos, rng) {
 
           const berry = new THREE.TetrahedronGeometry(bRadius, 0);
           berry.translate(bx, by, bz);
-          foliageGeos.push(treeColorizeGeometry(berry, berryColor, berryColor, '#ffffff', rng, { variance: 0.05 }));
+          foliageGeos.push(treeColorizeGeometry(berry, berryColor, berryColor, '#ffffff', rng, leafOpts({ variance: 0.05, isFoliageSurface: false })));
           return;
         }
 
@@ -87,7 +89,7 @@ function buildShrubProceduralFoliage(cfg, dims, foliageGeos, rng) {
 
           const berry = new THREE.OctahedronGeometry(bRadius, 0);
           berry.translate(bx, by, bz);
-          foliageGeos.push(treeColorizeGeometry(berry, berryColor, berryColor, '#ffffff', rng, { variance: 0.06 }));
+          foliageGeos.push(treeColorizeGeometry(berry, berryColor, berryColor, '#ffffff', rng, leafOpts({ variance: 0.06, isFoliageSurface: false })));
         }
       });
     }
@@ -116,7 +118,7 @@ function buildShrubProceduralFoliage(cfg, dims, foliageGeos, rng) {
           const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), normVec);
           flower.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(quat));
           flower.translate(fx, fy, fz);
-          foliageGeos.push(treeColorizeGeometry(flower, blossomColor, blossomColor, '#ffffff', rng, { variance: 0.05 }));
+          foliageGeos.push(treeColorizeGeometry(flower, blossomColor, blossomColor, '#ffffff', rng, leafOpts({ variance: 0.05, isFoliageSurface: false })));
           return;
         }
 
@@ -139,19 +141,21 @@ function buildShrubProceduralFoliage(cfg, dims, foliageGeos, rng) {
           const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), normVec);
           flower.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(quat));
           flower.translate(fx, fy, fz);
-          foliageGeos.push(treeColorizeGeometry(flower, blossomColor, blossomColor, '#ffffff', rng, { variance: 0.06 }));
+          foliageGeos.push(treeColorizeGeometry(flower, blossomColor, blossomColor, '#ffffff', rng, leafOpts({ variance: 0.06, isFoliageSurface: false })));
 
           const pistil = new THREE.TetrahedronGeometry(fRadius * 0.35, 0);
           pistil.translate(fx + nx * fRadius * 0.12, fy + ny * fRadius * 0.12, fz + nz * fRadius * 0.12);
-          foliageGeos.push(treeColorizeGeometry(pistil, '#ffe066', '#ffd166', '#ffffff', rng, { variance: 0.04 }));
+          foliageGeos.push(treeColorizeGeometry(pistil, '#ffe066', '#ffd166', '#ffffff', rng, leafOpts({ variance: 0.04, isFoliageSurface: false })));
         }
       });
     }
   }
 }
 
-export function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
+export function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0, options = {}) {
   const cfg = sanitiseTreeConfig(rawCfg);
+  const simulateTextureError = Boolean(options && options.simulateTextureError);
+  const foliageColorOpts = (extra = {}) => getTreeFoliageColorOptions(cfg, { simulateTextureError, ...extra });
   const layout = resolveTreeLayout(cfg, seedOffset);
   const rng = treeRng32(cfg.seed + seedOffset * 7919);
 
@@ -296,7 +300,7 @@ export function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
       cfg.colorLeaf2,
       cfg.colorAccent,
       rng,
-      { variance: cfg.colorVar, snowCoverage: cfg.snow, isGradientCanopy: true }
+      foliageColorOpts({ variance: cfg.colorVar, snowCoverage: cfg.snow, isGradientCanopy: true })
     ));
   };
 
@@ -371,11 +375,11 @@ export function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
       jittered.rotateY(i * 0.55);
       jittered.translate(trunkPt.x, tierY + tierHeight * 0.25, trunkPt.z);
 
-      foliageGeos.push(treeColorizeGeometry(jittered, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, {
+      foliageGeos.push(treeColorizeGeometry(jittered, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, foliageColorOpts({
         variance: cfg.colorVar,
         snowCoverage: cfg.snow,
         isGradientCanopy: true
-      }));
+      })));
       branchTips.push(new THREE.Vector3(trunkPt.x + baseTierRadius * 0.65, tierY, trunkPt.z));
     }
   } else if (cfg.species === 'redwood') {
@@ -412,10 +416,10 @@ export function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
         tip.y - curtainLen * 0.45,
         tip.z + (rng() - 0.5) * domeSize * 0.8
       );
-      foliageGeos.push(treeColorizeGeometry(jitteredCurtain, cfg.colorLeaf2, cfg.colorLeaf1, cfg.colorAccent, rng, {
+      foliageGeos.push(treeColorizeGeometry(jitteredCurtain, cfg.colorLeaf2, cfg.colorLeaf1, cfg.colorAccent, rng, foliageColorOpts({
         variance: cfg.colorVar,
         snowCoverage: cfg.snow * 0.3
-      }));
+      })));
     }
   } else if (cfg.species === 'palm' || cfg.species === 'banana_palm') {
     const isBanana = cfg.species === 'banana_palm';
@@ -440,10 +444,10 @@ export function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
 
       box.rotateY(fAngle);
       box.translate(trunkTop.x, trunkTop.y - 0.1, trunkTop.z);
-      foliageGeos.push(treeColorizeGeometry(box, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, {
+      foliageGeos.push(treeColorizeGeometry(box, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, foliageColorOpts({
         variance: cfg.colorVar,
         snowCoverage: cfg.snow
-      }));
+      })));
     }
   } else if (cfg.species === 'mangrove') {
     addBranchesAndSubForks(Math.max(4, branchCount), 0.35, 0.92, 0.58, 0.28, 0.5);
@@ -538,7 +542,7 @@ export function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
       height,
       planterLift: layout.planterLift,
       isLod1
-    }, foliageGeos, rng);
+    }, foliageGeos, rng, simulateTextureError);
   } else if (cfg.species === 'topiary') {
     const shape = cfg.topiaryShape || 'tiered_spheres';
     const topY = trunkTop.y;
@@ -562,20 +566,20 @@ export function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
     } else if (shape === 'cone') {
       const cone = new THREE.ConeGeometry(spread * 0.55, height * 0.68, isLod1 ? 6 : 10, 2);
       cone.translate(trunkTop.x, layout.trunkStartY + height * 0.52, trunkTop.z);
-      foliageGeos.push(treeColorizeGeometry(cone, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, {
+      foliageGeos.push(treeColorizeGeometry(cone, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, foliageColorOpts({
         variance: cfg.colorVar * 0.5,
         snowCoverage: cfg.snow,
         isGradientCanopy: true
-      }));
+      })));
     } else {
       // hedge_box
       const box = new THREE.BoxGeometry(spread * 0.95, height * 0.68, spread * 0.58, 2, 2, 2);
       const jittered = treeJitterGeometryVertices(box, cfg.jitter * 0.2, rng);
       jittered.translate(0, layout.planterLift + height * 0.42, 0);
-      foliageGeos.push(treeColorizeGeometry(jittered, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, {
+      foliageGeos.push(treeColorizeGeometry(jittered, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, foliageColorOpts({
         variance: cfg.colorVar * 0.65,
         snowCoverage: cfg.snow
-      }));
+      })));
     }
   } else if (cfg.species === 'bonsai') {
     addBranchesAndSubForks(Math.max(3, branchCount), 0.45, 0.95, 0.58, 0.22, 0.46);
@@ -601,11 +605,11 @@ export function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
       cap.scale(1.0, capH / capR, 1.0);
       const jitteredCap = treeJitterGeometryVertices(cap, cfg.jitter * capR * 0.22, rng, true);
       jitteredCap.translate(trunkTop.x, trunkTop.y - capH * 0.25, trunkTop.z);
-      foliageGeos.push(treeColorizeGeometry(jitteredCap, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, {
+      foliageGeos.push(treeColorizeGeometry(jitteredCap, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, foliageColorOpts({
         variance: cfg.colorVar,
         snowCoverage: cfg.snow,
         isGradientCanopy: true
-      }));
+      })));
 
       // Bioluminescent spots & under-gills
       const spotCount = isLod1 ? 4 : 9;
@@ -651,13 +655,16 @@ export function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
           tip.z + Math.sin(orbitAngle) * orbitDist
         );
 
+        const shardOpts = isCrystal
+          ? { variance: cfg.colorVar, snowCoverage: cfg.snow, isGradientCanopy: true }
+          : foliageColorOpts({ variance: cfg.colorVar, snowCoverage: cfg.snow, isGradientCanopy: true });
         const colored = treeColorizeGeometry(
           jittered,
           isCrystal ? cfg.colorAccent : cfg.colorLeaf1,
           cfg.colorLeaf2,
           cfg.colorAccent,
           rng,
-          { variance: cfg.colorVar, snowCoverage: cfg.snow, isGradientCanopy: true }
+          shardOpts
         );
         if (isCrystal) emissiveGeos.push(colored);
         else foliageGeos.push(colored);
@@ -760,17 +767,20 @@ export function buildTreeBillboardMesh(lod0Data, atlasTexture, options = {}) {
   return mesh;
 }
 
-export function buildTreeHemisphereGeo(cfg, lod0Data, seedOffset = 0) {
+export function buildTreeHemisphereGeo(cfg, lod0Data, seedOffset = 0, options = {}) {
   const rng = treeRng32(cfg.seed + seedOffset * 313 + 99);
+  const simulateTextureError = Boolean(options && options.simulateTextureError);
   const geos = [];
 
   const stemHeight = cfg.species === 'bush' ? cfg.height * 0.25 : cfg.height * 0.55;
   const stem = new THREE.CylinderGeometry(cfg.radius * 0.35, cfg.radius * 0.85, stemHeight, 4, 1);
   stem.translate(0, stemHeight / 2, 0);
-  geos.push(treeColorizeGeometry(stem, cfg.colorBark, cfg.colorBark, '#ffffff', rng, {
+  geos.push(treeColorizeGeometry(stem, cfg.colorBark, cfg.colorBark, '#ffffff', rng, getTreeFoliageColorOptions(cfg, {
+    simulateTextureError,
     variance: 0.08,
-    isBirchBark: cfg.species === 'birch'
-  }));
+    isBirchBark: cfg.species === 'birch',
+    isFoliageSurface: false
+  })));
 
   if (cfg.species !== 'dead') {
     const domeRadius = Math.max(0.85, cfg.spread * 0.55);
@@ -788,11 +798,12 @@ export function buildTreeHemisphereGeo(cfg, lod0Data, seedOffset = 0) {
     const domeY = cfg.species === 'bush' ? domeHeight * 0.25 : (isConifer ? cfg.height * 0.56 : cfg.height * 0.38);
     jitteredHemi.translate(lod0Data.center.x, domeY, lod0Data.center.z);
 
-    geos.push(treeColorizeGeometry(jitteredHemi, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, {
+    geos.push(treeColorizeGeometry(jitteredHemi, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, getTreeFoliageColorOptions(cfg, {
+      simulateTextureError,
       variance: cfg.colorVar * 1.2,
       snowCoverage: cfg.snow,
       isGradientCanopy: true
-    }));
+    })));
   }
 
   return treeMergeBufferGeometries(geos);

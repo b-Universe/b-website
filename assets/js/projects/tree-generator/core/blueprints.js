@@ -37,6 +37,16 @@ export function generateTreeBlueprint(rawCfg, options = {}) {
     collisionBounds: layout.collisionBounds,
     interaction: layout.interaction,
     windProfile: layout.windProfile,
+    foliageMaterial: {
+      mode: cfg.foliageTextureMode,
+      grassTextureEnabled: cfg.foliageGrassTexture,
+      textureAsset: cfg.foliageGrassTexture ? '/assets/structural-materials/grass_block_top.png' : null,
+      textureResolution: cfg.foliageGrassTexture ? 16 : 0,
+      filtering: 'nearest',
+      textureScale: cfg.foliageTextureScale,
+      tintStrength: cfg.foliageTintStrength,
+      colorVariation: cfg.foliageTextureVariation
+    },
     attachments: {
       groundAttachment: cfg.groundAttachment,
       planterRadius: treeRoundNum(layout.planterRadius, 3),

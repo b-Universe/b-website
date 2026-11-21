@@ -7,7 +7,7 @@ import {
   treeRng32,
   treeRoundNum
 } from '../utils.js';
-import { treeColorizeGeometry } from './primitives.js';
+import { getTreeFoliageColorOptions, treeColorizeGeometry } from './primitives.js';
 
 export const TREE_PLACED_DETAIL_CATEGORIES = [
   { id: 'all', label: 'All Details', icon: 'fa-sparkles' },
@@ -115,8 +115,18 @@ function placeAtPoint(geo, x, y, z, rotY = 0) {
   return geo;
 }
 
-function addDetailGeo(targetArr, geo, c1, c2, rng, variance = 0.06) {
-  targetArr.push(treeColorizeGeometry(geo, c1, c2 || c1, '#ffffff', rng, { variance }));
+let activeDetailFoliageTarget = null;
+let activeDetailFoliageOpts = null;
+
+function addDetailGeo(targetArr, geo, c1, c2, rng, variance = 0.06, extraOpts = null) {
+  const baseOpts = targetArr === activeDetailFoliageTarget && activeDetailFoliageOpts
+    ? activeDetailFoliageOpts
+    : {};
+  targetArr.push(treeColorizeGeometry(geo, c1, c2 || c1, '#ffffff', rng, {
+    ...baseOpts,
+    ...(extraOpts || {}),
+    variance
+  }));
 }
 
 function addHangingCord(trunkProps, item, topY, dropLen, cordHex, rng, thickness = 0.012) {
@@ -321,7 +331,7 @@ function buildHangingObjectDetail(item, s, isLod1, rng, out) {
       const strand = new THREE.ConeGeometry(0.042 * s, sl, 4, isLod1 ? 1 : 2);
       strand.rotateX(Math.PI);
       placeAtPoint(strand, sx, py - sl * 0.45, pz + (i % 2 === 0 ? 0.02 : -0.02) * s);
-      addDetailGeo(foliageProps, strand, item.color, item.accentColor, rng, 0.14);
+      addDetailGeo(foliageProps, strand, item.color, item.accentColor, rng, 0.14, { isFoliageSurface: true });
     }
     return;
   }
@@ -426,17 +436,27 @@ export function buildPlacedTreeDetails(cfg, rng, isLod1 = false) {
   const items = sanitisePlacedDetailsList(cfg && cfg.placedDetails);
   if (items.length === 0) return out;
 
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
-    const meta = getPlacedDetailMeta(item.kind);
-    const localRng = treeRng32(((Number(cfg.seed) || 1337) + i * 7919 + item.kind.length * 131) >>> 0);
-    if (meta.category === 'flowers') {
-      buildFlowerDetail(item, item.scale, isLod1, rng || localRng, out);
-    } else if (meta.category === 'fruits') {
-      buildFruitDetail(item, item.scale, isLod1, rng || localRng, out);
-    } else {
-      buildHangingObjectDetail(item, item.scale, isLod1, rng || localRng, out);
+  const prevTarget = activeDetailFoliageTarget;
+  const prevOpts = activeDetailFoliageOpts;
+  activeDetailFoliageTarget = out.foliageProps;
+  activeDetailFoliageOpts = getTreeFoliageColorOptions(cfg || {}, { isFoliageSurface: false });
+
+  try {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const meta = getPlacedDetailMeta(item.kind);
+      const localRng = treeRng32(((Number(cfg.seed) || 1337) + i * 7919 + item.kind.length * 131) >>> 0);
+      if (meta.category === 'flowers') {
+        buildFlowerDetail(item, item.scale, isLod1, rng || localRng, out);
+      } else if (meta.category === 'fruits') {
+        buildFruitDetail(item, item.scale, isLod1, rng || localRng, out);
+      } else {
+        buildHangingObjectDetail(item, item.scale, isLod1, rng || localRng, out);
+      }
     }
+  } finally {
+    activeDetailFoliageTarget = prevTarget;
+    activeDetailFoliageOpts = prevOpts;
   }
   return out;
 }

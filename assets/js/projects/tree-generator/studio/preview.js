@@ -360,7 +360,7 @@ export class OffscreenTreeAtlasBaker {
     }
   }
 
-  bake(lod0Data, res = 512) {
+  bake(lod0Data, res = 512, cfg = null) {
     const atlasCanvas = tree$('#atlas-canvas');
     if (res !== this.res) {
       this.res = res;
@@ -377,9 +377,33 @@ export class OffscreenTreeAtlasBaker {
     });
     toRemove.forEach((m) => this.scene.remove(m));
 
-    const mat = new THREE.MeshLambertMaterial({ vertexColors: true });
-    const tempMesh = new THREE.Mesh(lod0Data.mergedGeo, mat);
-    this.scene.add(tempMesh);
+    const hasPos = (geo) => Boolean(geo && geo.attributes && geo.attributes.position && geo.attributes.position.count > 0);
+    let tempBundle = null;
+    let fallbackMat = null;
+    const tempMeshes = [];
+
+    if (cfg) {
+      tempBundle = createTreeMaterialBundle(cfg);
+      if (hasPos(lod0Data.trunkGeo)) {
+        tempMeshes.push(new THREE.Mesh(lod0Data.trunkGeo, tempBundle.trunkMat));
+      }
+      if (hasPos(lod0Data.foliageGeo)) {
+        tempMeshes.push(new THREE.Mesh(lod0Data.foliageGeo, tempBundle.foliageMat));
+      }
+      if (hasPos(lod0Data.emissiveGeo)) {
+        tempMeshes.push(new THREE.Mesh(lod0Data.emissiveGeo, tempBundle.emissiveMat));
+      }
+      if (hasPos(lod0Data.planterGeo)) {
+        tempMeshes.push(new THREE.Mesh(lod0Data.planterGeo, tempBundle.planterMat));
+      }
+    }
+
+    if (tempMeshes.length === 0) {
+      fallbackMat = new THREE.MeshLambertMaterial({ vertexColors: true });
+      tempMeshes.push(new THREE.Mesh(lod0Data.mergedGeo, fallbackMat));
+    }
+
+    tempMeshes.forEach((m) => this.scene.add(m));
 
     const size = lod0Data.size;
     const center = lod0Data.center;
@@ -438,7 +462,12 @@ export class OffscreenTreeAtlasBaker {
       this.sharedTexture.needsUpdate = true;
     }
 
-    mat.dispose();
+    tempMeshes.forEach((m) => this.scene.remove(m));
+    if (fallbackMat) fallbackMat.dispose();
+    if (tempBundle) {
+      tempBundle.ownedMaterials.forEach((m) => m.dispose());
+      tempBundle.ownedTextures.forEach((t) => t.dispose());
+    }
     return { maxDim, center, size };
   }
 

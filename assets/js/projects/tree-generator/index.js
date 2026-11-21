@@ -4,7 +4,7 @@ import { SPECIES_DEFAULT_PRESETS, TREE_PRESETS, TREE_SPECIES, getSpeciesMeta } f
 import { generateTreeBlueprint, validateTreeBlueprint } from './core/blueprints.js';
 import { applyTreeSeedVariation, randomizeTreeSettings } from './core/variation.js';
 import { TREE_SEASON_PALETTES } from './materials/palettes.js';
-import { clearTreeMaterialCache, setTreeSilhouetteAndWireframe } from './materials/materials.js';
+import { clearTreeMaterialCache, createTreeMaterialBundle, setTreeSilhouetteAndWireframe } from './materials/materials.js';
 import { buildTreeBillboardMesh, buildTreeHemisphereGeo, generateTreeLodData } from './geometry/lods.js';
 import {
   getPlacedDetailMeta,
@@ -159,7 +159,7 @@ function rebuildTreeScene() {
   applyTreeLightingMode(scene, lights, cfg.lightingMode);
 
   cachedLod0Data = generateTreeLodData(cfg, 0, 0);
-  atlasBaker.bake(cachedLod0Data, cfg.atlasRes);
+  atlasBaker.bake(cachedLod0Data, cfg.atlasRes, cfg);
 
   const overlayCards = tree$('#lod-cards-overlay');
   if (overlayCards) {
@@ -264,6 +264,11 @@ function rebuildTreeScene() {
           ...altPreset,
           season: cfg.season,
           colorLeaf1: v === 4 ? cfg.colorLeaf2 : altPreset.colorLeaf1,
+          foliageTextureMode: cfg.foliageTextureMode,
+          foliageGrassTexture: cfg.foliageGrassTexture,
+          foliageTextureScale: cfg.foliageTextureScale,
+          foliageTintStrength: cfg.foliageTintStrength,
+          foliageTextureVariation: cfg.foliageTextureVariation,
           seed: cfg.seed + v * 173
         });
       }
@@ -275,12 +280,27 @@ function rebuildTreeScene() {
       poolHemi.push(hGeo);
     }
 
+    const useForestBundle = cfg.foliageTextureMode === 'grass' && !runtime.silhouetteMode;
+    const forestBundle = useForestBundle
+      ? createTreeMaterialBundle(cfg, { wireframe: runtime.wireframe, silhouetteMode: runtime.silhouetteMode })
+      : null;
     const flatMat = new THREE.MeshLambertMaterial({
       vertexColors: true,
       wireframe: runtime.wireframe,
       color: runtime.silhouetteMode ? 0xd0d8e0 : 0xffffff
     });
     const ownedForestMat = { _ownedMat: true };
+    let forestBundleAttached = false;
+    let flatMatAttached = false;
+    const hasPos = (geo) => Boolean(geo && geo.attributes && geo.attributes.position && geo.attributes.position.count > 0);
+    const buildForestLodGroup = (data) => {
+      const grp = new THREE.Group();
+      if (hasPos(data.trunkGeo)) grp.add(new THREE.Mesh(data.trunkGeo, forestBundle.trunkMat));
+      if (hasPos(data.foliageGeo)) grp.add(new THREE.Mesh(data.foliageGeo, forestBundle.foliageMat));
+      if (hasPos(data.emissiveGeo)) grp.add(new THREE.Mesh(data.emissiveGeo, forestBundle.emissiveMat));
+      if (hasPos(data.planterGeo)) grp.add(new THREE.Mesh(data.planterGeo, forestBundle.planterMat));
+      return grp;
+    };
 
     const rng = treeRng32(cfg.seed + 9001);
     let totalTris = 0;
@@ -319,15 +339,45 @@ function rebuildTreeScene() {
 
       let inst;
       if (chosenLod === 0) {
-        inst = new THREE.Mesh(poolLod0[poolIdx].mergedGeo, flatMat);
-        inst.userData = i === 0 ? ownedForestMat : {};
+        if (forestBundle) {
+          inst = buildForestLodGroup(poolLod0[poolIdx]);
+          if (!forestBundleAttached) {
+            inst.userData._materialBundle = forestBundle;
+            forestBundleAttached = true;
+          }
+        } else {
+          inst = new THREE.Mesh(poolLod0[poolIdx].mergedGeo, flatMat);
+          if (!flatMatAttached) {
+            inst.userData = ownedForestMat;
+            flatMatAttached = true;
+          }
+        }
       } else if (chosenLod === 1) {
-        inst = new THREE.Mesh(poolLod1[poolIdx].mergedGeo, flatMat);
-        inst.userData = i === 0 ? ownedForestMat : {};
+        if (forestBundle) {
+          inst = buildForestLodGroup(poolLod1[poolIdx]);
+          if (!forestBundleAttached) {
+            inst.userData._materialBundle = forestBundle;
+            forestBundleAttached = true;
+          }
+        } else {
+          inst = new THREE.Mesh(poolLod1[poolIdx].mergedGeo, flatMat);
+          if (!flatMatAttached) {
+            inst.userData = ownedForestMat;
+            flatMatAttached = true;
+          }
+        }
       } else if (chosenLod === 2) {
         const style = forceStyle || cfg.lod2Style;
+        const hemiMat = forestBundle ? forestBundle.foliageMat : flatMat;
         if (style === 'hemisphere') {
-          inst = new THREE.Mesh(poolHemi[poolIdx], flatMat);
+          inst = new THREE.Mesh(poolHemi[poolIdx], hemiMat);
+          if (forestBundle && !forestBundleAttached) {
+            inst.userData._materialBundle = forestBundle;
+            forestBundleAttached = true;
+          } else if (!forestBundle && !flatMatAttached) {
+            inst.userData = ownedForestMat;
+            flatMatAttached = true;
+          }
         } else if (style === 'billboard') {
           inst = buildTreeBillboardMesh(poolLod0[0], atlasBaker.sharedTexture, {
             includeIsoCap: true,
@@ -336,7 +386,15 @@ function rebuildTreeScene() {
           });
         } else {
           inst = new THREE.Group();
-          inst.add(new THREE.Mesh(poolHemi[poolIdx], flatMat));
+          const hMesh = new THREE.Mesh(poolHemi[poolIdx], hemiMat);
+          if (forestBundle && !forestBundleAttached) {
+            hMesh.userData._materialBundle = forestBundle;
+            forestBundleAttached = true;
+          } else if (!forestBundle && !flatMatAttached) {
+            hMesh.userData = ownedForestMat;
+            flatMatAttached = true;
+          }
+          inst.add(hMesh);
           inst.add(buildTreeBillboardMesh(poolLod0[0], atlasBaker.sharedTexture, {
             includeIsoCap: false,
             species: cfg.species,
@@ -367,6 +425,14 @@ function rebuildTreeScene() {
       const st = countTreeObjectStats(inst);
       totalTris += st.tris;
       totalVerts += st.verts;
+    }
+
+    if (forestBundle && !forestBundleAttached) {
+      forestBundle.ownedMaterials.forEach((m) => m.dispose());
+      forestBundle.ownedTextures.forEach((t) => t.dispose());
+    }
+    if (!flatMatAttached) {
+      flatMat.dispose();
     }
 
     const refBp = generateTreeBlueprint(cfg, { layout: cachedLod0Data.layout });
@@ -413,7 +479,15 @@ function refreshAllUI() {
 
   renderTreeControlsTab(runtime.activeTab, runtime.config, runtime.locks, {
     onFieldChange: (key, val) => {
-      runtime.config = sanitiseTreeConfig({ ...runtime.config, [key]: val });
+      const nextRaw = { ...runtime.config, [key]: val };
+      if (key === 'foliageTextureMode') {
+        nextRaw.foliageGrassTexture = val === 'grass';
+        nextRaw._lastChanged = 'foliageTextureMode';
+      } else if (key === 'foliageGrassTexture') {
+        nextRaw.foliageTextureMode = val ? 'grass' : 'solid';
+        nextRaw._lastChanged = 'foliageGrassTexture';
+      }
+      runtime.config = sanitiseTreeConfig(nextRaw);
       if (key === 'lightingMode' || key === 'environmentStage' || key === 'atlasRes') {
         const lSel = tree$('#lighting-select');
         if (lSel) lSel.value = runtime.config.lightingMode;
@@ -422,8 +496,12 @@ function refreshAllUI() {
         const aBadge = tree$('#atlas-res-badge');
         if (aBadge) aBadge.textContent = `${runtime.config.atlasRes}×${runtime.config.atlasRes}`;
       }
+      if (key === 'foliageTextureMode' || key === 'foliageGrassTexture') {
+        refreshAllUI();
+      } else {
+        renderVariationStrip(runtime.config, runtime.locks, applyVariantConfig);
+      }
       rebuildTreeScene();
-      renderVariationStrip(runtime.config, runtime.locks, applyVariantConfig);
     },
     onSelectSeason: (seasonKey) => {
       const pal = TREE_SEASON_PALETTES[seasonKey];

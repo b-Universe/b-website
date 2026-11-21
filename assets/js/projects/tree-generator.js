@@ -755,6 +755,84 @@ function getTreePreset(presetId) {
 }
 
   // --- Module: geometry/primitives.js ---
+const TREE_FOLIAGE_BASE_UV_TILES_PER_METER = 1.15;
+
+function getTreeFoliageColorOptions(cfg, extra = {}) {
+  const isNaturalGreen = !['autumn', 'blossom', 'arcane', 'corrupted', 'winter'].includes(cfg.season)
+    && !['sakura', 'fantasy', 'dead'].includes(cfg.species);
+  return {
+    foliageTextureMode: cfg.foliageTextureMode,
+    foliageGrassTexture: cfg.foliageGrassTexture,
+    foliageTextureScale: cfg.foliageTextureScale,
+    foliageTintStrength: cfg.foliageTintStrength,
+    foliageTextureVariation: cfg.foliageTextureVariation,
+    isNaturalGreen,
+    isFoliageSurface: true,
+    ...extra
+  };
+}
+
+function treeProjectFoliageBoxUVs(geo, textureScale = 1.0, phaseU = 0, phaseV = 0) {
+  if (!geo || !geo.attributes || !geo.attributes.position) return geo;
+  const pos = geo.attributes.position;
+  if (pos.count === 0) return geo;
+  if (!geo.attributes.normal) geo.computeVertexNormals();
+  const norm = geo.attributes.normal;
+  const uvs = new Float32Array(pos.count * 2);
+  const scale = TREE_FOLIAGE_BASE_UV_TILES_PER_METER * treeClamp(Number(textureScale) || 1.0, 0.25, 4.0);
+
+  if (!geo.index) {
+    for (let i = 0; i + 2 < pos.count; i += 3) {
+      const nx = Math.abs(norm.getX(i) + norm.getX(i + 1) + norm.getX(i + 2));
+      const ny = Math.abs(norm.getY(i) + norm.getY(i + 1) + norm.getY(i + 2));
+      const nz = Math.abs(norm.getZ(i) + norm.getZ(i + 1) + norm.getZ(i + 2));
+
+      for (let v = 0; v < 3; v++) {
+        const idx = i + v;
+        const x = pos.getX(idx);
+        const y = pos.getY(idx);
+        const z = pos.getZ(idx);
+        let u;
+        let vCoord;
+        if (ny >= nx && ny >= nz) {
+          u = x * scale + phaseU;
+          vCoord = z * scale + phaseV;
+        } else if (nx >= nz) {
+          u = z * scale + phaseU;
+          vCoord = y * scale + phaseV;
+        } else {
+          u = x * scale + phaseU;
+          vCoord = y * scale + phaseV;
+        }
+        uvs[idx * 2] = u;
+        uvs[idx * 2 + 1] = vCoord;
+      }
+    }
+  } else {
+    for (let i = 0; i < pos.count; i++) {
+      const nx = Math.abs(norm.getX(i));
+      const ny = Math.abs(norm.getY(i));
+      const nz = Math.abs(norm.getZ(i));
+      const x = pos.getX(i);
+      const y = pos.getY(i);
+      const z = pos.getZ(i);
+      if (ny >= nx && ny >= nz) {
+        uvs[i * 2] = x * scale + phaseU;
+        uvs[i * 2 + 1] = z * scale + phaseV;
+      } else if (nx >= nz) {
+        uvs[i * 2] = z * scale + phaseU;
+        uvs[i * 2 + 1] = y * scale + phaseV;
+      } else {
+        uvs[i * 2] = x * scale + phaseU;
+        uvs[i * 2 + 1] = y * scale + phaseV;
+      }
+    }
+  }
+
+  geo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+  return geo;
+}
+
 function treeMergeBufferGeometries(geometries) {
   if (!geometries || geometries.length === 0) return new THREE.BufferGeometry();
   let totalVerts = 0;
@@ -847,16 +925,22 @@ function treeJitterGeometryVertices(geo, jitterAmount, rng, lockBottomY = false)
 }
 
 function treeColorizeGeometry(geo, baseHex, secondaryHex, accentHex, rng, options = {}) {
+  const rand = typeof rng === 'function' ? rng : () => 0.5;
   const g = geo.index ? geo.toNonIndexed() : geo.clone();
   g.computeVertexNormals();
   const pos = g.attributes.position;
   const norm = g.attributes.normal;
   const colors = new Float32Array(pos.count * 3);
 
+  const phaseU = Math.floor(rand() * 16) / 16;
+  const phaseV = Math.floor(rand() * 16) / 16;
+  treeProjectFoliageBoxUVs(g, options.foliageTextureScale || 1.0, phaseU, phaseV);
+
   const c1 = new THREE.Color(baseHex);
   const c2 = new THREE.Color(secondaryHex || baseHex);
   const cAccent = new THREE.Color(accentHex || '#ffffff');
   const cMoss = new THREE.Color('#3b732d');
+  const cRef = new THREE.Color();
   const tempColor = new THREE.Color();
 
   const variance = options.variance !== undefined ? options.variance : 0.12;
@@ -865,6 +949,15 @@ function treeColorizeGeometry(geo, baseHex, secondaryHex, accentHex, rng, option
   const isBamboo = Boolean(options.isBamboo);
   const isGradientCanopy = Boolean(options.isGradientCanopy);
   const mossCoverage = options.mossCoverage || 0.0;
+
+  const useGrassTexture = (options.foliageTextureMode === 'grass' || options.foliageGrassTexture === true)
+    && !options.simulateTextureError;
+  const isFoliageSurface = Boolean(options.isFoliageSurface);
+  const tintStrength = treeClamp(Number(options.foliageTintStrength !== undefined ? options.foliageTintStrength : 0.90), 0, 1);
+  const texVar = treeClamp(Number(options.foliageTextureVariation !== undefined ? options.foliageTextureVariation : 0.55), 0, 1);
+  const depth = 0.06 + texVar * 0.44;
+  const meanLum = 1.0 - 0.6355 * depth;
+  const texBoost = useGrassTexture ? (1.0 / Math.max(0.4, meanLum)) : 1.0;
 
   let minY = Infinity;
   let maxY = -Infinity;
@@ -880,15 +973,15 @@ function treeColorizeGeometry(geo, baseHex, secondaryHex, accentHex, rng, option
     const avgY = (pos.getY(i) + pos.getY(i + 1) + pos.getY(i + 2)) / 3;
     const normY = (avgY - minY) / spanY;
 
-    let mixFactor = rng();
+    let mixFactor = rand();
     if (isGradientCanopy) {
-      mixFactor = Math.min(1, Math.max(0, normY * 0.85 + (rng() - 0.5) * 0.32));
+      mixFactor = Math.min(1, Math.max(0, normY * 0.85 + (rand() - 0.5) * 0.32));
     }
 
     tempColor.copy(c1).lerp(c2, mixFactor);
 
     if (isBirchBark) {
-      const band = Math.sin(avgY * 11.0 + rng() * 1.4);
+      const band = Math.sin(avgY * 11.0 + rand() * 1.4);
       if (band > 0.68) {
         tempColor.setHex(0x2b2623);
       }
@@ -901,16 +994,33 @@ function treeColorizeGeometry(geo, baseHex, secondaryHex, accentHex, rng, option
       }
     }
 
-    if (mossCoverage > 0.02 && normY < mossCoverage * 0.65 && (ny > -0.1 || rng() < mossCoverage)) {
+    if (mossCoverage > 0.02 && normY < mossCoverage * 0.65 && (ny > -0.1 || rand() < mossCoverage)) {
       tempColor.lerp(cMoss, Math.min(0.82, mossCoverage * (1.0 - normY)));
     }
 
+    let isSnowFacet = false;
     if (snowCoverage > 0.01 && ny > (1.0 - snowCoverage * 1.45)) {
       tempColor.copy(cAccent);
+      isSnowFacet = true;
     }
 
-    const facetShift = (rng() - 0.5) * variance * 0.65 + ny * 0.06;
+    const facetShift = (rand() - 0.5) * variance * 0.65 + ny * 0.06;
     tempColor.offsetHSL(0, 0, facetShift);
+
+    const texJitter = rand() - 0.5;
+    if (useGrassTexture) {
+      if (isFoliageSurface && !isSnowFacet) {
+        if (tintStrength < 0.999) {
+          cRef.set(options.isNaturalGreen === false ? '#cccccc' : '#588c3a');
+          tempColor.lerp(cRef, (1.0 - tintStrength) * 0.75);
+        }
+        const texFacetShift = texJitter * (texVar - 0.5) * 0.14;
+        if (Math.abs(texFacetShift) > 1e-4) {
+          tempColor.offsetHSL(0, 0, texFacetShift);
+        }
+      }
+      tempColor.multiplyScalar(texBoost);
+    }
 
     for (let v = 0; v < 3; v++) {
       const idx = (i + v) * 3;
@@ -1261,7 +1371,14 @@ function buildTreeStoryProps(cfg, layout, branchTips, rng, isLod1) {
       const oy = tip.y - vLen * 0.5;
       const vine = new THREE.CylinderGeometry(0.035, 0.015, vLen, 3, isLod1 ? 1 : 3);
       vine.translate(ox, oy, oz);
-      foliageProps.push(treeColorizeGeometry(vine, cfg.colorLeaf1, cfg.colorLeaf2, '#ffffff', rng, { variance: 0.14 }));
+      foliageProps.push(treeColorizeGeometry(
+        vine,
+        cfg.colorLeaf1,
+        cfg.colorLeaf2,
+        '#ffffff',
+        rng,
+        getTreeFoliageColorOptions(cfg, { variance: 0.14 })
+      ));
     }
   }
 
@@ -1294,7 +1411,14 @@ function buildTreeStoryProps(cfg, layout, branchTips, rng, isLod1) {
           layout.trunkTop.y - 0.35,
           layout.trunkTop.z + Math.sin(ang) * layout.baseRadius * 0.75
         );
-        foliageProps.push(treeColorizeGeometry(hand, '#f4d35e', '#ee964b', '#ffffff', rng, { variance: 0.06 }));
+        foliageProps.push(treeColorizeGeometry(
+          hand,
+          '#f4d35e',
+          '#ee964b',
+          '#ffffff',
+          rng,
+          getTreeFoliageColorOptions(cfg, { variance: 0.06, isFoliageSurface: false })
+        ));
       }
     } else if (cfg.fruitType === 'pinecones') {
       for (let i = 0; i < count; i++) {
@@ -1314,7 +1438,14 @@ function buildTreeStoryProps(cfg, layout, branchTips, rng, isLod1) {
         const bloom = new THREE.OctahedronGeometry(0.16, 0);
         bloom.scale(1.1, 0.7, 1.1);
         bloom.translate(tip.x, tip.y + 0.1, tip.z);
-        foliageProps.push(treeColorizeGeometry(bloom, fruitCol, '#ffccd5', '#ffffff', rng, { variance: 0.06 }));
+        foliageProps.push(treeColorizeGeometry(
+          bloom,
+          fruitCol,
+          '#ffccd5',
+          '#ffffff',
+          rng,
+          getTreeFoliageColorOptions(cfg, { variance: 0.06, isFoliageSurface: false })
+        ));
       }
     } else {
       // Apples / Fruit
@@ -1326,7 +1457,14 @@ function buildTreeStoryProps(cfg, layout, branchTips, rng, isLod1) {
           tip.y - 0.1 + (rng() - 0.5) * 0.55,
           tip.z + (rng() - 0.5) * cfg.clusterSize * 0.9
         );
-        foliageProps.push(treeColorizeGeometry(apple, fruitCol, '#ff758f', '#ffffff', rng, { variance: 0.06 }));
+        foliageProps.push(treeColorizeGeometry(
+          apple,
+          fruitCol,
+          '#ff758f',
+          '#ffffff',
+          rng,
+          getTreeFoliageColorOptions(cfg, { variance: 0.06, isFoliageSurface: false })
+        ));
       }
     }
   }
@@ -1385,7 +1523,14 @@ function buildTreeStoryProps(cfg, layout, branchTips, rng, isLod1) {
         leaf.scale(1.4, 0.18, 1.0);
         leaf.rotateY(rng() * Math.PI);
         leaf.translate(Math.cos(ang) * dist, layout.planterLift + 0.03, Math.sin(ang) * dist);
-        foliageProps.push(treeColorizeGeometry(leaf, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, { variance: 0.2 }));
+        foliageProps.push(treeColorizeGeometry(
+          leaf,
+          cfg.colorLeaf1,
+          cfg.colorLeaf2,
+          cfg.colorAccent,
+          rng,
+          getTreeFoliageColorOptions(cfg, { variance: 0.2 })
+        ));
       }
     }
   }
@@ -1500,8 +1645,18 @@ function placeAtPoint(geo, x, y, z, rotY = 0) {
   return geo;
 }
 
-function addDetailGeo(targetArr, geo, c1, c2, rng, variance = 0.06) {
-  targetArr.push(treeColorizeGeometry(geo, c1, c2 || c1, '#ffffff', rng, { variance }));
+let activeDetailFoliageTarget = null;
+let activeDetailFoliageOpts = null;
+
+function addDetailGeo(targetArr, geo, c1, c2, rng, variance = 0.06, extraOpts = null) {
+  const baseOpts = targetArr === activeDetailFoliageTarget && activeDetailFoliageOpts
+    ? activeDetailFoliageOpts
+    : {};
+  targetArr.push(treeColorizeGeometry(geo, c1, c2 || c1, '#ffffff', rng, {
+    ...baseOpts,
+    ...(extraOpts || {}),
+    variance
+  }));
 }
 
 function addHangingCord(trunkProps, item, topY, dropLen, cordHex, rng, thickness = 0.012) {
@@ -1706,7 +1861,7 @@ function buildHangingObjectDetail(item, s, isLod1, rng, out) {
       const strand = new THREE.ConeGeometry(0.042 * s, sl, 4, isLod1 ? 1 : 2);
       strand.rotateX(Math.PI);
       placeAtPoint(strand, sx, py - sl * 0.45, pz + (i % 2 === 0 ? 0.02 : -0.02) * s);
-      addDetailGeo(foliageProps, strand, item.color, item.accentColor, rng, 0.14);
+      addDetailGeo(foliageProps, strand, item.color, item.accentColor, rng, 0.14, { isFoliageSurface: true });
     }
     return;
   }
@@ -1811,17 +1966,27 @@ function buildPlacedTreeDetails(cfg, rng, isLod1 = false) {
   const items = sanitisePlacedDetailsList(cfg && cfg.placedDetails);
   if (items.length === 0) return out;
 
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
-    const meta = getPlacedDetailMeta(item.kind);
-    const localRng = treeRng32(((Number(cfg.seed) || 1337) + i * 7919 + item.kind.length * 131) >>> 0);
-    if (meta.category === 'flowers') {
-      buildFlowerDetail(item, item.scale, isLod1, rng || localRng, out);
-    } else if (meta.category === 'fruits') {
-      buildFruitDetail(item, item.scale, isLod1, rng || localRng, out);
-    } else {
-      buildHangingObjectDetail(item, item.scale, isLod1, rng || localRng, out);
+  const prevTarget = activeDetailFoliageTarget;
+  const prevOpts = activeDetailFoliageOpts;
+  activeDetailFoliageTarget = out.foliageProps;
+  activeDetailFoliageOpts = getTreeFoliageColorOptions(cfg || {}, { isFoliageSurface: false });
+
+  try {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const meta = getPlacedDetailMeta(item.kind);
+      const localRng = treeRng32(((Number(cfg.seed) || 1337) + i * 7919 + item.kind.length * 131) >>> 0);
+      if (meta.category === 'flowers') {
+        buildFlowerDetail(item, item.scale, isLod1, rng || localRng, out);
+      } else if (meta.category === 'fruits') {
+        buildFruitDetail(item, item.scale, isLod1, rng || localRng, out);
+      } else {
+        buildHangingObjectDetail(item, item.scale, isLod1, rng || localRng, out);
+      }
     }
+  } finally {
+    activeDetailFoliageTarget = prevTarget;
+    activeDetailFoliageOpts = prevOpts;
   }
   return out;
 }
@@ -2028,6 +2193,11 @@ const TREE_BASE = {
   colorVar: 0.16,
   snow: 0.0,
   barkTextureStyle: 'flat_vertex',
+  foliageTextureMode: 'grass',
+  foliageGrassTexture: true,
+  foliageTextureScale: 1.0,
+  foliageTintStrength: 0.90,
+  foliageTextureVariation: 0.55,
   emissiveIntensity: 0.0,
   windStrength: 0.25,
   ambientFx: 'auto',
@@ -2121,6 +2291,10 @@ const TREE_OPTIONS = {
     { value: 'birch_lenticel', label: 'Birch Lenticel Bands' },
     { value: 'mossy_bark', label: 'Mossy Bark Grain' },
     { value: 'cracked_dry', label: 'Cracked Deadwood' }
+  ],
+  foliageTextureMode: [
+    { value: 'solid', label: 'Solid Color' },
+    { value: 'grass', label: 'Grass Texture' }
   ],
   ambientFx: [
     { value: 'auto', label: 'Auto (Match Season)' },
@@ -2216,7 +2390,12 @@ const TREE_SCHEMA = {
     { key: 'colorAccent', label: 'Snow / Blossom / Accent', type: 'color' },
     { key: 'colorVar', label: 'Per-Facet Color Variance', type: 'range', min: 0.0, max: 0.5, step: 0.01, group: 'Surface Shading' },
     { key: 'barkTextureStyle', label: 'Bark Surface Finish', type: 'select', options: 'barkTextureStyle' },
-    { key: 'emissiveIntensity', label: 'Arcane / Lantern Glow', type: 'range', min: 0.0, max: 1.0, step: 0.05 }
+    { key: 'emissiveIntensity', label: 'Arcane / Lantern Glow', type: 'range', min: 0.0, max: 1.0, step: 0.05 },
+    { key: 'foliageTextureMode', label: 'Foliage Appearance', type: 'select', options: 'foliageTextureMode', group: 'Foliage Texture Settings' },
+    { key: 'foliageGrassTexture', label: 'Enable Grass Texture', type: 'checkbox' },
+    { key: 'foliageTextureScale', label: 'Texture Scale / Tiling', type: 'range', min: 0.25, max: 4.0, step: 0.05, unit: '×' },
+    { key: 'foliageTintStrength', label: 'Texture Tint Strength', type: 'range', min: 0.0, max: 1.0, step: 0.05 },
+    { key: 'foliageTextureVariation', label: 'Texture Color Variation', type: 'range', min: 0.0, max: 1.0, step: 0.05 }
   ],
   export: [
     { key: 'lod2Style', label: 'Lod 2 Impostor Style', type: 'select', options: 'lod2Style', group: 'Lod & Atlas Settings' },
@@ -2315,6 +2494,27 @@ function sanitiseTreeConfig(raw = {}) {
   out.colorVar = treeClamp(Number(merged.colorVar ?? TREE_BASE.colorVar), 0, 0.5);
   out.snow = treeClamp(Number(merged.snow ?? TREE_BASE.snow), 0, 1);
   out.barkTextureStyle = sanitizeOption(merged.barkTextureStyle, 'barkTextureStyle', TREE_BASE.barkTextureStyle);
+  let foliageMode = TREE_BASE.foliageTextureMode;
+  if (src._lastChanged === 'foliageTextureMode' && src.foliageTextureMode !== undefined) {
+    foliageMode = src.foliageTextureMode === 'solid' ? 'solid' : 'grass';
+  } else if (src._lastChanged === 'foliageGrassTexture' && src.foliageGrassTexture !== undefined) {
+    foliageMode = src.foliageGrassTexture ? 'grass' : 'solid';
+  } else if (src.foliageTextureMode !== undefined && src.foliageGrassTexture === undefined) {
+    foliageMode = src.foliageTextureMode === 'solid' ? 'solid' : 'grass';
+  } else if (src.foliageGrassTexture !== undefined && src.foliageTextureMode === undefined) {
+    foliageMode = src.foliageGrassTexture ? 'grass' : 'solid';
+  } else if (src.foliageTextureMode !== undefined && src.foliageGrassTexture !== undefined) {
+    const modeIsGrass = src.foliageTextureMode !== 'solid';
+    const flagIsGrass = Boolean(src.foliageGrassTexture);
+    foliageMode = (modeIsGrass && flagIsGrass) ? 'grass' : 'solid';
+  } else {
+    foliageMode = (merged.foliageTextureMode === 'solid' || merged.foliageGrassTexture === false) ? 'solid' : 'grass';
+  }
+  out.foliageTextureMode = foliageMode;
+  out.foliageGrassTexture = foliageMode === 'grass';
+  out.foliageTextureScale = treeClamp(Number(merged.foliageTextureScale ?? TREE_BASE.foliageTextureScale), 0.25, 4.0);
+  out.foliageTintStrength = treeClamp(Number(merged.foliageTintStrength ?? TREE_BASE.foliageTintStrength), 0.0, 1.0);
+  out.foliageTextureVariation = treeClamp(Number(merged.foliageTextureVariation ?? TREE_BASE.foliageTextureVariation), 0.0, 1.0);
   out.emissiveIntensity = treeClamp(Number(merged.emissiveIntensity ?? TREE_BASE.emissiveIntensity), 0, 1);
   out.windStrength = treeClamp(Number(merged.windStrength ?? TREE_BASE.windStrength), 0, 1);
   out.ambientFx = sanitizeOption(merged.ambientFx, 'ambientFx', TREE_BASE.ambientFx);
@@ -2583,6 +2783,16 @@ function generateTreeBlueprint(rawCfg, options = {}) {
     collisionBounds: layout.collisionBounds,
     interaction: layout.interaction,
     windProfile: layout.windProfile,
+    foliageMaterial: {
+      mode: cfg.foliageTextureMode,
+      grassTextureEnabled: cfg.foliageGrassTexture,
+      textureAsset: cfg.foliageGrassTexture ? '/assets/structural-materials/grass_block_top.png' : null,
+      textureResolution: cfg.foliageGrassTexture ? 16 : 0,
+      filtering: 'nearest',
+      textureScale: cfg.foliageTextureScale,
+      tintStrength: cfg.foliageTintStrength,
+      colorVariation: cfg.foliageTextureVariation
+    },
     attachments: {
       groundAttachment: cfg.groundAttachment,
       planterRadius: treeRoundNum(layout.planterRadius, 3),
@@ -3011,6 +3221,75 @@ function buildBiomeGrovePack(rawCfg, count = 12) {
 }
 
   // --- Module: materials/materials.js ---
+const TREE_GRASS_TEXTURE_ASSET_PATH = '/assets/structural-materials/grass_block_top.png';
+
+// Exact 16x16 grayscale texels from the-game-remastered/game-client/assets/structural-materials/grass_block_top.png
+const GRASS_BLOCK_TOP_16X16 = [
+  124, 133, 153, 133, 124, 153, 153, 124, 124, 133, 133, 147, 133, 133, 133, 133,
+  124, 153, 153, 164, 124, 133, 147, 133, 153, 153, 133, 124, 124, 133, 153, 133,
+  133, 153, 133, 164, 133, 133, 133, 153, 153, 133, 124, 124, 133, 164, 153, 153,
+  133, 124, 124, 133, 147, 133, 153, 133, 164, 164, 133, 153, 133, 164, 133, 153,
+  153, 153, 133, 133, 147, 147, 153, 124, 124, 133, 124, 153, 147, 133, 133, 133,
+  133, 147, 147, 124, 133, 147, 133, 153, 133, 133, 124, 133, 147, 133, 147, 147,
+  153, 133, 133, 124, 124, 124, 133, 147, 147, 133, 147, 133, 133, 124, 133, 153,
+  124, 124, 153, 153, 124, 133, 133, 124, 124, 147, 147, 153, 124, 124, 147, 147,
+  133, 147, 147, 133, 133, 153, 133, 153, 124, 147, 133, 153, 124, 133, 133, 133,
+  133, 133, 147, 147, 133, 153, 147, 153, 133, 133, 124, 124, 133, 164, 164, 133,
+  124, 133, 133, 124, 133, 133, 147, 133, 147, 147, 133, 124, 124, 133, 153, 153,
+  124, 124, 133, 164, 133, 124, 133, 133, 133, 147, 147, 133, 153, 153, 133, 124,
+  124, 133, 133, 164, 153, 124, 147, 133, 153, 133, 133, 153, 153, 133, 133, 133,
+  133, 153, 133, 133, 153, 133, 147, 147, 153, 124, 133, 133, 164, 164, 133, 124,
+  164, 153, 164, 133, 133, 133, 133, 147, 124, 124, 147, 133, 133, 124, 124, 133,
+  164, 133, 164, 133, 133, 147, 133, 133, 124, 133, 147, 147, 124, 124, 147, 147
+];
+
+let loadedGrassPixels16x16 = null;
+let grassPreloadAttempted = false;
+
+function ensureGrassTexturePreloaded() {
+  if (grassPreloadAttempted || typeof window === 'undefined' || typeof Image === 'undefined' || typeof document === 'undefined') {
+    return;
+  }
+  grassPreloadAttempted = true;
+  const candidates = [
+    TREE_GRASS_TEXTURE_ASSET_PATH,
+    '/the-game-remastered/game-client/assets/structural-materials/grass_block_top.png'
+  ];
+
+  const tryCandidate = (idx) => {
+    if (idx >= candidates.length) return;
+    try {
+      const img = new Image();
+      img.onload = () => {
+        if (img.width === 16 && img.height === 16) {
+          const c = document.createElement('canvas');
+          c.width = 16;
+          c.height = 16;
+          const ctx = c.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, 16, 16);
+            const imgData = ctx.getImageData(0, 0, 16, 16);
+            if (imgData && imgData.data && imgData.data.length === 16 * 16 * 4) {
+              const out = new Array(256);
+              for (let i = 0; i < 256; i++) {
+                const o = i * 4;
+                out[i] = Math.round((imgData.data[o] + imgData.data[o + 1] + imgData.data[o + 2]) / 3);
+              }
+              loadedGrassPixels16x16 = out;
+            }
+          }
+        }
+      };
+      img.onerror = () => tryCandidate(idx + 1);
+      img.src = candidates[idx];
+    } catch (_) {
+      tryCandidate(idx + 1);
+    }
+  };
+
+  tryCandidate(0);
+}
+
 const treeMaterialCache = new Map();
 
 function clearTreeMaterialCache() {
@@ -3074,11 +3353,84 @@ function buildBarkGrainTexture(style, seed = 1337) {
   return tex;
 }
 
+function getFoliageTextureCompensation(cfg = {}) {
+  const variation = treeClamp(Number(cfg && cfg.foliageTextureVariation !== undefined ? cfg.foliageTextureVariation : 0.55), 0, 1);
+  const depth = 0.06 + variation * 0.44;
+  // Normalize against the mean luminance drop of grass_block_top.png so textured foliage matches solid brightness.
+  const meanLum = 1.0 - 0.6355 * depth;
+  return {
+    depth,
+    meanLum,
+    boost: 1.0 / Math.max(0.4, meanLum)
+  };
+}
+
+function buildFoliageGrassTexture(cfg = {}, options = {}) {
+  if (options.simulateTextureError || (cfg && cfg.simulateTextureError) || typeof document === 'undefined') {
+    return null;
+  }
+
+  ensureGrassTexturePreloaded();
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 16;
+  canvas.height = 16;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  const { depth } = getFoliageTextureCompensation(cfg);
+  const tintStrength = treeClamp(Number(cfg && cfg.foliageTintStrength !== undefined ? cfg.foliageTintStrength : 0.90), 0, 1);
+  const isNaturalGreen = !['autumn', 'blossom', 'arcane', 'corrupted', 'winter'].includes(cfg.season)
+    && !['sakura', 'fantasy', 'dead'].includes(cfg.species);
+  const pixels = loadedGrassPixels16x16 || GRASS_BLOCK_TOP_16X16;
+
+  for (let y = 0; y < 16; y++) {
+    for (let x = 0; x < 16; x++) {
+      const raw = pixels[y * 16 + x];
+      const drop = treeClamp((164 - raw) / 40, 0, 1);
+      const lum = treeClamp(1.0 - drop * depth, 0.25, 1.0);
+      if (isNaturalGreen && tintStrength < 1.0) {
+        const warmMix = (1.0 - tintStrength) * 0.35;
+        const r = Math.round(treeClamp(lum * (1.0 - warmMix * 0.12) * 255, 0, 255));
+        const g = Math.round(treeClamp(lum * (1.0 + warmMix * 0.04) * 255, 0, 255));
+        const b = Math.round(treeClamp(lum * (1.0 - warmMix * 0.28) * 255, 0, 255));
+        ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+      } else {
+        const v = Math.round(treeClamp(lum * 255, 0, 255));
+        ctx.fillStyle = `rgb(${v}, ${v}, ${v})`;
+      }
+      ctx.fillRect(x, y, 1, 1);
+    }
+  }
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.name = 'BRemastered_GrassBlockTop_16x16';
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.magFilter = THREE.NearestFilter;
+  tex.minFilter = THREE.NearestFilter;
+  tex.generateMipmaps = false;
+  if ('SRGBColorSpace' in THREE && THREE.SRGBColorSpace && 'colorSpace' in tex) {
+    tex.colorSpace = THREE.SRGBColorSpace;
+  }
+  tex.userData = {
+    assetPath: TREE_GRASS_TEXTURE_ASSET_PATH,
+    resolution: 16,
+    filtering: 'nearest',
+    textureScale: Number(cfg.foliageTextureScale || 1.0),
+    tintStrength,
+    colorVariation: Number(cfg.foliageTextureVariation ?? 0.55)
+  };
+  tex.needsUpdate = true;
+  return tex;
+}
+
 function createTreeMaterialBundle(cfg, options = {}) {
   const wireframe = Boolean(options.wireframe);
   const silhouette = Boolean(options.silhouetteMode);
   const barkStyle = cfg.barkTextureStyle || 'flat_vertex';
   const emissiveStrength = cfg.emissiveIntensity || 0;
+  const useGrassFoliage = (cfg.foliageTextureMode === 'grass' || cfg.foliageGrassTexture === true) && !silhouette;
 
   if (silhouette) {
     const clayTrunk = new THREE.MeshLambertMaterial({ color: 0xbec7d1, wireframe });
@@ -3091,7 +3443,8 @@ function createTreeMaterialBundle(cfg, options = {}) {
       emissiveMat: clayEmissive,
       planterMat: clayPlanter,
       ownedMaterials: [clayTrunk, clayFoliage, clayEmissive, clayPlanter],
-      ownedTextures: []
+      ownedTextures: [],
+      foliageTextureFallback: false
     };
   }
 
@@ -3102,6 +3455,17 @@ function createTreeMaterialBundle(cfg, options = {}) {
     if (barkMap) ownedTextures.push(barkMap);
   }
 
+  let foliageMap = null;
+  let foliageTextureFallback = false;
+  if (useGrassFoliage) {
+    foliageMap = buildFoliageGrassTexture(cfg, options);
+    if (foliageMap) {
+      ownedTextures.push(foliageMap);
+    } else {
+      foliageTextureFallback = true;
+    }
+  }
+
   const trunkMat = new THREE.MeshLambertMaterial({
     vertexColors: true,
     map: barkMap || null,
@@ -3110,6 +3474,7 @@ function createTreeMaterialBundle(cfg, options = {}) {
 
   const foliageMat = new THREE.MeshLambertMaterial({
     vertexColors: true,
+    map: foliageMap || null,
     wireframe
   });
 
@@ -3135,7 +3500,8 @@ function createTreeMaterialBundle(cfg, options = {}) {
     emissiveMat,
     planterMat,
     ownedMaterials: [trunkMat, foliageMat, emissiveMat, planterMat],
-    ownedTextures
+    ownedTextures,
+    foliageTextureFallback
   };
 }
 
@@ -3179,9 +3545,10 @@ function getTreeSeasonAccentTints(cfg) {
 }
 
   // --- Module: geometry/lods.js ---
-function buildShrubProceduralFoliage(cfg, dims, foliageGeos, rng) {
+function buildShrubProceduralFoliage(cfg, dims, foliageGeos, rng, simulateTextureError = false) {
   const { clusterCount, polyDetail, spread, height, isLod1 } = dims;
   const clusters = [];
+  const leafOpts = (extra = {}) => getTreeFoliageColorOptions(cfg, { simulateTextureError, ...extra });
 
   for (let c = 0; c < clusterCount; c++) {
     const angle = (c / clusterCount) * Math.PI * 2 + rng() * 0.5;
@@ -3200,10 +3567,10 @@ function buildShrubProceduralFoliage(cfg, dims, foliageGeos, rng) {
     const cz = Math.sin(angle) * dist;
     jittered.translate(cx, cy, cz);
 
-    foliageGeos.push(treeColorizeGeometry(jittered, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, {
+    foliageGeos.push(treeColorizeGeometry(jittered, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, leafOpts({
       variance: cfg.colorVar,
       snowCoverage: cfg.snow * 0.5
-    }));
+    })));
 
     clusters.push({ cx, cy, cz, cSize, rx, ry, rz });
   }
@@ -3232,7 +3599,7 @@ function buildShrubProceduralFoliage(cfg, dims, foliageGeos, rng) {
 
           const berry = new THREE.TetrahedronGeometry(bRadius, 0);
           berry.translate(bx, by, bz);
-          foliageGeos.push(treeColorizeGeometry(berry, berryColor, berryColor, '#ffffff', rng, { variance: 0.05 }));
+          foliageGeos.push(treeColorizeGeometry(berry, berryColor, berryColor, '#ffffff', rng, leafOpts({ variance: 0.05, isFoliageSurface: false })));
           return;
         }
 
@@ -3252,7 +3619,7 @@ function buildShrubProceduralFoliage(cfg, dims, foliageGeos, rng) {
 
           const berry = new THREE.OctahedronGeometry(bRadius, 0);
           berry.translate(bx, by, bz);
-          foliageGeos.push(treeColorizeGeometry(berry, berryColor, berryColor, '#ffffff', rng, { variance: 0.06 }));
+          foliageGeos.push(treeColorizeGeometry(berry, berryColor, berryColor, '#ffffff', rng, leafOpts({ variance: 0.06, isFoliageSurface: false })));
         }
       });
     }
@@ -3281,7 +3648,7 @@ function buildShrubProceduralFoliage(cfg, dims, foliageGeos, rng) {
           const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), normVec);
           flower.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(quat));
           flower.translate(fx, fy, fz);
-          foliageGeos.push(treeColorizeGeometry(flower, blossomColor, blossomColor, '#ffffff', rng, { variance: 0.05 }));
+          foliageGeos.push(treeColorizeGeometry(flower, blossomColor, blossomColor, '#ffffff', rng, leafOpts({ variance: 0.05, isFoliageSurface: false })));
           return;
         }
 
@@ -3304,19 +3671,21 @@ function buildShrubProceduralFoliage(cfg, dims, foliageGeos, rng) {
           const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), normVec);
           flower.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(quat));
           flower.translate(fx, fy, fz);
-          foliageGeos.push(treeColorizeGeometry(flower, blossomColor, blossomColor, '#ffffff', rng, { variance: 0.06 }));
+          foliageGeos.push(treeColorizeGeometry(flower, blossomColor, blossomColor, '#ffffff', rng, leafOpts({ variance: 0.06, isFoliageSurface: false })));
 
           const pistil = new THREE.TetrahedronGeometry(fRadius * 0.35, 0);
           pistil.translate(fx + nx * fRadius * 0.12, fy + ny * fRadius * 0.12, fz + nz * fRadius * 0.12);
-          foliageGeos.push(treeColorizeGeometry(pistil, '#ffe066', '#ffd166', '#ffffff', rng, { variance: 0.04 }));
+          foliageGeos.push(treeColorizeGeometry(pistil, '#ffe066', '#ffd166', '#ffffff', rng, leafOpts({ variance: 0.04, isFoliageSurface: false })));
         }
       });
     }
   }
 }
 
-function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
+function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0, options = {}) {
   const cfg = sanitiseTreeConfig(rawCfg);
+  const simulateTextureError = Boolean(options && options.simulateTextureError);
+  const foliageColorOpts = (extra = {}) => getTreeFoliageColorOptions(cfg, { simulateTextureError, ...extra });
   const layout = resolveTreeLayout(cfg, seedOffset);
   const rng = treeRng32(cfg.seed + seedOffset * 7919);
 
@@ -3461,7 +3830,7 @@ function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
       cfg.colorLeaf2,
       cfg.colorAccent,
       rng,
-      { variance: cfg.colorVar, snowCoverage: cfg.snow, isGradientCanopy: true }
+      foliageColorOpts({ variance: cfg.colorVar, snowCoverage: cfg.snow, isGradientCanopy: true })
     ));
   };
 
@@ -3536,11 +3905,11 @@ function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
       jittered.rotateY(i * 0.55);
       jittered.translate(trunkPt.x, tierY + tierHeight * 0.25, trunkPt.z);
 
-      foliageGeos.push(treeColorizeGeometry(jittered, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, {
+      foliageGeos.push(treeColorizeGeometry(jittered, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, foliageColorOpts({
         variance: cfg.colorVar,
         snowCoverage: cfg.snow,
         isGradientCanopy: true
-      }));
+      })));
       branchTips.push(new THREE.Vector3(trunkPt.x + baseTierRadius * 0.65, tierY, trunkPt.z));
     }
   } else if (cfg.species === 'redwood') {
@@ -3577,10 +3946,10 @@ function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
         tip.y - curtainLen * 0.45,
         tip.z + (rng() - 0.5) * domeSize * 0.8
       );
-      foliageGeos.push(treeColorizeGeometry(jitteredCurtain, cfg.colorLeaf2, cfg.colorLeaf1, cfg.colorAccent, rng, {
+      foliageGeos.push(treeColorizeGeometry(jitteredCurtain, cfg.colorLeaf2, cfg.colorLeaf1, cfg.colorAccent, rng, foliageColorOpts({
         variance: cfg.colorVar,
         snowCoverage: cfg.snow * 0.3
-      }));
+      })));
     }
   } else if (cfg.species === 'palm' || cfg.species === 'banana_palm') {
     const isBanana = cfg.species === 'banana_palm';
@@ -3605,10 +3974,10 @@ function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
 
       box.rotateY(fAngle);
       box.translate(trunkTop.x, trunkTop.y - 0.1, trunkTop.z);
-      foliageGeos.push(treeColorizeGeometry(box, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, {
+      foliageGeos.push(treeColorizeGeometry(box, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, foliageColorOpts({
         variance: cfg.colorVar,
         snowCoverage: cfg.snow
-      }));
+      })));
     }
   } else if (cfg.species === 'mangrove') {
     addBranchesAndSubForks(Math.max(4, branchCount), 0.35, 0.92, 0.58, 0.28, 0.5);
@@ -3703,7 +4072,7 @@ function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
       height,
       planterLift: layout.planterLift,
       isLod1
-    }, foliageGeos, rng);
+    }, foliageGeos, rng, simulateTextureError);
   } else if (cfg.species === 'topiary') {
     const shape = cfg.topiaryShape || 'tiered_spheres';
     const topY = trunkTop.y;
@@ -3727,20 +4096,20 @@ function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
     } else if (shape === 'cone') {
       const cone = new THREE.ConeGeometry(spread * 0.55, height * 0.68, isLod1 ? 6 : 10, 2);
       cone.translate(trunkTop.x, layout.trunkStartY + height * 0.52, trunkTop.z);
-      foliageGeos.push(treeColorizeGeometry(cone, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, {
+      foliageGeos.push(treeColorizeGeometry(cone, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, foliageColorOpts({
         variance: cfg.colorVar * 0.5,
         snowCoverage: cfg.snow,
         isGradientCanopy: true
-      }));
+      })));
     } else {
       // hedge_box
       const box = new THREE.BoxGeometry(spread * 0.95, height * 0.68, spread * 0.58, 2, 2, 2);
       const jittered = treeJitterGeometryVertices(box, cfg.jitter * 0.2, rng);
       jittered.translate(0, layout.planterLift + height * 0.42, 0);
-      foliageGeos.push(treeColorizeGeometry(jittered, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, {
+      foliageGeos.push(treeColorizeGeometry(jittered, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, foliageColorOpts({
         variance: cfg.colorVar * 0.65,
         snowCoverage: cfg.snow
-      }));
+      })));
     }
   } else if (cfg.species === 'bonsai') {
     addBranchesAndSubForks(Math.max(3, branchCount), 0.45, 0.95, 0.58, 0.22, 0.46);
@@ -3766,11 +4135,11 @@ function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
       cap.scale(1.0, capH / capR, 1.0);
       const jitteredCap = treeJitterGeometryVertices(cap, cfg.jitter * capR * 0.22, rng, true);
       jitteredCap.translate(trunkTop.x, trunkTop.y - capH * 0.25, trunkTop.z);
-      foliageGeos.push(treeColorizeGeometry(jitteredCap, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, {
+      foliageGeos.push(treeColorizeGeometry(jitteredCap, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, foliageColorOpts({
         variance: cfg.colorVar,
         snowCoverage: cfg.snow,
         isGradientCanopy: true
-      }));
+      })));
 
       // Bioluminescent spots & under-gills
       const spotCount = isLod1 ? 4 : 9;
@@ -3816,13 +4185,16 @@ function generateTreeLodData(rawCfg, lodLevel = 0, seedOffset = 0) {
           tip.z + Math.sin(orbitAngle) * orbitDist
         );
 
+        const shardOpts = isCrystal
+          ? { variance: cfg.colorVar, snowCoverage: cfg.snow, isGradientCanopy: true }
+          : foliageColorOpts({ variance: cfg.colorVar, snowCoverage: cfg.snow, isGradientCanopy: true });
         const colored = treeColorizeGeometry(
           jittered,
           isCrystal ? cfg.colorAccent : cfg.colorLeaf1,
           cfg.colorLeaf2,
           cfg.colorAccent,
           rng,
-          { variance: cfg.colorVar, snowCoverage: cfg.snow, isGradientCanopy: true }
+          shardOpts
         );
         if (isCrystal) emissiveGeos.push(colored);
         else foliageGeos.push(colored);
@@ -3925,17 +4297,20 @@ function buildTreeBillboardMesh(lod0Data, atlasTexture, options = {}) {
   return mesh;
 }
 
-function buildTreeHemisphereGeo(cfg, lod0Data, seedOffset = 0) {
+function buildTreeHemisphereGeo(cfg, lod0Data, seedOffset = 0, options = {}) {
   const rng = treeRng32(cfg.seed + seedOffset * 313 + 99);
+  const simulateTextureError = Boolean(options && options.simulateTextureError);
   const geos = [];
 
   const stemHeight = cfg.species === 'bush' ? cfg.height * 0.25 : cfg.height * 0.55;
   const stem = new THREE.CylinderGeometry(cfg.radius * 0.35, cfg.radius * 0.85, stemHeight, 4, 1);
   stem.translate(0, stemHeight / 2, 0);
-  geos.push(treeColorizeGeometry(stem, cfg.colorBark, cfg.colorBark, '#ffffff', rng, {
+  geos.push(treeColorizeGeometry(stem, cfg.colorBark, cfg.colorBark, '#ffffff', rng, getTreeFoliageColorOptions(cfg, {
+    simulateTextureError,
     variance: 0.08,
-    isBirchBark: cfg.species === 'birch'
-  }));
+    isBirchBark: cfg.species === 'birch',
+    isFoliageSurface: false
+  })));
 
   if (cfg.species !== 'dead') {
     const domeRadius = Math.max(0.85, cfg.spread * 0.55);
@@ -3953,11 +4328,12 @@ function buildTreeHemisphereGeo(cfg, lod0Data, seedOffset = 0) {
     const domeY = cfg.species === 'bush' ? domeHeight * 0.25 : (isConifer ? cfg.height * 0.56 : cfg.height * 0.38);
     jitteredHemi.translate(lod0Data.center.x, domeY, lod0Data.center.z);
 
-    geos.push(treeColorizeGeometry(jitteredHemi, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, {
+    geos.push(treeColorizeGeometry(jitteredHemi, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, getTreeFoliageColorOptions(cfg, {
+      simulateTextureError,
       variance: cfg.colorVar * 1.2,
       snowCoverage: cfg.snow,
       isGradientCanopy: true
-    }));
+    })));
   }
 
   return treeMergeBufferGeometries(geos);
@@ -4013,17 +4389,21 @@ function createProceduralTree(rawCfg, options = {}) {
   const seedOffset = options.seedOffset || 0;
   const matBundle = options.materialBundle || createTreeMaterialBundle(cfg, {
     wireframe: options.wireframe,
-    silhouetteMode: options.silhouetteMode
+    silhouetteMode: options.silhouetteMode,
+    simulateTextureError: options.simulateTextureError
   });
 
-  const lod0Data = options.lod0Data || generateTreeLodData(cfg, 0, seedOffset);
+  const lodDataOpts = {
+    simulateTextureError: Boolean(options.simulateTextureError || matBundle.foliageTextureFallback)
+  };
+  const lod0Data = options.lod0Data || generateTreeLodData(cfg, 0, seedOffset, lodDataOpts);
   const root = new THREE.Group();
   root.name = `BTree_${cfg.species}_${cfg.seed}_LOD${lodLevel}`;
 
   const windTargets = [];
 
   if (lodLevel === 0 || lodLevel === 1) {
-    const data = lodLevel === 0 ? lod0Data : generateTreeLodData(cfg, 1, seedOffset);
+    const data = lodLevel === 0 ? lod0Data : generateTreeLodData(cfg, 1, seedOffset, lodDataOpts);
 
     const hasPos = (geo) => Boolean(geo && geo.attributes && geo.attributes.position && geo.attributes.position.count > 0);
 
@@ -4075,7 +4455,7 @@ function createProceduralTree(rawCfg, options = {}) {
       root.add(bb);
       windTargets.push(bb);
     } else if (style === 'hemisphere') {
-      const hemiGeo = buildTreeHemisphereGeo(cfg, lod0Data, seedOffset);
+      const hemiGeo = buildTreeHemisphereGeo(cfg, lod0Data, seedOffset, lodDataOpts);
       const hemiMesh = new THREE.Mesh(hemiGeo, matBundle.foliageMat);
       hemiMesh.name = 'HemisphereImpostor';
       hemiMesh.userData.materialRole = 'foliage';
@@ -4084,7 +4464,7 @@ function createProceduralTree(rawCfg, options = {}) {
       root.add(hemiMesh);
       windTargets.push(hemiMesh);
     } else {
-      const hemiGeo = buildTreeHemisphereGeo(cfg, lod0Data, seedOffset);
+      const hemiGeo = buildTreeHemisphereGeo(cfg, lod0Data, seedOffset, lodDataOpts);
       const hemiMesh = new THREE.Mesh(hemiGeo, matBundle.foliageMat);
       hemiMesh.name = 'HybridHemisphere';
       hemiMesh.userData.materialRole = 'foliage';
@@ -4124,6 +4504,7 @@ function createProceduralTree(rawCfg, options = {}) {
     lod0Data,
     windTargets,
     stats,
+    foliageTextureFallback: Boolean(matBundle.foliageTextureFallback),
     _materialBundle: matBundle
   };
 
@@ -4489,7 +4870,7 @@ class OffscreenTreeAtlasBaker {
     }
   }
 
-  bake(lod0Data, res = 512) {
+  bake(lod0Data, res = 512, cfg = null) {
     const atlasCanvas = tree$('#atlas-canvas');
     if (res !== this.res) {
       this.res = res;
@@ -4506,9 +4887,33 @@ class OffscreenTreeAtlasBaker {
     });
     toRemove.forEach((m) => this.scene.remove(m));
 
-    const mat = new THREE.MeshLambertMaterial({ vertexColors: true });
-    const tempMesh = new THREE.Mesh(lod0Data.mergedGeo, mat);
-    this.scene.add(tempMesh);
+    const hasPos = (geo) => Boolean(geo && geo.attributes && geo.attributes.position && geo.attributes.position.count > 0);
+    let tempBundle = null;
+    let fallbackMat = null;
+    const tempMeshes = [];
+
+    if (cfg) {
+      tempBundle = createTreeMaterialBundle(cfg);
+      if (hasPos(lod0Data.trunkGeo)) {
+        tempMeshes.push(new THREE.Mesh(lod0Data.trunkGeo, tempBundle.trunkMat));
+      }
+      if (hasPos(lod0Data.foliageGeo)) {
+        tempMeshes.push(new THREE.Mesh(lod0Data.foliageGeo, tempBundle.foliageMat));
+      }
+      if (hasPos(lod0Data.emissiveGeo)) {
+        tempMeshes.push(new THREE.Mesh(lod0Data.emissiveGeo, tempBundle.emissiveMat));
+      }
+      if (hasPos(lod0Data.planterGeo)) {
+        tempMeshes.push(new THREE.Mesh(lod0Data.planterGeo, tempBundle.planterMat));
+      }
+    }
+
+    if (tempMeshes.length === 0) {
+      fallbackMat = new THREE.MeshLambertMaterial({ vertexColors: true });
+      tempMeshes.push(new THREE.Mesh(lod0Data.mergedGeo, fallbackMat));
+    }
+
+    tempMeshes.forEach((m) => this.scene.add(m));
 
     const size = lod0Data.size;
     const center = lod0Data.center;
@@ -4567,7 +4972,12 @@ class OffscreenTreeAtlasBaker {
       this.sharedTexture.needsUpdate = true;
     }
 
-    mat.dispose();
+    tempMeshes.forEach((m) => this.scene.remove(m));
+    if (fallbackMat) fallbackMat.dispose();
+    if (tempBundle) {
+      tempBundle.ownedMaterials.forEach((m) => m.dispose());
+      tempBundle.ownedTextures.forEach((t) => t.dispose());
+    }
     return { maxDim, center, size };
   }
 
@@ -5120,8 +5530,14 @@ function renderTreeControlsTab(tabName, state, locks, callbacks) {
     lockBtn.title = isLocked ? `Unlock ${item.label}` : `Lock ${item.label} during randomization`;
     lockBtn.innerHTML = `<i class="fas ${isLocked ? 'fa-lock' : 'fa-lock-open'}"></i>`;
     lockBtn.addEventListener('click', () => {
-      if (locks.has(item.key)) locks.delete(item.key);
-      else locks.add(item.key);
+      const nextLocked = !locks.has(item.key);
+      const syncKeys = (item.key === 'foliageTextureMode' || item.key === 'foliageGrassTexture')
+        ? ['foliageTextureMode', 'foliageGrassTexture']
+        : [item.key];
+      syncKeys.forEach((k) => {
+        if (nextLocked) locks.add(k);
+        else locks.delete(k);
+      });
       renderTreeControlsTab(tabName, state, locks, callbacks);
     });
 
@@ -5620,7 +6036,7 @@ function rebuildTreeScene() {
   applyTreeLightingMode(scene, lights, cfg.lightingMode);
 
   cachedLod0Data = generateTreeLodData(cfg, 0, 0);
-  atlasBaker.bake(cachedLod0Data, cfg.atlasRes);
+  atlasBaker.bake(cachedLod0Data, cfg.atlasRes, cfg);
 
   const overlayCards = tree$('#lod-cards-overlay');
   if (overlayCards) {
@@ -5725,6 +6141,11 @@ function rebuildTreeScene() {
           ...altPreset,
           season: cfg.season,
           colorLeaf1: v === 4 ? cfg.colorLeaf2 : altPreset.colorLeaf1,
+          foliageTextureMode: cfg.foliageTextureMode,
+          foliageGrassTexture: cfg.foliageGrassTexture,
+          foliageTextureScale: cfg.foliageTextureScale,
+          foliageTintStrength: cfg.foliageTintStrength,
+          foliageTextureVariation: cfg.foliageTextureVariation,
           seed: cfg.seed + v * 173
         });
       }
@@ -5736,12 +6157,27 @@ function rebuildTreeScene() {
       poolHemi.push(hGeo);
     }
 
+    const useForestBundle = cfg.foliageTextureMode === 'grass' && !runtime.silhouetteMode;
+    const forestBundle = useForestBundle
+      ? createTreeMaterialBundle(cfg, { wireframe: runtime.wireframe, silhouetteMode: runtime.silhouetteMode })
+      : null;
     const flatMat = new THREE.MeshLambertMaterial({
       vertexColors: true,
       wireframe: runtime.wireframe,
       color: runtime.silhouetteMode ? 0xd0d8e0 : 0xffffff
     });
     const ownedForestMat = { _ownedMat: true };
+    let forestBundleAttached = false;
+    let flatMatAttached = false;
+    const hasPos = (geo) => Boolean(geo && geo.attributes && geo.attributes.position && geo.attributes.position.count > 0);
+    const buildForestLodGroup = (data) => {
+      const grp = new THREE.Group();
+      if (hasPos(data.trunkGeo)) grp.add(new THREE.Mesh(data.trunkGeo, forestBundle.trunkMat));
+      if (hasPos(data.foliageGeo)) grp.add(new THREE.Mesh(data.foliageGeo, forestBundle.foliageMat));
+      if (hasPos(data.emissiveGeo)) grp.add(new THREE.Mesh(data.emissiveGeo, forestBundle.emissiveMat));
+      if (hasPos(data.planterGeo)) grp.add(new THREE.Mesh(data.planterGeo, forestBundle.planterMat));
+      return grp;
+    };
 
     const rng = treeRng32(cfg.seed + 9001);
     let totalTris = 0;
@@ -5780,15 +6216,45 @@ function rebuildTreeScene() {
 
       let inst;
       if (chosenLod === 0) {
-        inst = new THREE.Mesh(poolLod0[poolIdx].mergedGeo, flatMat);
-        inst.userData = i === 0 ? ownedForestMat : {};
+        if (forestBundle) {
+          inst = buildForestLodGroup(poolLod0[poolIdx]);
+          if (!forestBundleAttached) {
+            inst.userData._materialBundle = forestBundle;
+            forestBundleAttached = true;
+          }
+        } else {
+          inst = new THREE.Mesh(poolLod0[poolIdx].mergedGeo, flatMat);
+          if (!flatMatAttached) {
+            inst.userData = ownedForestMat;
+            flatMatAttached = true;
+          }
+        }
       } else if (chosenLod === 1) {
-        inst = new THREE.Mesh(poolLod1[poolIdx].mergedGeo, flatMat);
-        inst.userData = i === 0 ? ownedForestMat : {};
+        if (forestBundle) {
+          inst = buildForestLodGroup(poolLod1[poolIdx]);
+          if (!forestBundleAttached) {
+            inst.userData._materialBundle = forestBundle;
+            forestBundleAttached = true;
+          }
+        } else {
+          inst = new THREE.Mesh(poolLod1[poolIdx].mergedGeo, flatMat);
+          if (!flatMatAttached) {
+            inst.userData = ownedForestMat;
+            flatMatAttached = true;
+          }
+        }
       } else if (chosenLod === 2) {
         const style = forceStyle || cfg.lod2Style;
+        const hemiMat = forestBundle ? forestBundle.foliageMat : flatMat;
         if (style === 'hemisphere') {
-          inst = new THREE.Mesh(poolHemi[poolIdx], flatMat);
+          inst = new THREE.Mesh(poolHemi[poolIdx], hemiMat);
+          if (forestBundle && !forestBundleAttached) {
+            inst.userData._materialBundle = forestBundle;
+            forestBundleAttached = true;
+          } else if (!forestBundle && !flatMatAttached) {
+            inst.userData = ownedForestMat;
+            flatMatAttached = true;
+          }
         } else if (style === 'billboard') {
           inst = buildTreeBillboardMesh(poolLod0[0], atlasBaker.sharedTexture, {
             includeIsoCap: true,
@@ -5797,7 +6263,15 @@ function rebuildTreeScene() {
           });
         } else {
           inst = new THREE.Group();
-          inst.add(new THREE.Mesh(poolHemi[poolIdx], flatMat));
+          const hMesh = new THREE.Mesh(poolHemi[poolIdx], hemiMat);
+          if (forestBundle && !forestBundleAttached) {
+            hMesh.userData._materialBundle = forestBundle;
+            forestBundleAttached = true;
+          } else if (!forestBundle && !flatMatAttached) {
+            hMesh.userData = ownedForestMat;
+            flatMatAttached = true;
+          }
+          inst.add(hMesh);
           inst.add(buildTreeBillboardMesh(poolLod0[0], atlasBaker.sharedTexture, {
             includeIsoCap: false,
             species: cfg.species,
@@ -5828,6 +6302,14 @@ function rebuildTreeScene() {
       const st = countTreeObjectStats(inst);
       totalTris += st.tris;
       totalVerts += st.verts;
+    }
+
+    if (forestBundle && !forestBundleAttached) {
+      forestBundle.ownedMaterials.forEach((m) => m.dispose());
+      forestBundle.ownedTextures.forEach((t) => t.dispose());
+    }
+    if (!flatMatAttached) {
+      flatMat.dispose();
     }
 
     const refBp = generateTreeBlueprint(cfg, { layout: cachedLod0Data.layout });
@@ -5874,7 +6356,15 @@ function refreshAllUI() {
 
   renderTreeControlsTab(runtime.activeTab, runtime.config, runtime.locks, {
     onFieldChange: (key, val) => {
-      runtime.config = sanitiseTreeConfig({ ...runtime.config, [key]: val });
+      const nextRaw = { ...runtime.config, [key]: val };
+      if (key === 'foliageTextureMode') {
+        nextRaw.foliageGrassTexture = val === 'grass';
+        nextRaw._lastChanged = 'foliageTextureMode';
+      } else if (key === 'foliageGrassTexture') {
+        nextRaw.foliageTextureMode = val ? 'grass' : 'solid';
+        nextRaw._lastChanged = 'foliageGrassTexture';
+      }
+      runtime.config = sanitiseTreeConfig(nextRaw);
       if (key === 'lightingMode' || key === 'environmentStage' || key === 'atlasRes') {
         const lSel = tree$('#lighting-select');
         if (lSel) lSel.value = runtime.config.lightingMode;
@@ -5883,8 +6373,12 @@ function refreshAllUI() {
         const aBadge = tree$('#atlas-res-badge');
         if (aBadge) aBadge.textContent = `${runtime.config.atlasRes}×${runtime.config.atlasRes}`;
       }
+      if (key === 'foliageTextureMode' || key === 'foliageGrassTexture') {
+        refreshAllUI();
+      } else {
+        renderVariationStrip(runtime.config, runtime.locks, applyVariantConfig);
+      }
       rebuildTreeScene();
-      renderVariationStrip(runtime.config, runtime.locks, applyVariantConfig);
     },
     onSelectSeason: (seasonKey) => {
       const pal = TREE_SEASON_PALETTES[seasonKey];

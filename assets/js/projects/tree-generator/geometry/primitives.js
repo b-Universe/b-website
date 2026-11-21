@@ -1,3 +1,83 @@
+import { treeClamp } from '../utils.js';
+
+export const TREE_FOLIAGE_BASE_UV_TILES_PER_METER = 1.15;
+
+export function getTreeFoliageColorOptions(cfg, extra = {}) {
+  const isNaturalGreen = !['autumn', 'blossom', 'arcane', 'corrupted', 'winter'].includes(cfg.season)
+    && !['sakura', 'fantasy', 'dead'].includes(cfg.species);
+  return {
+    foliageTextureMode: cfg.foliageTextureMode,
+    foliageGrassTexture: cfg.foliageGrassTexture,
+    foliageTextureScale: cfg.foliageTextureScale,
+    foliageTintStrength: cfg.foliageTintStrength,
+    foliageTextureVariation: cfg.foliageTextureVariation,
+    isNaturalGreen,
+    isFoliageSurface: true,
+    ...extra
+  };
+}
+
+export function treeProjectFoliageBoxUVs(geo, textureScale = 1.0, phaseU = 0, phaseV = 0) {
+  if (!geo || !geo.attributes || !geo.attributes.position) return geo;
+  const pos = geo.attributes.position;
+  if (pos.count === 0) return geo;
+  if (!geo.attributes.normal) geo.computeVertexNormals();
+  const norm = geo.attributes.normal;
+  const uvs = new Float32Array(pos.count * 2);
+  const scale = TREE_FOLIAGE_BASE_UV_TILES_PER_METER * treeClamp(Number(textureScale) || 1.0, 0.25, 4.0);
+
+  if (!geo.index) {
+    for (let i = 0; i + 2 < pos.count; i += 3) {
+      const nx = Math.abs(norm.getX(i) + norm.getX(i + 1) + norm.getX(i + 2));
+      const ny = Math.abs(norm.getY(i) + norm.getY(i + 1) + norm.getY(i + 2));
+      const nz = Math.abs(norm.getZ(i) + norm.getZ(i + 1) + norm.getZ(i + 2));
+
+      for (let v = 0; v < 3; v++) {
+        const idx = i + v;
+        const x = pos.getX(idx);
+        const y = pos.getY(idx);
+        const z = pos.getZ(idx);
+        let u;
+        let vCoord;
+        if (ny >= nx && ny >= nz) {
+          u = x * scale + phaseU;
+          vCoord = z * scale + phaseV;
+        } else if (nx >= nz) {
+          u = z * scale + phaseU;
+          vCoord = y * scale + phaseV;
+        } else {
+          u = x * scale + phaseU;
+          vCoord = y * scale + phaseV;
+        }
+        uvs[idx * 2] = u;
+        uvs[idx * 2 + 1] = vCoord;
+      }
+    }
+  } else {
+    for (let i = 0; i < pos.count; i++) {
+      const nx = Math.abs(norm.getX(i));
+      const ny = Math.abs(norm.getY(i));
+      const nz = Math.abs(norm.getZ(i));
+      const x = pos.getX(i);
+      const y = pos.getY(i);
+      const z = pos.getZ(i);
+      if (ny >= nx && ny >= nz) {
+        uvs[i * 2] = x * scale + phaseU;
+        uvs[i * 2 + 1] = z * scale + phaseV;
+      } else if (nx >= nz) {
+        uvs[i * 2] = z * scale + phaseU;
+        uvs[i * 2 + 1] = y * scale + phaseV;
+      } else {
+        uvs[i * 2] = x * scale + phaseU;
+        uvs[i * 2 + 1] = y * scale + phaseV;
+      }
+    }
+  }
+
+  geo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+  return geo;
+}
+
 export function treeMergeBufferGeometries(geometries) {
   if (!geometries || geometries.length === 0) return new THREE.BufferGeometry();
   let totalVerts = 0;
@@ -90,16 +170,22 @@ export function treeJitterGeometryVertices(geo, jitterAmount, rng, lockBottomY =
 }
 
 export function treeColorizeGeometry(geo, baseHex, secondaryHex, accentHex, rng, options = {}) {
+  const rand = typeof rng === 'function' ? rng : () => 0.5;
   const g = geo.index ? geo.toNonIndexed() : geo.clone();
   g.computeVertexNormals();
   const pos = g.attributes.position;
   const norm = g.attributes.normal;
   const colors = new Float32Array(pos.count * 3);
 
+  const phaseU = Math.floor(rand() * 16) / 16;
+  const phaseV = Math.floor(rand() * 16) / 16;
+  treeProjectFoliageBoxUVs(g, options.foliageTextureScale || 1.0, phaseU, phaseV);
+
   const c1 = new THREE.Color(baseHex);
   const c2 = new THREE.Color(secondaryHex || baseHex);
   const cAccent = new THREE.Color(accentHex || '#ffffff');
   const cMoss = new THREE.Color('#3b732d');
+  const cRef = new THREE.Color();
   const tempColor = new THREE.Color();
 
   const variance = options.variance !== undefined ? options.variance : 0.12;
@@ -108,6 +194,15 @@ export function treeColorizeGeometry(geo, baseHex, secondaryHex, accentHex, rng,
   const isBamboo = Boolean(options.isBamboo);
   const isGradientCanopy = Boolean(options.isGradientCanopy);
   const mossCoverage = options.mossCoverage || 0.0;
+
+  const useGrassTexture = (options.foliageTextureMode === 'grass' || options.foliageGrassTexture === true)
+    && !options.simulateTextureError;
+  const isFoliageSurface = Boolean(options.isFoliageSurface);
+  const tintStrength = treeClamp(Number(options.foliageTintStrength !== undefined ? options.foliageTintStrength : 0.90), 0, 1);
+  const texVar = treeClamp(Number(options.foliageTextureVariation !== undefined ? options.foliageTextureVariation : 0.55), 0, 1);
+  const depth = 0.06 + texVar * 0.44;
+  const meanLum = 1.0 - 0.6355 * depth;
+  const texBoost = useGrassTexture ? (1.0 / Math.max(0.4, meanLum)) : 1.0;
 
   let minY = Infinity;
   let maxY = -Infinity;
@@ -123,15 +218,15 @@ export function treeColorizeGeometry(geo, baseHex, secondaryHex, accentHex, rng,
     const avgY = (pos.getY(i) + pos.getY(i + 1) + pos.getY(i + 2)) / 3;
     const normY = (avgY - minY) / spanY;
 
-    let mixFactor = rng();
+    let mixFactor = rand();
     if (isGradientCanopy) {
-      mixFactor = Math.min(1, Math.max(0, normY * 0.85 + (rng() - 0.5) * 0.32));
+      mixFactor = Math.min(1, Math.max(0, normY * 0.85 + (rand() - 0.5) * 0.32));
     }
 
     tempColor.copy(c1).lerp(c2, mixFactor);
 
     if (isBirchBark) {
-      const band = Math.sin(avgY * 11.0 + rng() * 1.4);
+      const band = Math.sin(avgY * 11.0 + rand() * 1.4);
       if (band > 0.68) {
         tempColor.setHex(0x2b2623);
       }
@@ -144,16 +239,33 @@ export function treeColorizeGeometry(geo, baseHex, secondaryHex, accentHex, rng,
       }
     }
 
-    if (mossCoverage > 0.02 && normY < mossCoverage * 0.65 && (ny > -0.1 || rng() < mossCoverage)) {
+    if (mossCoverage > 0.02 && normY < mossCoverage * 0.65 && (ny > -0.1 || rand() < mossCoverage)) {
       tempColor.lerp(cMoss, Math.min(0.82, mossCoverage * (1.0 - normY)));
     }
 
+    let isSnowFacet = false;
     if (snowCoverage > 0.01 && ny > (1.0 - snowCoverage * 1.45)) {
       tempColor.copy(cAccent);
+      isSnowFacet = true;
     }
 
-    const facetShift = (rng() - 0.5) * variance * 0.65 + ny * 0.06;
+    const facetShift = (rand() - 0.5) * variance * 0.65 + ny * 0.06;
     tempColor.offsetHSL(0, 0, facetShift);
+
+    const texJitter = rand() - 0.5;
+    if (useGrassTexture) {
+      if (isFoliageSurface && !isSnowFacet) {
+        if (tintStrength < 0.999) {
+          cRef.set(options.isNaturalGreen === false ? '#cccccc' : '#588c3a');
+          tempColor.lerp(cRef, (1.0 - tintStrength) * 0.75);
+        }
+        const texFacetShift = texJitter * (texVar - 0.5) * 0.14;
+        if (Math.abs(texFacetShift) > 1e-4) {
+          tempColor.offsetHSL(0, 0, texFacetShift);
+        }
+      }
+      tempColor.multiplyScalar(texBoost);
+    }
 
     for (let v = 0; v < 3; v++) {
       const idx = (i + v) * 3;
@@ -504,7 +616,14 @@ export function buildTreeStoryProps(cfg, layout, branchTips, rng, isLod1) {
       const oy = tip.y - vLen * 0.5;
       const vine = new THREE.CylinderGeometry(0.035, 0.015, vLen, 3, isLod1 ? 1 : 3);
       vine.translate(ox, oy, oz);
-      foliageProps.push(treeColorizeGeometry(vine, cfg.colorLeaf1, cfg.colorLeaf2, '#ffffff', rng, { variance: 0.14 }));
+      foliageProps.push(treeColorizeGeometry(
+        vine,
+        cfg.colorLeaf1,
+        cfg.colorLeaf2,
+        '#ffffff',
+        rng,
+        getTreeFoliageColorOptions(cfg, { variance: 0.14 })
+      ));
     }
   }
 
@@ -537,7 +656,14 @@ export function buildTreeStoryProps(cfg, layout, branchTips, rng, isLod1) {
           layout.trunkTop.y - 0.35,
           layout.trunkTop.z + Math.sin(ang) * layout.baseRadius * 0.75
         );
-        foliageProps.push(treeColorizeGeometry(hand, '#f4d35e', '#ee964b', '#ffffff', rng, { variance: 0.06 }));
+        foliageProps.push(treeColorizeGeometry(
+          hand,
+          '#f4d35e',
+          '#ee964b',
+          '#ffffff',
+          rng,
+          getTreeFoliageColorOptions(cfg, { variance: 0.06, isFoliageSurface: false })
+        ));
       }
     } else if (cfg.fruitType === 'pinecones') {
       for (let i = 0; i < count; i++) {
@@ -557,7 +683,14 @@ export function buildTreeStoryProps(cfg, layout, branchTips, rng, isLod1) {
         const bloom = new THREE.OctahedronGeometry(0.16, 0);
         bloom.scale(1.1, 0.7, 1.1);
         bloom.translate(tip.x, tip.y + 0.1, tip.z);
-        foliageProps.push(treeColorizeGeometry(bloom, fruitCol, '#ffccd5', '#ffffff', rng, { variance: 0.06 }));
+        foliageProps.push(treeColorizeGeometry(
+          bloom,
+          fruitCol,
+          '#ffccd5',
+          '#ffffff',
+          rng,
+          getTreeFoliageColorOptions(cfg, { variance: 0.06, isFoliageSurface: false })
+        ));
       }
     } else {
       // Apples / Fruit
@@ -569,7 +702,14 @@ export function buildTreeStoryProps(cfg, layout, branchTips, rng, isLod1) {
           tip.y - 0.1 + (rng() - 0.5) * 0.55,
           tip.z + (rng() - 0.5) * cfg.clusterSize * 0.9
         );
-        foliageProps.push(treeColorizeGeometry(apple, fruitCol, '#ff758f', '#ffffff', rng, { variance: 0.06 }));
+        foliageProps.push(treeColorizeGeometry(
+          apple,
+          fruitCol,
+          '#ff758f',
+          '#ffffff',
+          rng,
+          getTreeFoliageColorOptions(cfg, { variance: 0.06, isFoliageSurface: false })
+        ));
       }
     }
   }
@@ -628,7 +768,14 @@ export function buildTreeStoryProps(cfg, layout, branchTips, rng, isLod1) {
         leaf.scale(1.4, 0.18, 1.0);
         leaf.rotateY(rng() * Math.PI);
         leaf.translate(Math.cos(ang) * dist, layout.planterLift + 0.03, Math.sin(ang) * dist);
-        foliageProps.push(treeColorizeGeometry(leaf, cfg.colorLeaf1, cfg.colorLeaf2, cfg.colorAccent, rng, { variance: 0.2 }));
+        foliageProps.push(treeColorizeGeometry(
+          leaf,
+          cfg.colorLeaf1,
+          cfg.colorLeaf2,
+          cfg.colorAccent,
+          rng,
+          getTreeFoliageColorOptions(cfg, { variance: 0.2 })
+        ));
       }
     }
   }

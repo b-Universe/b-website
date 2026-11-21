@@ -30,17 +30,21 @@ export function createProceduralTree(rawCfg, options = {}) {
   const seedOffset = options.seedOffset || 0;
   const matBundle = options.materialBundle || createTreeMaterialBundle(cfg, {
     wireframe: options.wireframe,
-    silhouetteMode: options.silhouetteMode
+    silhouetteMode: options.silhouetteMode,
+    simulateTextureError: options.simulateTextureError
   });
 
-  const lod0Data = options.lod0Data || generateTreeLodData(cfg, 0, seedOffset);
+  const lodDataOpts = {
+    simulateTextureError: Boolean(options.simulateTextureError || matBundle.foliageTextureFallback)
+  };
+  const lod0Data = options.lod0Data || generateTreeLodData(cfg, 0, seedOffset, lodDataOpts);
   const root = new THREE.Group();
   root.name = `BTree_${cfg.species}_${cfg.seed}_LOD${lodLevel}`;
 
   const windTargets = [];
 
   if (lodLevel === 0 || lodLevel === 1) {
-    const data = lodLevel === 0 ? lod0Data : generateTreeLodData(cfg, 1, seedOffset);
+    const data = lodLevel === 0 ? lod0Data : generateTreeLodData(cfg, 1, seedOffset, lodDataOpts);
 
     const hasPos = (geo) => Boolean(geo && geo.attributes && geo.attributes.position && geo.attributes.position.count > 0);
 
@@ -92,7 +96,7 @@ export function createProceduralTree(rawCfg, options = {}) {
       root.add(bb);
       windTargets.push(bb);
     } else if (style === 'hemisphere') {
-      const hemiGeo = buildTreeHemisphereGeo(cfg, lod0Data, seedOffset);
+      const hemiGeo = buildTreeHemisphereGeo(cfg, lod0Data, seedOffset, lodDataOpts);
       const hemiMesh = new THREE.Mesh(hemiGeo, matBundle.foliageMat);
       hemiMesh.name = 'HemisphereImpostor';
       hemiMesh.userData.materialRole = 'foliage';
@@ -101,7 +105,7 @@ export function createProceduralTree(rawCfg, options = {}) {
       root.add(hemiMesh);
       windTargets.push(hemiMesh);
     } else {
-      const hemiGeo = buildTreeHemisphereGeo(cfg, lod0Data, seedOffset);
+      const hemiGeo = buildTreeHemisphereGeo(cfg, lod0Data, seedOffset, lodDataOpts);
       const hemiMesh = new THREE.Mesh(hemiGeo, matBundle.foliageMat);
       hemiMesh.name = 'HybridHemisphere';
       hemiMesh.userData.materialRole = 'foliage';
@@ -141,6 +145,7 @@ export function createProceduralTree(rawCfg, options = {}) {
     lod0Data,
     windTargets,
     stats,
+    foliageTextureFallback: Boolean(matBundle.foliageTextureFallback),
     _materialBundle: matBundle
   };
 

@@ -62,6 +62,11 @@ export const TREE_BASE = {
   colorVar: 0.16,
   snow: 0.0,
   barkTextureStyle: 'flat_vertex',
+  foliageTextureMode: 'grass',
+  foliageGrassTexture: true,
+  foliageTextureScale: 1.0,
+  foliageTintStrength: 0.90,
+  foliageTextureVariation: 0.55,
   emissiveIntensity: 0.0,
   windStrength: 0.25,
   ambientFx: 'auto',
@@ -155,6 +160,10 @@ export const TREE_OPTIONS = {
     { value: 'birch_lenticel', label: 'Birch Lenticel Bands' },
     { value: 'mossy_bark', label: 'Mossy Bark Grain' },
     { value: 'cracked_dry', label: 'Cracked Deadwood' }
+  ],
+  foliageTextureMode: [
+    { value: 'solid', label: 'Solid Color' },
+    { value: 'grass', label: 'Grass Texture' }
   ],
   ambientFx: [
     { value: 'auto', label: 'Auto (Match Season)' },
@@ -250,7 +259,12 @@ export const TREE_SCHEMA = {
     { key: 'colorAccent', label: 'Snow / Blossom / Accent', type: 'color' },
     { key: 'colorVar', label: 'Per-Facet Color Variance', type: 'range', min: 0.0, max: 0.5, step: 0.01, group: 'Surface Shading' },
     { key: 'barkTextureStyle', label: 'Bark Surface Finish', type: 'select', options: 'barkTextureStyle' },
-    { key: 'emissiveIntensity', label: 'Arcane / Lantern Glow', type: 'range', min: 0.0, max: 1.0, step: 0.05 }
+    { key: 'emissiveIntensity', label: 'Arcane / Lantern Glow', type: 'range', min: 0.0, max: 1.0, step: 0.05 },
+    { key: 'foliageTextureMode', label: 'Foliage Appearance', type: 'select', options: 'foliageTextureMode', group: 'Foliage Texture Settings' },
+    { key: 'foliageGrassTexture', label: 'Enable Grass Texture', type: 'checkbox' },
+    { key: 'foliageTextureScale', label: 'Texture Scale / Tiling', type: 'range', min: 0.25, max: 4.0, step: 0.05, unit: '×' },
+    { key: 'foliageTintStrength', label: 'Texture Tint Strength', type: 'range', min: 0.0, max: 1.0, step: 0.05 },
+    { key: 'foliageTextureVariation', label: 'Texture Color Variation', type: 'range', min: 0.0, max: 1.0, step: 0.05 }
   ],
   export: [
     { key: 'lod2Style', label: 'Lod 2 Impostor Style', type: 'select', options: 'lod2Style', group: 'Lod & Atlas Settings' },
@@ -349,6 +363,27 @@ export function sanitiseTreeConfig(raw = {}) {
   out.colorVar = treeClamp(Number(merged.colorVar ?? TREE_BASE.colorVar), 0, 0.5);
   out.snow = treeClamp(Number(merged.snow ?? TREE_BASE.snow), 0, 1);
   out.barkTextureStyle = sanitizeOption(merged.barkTextureStyle, 'barkTextureStyle', TREE_BASE.barkTextureStyle);
+  let foliageMode = TREE_BASE.foliageTextureMode;
+  if (src._lastChanged === 'foliageTextureMode' && src.foliageTextureMode !== undefined) {
+    foliageMode = src.foliageTextureMode === 'solid' ? 'solid' : 'grass';
+  } else if (src._lastChanged === 'foliageGrassTexture' && src.foliageGrassTexture !== undefined) {
+    foliageMode = src.foliageGrassTexture ? 'grass' : 'solid';
+  } else if (src.foliageTextureMode !== undefined && src.foliageGrassTexture === undefined) {
+    foliageMode = src.foliageTextureMode === 'solid' ? 'solid' : 'grass';
+  } else if (src.foliageGrassTexture !== undefined && src.foliageTextureMode === undefined) {
+    foliageMode = src.foliageGrassTexture ? 'grass' : 'solid';
+  } else if (src.foliageTextureMode !== undefined && src.foliageGrassTexture !== undefined) {
+    const modeIsGrass = src.foliageTextureMode !== 'solid';
+    const flagIsGrass = Boolean(src.foliageGrassTexture);
+    foliageMode = (modeIsGrass && flagIsGrass) ? 'grass' : 'solid';
+  } else {
+    foliageMode = (merged.foliageTextureMode === 'solid' || merged.foliageGrassTexture === false) ? 'solid' : 'grass';
+  }
+  out.foliageTextureMode = foliageMode;
+  out.foliageGrassTexture = foliageMode === 'grass';
+  out.foliageTextureScale = treeClamp(Number(merged.foliageTextureScale ?? TREE_BASE.foliageTextureScale), 0.25, 4.0);
+  out.foliageTintStrength = treeClamp(Number(merged.foliageTintStrength ?? TREE_BASE.foliageTintStrength), 0.0, 1.0);
+  out.foliageTextureVariation = treeClamp(Number(merged.foliageTextureVariation ?? TREE_BASE.foliageTextureVariation), 0.0, 1.0);
   out.emissiveIntensity = treeClamp(Number(merged.emissiveIntensity ?? TREE_BASE.emissiveIntensity), 0, 1);
   out.windStrength = treeClamp(Number(merged.windStrength ?? TREE_BASE.windStrength), 0, 1);
   out.ambientFx = sanitizeOption(merged.ambientFx, 'ambientFx', TREE_BASE.ambientFx);

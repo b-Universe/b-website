@@ -263,8 +263,14 @@ export function renderTreeControlsTab(tabName, state, locks, callbacks) {
     lockBtn.title = isLocked ? `Unlock ${item.label}` : `Lock ${item.label} during randomization`;
     lockBtn.innerHTML = `<i class="fas ${isLocked ? 'fa-lock' : 'fa-lock-open'}"></i>`;
     lockBtn.addEventListener('click', () => {
-      if (locks.has(item.key)) locks.delete(item.key);
-      else locks.add(item.key);
+      const nextLocked = !locks.has(item.key);
+      const syncKeys = (item.key === 'foliageTextureMode' || item.key === 'foliageGrassTexture')
+        ? ['foliageTextureMode', 'foliageGrassTexture']
+        : [item.key];
+      syncKeys.forEach((k) => {
+        if (nextLocked) locks.add(k);
+        else locks.delete(k);
+      });
       renderTreeControlsTab(tabName, state, locks, callbacks);
     });
 
