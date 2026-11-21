@@ -20,8 +20,8 @@ export function generateCoherentPalette(paletteFamilyId, seed = 1024, roleVarian
   const rimTone = pick(r, ['#b7c0c8', '#c3ccd4', '#9aa4ae', '#adb6bf']);
   const glassTone = pick(r, ['#223545', '#1d2d3d', '#283d4e', '#1a2735']);
 
-  const bodyPrimaryMaterial = familyKey === 'muted_industrial' || familyKey === 'retro_city'
-    ? (r() > 0.45 ? 'matte_body' : 'painted_metal')
+  const bodyPrimaryMaterial = familyKey === 'muted_industrial' || familyKey === 'retro_city' || familyKey === 'freight_rail'
+    ? (r() > 0.45 ? 'matte_body' : (familyKey === 'freight_rail' && r() > 0.5 ? 'worn_paint' : 'painted_metal'))
     : 'painted_metal';
 
   return {

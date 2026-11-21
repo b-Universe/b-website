@@ -1,4 +1,4 @@
-import { sanitiseConfig } from '../config.js';
+import { sanitiseConfig, isRailConfig } from '../config.js';
 import { resolveVehicleLayout } from '../core/layout.js';
 import { generateVehicleBlueprint } from '../core/blueprints.js';
 import { resolveVehicleMaterialBundle } from '../materials/materials.js';
@@ -8,9 +8,13 @@ import { buildVehicleBody } from './body.js';
 import { buildVehicleDoorsAndWindows } from './doors-windows.js';
 import { buildVehicleWheels } from './wheels.js';
 import { buildVehicleDetails } from './details.js';
+import { createRailVehicle } from '../transit/rail-vehicle.js';
 
 export function createCityVehicle(rawCfg, options = {}) {
   const cfg = sanitiseConfig(rawCfg);
+  if (isRailConfig(cfg)) {
+    return createRailVehicle(cfg, options);
+  }
   const layout = resolveVehicleLayout(cfg);
   const root = vehRoot(null, 0, 0, 0);
   root.name = `CityVehicle_${cfg.style}_${cfg.seed}`;

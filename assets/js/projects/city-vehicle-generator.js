@@ -3616,6 +3616,2768 @@ const PRESET_DEFINITIONS = {
   }
 };
 
+  // --- Module: transit/compatibility.js ---
+const TRANSIT_COMPAT_REVISION = 'b.transit-compat.v1';
+const TRAINSET_SCHEMA_VERSION = 'b.trainset.v1';
+
+const TRACK_GAUGES = {
+  standard_1435: {
+    id: 'standard_1435',
+    label: 'Standard Gauge (1435mm)',
+    gaugeMeters: 1.435,
+    railCenterHalfX: 0.75,
+    railHeadWidth: 0.072,
+    railHeight: 0.155,
+    sleeperWidth: 2.55,
+    maxVehicleWidth: 3.3,
+    loadingGaugeHeight: 4.95
+  },
+  narrow_1067: {
+    id: 'narrow_1067',
+    label: 'Narrow Gauge (1067mm)',
+    gaugeMeters: 1.067,
+    railCenterHalfX: 0.565,
+    railHeadWidth: 0.062,
+    railHeight: 0.135,
+    sleeperWidth: 2.05,
+    maxVehicleWidth: 2.85,
+    loadingGaugeHeight: 4.35
+  },
+  street_tram_1435: {
+    id: 'street_tram_1435',
+    label: 'Street Tramway (1435mm)',
+    gaugeMeters: 1.435,
+    railCenterHalfX: 0.75,
+    railHeadWidth: 0.068,
+    railHeight: 0.04,
+    sleeperWidth: 2.35,
+    maxVehicleWidth: 2.65,
+    loadingGaugeHeight: 4.35
+  },
+  monorail_beam: {
+    id: 'monorail_beam',
+    label: 'Straddle Concrete Beam (850mm)',
+    gaugeMeters: 0.85,
+    railCenterHalfX: 0.425,
+    railHeadWidth: 0.85,
+    railHeight: 1.15,
+    sleeperWidth: 1.0,
+    maxVehicleWidth: 3.15,
+    loadingGaugeHeight: 4.6
+  },
+  suspended_beam: {
+    id: 'suspended_beam',
+    label: 'Overhead Suspended Girder',
+    gaugeMeters: 0.72,
+    railCenterHalfX: 0.36,
+    railHeadWidth: 0.72,
+    railHeight: 0.65,
+    sleeperWidth: 1.2,
+    maxVehicleWidth: 3.0,
+    loadingGaugeHeight: 5.2
+  },
+  cableway_rope: {
+    id: 'cableway_rope',
+    label: 'Aerial Cableway Haul Rope',
+    gaugeMeters: 0.12,
+    railCenterHalfX: 0.06,
+    railHeadWidth: 0.06,
+    railHeight: 0.06,
+    sleeperWidth: 0.5,
+    maxVehicleWidth: 2.5,
+    loadingGaugeHeight: 5.4
+  }
+};
+
+const COUPLER_SPECS = {
+  aar_knuckle: {
+    id: 'aar_knuckle',
+    label: 'AAR Knuckle Coupler',
+    compatibleWith: ['aar_knuckle', 'close_passenger'],
+    anchorHeight: 0.88,
+    protrusion: 0.44,
+    minGap: 0.14,
+    maxYawDeg: 24,
+    maxPitchDeg: 6
+  },
+  buffer_chain: {
+    id: 'buffer_chain',
+    label: 'Buffer & Chain',
+    compatibleWith: ['buffer_chain'],
+    anchorHeight: 1.02,
+    protrusion: 0.52,
+    minGap: 0.10,
+    maxYawDeg: 20,
+    maxPitchDeg: 5
+  },
+  automatic_schaku: {
+    id: 'automatic_schaku',
+    label: 'Automatic Scharfenberg',
+    compatibleWith: ['automatic_schaku', 'close_passenger'],
+    anchorHeight: 0.86,
+    protrusion: 0.40,
+    minGap: 0.12,
+    maxYawDeg: 26,
+    maxPitchDeg: 7
+  },
+  close_passenger: {
+    id: 'close_passenger',
+    label: 'Close-Coupled Gangway',
+    compatibleWith: ['close_passenger', 'automatic_schaku', 'aar_knuckle'],
+    anchorHeight: 0.88,
+    protrusion: 0.36,
+    minGap: 0.08,
+    maxYawDeg: 22,
+    maxPitchDeg: 6
+  },
+  monorail_coupler: {
+    id: 'monorail_coupler',
+    label: 'Monorail Articulated Coupler',
+    compatibleWith: ['monorail_coupler'],
+    anchorHeight: 1.35,
+    protrusion: 0.32,
+    minGap: 0.08,
+    maxYawDeg: 28,
+    maxPitchDeg: 8
+  },
+  suspended_link: {
+    id: 'suspended_link',
+    label: 'Suspended Train Linkage',
+    compatibleWith: ['suspended_link'],
+    anchorHeight: 2.0,
+    protrusion: 0.34,
+    minGap: 0.12,
+    maxYawDeg: 28,
+    maxPitchDeg: 8
+  },
+  cable_grip: {
+    id: 'cable_grip',
+    label: 'Detachable Cable Grip',
+    compatibleWith: ['cable_grip'],
+    anchorHeight: 4.85,
+    protrusion: 0.15,
+    minGap: 4.0,
+    maxYawDeg: 45,
+    maxPitchDeg: 25
+  }
+};
+
+function getTrackGaugeSpec(gaugeId) {
+  return TRACK_GAUGES[gaugeId] || TRACK_GAUGES.standard_1435;
+}
+
+function getCouplerSpec(couplerId) {
+  return COUPLER_SPECS[couplerId] || COUPLER_SPECS.aar_knuckle;
+}
+
+function areCouplersCompatible(couplerTypeA, couplerTypeB) {
+  const specA = getCouplerSpec(couplerTypeA);
+  const specB = getCouplerSpec(couplerTypeB);
+  const aAllowsB = specA.compatibleWith.includes(specB.id);
+  const bAllowsA = specB.compatibleWith.includes(specA.id);
+  const compatible = aAllowsB && bAllowsA;
+  const nominalGap = roundNum(Math.max(specA.minGap, specB.minGap), 3);
+
+  return {
+    compatible,
+    couplerA: specA.id,
+    couplerB: specB.id,
+    nominalGap,
+    maxYawDeg: Math.min(specA.maxYawDeg, specB.maxYawDeg),
+    maxPitchDeg: Math.min(specA.maxPitchDeg, specB.maxPitchDeg),
+    reason: compatible
+      ? `${specA.label} <-> ${specB.label} compatible`
+      : `Incompatible couplers: ${specA.label} cannot couple to ${specB.label}`
+  };
+}
+
+function trCompatEstimateMinCurveRadius(bogieSpacing, bogieWheelbase, overhang, maxWidth, gaugeSpec) {
+  const wheelBasedMin = bogieWheelbase * 8.5;
+  const spacingBasedMin = bogieSpacing * 2.25;
+  const throwRatio = Math.max(0, maxWidth - gaugeSpec.gaugeMeters) * 8.5;
+  const overhangBasedMin = overhang * 5.2;
+  return roundNum(clamp(Math.max(22, wheelBasedMin, spacingBasedMin, throwRatio, overhangBasedMin), 20, 120), 1);
+}
+
+function buildTransitCompatibilityProfile(cfg, railLayout) {
+  const d = railLayout.dimensions;
+  const gauge = railLayout.gauge;
+  const bogies = railLayout.bogies || [];
+  const frontBogie = bogies[0];
+  const rearBogie = bogies[bogies.length - 1];
+  const bogieSpacing = frontBogie && rearBogie ? Math.abs(frontBogie.pivotZ - rearBogie.pivotZ) : 0;
+  const bogieAxleCount = frontBogie ? frontBogie.axleCount : 2;
+  const bogieAxleSpacing = frontBogie ? frontBogie.axleSpacing : 1.95;
+  const coupler = railLayout.couplers;
+  const frontOverhang = roundNum(d.length * 0.5 - (frontBogie ? frontBogie.pivotZ : 0), 3);
+  const rearOverhang = roundNum(d.length * 0.5 + (rearBogie ? rearBogie.pivotZ : 0), 3);
+  const maxOverhang = Math.max(frontOverhang, rearOverhang);
+  const minCurveRadius = trCompatEstimateMinCurveRadius(
+    bogieSpacing,
+    frontBogie ? frontBogie.wheelbase : 2.0,
+    maxOverhang,
+    d.width,
+    gauge
+  );
+  const centerThrow = bogieSpacing > 0 ? (bogieSpacing * bogieSpacing) / (8 * minCurveRadius) : 0;
+  const endThrow = maxOverhang > 0 ? ((maxOverhang * (bogieSpacing + maxOverhang)) / (2 * minCurveRadius)) : 0;
+  const dynamicSweptWidth = roundNum(d.width + (centerThrow + endThrow) * 1.15, 3);
+
+  const unitType = railLayout.unitType || 'freight_wagon';
+  const powered = Boolean(cfg.railPowered);
+  const doors = railLayout.doors || [];
+  const bf = cfg.bodyFamily || '';
+  const transitMode = bf === 'rail_straddle_monorail'
+    ? 'straddle_monorail'
+    : bf === 'rail_suspended_monorail'
+      ? 'suspended_monorail'
+      : bf === 'rail_aerial_gondola'
+        ? 'aerial_cableway'
+        : (bf === 'rail_historic_streetcar' || bf === 'rail_articulated_tram' || bf === 'rail_open_tram')
+          ? 'light_rail_tram'
+          : (bf === 'rail_subway_classic' || bf === 'rail_metro_modern' || bf === 'rail_people_mover')
+            ? 'metro'
+            : (bf === 'rail_highspeed_lead' || bf === 'rail_highspeed_coach')
+              ? 'high_speed_rail'
+              : 'conventional_rail';
+
+  const isPassengerFriendly = unitType === 'passenger_coach' ||
+    transitMode === 'metro' ||
+    transitMode === 'light_rail_tram' ||
+    transitMode === 'high_speed_rail' ||
+    transitMode === 'straddle_monorail' ||
+    transitMode === 'suspended_monorail' ||
+    transitMode === 'aerial_cableway';
+
+  const platformInterface = isPassengerFriendly
+    ? {
+        boardingSides: ['left', 'right'],
+        doorSillHeight: roundNum(railLayout.zones.deckY, 3),
+        doorWidth: doors[0]?.width || 1.1,
+        doorPositionsZ: doors.filter((dr) => dr.side === 1).map((dr) => roundNum(dr.z, 3)),
+        recommendedPlatformHeight: roundNum(Math.max(0.28, railLayout.zones.deckY - 0.12), 3),
+        requiredGapTolerance: 0.14
+      }
+    : null;
+
+  const hasPantograph = Boolean(railLayout.hasPantograph);
+  const hasTrolleyPole = Boolean(railLayout.hasTrolleyPole);
+  const thirdRail = transitMode === 'metro';
+  const electrical = (hasPantograph || hasTrolleyPole || thirdRail)
+    ? {
+        overheadPantograph: hasPantograph,
+        pantographContactHeightMeters: hasPantograph || hasTrolleyPole ? 5.35 : null,
+        trolleyPole: hasTrolleyPole,
+        thirdRail
+      }
+    : null;
+
+  const monorail = transitMode === 'straddle_monorail'
+    ? {
+        guidewayType: 'straddle_beam',
+        beamWidthMeters: 0.85,
+        beamTopY: 1.15,
+        sideGuideClearanceMeters: 0.06
+      }
+    : null;
+
+  const suspended = transitMode === 'suspended_monorail'
+    ? {
+        guidewayType: 'overhead_portal_girder',
+        upperRunningRailY: 4.55,
+        hangerOffsetMeters: 1.37,
+        cabinDeckY: roundNum(railLayout.zones.deckY, 3),
+        maxCabinSwingDeg: 8
+      }
+    : null;
+
+  const cableway = transitMode === 'aerial_cableway'
+    ? {
+        cableAttachmentType: 'detachable_grip',
+        cableHeightY: 4.85,
+        cabinDeckY: roundNum(railLayout.zones.deckY, 3),
+        maxCabinSwingDeg: 12
+      }
+    : null;
+
+  const infraFamMap = {
+    narrow_1067: 'narrow_gauge_railway',
+    street_tram_1435: 'embedded_street_tramway',
+    monorail_beam: 'straddle_beam_monorail',
+    suspended_beam: 'suspended_monorail_guideway',
+    cableway_rope: 'aerial_cableway'
+  };
+
+  return {
+    profileRevision: TRANSIT_COMPAT_REVISION,
+    identity: {
+      archetype: cfg.style,
+      transitMode,
+      unitType,
+      powered,
+      infrastructureFamily: infraFamMap[gauge.id] || 'standard_gauge_railway'
+    },
+    geometry: {
+      bodyLength: roundNum(d.length, 3),
+      totalLengthOverCouplers: roundNum(coupler.frontPullFaceZ - coupler.rearPullFaceZ, 3),
+      maxWidth: roundNum(d.width, 3),
+      maxHeight: roundNum(railLayout.maxHeightWithEquipment, 3),
+      underbodyClearance: roundNum(railLayout.zones.underbodyClearanceY, 3),
+      roofEquipmentHeight: roundNum(railLayout.maxHeightWithEquipment - d.height, 3),
+      frontOverhang,
+      rearOverhang,
+      dynamicSweptWidthAtMinRadius: dynamicSweptWidth
+    },
+    railway: {
+      trackGaugeId: gauge.id,
+      trackGaugeMeters: gauge.gaugeMeters,
+      railCenterHalfX: gauge.railCenterHalfX,
+      wheelDiameter: roundNum(d.wheelRadius * 2, 3),
+      flangeDepth: 0.028,
+      bogieCount: bogies.length,
+      bogieCenterSpacing: roundNum(bogieSpacing, 3),
+      bogieAxleCount,
+      bogieAxleSpacing: roundNum(bogieAxleSpacing, 3),
+      minimumCurveRadius: minCurveRadius,
+      maximumGradePercent: transitMode === 'aerial_cableway' ? 45 : (transitMode === 'light_rail_tram' ? 8.0 : 4.5)
+    },
+    platformInterface,
+    electrical,
+    monorail,
+    suspended,
+    cableway,
+    coupling: {
+      frontCouplerType: coupler.frontType,
+      rearCouplerType: coupler.rearType,
+      frontAnchor: { x: 0, y: roundNum(coupler.y, 3), z: roundNum(coupler.frontPivotZ, 3) },
+      rearAnchor: { x: 0, y: roundNum(coupler.y, 3), z: roundNum(coupler.rearPivotZ, 3) },
+      pullFaceFrontZ: roundNum(coupler.frontPullFaceZ, 3),
+      pullFaceRearZ: roundNum(coupler.rearPullFaceZ, 3),
+      allowedYawDeg: getCouplerSpec(coupler.frontType).maxYawDeg,
+      allowedPitchDeg: getCouplerSpec(coupler.frontType).maxPitchDeg
+    },
+    runtimeBoundary: {
+      simulationImplemented: false,
+      exportedContracts: [
+        '3d_vehicle_geometry',
+        'moving_part_pivots',
+        'bogie_and_wheelset_anchors',
+        'coupler_anchors',
+        'door_transforms',
+        'collision_and_clearance_bounds',
+        'transit_compatibility_profile'
+      ]
+    }
+  };
+}
+
+function createInfrastructureAdapter() {
+  return {
+    contractRevision: TRANSIT_COMPAT_REVISION,
+    source: 'city-vehicle-generator-local-adapter',
+    validateVehicleAgainstRoute(compatProfile, routeDescriptor) {
+      const errors = [];
+      const warnings = [];
+      if (!compatProfile || !routeDescriptor) {
+        return { ok: false, errors: ['Missing compatibility profile or route descriptor'], warnings };
+      }
+
+      const routeGauge = routeDescriptor.trackGaugeId || 'standard_1435';
+      if (compatProfile.railway?.trackGaugeId && routeGauge !== compatProfile.railway.trackGaugeId) {
+        errors.push(`Track gauge mismatch: vehicle uses ${compatProfile.railway.trackGaugeId}, route uses ${routeGauge}`);
+      }
+
+      const minR = Number(routeDescriptor.minCurveRadius);
+      if (Number.isFinite(minR) && minR > 0 && compatProfile.railway?.minimumCurveRadius > minR) {
+        warnings.push(`Route minimum curve ${minR}m is tighter than vehicle nominal ${compatProfile.railway.minimumCurveRadius}m`);
+      }
+
+      const maxGrade = Number(routeDescriptor.maxGradePercent);
+      if (Number.isFinite(maxGrade) && maxGrade > compatProfile.railway?.maximumGradePercent) {
+        warnings.push(`Route grade ${maxGrade}% exceeds nominal ${compatProfile.railway.maximumGradePercent}%`);
+      }
+
+      if (compatProfile.platformInterface && Number.isFinite(Number(routeDescriptor.platformHeight))) {
+        const diff = Math.abs(Number(routeDescriptor.platformHeight) - compatProfile.platformInterface.recommendedPlatformHeight);
+        if (diff > 0.32) {
+          warnings.push(`Platform height offset (${roundNum(diff, 2)}m) may require step gap adjustment`);
+        }
+      }
+
+      return { ok: errors.length === 0, errors, warnings };
+    }
+  };
+}
+
+  // --- Module: transit/rail-archetypes.js ---
+const VEHICLE_CATEGORY_GROUPS = [
+  { id: 'all', label: 'All Vehicles', icon: 'fa-layer-group' },
+  { id: 'cars', label: 'Cars & Road', icon: 'fa-car-side' },
+  { id: 'commercial', label: 'Commercial & Service', icon: 'fa-truck' },
+  { id: 'buses', label: 'Buses', icon: 'fa-bus' },
+  { id: 'transit_rail', label: 'Transit & Railway', icon: 'fa-train' }
+];
+
+const RAIL_SUBGROUPS = {
+  all_transit: 'All Transit',
+  locomotives: 'Locomotives',
+  passenger_rail: 'High-Speed & Passenger',
+  subway_metro: 'Subway & Metro',
+  trams_light_rail: 'Trams & Streetcars',
+  freight_rail: 'Freight Railcars',
+  monorails_aerial: 'Monorails & Aerial',
+  maintenance_rail: 'Maintenance'
+};
+
+const RAIL_ARCHETYPES = [
+  {
+    id: 'diesel_locomotive',
+    label: 'Road-Switcher Diesel',
+    icon: 'fa-train',
+    preset: 'diesel_locomotive',
+    bodyFamily: 'rail_diesel_road_switcher',
+    vehicleDomain: 'rail',
+    categoryGroup: 'locomotives',
+    shortClass: 'Locomotive',
+    description: 'Classic North American hood-unit Co-Co diesel-electric freight & passenger road-switcher.'
+  },
+  {
+    id: 'diesel_switcher',
+    label: 'Yard Switcher Diesel',
+    icon: 'fa-industry',
+    preset: 'diesel_switcher',
+    bodyFamily: 'rail_diesel_switcher',
+    vehicleDomain: 'rail',
+    categoryGroup: 'locomotives',
+    shortClass: 'Switcher',
+    description: 'Compact end-cab Bo-Bo industrial yard switcher with hazard stripes and narrow tapered hood.'
+  },
+  {
+    id: 'electric_locomotive',
+    label: 'Dual-Cab Electric Loco',
+    icon: 'fa-bolt',
+    preset: 'electric_locomotive',
+    bodyFamily: 'rail_electric_loco',
+    vehicleDomain: 'rail',
+    categoryGroup: 'locomotives',
+    shortClass: 'Electric Loco',
+    description: 'Modern European dual-cab electric locomotive with raised diamond pantographs, roof insulators, and cooling louvers.'
+  },
+  {
+    id: 'streamlined_diesel',
+    label: 'Streamlined Bulldog Diesel',
+    icon: 'fa-fighter-jet',
+    preset: 'streamlined_diesel',
+    bodyFamily: 'rail_streamlined_diesel',
+    vehicleDomain: 'rail',
+    categoryGroup: 'locomotives',
+    shortClass: 'Streamliner',
+    description: 'Mid-century streamlined F-unit/E-unit diesel passenger locomotive with sweeping bulldog nose and chrome portholes.'
+  },
+  {
+    id: 'steam_locomotive',
+    label: 'Express Steam Locomotive',
+    icon: 'fa-burn',
+    preset: 'steam_locomotive',
+    bodyFamily: 'rail_steam_loco',
+    vehicleDomain: 'rail',
+    categoryGroup: 'locomotives',
+    shortClass: 'Steam Loco',
+    description: 'Classic 4-6-2 Pacific steam locomotive with boiler, smokebox, domes, cowcatcher, animated coupling rods, and coal tender.'
+  },
+  {
+    id: 'rail_maintenance_crane',
+    label: 'Track Maintenance Crane',
+    icon: 'fa-tools',
+    preset: 'rail_maintenance_crane',
+    bodyFamily: 'rail_maintenance',
+    vehicleDomain: 'rail',
+    categoryGroup: 'maintenance_rail',
+    shortClass: 'Work Rail',
+    description: 'Hi-vis yellow railway maintenance-of-way utility vehicle with articulated hydraulic crane boom and strobe beacons.'
+  },
+  {
+    id: 'bullet_train_lead',
+    label: 'High-Speed Bullet Lead',
+    icon: 'fa-rocket',
+    preset: 'bullet_train_lead',
+    bodyFamily: 'rail_highspeed_lead',
+    vehicleDomain: 'rail',
+    categoryGroup: 'passenger_rail',
+    shortClass: 'High-Speed',
+    description: 'Aerodynamic pointed-nose high-speed power car with swept cockpit canopy, bogie fairings, and roof pantograph.'
+  },
+  {
+    id: 'bullet_train_coach',
+    label: 'High-Speed Bullet Coach',
+    icon: 'fa-wind',
+    preset: 'bullet_train_coach',
+    bodyFamily: 'rail_highspeed_coach',
+    vehicleDomain: 'rail',
+    categoryGroup: 'passenger_rail',
+    shortClass: 'HS Coach',
+    description: 'Streamlined high-speed intermediate passenger coach with continuous ribbon window band and full underbody skirts.'
+  },
+  {
+    id: 'passenger_coach',
+    label: 'Regional Passenger Coach',
+    icon: 'fa-subway',
+    preset: 'passenger_coach',
+    bodyFamily: 'rail_passenger_coach',
+    vehicleDomain: 'rail',
+    categoryGroup: 'passenger_rail',
+    shortClass: 'Passenger',
+    description: 'Streamlined transit passenger coach with sliding vestibule doors, tinted window band, HVAC, and interior seating.'
+  },
+  {
+    id: 'bilevel_commuter',
+    label: 'Double-Decker Commuter',
+    icon: 'fa-layer-group',
+    preset: 'bilevel_commuter',
+    bodyFamily: 'rail_bilevel_coach',
+    vehicleDomain: 'rail',
+    categoryGroup: 'passenger_rail',
+    shortClass: 'Bi-Level',
+    description: 'High-capacity octagonal double-decker commuter railcar with twin stacked window decks and dropped center bay.'
+  },
+  {
+    id: 'observation_dome_coach',
+    label: 'Vista-Dome Observation Car',
+    icon: 'fa-binoculars',
+    preset: 'observation_dome_coach',
+    bodyFamily: 'rail_dome_coach',
+    vehicleDomain: 'rail',
+    categoryGroup: 'passenger_rail',
+    shortClass: 'Vista Dome',
+    description: 'Scenic stainless-steel streamliner coach with raised panoramic glass upper observation dome and interior seats.'
+  },
+  {
+    id: 'classic_subway_car',
+    label: 'Classic Stainless Subway',
+    icon: 'fa-train-subway',
+    preset: 'classic_subway_car',
+    bodyFamily: 'rail_subway_classic',
+    vehicleDomain: 'rail',
+    categoryGroup: 'subway_metro',
+    shortClass: 'Subway',
+    description: 'Iconic fluted stainless-steel metropolitan subway car with three pairs of wide sliding doors and glowing route bullet.'
+  },
+  {
+    id: 'modern_metro_lead',
+    label: 'Modern Rounded Metro',
+    icon: 'fa-train-tram',
+    preset: 'modern_metro_lead',
+    bodyFamily: 'rail_metro_modern',
+    vehicleDomain: 'rail',
+    categoryGroup: 'subway_metro',
+    shortClass: 'Metro',
+    description: 'Contemporary rapid-transit cab unit with black glass visor front, LED destination sign, and high-contrast doors.'
+  },
+  {
+    id: 'automated_people_mover',
+    label: 'Automated People Mover',
+    icon: 'fa-microchip',
+    preset: 'automated_people_mover',
+    bodyFamily: 'rail_people_mover',
+    vehicleDomain: 'rail',
+    categoryGroup: 'subway_metro',
+    shortClass: 'Shuttle',
+    description: 'Compact driverless airport & downtown shuttle pod with full wrap-around panoramic end windshields.'
+  },
+  {
+    id: 'historic_streetcar',
+    label: 'Historic Clerestory Streetcar',
+    icon: 'fa-tram',
+    preset: 'historic_streetcar',
+    bodyFamily: 'rail_historic_streetcar',
+    vehicleDomain: 'rail',
+    categoryGroup: 'trams_light_rail',
+    shortClass: 'Streetcar',
+    description: 'Vintage early-1900s trolley streetcar with arched wooden roof, clerestory vent deck, brass lamp, and trolley pole.'
+  },
+  {
+    id: 'modern_lowfloor_tram',
+    label: '3-Section Articulated Tram',
+    icon: 'fa-train-tram',
+    preset: 'modern_lowfloor_tram',
+    bodyFamily: 'rail_articulated_tram',
+    vehicleDomain: 'rail',
+    categoryGroup: 'trams_light_rail',
+    shortClass: 'Articulated Tram',
+    description: 'Modern 3-section low-floor articulated street tram with flexible accordion bellows that bend cleanly around curves.'
+  },
+  {
+    id: 'heritage_open_tram',
+    label: 'Open-Sided Tourist Tram',
+    icon: 'fa-sun',
+    preset: 'heritage_open_tram',
+    bodyFamily: 'rail_open_tram',
+    vehicleDomain: 'rail',
+    categoryGroup: 'trams_light_rail',
+    shortClass: 'Open Trolley',
+    description: 'Breezy heritage open-air sightseeing streetcar with slatted wooden benches, brass stanchions, and running boards.'
+  },
+  {
+    id: 'freight_boxcar',
+    label: 'Standard Boxcar',
+    icon: 'fa-box',
+    preset: 'freight_boxcar',
+    bodyFamily: 'rail_freight_boxcar',
+    vehicleDomain: 'rail',
+    categoryGroup: 'freight_rail',
+    shortClass: 'Freight Car',
+    description: 'Exterior-post corrugated steel boxcar with articulated sliding cargo doors and roofwalk.'
+  },
+  {
+    id: 'freight_flatcar',
+    label: 'Container Flatbed',
+    icon: 'fa-trailer',
+    preset: 'freight_flatcar',
+    bodyFamily: 'rail_freight_flatcar',
+    vehicleDomain: 'rail',
+    categoryGroup: 'freight_rail',
+    shortClass: 'Flatcar',
+    description: 'Fishbelly-sill intermodal flatcar carrying deterministic ISO shipping containers, lumber, or pipes.'
+  },
+  {
+    id: 'freight_tank_car',
+    label: 'Industrial Tank Wagon',
+    icon: 'fa-oil-can',
+    preset: 'freight_tank_car',
+    bodyFamily: 'rail_freight_tank',
+    vehicleDomain: 'rail',
+    categoryGroup: 'freight_rail',
+    shortClass: 'Tank Wagon',
+    description: 'Pressurized cylindrical bulk liquid tank car with top manway dome, catwalk, and safety ladders.'
+  },
+  {
+    id: 'freight_hopper_car',
+    label: 'Open Bulk Hopper Car',
+    icon: 'fa-mountain',
+    preset: 'freight_hopper_car',
+    bodyFamily: 'rail_freight_hopper',
+    vehicleDomain: 'rail',
+    categoryGroup: 'freight_rail',
+    shortClass: 'Hopper Car',
+    description: 'Ribbed steel open-top coal & aggregate hopper wagon with three sloped underside discharge chutes.'
+  },
+  {
+    id: 'freight_caboose',
+    label: 'Cupola Freight Caboose',
+    icon: 'fa-flag',
+    preset: 'freight_caboose',
+    bodyFamily: 'rail_freight_caboose',
+    vehicleDomain: 'rail',
+    categoryGroup: 'freight_rail',
+    shortClass: 'Caboose',
+    description: 'Iconic end-of-train crimson bay-cupola caboose with end observation porches, ladders, and stove chimney.'
+  },
+  {
+    id: 'straddle_monorail',
+    label: 'Straddle-Beam Monorail',
+    icon: 'fa-monument',
+    preset: 'straddle_monorail',
+    bodyFamily: 'rail_straddle_monorail',
+    vehicleDomain: 'rail',
+    categoryGroup: 'monorails_aerial',
+    shortClass: 'Monorail',
+    description: 'Elevated futuristic monorail with deep slotted skirt straddling a concrete guideway beam and panoramic nose.'
+  },
+  {
+    id: 'suspended_monorail',
+    label: 'Suspended Skytrain Monorail',
+    icon: 'fa-cloud',
+    preset: 'suspended_monorail',
+    bodyFamily: 'rail_suspended_monorail',
+    vehicleDomain: 'rail',
+    categoryGroup: 'monorails_aerial',
+    shortClass: 'Suspended',
+    description: 'Wuppertal-inspired hanging passenger train suspended by curved steel C-hangers from an overhead running girder.'
+  },
+  {
+    id: 'aerial_gondola',
+    label: 'Panoramic Aerial Gondola',
+    icon: 'fa-cable-car',
+    preset: 'aerial_gondola',
+    bodyFamily: 'rail_aerial_gondola',
+    vehicleDomain: 'rail',
+    categoryGroup: 'monorails_aerial',
+    shortClass: 'Gondola',
+    description: 'Glass alpine & urban cableway cabin with swept steel suspension arm and detachable overhead haul-rope grip.'
+  }
+];
+
+const RAIL_SILHOUETTE_PROFILES = {
+  diesel_road_switcher: { label: 'Diesel Road-Switcher', boxiness: 0.86, taper: 0.04, curvature: 0.14 },
+  yard_switcher: { label: 'Industrial Yard Switcher', boxiness: 0.9, taper: 0.06, curvature: 0.12 },
+  electric_loco: { label: 'Dual-Cab Electric', boxiness: 0.82, taper: 0.06, curvature: 0.18 },
+  streamlined_diesel: { label: 'Streamlined Bulldog', boxiness: 0.54, taper: 0.14, curvature: 0.42 },
+  steam_locomotive: { label: 'Pacific Steam Loco', boxiness: 0.46, taper: 0.08, curvature: 0.5 },
+  maintenance_work: { label: 'Work & Crane Railcar', boxiness: 0.9, taper: 0.03, curvature: 0.1 },
+  bullet_highspeed: { label: 'Aerodynamic Bullet', boxiness: 0.28, taper: 0.28, curvature: 0.58 },
+  passenger_coach: { label: 'Regional Passenger Coach', boxiness: 0.72, taper: 0.03, curvature: 0.24 },
+  bilevel_commuter: { label: 'Double-Decker Commuter', boxiness: 0.78, taper: 0.04, curvature: 0.2 },
+  dome_observation: { label: 'Vista-Dome Observation', boxiness: 0.68, taper: 0.03, curvature: 0.3 },
+  subway_classic: { label: 'Classic Stainless Subway', boxiness: 0.86, taper: 0.02, curvature: 0.16 },
+  metro_modern: { label: 'Modern Rounded Metro', boxiness: 0.64, taper: 0.08, curvature: 0.34 },
+  people_mover: { label: 'Automated Shuttle Pod', boxiness: 0.6, taper: 0.06, curvature: 0.36 },
+  historic_streetcar: { label: 'Clerestory Streetcar', boxiness: 0.76, taper: 0.04, curvature: 0.26 },
+  articulated_tram: { label: 'Articulated Low-Floor Tram', boxiness: 0.66, taper: 0.08, curvature: 0.3 },
+  open_tram: { label: 'Open-Sided Trolley', boxiness: 0.78, taper: 0.03, curvature: 0.22 },
+  freight_boxcar: { label: 'Corrugated Boxcar', boxiness: 0.95, taper: 0.01, curvature: 0.06 },
+  freight_flatcar: { label: 'Intermodal Flatcar', boxiness: 0.96, taper: 0.01, curvature: 0.05 },
+  freight_tank_car: { label: 'Cylindrical Tank Wagon', boxiness: 0.45, taper: 0.02, curvature: 0.55 },
+  freight_hopper: { label: 'Ribbed Open Hopper', boxiness: 0.88, taper: 0.08, curvature: 0.12 },
+  freight_caboose: { label: 'Cupola Caboose', boxiness: 0.9, taper: 0.02, curvature: 0.12 },
+  straddle_monorail: { label: 'Straddle-Beam Monorail', boxiness: 0.56, taper: 0.12, curvature: 0.4 },
+  suspended_monorail: { label: 'Suspended Skytrain', boxiness: 0.62, taper: 0.1, curvature: 0.35 },
+  aerial_gondola: { label: 'Panoramic Gondola Cabin', boxiness: 0.48, taper: 0.14, curvature: 0.46 }
+};
+
+const RAIL_BASE_DEFAULTS = {
+  vehicleDomain: 'rail',
+  railTrackGauge: 'standard_1435',
+  railBogieStyle: 'loco_heavy',
+  railBogieAxles: 3,
+  railBogieSpacing: 9.6,
+  railBogieWheelbase: 3.6,
+  railWheelRadius: 0.5,
+  railCouplerType: 'aar_knuckle',
+  railDeckHeight: 1.38,
+  railCabPosition: 'forward',
+  railNoseLength: 2.1,
+  railNoseSlope: 'low_sloped',
+  railHoodWidthRatio: 0.62,
+  railFuelTankLength: 4.8,
+  railExhaustCount: 2,
+  railHandrails: true,
+  railLiveryPattern: 'two_tone_stripe',
+  railCargoType: 'containers_double_20',
+  railHopperCargo: 'coal_heap',
+  railTankDiameter: 2.55,
+  railWindowCount: 8,
+  railDoorStyle: 'sliding_plug',
+  railDoorsOpen: 0,
+  railGangways: true,
+  railRoofEquipment: 'diesel_radiator',
+  railPantographHeight: 0.85,
+  railUnitNumber: 'B-4012',
+  railRouteBullet: 'A',
+  railCabinSwingDeg: 0,
+  railPowered: true,
+  railBogieYawDeg: 0,
+  railWheelSpinDeg: 0,
+  railInteriorEnabled: true
+};
+
+const RAIL_PRESET_DEFINITIONS = {
+  diesel_locomotive: {
+    label: 'Road-Switcher Diesel Locomotive',
+    style: 'diesel_locomotive',
+    seed: 4012,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_diesel_road_switcher',
+    silhouetteFamily: 'diesel_road_switcher',
+    overallLength: 16.4,
+    overallWidth: 3.06,
+    overallHeight: 4.46,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'loco_heavy',
+    railBogieAxles: 3,
+    railBogieSpacing: 9.6,
+    railBogieWheelbase: 3.6,
+    railWheelRadius: 0.51,
+    railCouplerType: 'aar_knuckle',
+    railDeckHeight: 1.38,
+    railCabPosition: 'forward',
+    railNoseLength: 2.1,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.62,
+    railFuelTankLength: 4.8,
+    railExhaustCount: 2,
+    railHandrails: true,
+    railLiveryPattern: 'two_tone_stripe',
+    railCargoType: 'none',
+    railTankDiameter: 2.55,
+    railWindowCount: 4,
+    railDoorStyle: 'cab_hinged',
+    railDoorsOpen: 0,
+    railGangways: false,
+    railRoofEquipment: 'diesel_radiator',
+    railUnitNumber: 'B-4012',
+    railPowered: true,
+    railBogieYawDeg: 0,
+    railWheelSpinDeg: 0,
+    railInteriorEnabled: true,
+    paletteFamily: 'freight_rail',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#24426b',
+    bodySecondaryMaterial: 'matte_body',
+    bodySecondaryColor: '#1f2731',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1d2229',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#2a313a',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#5c6670',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#98a3ad',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#22384a',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#697480',
+    liveryStripeColor: '#eab02e',
+    colorVariation: 0.03,
+    wearLevel: 'slightly_used',
+    roleVariant: 'transit',
+    lightBar: 'amber_work_bar',
+    doorsOpen: false,
+    interiorDetail: true,
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: true,
+    signText: 'B-4012'
+  },
+
+  diesel_switcher: {
+    label: 'Yard Switcher Diesel Locomotive',
+    style: 'diesel_switcher',
+    seed: 1080,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_diesel_switcher',
+    silhouetteFamily: 'yard_switcher',
+    overallLength: 12.0,
+    overallWidth: 2.96,
+    overallHeight: 4.18,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'loco_heavy',
+    railBogieAxles: 2,
+    railBogieSpacing: 6.4,
+    railBogieWheelbase: 2.4,
+    railWheelRadius: 0.46,
+    railCouplerType: 'aar_knuckle',
+    railDeckHeight: 1.3,
+    railCabPosition: 'rear',
+    railNoseLength: 1.2,
+    railNoseSlope: 'flat_switcher',
+    railHoodWidthRatio: 0.58,
+    railFuelTankLength: 2.6,
+    railExhaustCount: 2,
+    railHandrails: true,
+    railLiveryPattern: 'hazard_switcher',
+    railCargoType: 'none',
+    railTankDiameter: 2.4,
+    railWindowCount: 4,
+    railDoorStyle: 'cab_hinged',
+    railDoorsOpen: 0,
+    railGangways: false,
+    railRoofEquipment: 'diesel_radiator',
+    railUnitNumber: 'B-108',
+    railPowered: true,
+    railBogieYawDeg: 0,
+    railWheelSpinDeg: 0,
+    railInteriorEnabled: true,
+    paletteFamily: 'construction_yellow',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#d99622',
+    bodySecondaryMaterial: 'matte_body',
+    bodySecondaryColor: '#222830',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1b2026',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#292f37',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#56606a',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#98a3ad',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#213546',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#66707b',
+    liveryStripeColor: '#1d2228',
+    colorVariation: 0.03,
+    wearLevel: 'worn',
+    roleVariant: 'service',
+    lightBar: 'vintage_beacon',
+    doorsOpen: false,
+    interiorDetail: true,
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: true,
+    signText: 'B-108'
+  },
+
+  freight_boxcar: {
+    label: 'Standard Freight Boxcar',
+    style: 'freight_boxcar',
+    seed: 7421,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_freight_boxcar',
+    silhouetteFamily: 'freight_boxcar',
+    overallLength: 15.4,
+    overallWidth: 3.08,
+    overallHeight: 4.36,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'freight_2axle',
+    railBogieAxles: 2,
+    railBogieSpacing: 10.6,
+    railBogieWheelbase: 1.95,
+    railWheelRadius: 0.45,
+    railCouplerType: 'aar_knuckle',
+    railDeckHeight: 1.24,
+    railCabPosition: 'forward',
+    railNoseLength: 1.4,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.65,
+    railFuelTankLength: 2.2,
+    railExhaustCount: 0,
+    railHandrails: true,
+    railLiveryPattern: 'two_tone_stripe',
+    railCargoType: 'crates_machinery',
+    railTankDiameter: 2.5,
+    railWindowCount: 0,
+    railDoorStyle: 'boxcar_sliding',
+    railDoorsOpen: 0,
+    railGangways: false,
+    railRoofEquipment: 'roofwalk_only',
+    railUnitNumber: 'BRX-7421',
+    railPowered: false,
+    railBogieYawDeg: 0,
+    railWheelSpinDeg: 0,
+    railInteriorEnabled: false,
+    paletteFamily: 'freight_rail',
+    bodyPrimaryMaterial: 'worn_paint',
+    bodyPrimaryColor: '#8c3b2e',
+    bodySecondaryMaterial: 'matte_body',
+    bodySecondaryColor: '#464c54',
+    trimMaterial: 'utility_metal',
+    trimColor: '#30363e',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#2d333b',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#565e67',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#919ba4',
+    glassMaterial: 'dark_glass',
+    glassColor: '#1d2732',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#6d7782',
+    liveryStripeColor: '#dfd5c2',
+    colorVariation: 0.04,
+    wearLevel: 'worn',
+    roleVariant: 'delivery',
+    lightBar: 'none',
+    doorsOpen: false,
+    interiorDetail: false,
+    headlightsLit: false,
+    emergencyLightsLit: false,
+    beaconFlash: false,
+    signText: 'BRX-7421'
+  },
+
+  freight_flatcar: {
+    label: 'Container Flatbed Wagon',
+    style: 'freight_flatcar',
+    seed: 3090,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_freight_flatcar',
+    silhouetteFamily: 'freight_flatcar',
+    overallLength: 15.6,
+    overallWidth: 3.02,
+    overallHeight: 3.95,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'freight_2axle',
+    railBogieAxles: 2,
+    railBogieSpacing: 10.8,
+    railBogieWheelbase: 1.95,
+    railWheelRadius: 0.44,
+    railCouplerType: 'aar_knuckle',
+    railDeckHeight: 1.2,
+    railCabPosition: 'forward',
+    railNoseLength: 1.2,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.65,
+    railFuelTankLength: 2.0,
+    railExhaustCount: 0,
+    railHandrails: true,
+    railLiveryPattern: 'single_band',
+    railCargoType: 'containers_double_20',
+    railTankDiameter: 2.4,
+    railWindowCount: 0,
+    railDoorStyle: 'none',
+    railDoorsOpen: 0,
+    railGangways: false,
+    railRoofEquipment: 'none',
+    railUnitNumber: 'BTTX-309',
+    railPowered: false,
+    railBogieYawDeg: 0,
+    railWheelSpinDeg: 0,
+    railInteriorEnabled: false,
+    paletteFamily: 'muted_industrial',
+    bodyPrimaryMaterial: 'matte_body',
+    bodyPrimaryColor: '#363f49',
+    bodySecondaryMaterial: 'worn_paint',
+    bodySecondaryColor: '#5c4b3b',
+    trimMaterial: 'utility_metal',
+    trimColor: '#2a3038',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#252b32',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#576069',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#919ba4',
+    glassMaterial: 'dark_glass',
+    glassColor: '#1d2732',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#76808b',
+    liveryStripeColor: '#e09a2f',
+    colorVariation: 0.12,
+    wearLevel: 'slightly_used',
+    roleVariant: 'delivery',
+    lightBar: 'none',
+    doorsOpen: false,
+    interiorDetail: false,
+    headlightsLit: false,
+    emergencyLightsLit: false,
+    beaconFlash: false,
+    signText: 'BTTX-309'
+  },
+
+  freight_tank_car: {
+    label: 'Industrial Tank Wagon',
+    style: 'freight_tank_car',
+    seed: 8840,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_freight_tank',
+    silhouetteFamily: 'freight_tank_car',
+    overallLength: 14.8,
+    overallWidth: 2.96,
+    overallHeight: 4.22,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'freight_2axle',
+    railBogieAxles: 2,
+    railBogieSpacing: 10.2,
+    railBogieWheelbase: 1.95,
+    railWheelRadius: 0.45,
+    railCouplerType: 'aar_knuckle',
+    railDeckHeight: 1.16,
+    railCabPosition: 'forward',
+    railNoseLength: 1.2,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.65,
+    railFuelTankLength: 2.0,
+    railExhaustCount: 0,
+    railHandrails: true,
+    railLiveryPattern: 'single_band',
+    railCargoType: 'none',
+    railTankDiameter: 2.58,
+    railWindowCount: 0,
+    railDoorStyle: 'none',
+    railDoorsOpen: 0,
+    railGangways: false,
+    railRoofEquipment: 'tank_catwalk',
+    railUnitNumber: 'BUTX-884',
+    railPowered: false,
+    railBogieYawDeg: 0,
+    railWheelSpinDeg: 0,
+    railInteriorEnabled: false,
+    paletteFamily: 'muted_industrial',
+    bodyPrimaryMaterial: 'matte_body',
+    bodyPrimaryColor: '#272d34',
+    bodySecondaryMaterial: 'utility_metal',
+    bodySecondaryColor: '#3f4750',
+    trimMaterial: 'utility_metal',
+    trimColor: '#252b32',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#282f37',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#576069',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#919ba4',
+    glassMaterial: 'dark_glass',
+    glassColor: '#1d2732',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#88929c',
+    liveryStripeColor: '#e5ebf2',
+    colorVariation: 0.03,
+    wearLevel: 'slightly_used',
+    roleVariant: 'service',
+    lightBar: 'none',
+    doorsOpen: false,
+    interiorDetail: false,
+    headlightsLit: false,
+    emergencyLightsLit: false,
+    beaconFlash: false,
+    signText: 'BUTX-884'
+  },
+
+  passenger_coach: {
+    label: 'Regional Passenger Coach',
+    style: 'passenger_coach',
+    seed: 2040,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_passenger_coach',
+    silhouetteFamily: 'passenger_coach',
+    overallLength: 18.6,
+    overallWidth: 3.04,
+    overallHeight: 4.18,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'passenger_coil',
+    railBogieAxles: 2,
+    railBogieSpacing: 12.8,
+    railBogieWheelbase: 2.45,
+    railWheelRadius: 0.44,
+    railCouplerType: 'aar_knuckle',
+    railDeckHeight: 1.22,
+    railCabPosition: 'forward',
+    railNoseLength: 1.2,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.72,
+    railFuelTankLength: 4.0,
+    railExhaustCount: 0,
+    railHandrails: true,
+    railLiveryPattern: 'window_band',
+    railCargoType: 'none',
+    railTankDiameter: 2.4,
+    railWindowCount: 8,
+    railDoorStyle: 'sliding_plug',
+    railDoorsOpen: 0,
+    railGangways: true,
+    railRoofEquipment: 'hvac_twin',
+    railUnitNumber: 'BR-204',
+    railPowered: false,
+    railBogieYawDeg: 0,
+    railWheelSpinDeg: 0,
+    railInteriorEnabled: true,
+    paletteFamily: 'passenger_rail',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#c8d2dc',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#253c59',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1f262e',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#2c343e',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#66707a',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#a2adb7',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#20374a',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#8d98a4',
+    liveryStripeColor: '#25a58d',
+    colorVariation: 0.02,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    doorsOpen: false,
+    interiorDetail: true,
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'LINE 1 · CAR 204'
+  },
+
+  electric_locomotive: {
+    label: 'Dual-Cab Electric Locomotive',
+    style: 'electric_locomotive',
+    seed: 1890,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_electric_loco',
+    silhouetteFamily: 'electric_loco',
+    overallLength: 17.2,
+    overallWidth: 3.04,
+    overallHeight: 4.28,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'loco_heavy',
+    railBogieAxles: 2,
+    railBogieSpacing: 9.8,
+    railBogieWheelbase: 2.8,
+    railWheelRadius: 0.54,
+    railCouplerType: 'aar_knuckle',
+    railDeckHeight: 1.36,
+    railCabPosition: 'forward',
+    railNoseLength: 1.4,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.9,
+    railFuelTankLength: 4.4,
+    railExhaustCount: 0,
+    railHandrails: true,
+    railLiveryPattern: 'two_tone_stripe',
+    railCargoType: 'none',
+    railTankDiameter: 2.4,
+    railWindowCount: 4,
+    railDoorStyle: 'cab_hinged',
+    railDoorsOpen: 0,
+    railGangways: false,
+    railRoofEquipment: 'hvac_twin',
+    railPantographHeight: 0.92,
+    railUnitNumber: 'E-189',
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'passenger_rail',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#a82832',
+    bodySecondaryMaterial: 'matte_body',
+    bodySecondaryColor: '#222933',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1b2026',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#283039',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#5c6670',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#98a3ad',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#1f3649',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#8d98a4',
+    liveryStripeColor: '#dce4ec',
+    colorVariation: 0.02,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'EURO-CARGO E-189'
+  },
+
+  streamlined_diesel: {
+    label: 'Streamlined Bulldog Diesel',
+    style: 'streamlined_diesel',
+    seed: 3040,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_streamlined_diesel',
+    silhouetteFamily: 'streamlined_diesel',
+    overallLength: 16.8,
+    overallWidth: 3.06,
+    overallHeight: 4.38,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'loco_heavy',
+    railBogieAxles: 3,
+    railBogieSpacing: 9.6,
+    railBogieWheelbase: 3.5,
+    railWheelRadius: 0.49,
+    railCouplerType: 'aar_knuckle',
+    railDeckHeight: 1.32,
+    railCabPosition: 'forward',
+    railNoseLength: 2.4,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.88,
+    railFuelTankLength: 4.6,
+    railExhaustCount: 2,
+    railHandrails: true,
+    railLiveryPattern: 'two_tone_stripe',
+    railCargoType: 'none',
+    railTankDiameter: 2.4,
+    railWindowCount: 4,
+    railDoorStyle: 'cab_hinged',
+    railDoorsOpen: 0,
+    railGangways: false,
+    railRoofEquipment: 'diesel_radiator',
+    railUnitNumber: 'SF-304',
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'passenger_rail',
+    bodyPrimaryMaterial: 'chrome_metal',
+    bodyPrimaryColor: '#cfd8e0',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#b8292f',
+    trimMaterial: 'chrome_metal',
+    trimColor: '#d8e0e8',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#2d333b',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#5c6670',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#98a3ad',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#1f3649',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#8d98a4',
+    liveryStripeColor: '#ebb636',
+    colorVariation: 0.02,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'CHIEF SF-304'
+  },
+
+  steam_locomotive: {
+    label: 'Express Pacific Steam Locomotive',
+    style: 'steam_locomotive',
+    seed: 4449,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_steam_loco',
+    silhouetteFamily: 'steam_locomotive',
+    overallLength: 18.8,
+    overallWidth: 3.04,
+    overallHeight: 4.48,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'loco_heavy',
+    railBogieAxles: 2,
+    railBogieSpacing: 10.6,
+    railBogieWheelbase: 1.85,
+    railWheelRadius: 0.44,
+    railCouplerType: 'aar_knuckle',
+    railDeckHeight: 1.42,
+    railCabPosition: 'rear',
+    railNoseLength: 1.6,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.72,
+    railFuelTankLength: 3.2,
+    railExhaustCount: 1,
+    railHandrails: true,
+    railLiveryPattern: 'two_tone_stripe',
+    railCargoType: 'none',
+    railTankDiameter: 2.2,
+    railWindowCount: 2,
+    railDoorStyle: 'none',
+    railDoorsOpen: 0,
+    railGangways: false,
+    railRoofEquipment: 'none',
+    railUnitNumber: '4449',
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'retro_city',
+    bodyPrimaryMaterial: 'matte_body',
+    bodyPrimaryColor: '#1f242b',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#224a38',
+    trimMaterial: 'utility_metal',
+    trimColor: '#2c323a',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#222830',
+    wheelRimMaterial: 'painted_metal',
+    wheelRimColor: '#254a38',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#a6b0ba',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#233647',
+    utilityMaterial: 'chrome_metal',
+    utilityColor: '#8d97a2',
+    liveryStripeColor: '#d9a938',
+    colorVariation: 0.02,
+    wearLevel: 'slightly_used',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'PACIFIC 4449'
+  },
+
+  rail_maintenance_crane: {
+    label: 'Track Maintenance Crane Car',
+    style: 'rail_maintenance_crane',
+    seed: 7701,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_maintenance',
+    silhouetteFamily: 'maintenance_work',
+    overallLength: 14.2,
+    overallWidth: 2.98,
+    overallHeight: 4.12,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'freight_2axle',
+    railBogieAxles: 2,
+    railBogieSpacing: 8.6,
+    railBogieWheelbase: 2.0,
+    railWheelRadius: 0.44,
+    railCouplerType: 'aar_knuckle',
+    railDeckHeight: 1.24,
+    railCabPosition: 'forward',
+    railNoseLength: 1.2,
+    railNoseSlope: 'flat_switcher',
+    railHoodWidthRatio: 0.72,
+    railFuelTankLength: 2.8,
+    railExhaustCount: 1,
+    railHandrails: true,
+    railLiveryPattern: 'hazard_switcher',
+    railCargoType: 'none',
+    railTankDiameter: 2.2,
+    railWindowCount: 4,
+    railDoorStyle: 'cab_hinged',
+    railDoorsOpen: 0,
+    railGangways: false,
+    railRoofEquipment: 'none',
+    railUnitNumber: 'MOW-77',
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'construction_yellow',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#e5a61e',
+    bodySecondaryMaterial: 'matte_body',
+    bodySecondaryColor: '#232830',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1d2228',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#2a3038',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#56606a',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#98a3ad',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#213546',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#76818c',
+    liveryStripeColor: '#1d2228',
+    colorVariation: 0.03,
+    wearLevel: 'slightly_used',
+    roleVariant: 'construction',
+    lightBar: 'amber_work_bar',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: true,
+    signText: 'MOW-77'
+  },
+
+  bullet_train_lead: {
+    label: 'High-Speed Bullet Lead',
+    style: 'bullet_train_lead',
+    seed: 9001,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_highspeed_lead',
+    silhouetteFamily: 'bullet_highspeed',
+    overallLength: 21.2,
+    overallWidth: 3.12,
+    overallHeight: 3.92,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'passenger_coil',
+    railBogieAxles: 2,
+    railBogieSpacing: 13.4,
+    railBogieWheelbase: 2.55,
+    railWheelRadius: 0.43,
+    railCouplerType: 'automatic_schaku',
+    railDeckHeight: 1.18,
+    railCabPosition: 'forward',
+    railNoseLength: 4.8,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.86,
+    railFuelTankLength: 4.0,
+    railExhaustCount: 0,
+    railHandrails: false,
+    railLiveryPattern: 'window_band',
+    railCargoType: 'none',
+    railTankDiameter: 2.2,
+    railWindowCount: 8,
+    railDoorStyle: 'sliding_plug',
+    railDoorsOpen: 0,
+    railGangways: true,
+    railRoofEquipment: 'hvac_twin',
+    railPantographHeight: 0.9,
+    railUnitNumber: 'HSX-01',
+    railRouteBullet: 'HSX',
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'passenger_rail',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#edf2f7',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#1d5296',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#182230',
+    bumperMaterial: 'painted_metal',
+    bumperColor: '#1d5296',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#66707a',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#a2adb7',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#192b3d',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#919ca8',
+    liveryStripeColor: '#d63638',
+    colorVariation: 0.02,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'EXPRESS HSX-01'
+  },
+
+  bullet_train_coach: {
+    label: 'High-Speed Bullet Coach',
+    style: 'bullet_train_coach',
+    seed: 9002,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_highspeed_coach',
+    silhouetteFamily: 'bullet_highspeed',
+    overallLength: 19.6,
+    overallWidth: 3.12,
+    overallHeight: 3.92,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'passenger_coil',
+    railBogieAxles: 2,
+    railBogieSpacing: 13.6,
+    railBogieWheelbase: 2.5,
+    railWheelRadius: 0.43,
+    railCouplerType: 'automatic_schaku',
+    railDeckHeight: 1.18,
+    railCabPosition: 'forward',
+    railNoseLength: 1.4,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.86,
+    railFuelTankLength: 4.0,
+    railExhaustCount: 0,
+    railHandrails: false,
+    railLiveryPattern: 'window_band',
+    railCargoType: 'none',
+    railTankDiameter: 2.2,
+    railWindowCount: 10,
+    railDoorStyle: 'sliding_plug',
+    railDoorsOpen: 0,
+    railGangways: true,
+    railRoofEquipment: 'hvac_twin',
+    railPantographHeight: 0,
+    railUnitNumber: 'HSX-02',
+    railRouteBullet: 'HSX',
+    railPowered: false,
+    railInteriorEnabled: true,
+    paletteFamily: 'passenger_rail',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#edf2f7',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#1d5296',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#182230',
+    bumperMaterial: 'painted_metal',
+    bumperColor: '#1d5296',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#66707a',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#a2adb7',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#192b3d',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#919ca8',
+    liveryStripeColor: '#d63638',
+    colorVariation: 0.02,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'EXPRESS HSX-02'
+  },
+
+  bilevel_commuter: {
+    label: 'Double-Decker Commuter Coach',
+    style: 'bilevel_commuter',
+    seed: 5120,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_bilevel_coach',
+    silhouetteFamily: 'bilevel_commuter',
+    overallLength: 19.4,
+    overallWidth: 3.06,
+    overallHeight: 4.72,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'passenger_coil',
+    railBogieAxles: 2,
+    railBogieSpacing: 13.4,
+    railBogieWheelbase: 2.45,
+    railWheelRadius: 0.43,
+    railCouplerType: 'aar_knuckle',
+    railDeckHeight: 1.18,
+    railCabPosition: 'forward',
+    railNoseLength: 1.2,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.75,
+    railFuelTankLength: 4.0,
+    railExhaustCount: 0,
+    railHandrails: true,
+    railLiveryPattern: 'two_tone_stripe',
+    railCargoType: 'none',
+    railTankDiameter: 2.4,
+    railWindowCount: 8,
+    railDoorStyle: 'sliding_plug',
+    railDoorsOpen: 0,
+    railGangways: true,
+    railRoofEquipment: 'hvac_twin',
+    railUnitNumber: 'GO-512',
+    railPowered: false,
+    railInteriorEnabled: true,
+    paletteFamily: 'passenger_rail',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#cbd5df',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#1f6e58',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1c242c',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#2a333c',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#66707a',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#a2adb7',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#1d3446',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#8d98a4',
+    liveryStripeColor: '#72c86a',
+    colorVariation: 0.02,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'COMMUTER GO-512'
+  },
+
+  observation_dome_coach: {
+    label: 'Vista-Dome Observation Coach',
+    style: 'observation_dome_coach',
+    seed: 9090,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_dome_coach',
+    silhouetteFamily: 'dome_observation',
+    overallLength: 19.2,
+    overallWidth: 3.06,
+    overallHeight: 4.68,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'passenger_coil',
+    railBogieAxles: 2,
+    railBogieSpacing: 13.2,
+    railBogieWheelbase: 2.45,
+    railWheelRadius: 0.44,
+    railCouplerType: 'aar_knuckle',
+    railDeckHeight: 1.22,
+    railCabPosition: 'forward',
+    railNoseLength: 1.2,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.75,
+    railFuelTankLength: 4.0,
+    railExhaustCount: 0,
+    railHandrails: true,
+    railLiveryPattern: 'window_band',
+    railCargoType: 'none',
+    railTankDiameter: 2.4,
+    railWindowCount: 8,
+    railDoorStyle: 'sliding_plug',
+    railDoorsOpen: 0,
+    railGangways: true,
+    railRoofEquipment: 'hvac_twin',
+    railUnitNumber: 'VISTA-9',
+    railPowered: false,
+    railInteriorEnabled: true,
+    paletteFamily: 'passenger_rail',
+    bodyPrimaryMaterial: 'chrome_metal',
+    bodyPrimaryColor: '#cdd6df',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#234572',
+    trimMaterial: 'chrome_metal',
+    trimColor: '#d8e2eb',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#2c343e',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#66707a',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#a2adb7',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#223e54',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#8d98a4',
+    liveryStripeColor: '#e3b136',
+    colorVariation: 0.02,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'VISTA DOME 9'
+  },
+
+  classic_subway_car: {
+    label: 'Classic Stainless Subway Car',
+    style: 'classic_subway_car',
+    seed: 4602,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_subway_classic',
+    silhouetteFamily: 'subway_classic',
+    overallLength: 15.8,
+    overallWidth: 2.94,
+    overallHeight: 3.68,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'passenger_coil',
+    railBogieAxles: 2,
+    railBogieSpacing: 10.6,
+    railBogieWheelbase: 2.15,
+    railWheelRadius: 0.4,
+    railCouplerType: 'automatic_schaku',
+    railDeckHeight: 1.08,
+    railCabPosition: 'forward',
+    railNoseLength: 1.0,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.78,
+    railFuelTankLength: 3.5,
+    railExhaustCount: 0,
+    railHandrails: true,
+    railLiveryPattern: 'two_tone_stripe',
+    railCargoType: 'none',
+    railTankDiameter: 2.2,
+    railWindowCount: 6,
+    railDoorStyle: 'sliding_plug',
+    railDoorsOpen: 0,
+    railGangways: true,
+    railRoofEquipment: 'hvac_twin',
+    railUnitNumber: 'R-4602',
+    railRouteBullet: 'A',
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'passenger_rail',
+    bodyPrimaryMaterial: 'chrome_metal',
+    bodyPrimaryColor: '#bcc6cf',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#1e5ba8',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1d242c',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#293039',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#5d6771',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#98a3ad',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#1e3547',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#8d98a4',
+    liveryStripeColor: '#2c7ad6',
+    colorVariation: 0.02,
+    wearLevel: 'slightly_used',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'LINE A · EXPRESS'
+  },
+
+  modern_metro_lead: {
+    label: 'Modern Rounded Metro',
+    style: 'modern_metro_lead',
+    seed: 1040,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_metro_modern',
+    silhouetteFamily: 'metro_modern',
+    overallLength: 16.4,
+    overallWidth: 2.98,
+    overallHeight: 3.74,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'passenger_coil',
+    railBogieAxles: 2,
+    railBogieSpacing: 11.0,
+    railBogieWheelbase: 2.2,
+    railWheelRadius: 0.41,
+    railCouplerType: 'automatic_schaku',
+    railDeckHeight: 1.06,
+    railCabPosition: 'forward',
+    railNoseLength: 1.6,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.85,
+    railFuelTankLength: 3.5,
+    railExhaustCount: 0,
+    railHandrails: true,
+    railLiveryPattern: 'window_band',
+    railCargoType: 'none',
+    railTankDiameter: 2.2,
+    railWindowCount: 6,
+    railDoorStyle: 'sliding_plug',
+    railDoorsOpen: 0,
+    railGangways: true,
+    railRoofEquipment: 'hvac_twin',
+    railUnitNumber: 'M1-104',
+    railRouteBullet: 'M1',
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'passenger_rail',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#e8eef4',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#1e2d42',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#18212c',
+    bumperMaterial: 'plastic_trim',
+    bumperColor: '#1f2834',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#5c6670',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#9ca7b1',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#1b2e3f',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#8d98a4',
+    liveryStripeColor: '#22c5d4',
+    colorVariation: 0.02,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'M1 DOWNTOWN'
+  },
+
+  automated_people_mover: {
+    label: 'Automated People Mover',
+    style: 'automated_people_mover',
+    seed: 808,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_people_mover',
+    silhouetteFamily: 'people_mover',
+    overallLength: 11.4,
+    overallWidth: 2.74,
+    overallHeight: 3.45,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'passenger_coil',
+    railBogieAxles: 2,
+    railBogieSpacing: 6.8,
+    railBogieWheelbase: 1.9,
+    railWheelRadius: 0.36,
+    railCouplerType: 'automatic_schaku',
+    railDeckHeight: 0.96,
+    railCabPosition: 'forward',
+    railNoseLength: 1.0,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.85,
+    railFuelTankLength: 2.4,
+    railExhaustCount: 0,
+    railHandrails: true,
+    railLiveryPattern: 'window_band',
+    railCargoType: 'none',
+    railTankDiameter: 2.0,
+    railWindowCount: 4,
+    railDoorStyle: 'sliding_plug',
+    railDoorsOpen: 0,
+    railGangways: false,
+    railRoofEquipment: 'hvac_twin',
+    railUnitNumber: 'APM-08',
+    railRouteBullet: 'AIR',
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'bright_city',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#eff4f8',
+    bodySecondaryMaterial: 'matte_body',
+    bodySecondaryColor: '#1a2634',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1a222c',
+    bumperMaterial: 'plastic_trim',
+    bumperColor: '#212a36',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#5c6670',
+    tireMaterial: 'dark_rubber',
+    tireColor: '#1d2228',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#1b3042',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#8d98a4',
+    liveryStripeColor: '#eb7a23',
+    colorVariation: 0.02,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'TERMINAL LOOP'
+  },
+
+  historic_streetcar: {
+    label: 'Historic Clerestory Streetcar',
+    style: 'historic_streetcar',
+    seed: 1924,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_historic_streetcar',
+    silhouetteFamily: 'historic_streetcar',
+    overallLength: 11.8,
+    overallWidth: 2.54,
+    overallHeight: 3.55,
+    railTrackGauge: 'street_tram_1435',
+    railBogieStyle: 'passenger_coil',
+    railBogieAxles: 2,
+    railBogieSpacing: 6.2,
+    railBogieWheelbase: 1.75,
+    railWheelRadius: 0.36,
+    railCouplerType: 'close_passenger',
+    railDeckHeight: 0.88,
+    railCabPosition: 'forward',
+    railNoseLength: 1.0,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.78,
+    railFuelTankLength: 2.4,
+    railExhaustCount: 0,
+    railHandrails: true,
+    railLiveryPattern: 'two_tone_stripe',
+    railCargoType: 'none',
+    railTankDiameter: 2.0,
+    railWindowCount: 6,
+    railDoorStyle: 'sliding_plug',
+    railDoorsOpen: 0,
+    railGangways: false,
+    railRoofEquipment: 'none',
+    railUnitNumber: 'CAR 42',
+    railRouteBullet: '42',
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'retro_city',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#8f2a2e',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#efe4ce',
+    trimMaterial: 'matte_body',
+    trimColor: '#4a3022',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#252a30',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#4e5660',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#98a3ad',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#253c4d',
+    utilityMaterial: 'chrome_metal',
+    utilityColor: '#c7a246',
+    liveryStripeColor: '#dfad38',
+    colorVariation: 0.03,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: '42 MARKET ST'
+  },
+
+  modern_lowfloor_tram: {
+    label: '3-Section Articulated Tram',
+    style: 'modern_lowfloor_tram',
+    seed: 3050,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_articulated_tram',
+    silhouetteFamily: 'articulated_tram',
+    overallLength: 21.6,
+    overallWidth: 2.56,
+    overallHeight: 3.52,
+    railTrackGauge: 'street_tram_1435',
+    railBogieStyle: 'passenger_coil',
+    railBogieAxles: 2,
+    railBogieSpacing: 13.8,
+    railBogieWheelbase: 1.85,
+    railWheelRadius: 0.34,
+    railCouplerType: 'automatic_schaku',
+    railDeckHeight: 0.78,
+    railCabPosition: 'forward',
+    railNoseLength: 1.5,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.86,
+    railFuelTankLength: 3.0,
+    railExhaustCount: 0,
+    railHandrails: true,
+    railLiveryPattern: 'window_band',
+    railCargoType: 'none',
+    railTankDiameter: 2.0,
+    railWindowCount: 8,
+    railDoorStyle: 'sliding_plug',
+    railDoorsOpen: 0,
+    railGangways: false,
+    railRoofEquipment: 'hvac_twin',
+    railPantographHeight: 0.9,
+    railUnitNumber: 'T-305',
+    railRouteBullet: 'L3',
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'passenger_rail',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#e6edf3',
+    bodySecondaryMaterial: 'matte_body',
+    bodySecondaryColor: '#1c2632',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1a222b',
+    bumperMaterial: 'plastic_trim',
+    bumperColor: '#212a36',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#56606a',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#98a3ad',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#1a2e40',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#8d98a4',
+    liveryStripeColor: '#1ea896',
+    colorVariation: 0.02,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'L3 HARBORFRONT'
+  },
+
+  heritage_open_tram: {
+    label: 'Open-Sided Tourist Tram',
+    style: 'heritage_open_tram',
+    seed: 1909,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_open_tram',
+    silhouetteFamily: 'open_tram',
+    overallLength: 10.6,
+    overallWidth: 2.48,
+    overallHeight: 3.42,
+    railTrackGauge: 'street_tram_1435',
+    railBogieStyle: 'passenger_coil',
+    railBogieAxles: 2,
+    railBogieSpacing: 5.4,
+    railBogieWheelbase: 1.7,
+    railWheelRadius: 0.35,
+    railCouplerType: 'close_passenger',
+    railDeckHeight: 0.84,
+    railCabPosition: 'forward',
+    railNoseLength: 0.9,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.78,
+    railFuelTankLength: 2.0,
+    railExhaustCount: 0,
+    railHandrails: true,
+    railLiveryPattern: 'two_tone_stripe',
+    railCargoType: 'none',
+    railTankDiameter: 2.0,
+    railWindowCount: 5,
+    railDoorStyle: 'none',
+    railDoorsOpen: 0,
+    railGangways: false,
+    railRoofEquipment: 'none',
+    railUnitNumber: 'TROLLEY 19',
+    railRouteBullet: '19',
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'retro_city',
+    bodyPrimaryMaterial: 'matte_body',
+    bodyPrimaryColor: '#8c5630',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#eee5d2',
+    trimMaterial: 'matte_body',
+    trimColor: '#3d281a',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#252a30',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#555d66',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#98a3ad',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#253c4d',
+    utilityMaterial: 'chrome_metal',
+    utilityColor: '#d9a738',
+    liveryStripeColor: '#d9a738',
+    colorVariation: 0.03,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'SCENIC LOOP 19'
+  },
+
+  freight_hopper_car: {
+    label: 'Open Bulk Hopper Car',
+    style: 'freight_hopper_car',
+    seed: 6140,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_freight_hopper',
+    silhouetteFamily: 'freight_hopper',
+    overallLength: 14.6,
+    overallWidth: 3.04,
+    overallHeight: 4.02,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'freight_2axle',
+    railBogieAxles: 2,
+    railBogieSpacing: 10.0,
+    railBogieWheelbase: 1.95,
+    railWheelRadius: 0.45,
+    railCouplerType: 'aar_knuckle',
+    railDeckHeight: 1.22,
+    railCabPosition: 'forward',
+    railNoseLength: 1.2,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.65,
+    railFuelTankLength: 2.0,
+    railExhaustCount: 0,
+    railHandrails: true,
+    railLiveryPattern: 'single_band',
+    railCargoType: 'none',
+    railHopperCargo: 'coal_heap',
+    railTankDiameter: 2.4,
+    railWindowCount: 0,
+    railDoorStyle: 'none',
+    railDoorsOpen: 0,
+    railGangways: false,
+    railRoofEquipment: 'none',
+    railUnitNumber: 'BHPX-614',
+    railPowered: false,
+    railInteriorEnabled: false,
+    paletteFamily: 'muted_industrial',
+    bodyPrimaryMaterial: 'worn_paint',
+    bodyPrimaryColor: '#343b44',
+    bodySecondaryMaterial: 'matte_body',
+    bodySecondaryColor: '#22272e',
+    trimMaterial: 'utility_metal',
+    trimColor: '#282e36',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#262c34',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#565e67',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#919ba4',
+    glassMaterial: 'dark_glass',
+    glassColor: '#1d2732',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#6d7782',
+    liveryStripeColor: '#e2a829',
+    colorVariation: 0.04,
+    wearLevel: 'worn',
+    roleVariant: 'delivery',
+    lightBar: 'none',
+    headlightsLit: false,
+    emergencyLightsLit: false,
+    beaconFlash: false,
+    signText: 'BHPX-614'
+  },
+
+  freight_caboose: {
+    label: 'Cupola Freight Caboose',
+    style: 'freight_caboose',
+    seed: 9040,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_freight_caboose',
+    silhouetteFamily: 'freight_caboose',
+    overallLength: 11.4,
+    overallWidth: 2.98,
+    overallHeight: 4.38,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'freight_2axle',
+    railBogieAxles: 2,
+    railBogieSpacing: 6.8,
+    railBogieWheelbase: 1.9,
+    railWheelRadius: 0.43,
+    railCouplerType: 'aar_knuckle',
+    railDeckHeight: 1.24,
+    railCabPosition: 'center',
+    railNoseLength: 1.2,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.72,
+    railFuelTankLength: 2.0,
+    railExhaustCount: 1,
+    railHandrails: true,
+    railLiveryPattern: 'two_tone_stripe',
+    railCargoType: 'none',
+    railTankDiameter: 2.2,
+    railWindowCount: 4,
+    railDoorStyle: 'cab_hinged',
+    railDoorsOpen: 0,
+    railGangways: false,
+    railRoofEquipment: 'roofwalk_only',
+    railUnitNumber: 'B-904',
+    railPowered: false,
+    railInteriorEnabled: true,
+    paletteFamily: 'freight_rail',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#a62c28',
+    bodySecondaryMaterial: 'matte_body',
+    bodySecondaryColor: '#2a3038',
+    trimMaterial: 'utility_metal',
+    trimColor: '#232830',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#262c34',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#576069',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#919ba4',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#24384a',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#76808b',
+    liveryStripeColor: '#ebb42e',
+    colorVariation: 0.03,
+    wearLevel: 'slightly_used',
+    roleVariant: 'service',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'B-904'
+  },
+
+  straddle_monorail: {
+    label: 'Straddle-Beam Monorail',
+    style: 'straddle_monorail',
+    seed: 1001,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_straddle_monorail',
+    silhouetteFamily: 'straddle_monorail',
+    overallLength: 16.2,
+    overallWidth: 3.04,
+    overallHeight: 4.08,
+    railTrackGauge: 'monorail_beam',
+    railBogieStyle: 'passenger_coil',
+    railBogieAxles: 2,
+    railBogieSpacing: 9.8,
+    railBogieWheelbase: 1.95,
+    railWheelRadius: 0.42,
+    railCouplerType: 'monorail_coupler',
+    railDeckHeight: 1.32,
+    railCabPosition: 'forward',
+    railNoseLength: 2.2,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.9,
+    railFuelTankLength: 3.0,
+    railExhaustCount: 0,
+    railHandrails: false,
+    railLiveryPattern: 'window_band',
+    railCargoType: 'none',
+    railTankDiameter: 2.2,
+    railWindowCount: 6,
+    railDoorStyle: 'sliding_plug',
+    railDoorsOpen: 0,
+    railGangways: true,
+    railRoofEquipment: 'hvac_twin',
+    railUnitNumber: 'MONO-1',
+    railRouteBullet: 'M',
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'passenger_rail',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#eef3f8',
+    bodySecondaryMaterial: 'matte_body',
+    bodySecondaryColor: '#1c2635',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#19222e',
+    bumperMaterial: 'plastic_trim',
+    bumperColor: '#1f2834',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#56606a',
+    tireMaterial: 'dark_rubber',
+    tireColor: '#1c2026',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#1a2f42',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#8d98a4',
+    liveryStripeColor: '#25c4e8',
+    colorVariation: 0.02,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'SKYBEAM MONO-1'
+  },
+
+  suspended_monorail: {
+    label: 'Suspended Skytrain Monorail',
+    style: 'suspended_monorail',
+    seed: 7007,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_suspended_monorail',
+    silhouetteFamily: 'suspended_monorail',
+    overallLength: 14.4,
+    overallWidth: 2.74,
+    overallHeight: 4.88,
+    railTrackGauge: 'suspended_beam',
+    railBogieStyle: 'passenger_coil',
+    railBogieAxles: 2,
+    railBogieSpacing: 8.6,
+    railBogieWheelbase: 1.85,
+    railWheelRadius: 0.3,
+    railCouplerType: 'suspended_link',
+    railDeckHeight: 0.72,
+    railCabPosition: 'forward',
+    railNoseLength: 1.6,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.85,
+    railFuelTankLength: 2.0,
+    railExhaustCount: 0,
+    railHandrails: false,
+    railLiveryPattern: 'two_tone_stripe',
+    railCargoType: 'none',
+    railTankDiameter: 2.0,
+    railWindowCount: 6,
+    railDoorStyle: 'sliding_plug',
+    railDoorsOpen: 0,
+    railGangways: true,
+    railRoofEquipment: 'none',
+    railUnitNumber: 'SKY-07',
+    railRouteBullet: 'S1',
+    railCabinSwingDeg: 0,
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'bright_city',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#2474b5',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#edf3f8',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1a222c',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#303945',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#5c6670',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#98a3ad',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#1d3447',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#8d98a4',
+    liveryStripeColor: '#f0b429',
+    colorVariation: 0.02,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'SCHWEBEBAHN SKY-07'
+  },
+
+  aerial_gondola: {
+    label: 'Panoramic Aerial Gondola',
+    style: 'aerial_gondola',
+    seed: 1212,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_aerial_gondola',
+    silhouetteFamily: 'aerial_gondola',
+    overallLength: 3.9,
+    overallWidth: 2.32,
+    overallHeight: 4.95,
+    railTrackGauge: 'cableway_rope',
+    railBogieStyle: 'passenger_coil',
+    railBogieAxles: 2,
+    railBogieSpacing: 1.4,
+    railBogieWheelbase: 0.65,
+    railWheelRadius: 0.2,
+    railCouplerType: 'cable_grip',
+    railDeckHeight: 1.55,
+    railCabPosition: 'center',
+    railNoseLength: 0.8,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.8,
+    railFuelTankLength: 1.2,
+    railExhaustCount: 0,
+    railHandrails: true,
+    railLiveryPattern: 'two_tone_stripe',
+    railCargoType: 'none',
+    railTankDiameter: 1.8,
+    railWindowCount: 4,
+    railDoorStyle: 'sliding_plug',
+    railDoorsOpen: 0,
+    railGangways: false,
+    railRoofEquipment: 'none',
+    railUnitNumber: 'GOND-12',
+    railRouteBullet: 'G1',
+    railCabinSwingDeg: 0,
+    railPowered: false,
+    railInteriorEnabled: true,
+    paletteFamily: 'bright_city',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#c43235',
+    bodySecondaryMaterial: 'chrome_metal',
+    bodySecondaryColor: '#c8d3de',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1d242c',
+    bumperMaterial: 'plastic_trim',
+    bumperColor: '#252c36',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#76808b',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#a2adb7',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#1c3042',
+    utilityMaterial: 'chrome_metal',
+    utilityColor: '#c8d3de',
+    liveryStripeColor: '#f2f5f7',
+    colorVariation: 0.02,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: true,
+    beaconFlash: false,
+    signText: 'SKYLINE GOND-12'
+  }
+};
+
+const RAIL_OPTIONS = {
+  railTrackGauge: [
+    ['standard_1435', 'Standard Gauge (1435mm)'],
+    ['narrow_1067', 'Narrow Gauge (1067mm)'],
+    ['street_tram_1435', 'Street Tramway (1435mm)'],
+    ['monorail_beam', 'Straddle Monorail Beam'],
+    ['suspended_beam', 'Suspended Overhead Girder'],
+    ['cableway_rope', 'Aerial Cableway Rope']
+  ],
+  railBogieStyle: [
+    ['loco_heavy', 'Heavy Locomotive Bogie'],
+    ['freight_2axle', 'Freight Barber 2-Axle'],
+    ['freight_3axle', 'Heavy Freight 3-Axle'],
+    ['passenger_coil', 'Passenger Coil Suspension']
+  ],
+  railCouplerType: [
+    ['aar_knuckle', 'AAR Knuckle Coupler'],
+    ['buffer_chain', 'Buffer & Chain'],
+    ['automatic_schaku', 'Automatic Scharfenberg'],
+    ['close_passenger', 'Close-Coupled Gangway'],
+    ['monorail_coupler', 'Monorail Articulated Coupler'],
+    ['suspended_link', 'Suspended Train Linkage'],
+    ['cable_grip', 'Detachable Cable Grip']
+  ],
+  railCabPosition: [
+    ['forward', 'Forward Hood Unit'],
+    ['rear', 'Rear End Cab'],
+    ['center', 'Center Cab']
+  ],
+  railNoseSlope: [
+    ['low_sloped', 'Low Sloped Short Hood'],
+    ['high_hood', 'Full-Height Long Nose'],
+    ['flat_switcher', 'Stepped Switcher Hood']
+  ],
+  railLiveryPattern: [
+    ['solid', 'Solid Body Paint'],
+    ['two_tone_stripe', 'Two-Tone + Belt Stripe'],
+    ['window_band', 'Passenger Window Band'],
+    ['single_band', 'Central Contrast Band'],
+    ['hazard_switcher', 'Industrial Hazard Stripes']
+  ],
+  railCargoType: [
+    ['none', 'Empty Deck'],
+    ['containers_double_20', 'Twin 20ft ISO Containers'],
+    ['container_40', 'Single 40ft ISO Container'],
+    ['lumber_stack', 'Strapped Lumber Bundles'],
+    ['steel_pipes', 'Cradled Steel Pipes'],
+    ['crates_machinery', 'Industrial Cargo Crates']
+  ],
+  railHopperCargo: [
+    ['coal_heap', 'Crushed Coal Load'],
+    ['iron_ore', 'Reddish Iron Ore Load'],
+    ['gravel_ballast', 'Crushed Granite Ballast'],
+    ['none', 'Empty Hopper']
+  ],
+  railDoorStyle: [
+    ['sliding_plug', 'Sliding Plug Doors'],
+    ['boxcar_sliding', 'Corrugated Boxcar Sliding Doors'],
+    ['cab_hinged', 'Locomotive Cab Doors'],
+    ['none', 'None']
+  ],
+  railRoofEquipment: [
+    ['none', 'Clean Roof'],
+    ['diesel_radiator', 'Radiator Fans & Exhaust'],
+    ['hvac_twin', 'Twin Passenger HVAC Pods'],
+    ['roofwalk_only', 'Boxcar Roofwalk'],
+    ['tank_catwalk', 'Tank Dome & Top Catwalk']
+  ]
+};
+
+const trArchLocos = ['rail_diesel_road_switcher', 'rail_diesel_switcher', 'rail_electric_loco', 'rail_streamlined_diesel', 'rail_steam_loco', 'rail_maintenance'];
+const trArchDieselHoods = ['rail_diesel_road_switcher', 'rail_diesel_switcher'];
+const trArchPassengers = [
+  'rail_passenger_coach',
+  'rail_highspeed_lead',
+  'rail_highspeed_coach',
+  'rail_bilevel_coach',
+  'rail_dome_coach',
+  'rail_subway_classic',
+  'rail_metro_modern',
+  'rail_people_mover',
+  'rail_historic_streetcar',
+  'rail_articulated_tram',
+  'rail_open_tram',
+  'rail_straddle_monorail',
+  'rail_suspended_monorail',
+  'rail_aerial_gondola'
+];
+const trArchPantographs = ['rail_electric_loco', 'rail_highspeed_lead', 'rail_highspeed_coach', 'rail_articulated_tram'];
+const trArchRouteBullets = ['rail_subway_classic', 'rail_metro_modern', 'rail_people_mover', 'rail_highspeed_lead', 'rail_historic_streetcar', 'rail_articulated_tram', 'rail_straddle_monorail', 'rail_suspended_monorail', 'rail_aerial_gondola'];
+const trArchSuspended = ['rail_suspended_monorail', 'rail_aerial_gondola'];
+const trArchFreightDoor = ['rail_freight_boxcar'];
+
+const RAIL_SCHEMA = {
+  presets: [
+    { group: 'Rail Vehicle Archetype' },
+    { key: 'style', name: 'Vehicle Archetype', type: 'select', optionsKey: 'styleList' },
+    { key: 'seed', name: 'Generation Seed', type: 'number', min: 1, max: 99999999, step: 1 }
+  ],
+  structure: [
+    { group: 'Rail Dimensions & Gauge' },
+    { key: 'railTrackGauge', name: 'Track Gauge Profile', type: 'select' },
+    { key: 'overallLength', name: 'Carbody Length', min: 3.2, max: 24.0, step: 0.1, unit: 'm' },
+    { key: 'overallWidth', name: 'Carbody Width', min: 2.0, max: 3.4, step: 0.02, unit: 'm' },
+    { key: 'overallHeight', name: 'Overall Roof / Grip Height', min: 3.1, max: 5.2, step: 0.02, unit: 'm' },
+    { key: 'railDeckHeight', name: 'Frame / Cabin Deck Height', min: 0.62, max: 1.85, step: 0.02, unit: 'm' },
+    { group: 'Bogie Centers & Coupling' },
+    { key: 'railBogieSpacing', name: 'Bogie Center Spacing', min: 0.8, max: 18.0, step: 0.1, unit: 'm' },
+    { key: 'railCouplerType', name: 'Coupler Interface', type: 'select' },
+    { key: 'railGangways', name: 'End Gangway Diaphragms', type: 'boolean', visibleFor: trArchPassengers }
+  ],
+  body: [
+    { group: 'Cab & Hood Geometry' },
+    { key: 'railCabPosition', name: 'Cab Placement', type: 'select', visibleFor: trArchDieselHoods },
+    { key: 'railNoseLength', name: 'Nose / Hood Taper Length', min: 0.8, max: 5.4, step: 0.05, unit: 'm', visibleFor: [...trArchDieselHoods, 'rail_highspeed_lead', 'rail_streamlined_diesel'] },
+    { key: 'railNoseSlope', name: 'Nose Profile', type: 'select', visibleFor: trArchDieselHoods },
+    { key: 'railHoodWidthRatio', name: 'Engine Hood Width Ratio', min: 0.48, max: 0.9, step: 0.02, visibleFor: trArchDieselHoods },
+    { key: 'railFuelTankLength', name: 'Fuel Tank Length', min: 1.8, max: 6.8, step: 0.1, unit: 'm', visibleFor: trArchDieselHoods },
+    { key: 'railTankDiameter', name: 'Tank Barrel Diameter', min: 1.8, max: 3.0, step: 0.02, unit: 'm', visibleFor: ['rail_freight_tank'] },
+    { group: 'Cargo & Interior' },
+    { key: 'railCargoType', name: 'Flatcar Procedural Cargo', type: 'select', visibleFor: ['rail_freight_flatcar'] },
+    { key: 'railHopperCargo', name: 'Hopper Bulk Cargo', type: 'select', visibleFor: ['rail_freight_hopper'] },
+    { key: 'railInteriorEnabled', name: 'Cab / Passenger Interior', type: 'boolean', visibleFor: [...trArchLocos, ...trArchPassengers, 'rail_freight_caboose'] },
+    { key: 'railLiveryPattern', name: 'Livery Stripe Pattern', type: 'select' }
+  ],
+  doors: [
+    { group: 'Doors & Windows' },
+    { key: 'railDoorStyle', name: 'Door Assembly Style', type: 'select', visibleFor: [...trArchLocos, ...trArchPassengers, ...trArchFreightDoor] },
+    { key: 'railDoorsOpen', name: 'Door Open Preview', min: 0, max: 1, step: 0.05 },
+    { key: 'railWindowCount', name: 'Passenger Side Windows', min: 4, max: 12, step: 1, visibleFor: trArchPassengers },
+    { key: 'windowTint', name: 'Glass Tint Darkness', min: 0.1, max: 0.85, step: 0.05 }
+  ],
+  wheels: [
+    { group: 'Bogies & Wheelsets' },
+    { key: 'railBogieStyle', name: 'Bogie Frame Style', type: 'select' },
+    { key: 'railBogieAxles', name: 'Axles Per Bogie', min: 2, max: 3, step: 1 },
+    { key: 'railBogieWheelbase', name: 'Bogie Axle Wheelbase', min: 0.5, max: 4.2, step: 0.05, unit: 'm' },
+    { key: 'railWheelRadius', name: 'Steel Wheel / Sheave Radius', min: 0.18, max: 0.66, step: 0.01, unit: 'm' },
+    { group: 'Kinematic Preview' },
+    { key: 'railBogieYawDeg', name: 'Bogie Steering Preview', min: -15, max: 15, step: 0.5, unit: '°' },
+    { key: 'railWheelSpinDeg', name: 'Wheel Rotation Preview', min: 0, max: 360, step: 5, unit: '°' },
+    { key: 'railCabinSwingDeg', name: 'Suspended Cabin Swing', min: -12, max: 12, step: 0.5, unit: '°', visibleFor: trArchSuspended }
+  ],
+  details: [
+    { group: 'Equipment & Handrails' },
+    { key: 'railRoofEquipment', name: 'Roof Equipment Pack', type: 'select' },
+    { key: 'railPantographHeight', name: 'Pantograph Raise Height', min: 0, max: 1, step: 0.05, visibleFor: trArchPantographs },
+    { key: 'railExhaustCount', name: 'Diesel Exhaust Stacks', min: 0, max: 3, step: 1, visibleFor: trArchDieselHoods },
+    { key: 'railHandrails', name: 'Safety Handrails & Ladders', type: 'boolean' },
+    { key: 'railUnitNumber', name: 'Reporting Mark / Number', type: 'text' },
+    { key: 'railRouteBullet', name: 'Route Badge / Line Code', type: 'text', visibleFor: trArchRouteBullets },
+    { key: 'signText', name: 'Destination / Fleet Label', type: 'text' }
+  ],
+  variants: [
+    { group: 'Power & Operating Identity' },
+    { key: 'railPowered', name: 'Powered Traction Unit', type: 'boolean' },
+    { key: 'roleVariant', name: 'Service Role', type: 'select' },
+    { key: 'lightBar', name: 'Roof Warning Beacon', type: 'select', visibleFor: trArchLocos }
+  ]
+};
+
+const RAIL_DEFAULT_CONSISTS = {
+  freight_manifest: {
+    id: 'freight_manifest',
+    name: 'Freight Manifest Train',
+    description: 'Road-switcher diesel pulling boxcar, tank wagon, double-container flatcar, and caboose.',
+    sharedLivery: false,
+    couplingGap: 0.18,
+    units: [
+      { preset: 'diesel_locomotive', reversed: false, overrides: { railUnitNumber: 'B-4012' } },
+      { preset: 'freight_boxcar', reversed: false, overrides: { railUnitNumber: 'BRX-7421' } },
+      { preset: 'freight_tank_car', reversed: false, overrides: { railUnitNumber: 'BUTX-884' } },
+      { preset: 'freight_flatcar', reversed: false, overrides: { railCargoType: 'containers_double_20', railUnitNumber: 'BTTX-309' } },
+      { preset: 'freight_caboose', reversed: false, overrides: { railUnitNumber: 'B-904' } }
+    ]
+  },
+  heavy_freight: {
+    id: 'heavy_freight',
+    name: 'Heavy Mixed Freight (6-Car)',
+    description: 'Long freight manifest with coal hopper, lumber flatcar, tank car, boxcars, and caboose.',
+    sharedLivery: false,
+    couplingGap: 0.18,
+    units: [
+      { preset: 'diesel_locomotive', reversed: false, overrides: { railUnitNumber: 'B-4088' } },
+      { preset: 'freight_hopper_car', reversed: false, overrides: { railHopperCargo: 'coal_heap', railUnitNumber: 'BHPX-614' } },
+      { preset: 'freight_boxcar', reversed: false, overrides: { railUnitNumber: 'BRX-7104' } },
+      { preset: 'freight_flatcar', reversed: false, overrides: { railCargoType: 'lumber_stack', railUnitNumber: 'BTTX-512' } },
+      { preset: 'freight_tank_car', reversed: false, overrides: { railUnitNumber: 'BUTX-902' } },
+      { preset: 'freight_caboose', reversed: false, overrides: { railUnitNumber: 'B-918' } }
+    ]
+  },
+  bullet_express: {
+    id: 'bullet_express',
+    name: 'High-Speed Bullet Express (4-Car)',
+    description: 'Twin aerodynamic bullet power cars bracketing two streamlined high-speed coaches.',
+    sharedLivery: true,
+    couplingGap: 0.12,
+    sharedPalette: {
+      bodyPrimaryColor: '#edf2f7',
+      bodySecondaryColor: '#1d5296',
+      liveryStripeColor: '#d63638'
+    },
+    units: [
+      { preset: 'bullet_train_lead', reversed: false, overrides: { railUnitNumber: 'HSX-01', railPantographHeight: 0.9 } },
+      { preset: 'bullet_train_coach', reversed: false, overrides: { railUnitNumber: 'HSX-02', railPantographHeight: 0 } },
+      { preset: 'bullet_train_coach', reversed: false, overrides: { railUnitNumber: 'HSX-03', railPantographHeight: 0.9 } },
+      { preset: 'bullet_train_lead', reversed: true, overrides: { railUnitNumber: 'HSX-04', railPantographHeight: 0 } }
+    ]
+  },
+  steam_express: {
+    id: 'steam_express',
+    name: 'Heritage Pacific Steam Express',
+    description: 'Classic 4-6-2 steam locomotive pulling a Vista-Dome observation car and heritage coaches.',
+    sharedLivery: false,
+    couplingGap: 0.16,
+    units: [
+      { preset: 'steam_locomotive', reversed: false, overrides: { railUnitNumber: '4449' } },
+      { preset: 'observation_dome_coach', reversed: false, overrides: { railUnitNumber: 'VISTA-9', bodySecondaryColor: '#224a38', liveryStripeColor: '#d9a938' } },
+      { preset: 'passenger_coach', reversed: false, overrides: { railUnitNumber: 'HERITAGE-1', bodyPrimaryColor: '#224a38', bodySecondaryColor: '#1f242b', liveryStripeColor: '#d9a938' } },
+      { preset: 'passenger_coach', reversed: false, overrides: { railUnitNumber: 'HERITAGE-2', bodyPrimaryColor: '#224a38', bodySecondaryColor: '#1f242b', liveryStripeColor: '#d9a938' } }
+    ]
+  },
+  streamlined_limited: {
+    id: 'streamlined_limited',
+    name: 'Art Deco Streamlined Limited',
+    description: 'Warbonnet bulldog diesel hauling stainless Vista-Dome and streamliner coaches.',
+    sharedLivery: false,
+    couplingGap: 0.14,
+    units: [
+      { preset: 'streamlined_diesel', reversed: false, overrides: { railUnitNumber: 'SF-304' } },
+      { preset: 'passenger_coach', reversed: false, overrides: { bodyPrimaryColor: '#cfd8e0', bodySecondaryColor: '#b8292f', liveryStripeColor: '#ebb636', railUnitNumber: 'CHIEF-1' } },
+      { preset: 'observation_dome_coach', reversed: false, overrides: { bodySecondaryColor: '#b8292f', liveryStripeColor: '#ebb636', railUnitNumber: 'VISTA-1' } },
+      { preset: 'passenger_coach', reversed: false, overrides: { bodyPrimaryColor: '#cfd8e0', bodySecondaryColor: '#b8292f', liveryStripeColor: '#ebb636', railUnitNumber: 'CHIEF-2' } }
+    ]
+  },
+  electric_intercity: {
+    id: 'electric_intercity',
+    name: 'Electric Double-Decker Intercity',
+    description: 'Dual-cab electric locomotive under catenary hauling three bi-level commuter coaches.',
+    sharedLivery: false,
+    couplingGap: 0.16,
+    units: [
+      { preset: 'electric_locomotive', reversed: false, overrides: { railUnitNumber: 'E-189' } },
+      { preset: 'bilevel_commuter', reversed: false, overrides: { railUnitNumber: 'GO-501' } },
+      { preset: 'bilevel_commuter', reversed: false, overrides: { railUnitNumber: 'GO-502' } },
+      { preset: 'bilevel_commuter', reversed: false, overrides: { railUnitNumber: 'GO-503' } }
+    ]
+  },
+  modern_metro_train: {
+    id: 'modern_metro_train',
+    name: 'Modern Metro Rapid Transit (4-Car)',
+    description: 'Twin modern rounded metro cabs framing two intermediate metro cars.',
+    sharedLivery: true,
+    couplingGap: 0.12,
+    sharedPalette: {
+      bodyPrimaryColor: '#e8eef4',
+      bodySecondaryColor: '#1e2d42',
+      liveryStripeColor: '#22c5d4'
+    },
+    units: [
+      { preset: 'modern_metro_lead', reversed: false, overrides: { railUnitNumber: 'M1-101' } },
+      { preset: 'classic_subway_car', reversed: false, overrides: { railUnitNumber: 'M1-102', railRouteBullet: 'M1' } },
+      { preset: 'classic_subway_car', reversed: false, overrides: { railUnitNumber: 'M1-103', railRouteBullet: 'M1' } },
+      { preset: 'modern_metro_lead', reversed: true, overrides: { railUnitNumber: 'M1-104' } }
+    ]
+  },
+  classic_subway_line: {
+    id: 'classic_subway_line',
+    name: 'Classic City Subway Line A (4-Car)',
+    description: 'Four classic brushed stainless-steel subway cars in matched Line A transit livery.',
+    sharedLivery: true,
+    couplingGap: 0.12,
+    sharedPalette: {
+      bodyPrimaryColor: '#bcc6cf',
+      bodySecondaryColor: '#1e5ba8',
+      liveryStripeColor: '#2c7ad6'
+    },
+    units: [
+      { preset: 'classic_subway_car', reversed: false, overrides: { railUnitNumber: 'R-4601' } },
+      { preset: 'classic_subway_car', reversed: false, overrides: { railUnitNumber: 'R-4602' } },
+      { preset: 'classic_subway_car', reversed: false, overrides: { railUnitNumber: 'R-4603' } },
+      { preset: 'classic_subway_car', reversed: true, overrides: { railUnitNumber: 'R-4604' } }
+    ]
+  },
+  yard_transfer: {
+    id: 'yard_transfer',
+    name: 'Industrial Yard & Work Transfer',
+    description: 'Ochre yard switcher moving maintenance crane, steel pipe flatcar, and tank wagon.',
+    sharedLivery: false,
+    couplingGap: 0.16,
+    units: [
+      { preset: 'diesel_switcher', reversed: false, overrides: { railUnitNumber: 'B-108' } },
+      { preset: 'rail_maintenance_crane', reversed: false, overrides: { railUnitNumber: 'MOW-77' } },
+      { preset: 'freight_flatcar', reversed: false, overrides: { railCargoType: 'steel_pipes', railUnitNumber: 'BTTX-214' } },
+      { preset: 'freight_tank_car', reversed: false, overrides: { railUnitNumber: 'BUTX-410' } }
+    ]
+  },
+  regional_passenger: {
+    id: 'regional_passenger',
+    name: 'Regional Passenger Express',
+    description: 'Diesel locomotive hauling three matched regional passenger coaches.',
+    sharedLivery: true,
+    couplingGap: 0.14,
+    sharedPalette: {
+      bodyPrimaryColor: '#c8d2dc',
+      bodySecondaryColor: '#253c59',
+      liveryStripeColor: '#25a58d'
+    },
+    units: [
+      {
+        preset: 'diesel_locomotive',
+        reversed: false,
+        overrides: {
+          bodyPrimaryColor: '#253c59',
+          bodySecondaryColor: '#c8d2dc',
+          liveryStripeColor: '#25a58d',
+          railUnitNumber: 'BR-410'
+        }
+      },
+      { preset: 'passenger_coach', reversed: false, overrides: { railUnitNumber: 'BR-201', signText: 'LINE 1 · CAR 201' } },
+      { preset: 'passenger_coach', reversed: false, overrides: { railUnitNumber: 'BR-202', signText: 'LINE 1 · CAR 202' } },
+      { preset: 'passenger_coach', reversed: false, overrides: { railUnitNumber: 'BR-203', signText: 'LINE 1 · CAR 203' } }
+    ]
+  },
+  monorail_elevated: {
+    id: 'monorail_elevated',
+    name: 'Elevated Straddle Monorail (3-Car)',
+    description: 'Three coupled sleek straddle-beam monorail cars riding an elevated concrete guideway.',
+    sharedLivery: true,
+    couplingGap: 0.12,
+    sharedPalette: {
+      bodyPrimaryColor: '#eef3f8',
+      bodySecondaryColor: '#1c2635',
+      liveryStripeColor: '#25c4e8'
+    },
+    units: [
+      { preset: 'straddle_monorail', reversed: false, overrides: { railUnitNumber: 'MONO-1' } },
+      { preset: 'straddle_monorail', reversed: false, overrides: { railUnitNumber: 'MONO-2' } },
+      { preset: 'straddle_monorail', reversed: true, overrides: { railUnitNumber: 'MONO-3' } }
+    ]
+  },
+  suspended_skytrain: {
+    id: 'suspended_skytrain',
+    name: 'Suspended Skytrain Set (2-Car)',
+    description: 'Twin Wuppertal-inspired suspended monorail cabins hanging from overhead running gear.',
+    sharedLivery: true,
+    couplingGap: 0.14,
+    sharedPalette: {
+      bodyPrimaryColor: '#2474b5',
+      bodySecondaryColor: '#edf3f8',
+      liveryStripeColor: '#f0b429'
+    },
+    units: [
+      { preset: 'suspended_monorail', reversed: false, overrides: { railUnitNumber: 'SKY-07' } },
+      { preset: 'suspended_monorail', reversed: true, overrides: { railUnitNumber: 'SKY-08' } }
+    ]
+  }
+};
+
+function trArchClonePreset(id) {
+  const def = RAIL_PRESET_DEFINITIONS[id];
+  return def ? copy(def) : null;
+}
+
   // --- Module: config.js ---
 const STORAGE_KEY = 'b-remastered-city-vehicle-presets-v1';
 const BLUEPRINT_SCHEMA_VERSION = 'b.vehicle.v1';
@@ -3704,14 +6466,27 @@ const PALETTE_FAMILIES = {
     primaries: ['#eef2f6', '#e4eaef', '#d9e2ea', '#f5ece0'],
     secondaries: ['#28568f', '#3d7463', '#c82e28', '#e87a90'],
     stripes: ['#c93c34', '#28568f', '#f0a629']
+  },
+  freight_rail: {
+    label: 'Freight Railroad Liveries',
+    primaries: ['#24426b', '#8c3b2e', '#2f5a44', '#b87624', '#38424d', '#6e3230'],
+    secondaries: ['#1f2731', '#3b434d', '#252a32', '#dfd5c2'],
+    stripes: ['#eab02e', '#dfd5c2', '#d95434', '#e6edf5']
+  },
+  passenger_rail: {
+    label: 'Passenger Transit Liveries',
+    primaries: ['#c8d2dc', '#254a78', '#236b5e', '#d6dde5', '#8f3038'],
+    secondaries: ['#253c59', '#1d242e', '#344960', '#d8e0e8'],
+    stripes: ['#25a58d', '#eab02e', '#d6453a', '#4de2ff']
   }
 };
 
-const STYLES = ARCHETYPES;
-const PRESETS = PRESET_DEFINITIONS;
-
+const STYLES = [...ARCHETYPES, ...RAIL_ARCHETYPES];
+Object.assign(SILHOUETTE_PROFILES, RAIL_SILHOUETTE_PROFILES);
+const PRESETS = { ...PRESET_DEFINITIONS, ...RAIL_PRESET_DEFINITIONS };
 const BASE = {
   ...copy(PRESET_DEFINITIONS.sedan),
+  vehicleDomain: 'road',
   lightingTime: 'day',
   headlightsLit: true,
   emergencyLightsLit: true,
@@ -3737,8 +6512,34 @@ const OPTIONS = {
     ['cement_mixer', 'Concrete Mixer Truck'],
     ['wheel_loader', 'Construction Wheel Loader'],
     ['flatbed_truck', 'Flatbed / Crane Truck'],
-    ['double_decker', 'Double-Decker Bus']
+    ['double_decker', 'Double-Decker Bus'],
+    ['rail_diesel_road_switcher', 'Rail Diesel Road-Switcher'],
+    ['rail_diesel_switcher', 'Rail Yard Switcher'],
+    ['rail_electric_loco', 'Dual-Cab Electric Loco'],
+    ['rail_streamlined_diesel', 'Streamlined Bulldog Diesel'],
+    ['rail_steam_loco', 'Pacific Steam Locomotive'],
+    ['rail_maintenance', 'Track Maintenance Crane'],
+    ['rail_highspeed_lead', 'High-Speed Bullet Lead'],
+    ['rail_highspeed_coach', 'High-Speed Bullet Coach'],
+    ['rail_passenger_coach', 'Rail Passenger Coach'],
+    ['rail_bilevel_coach', 'Double-Decker Commuter'],
+    ['rail_dome_coach', 'Vista-Dome Observation'],
+    ['rail_subway_classic', 'Classic Stainless Subway'],
+    ['rail_metro_modern', 'Modern Rounded Metro'],
+    ['rail_people_mover', 'Automated People Mover'],
+    ['rail_historic_streetcar', 'Historic Clerestory Streetcar'],
+    ['rail_articulated_tram', '3-Section Articulated Tram'],
+    ['rail_open_tram', 'Open-Sided Tourist Tram'],
+    ['rail_freight_boxcar', 'Rail Freight Boxcar'],
+    ['rail_freight_flatcar', 'Rail Container Flatcar'],
+    ['rail_freight_tank', 'Rail Tank Wagon'],
+    ['rail_freight_hopper', 'Open Bulk Hopper Car'],
+    ['rail_freight_caboose', 'Cupola Freight Caboose'],
+    ['rail_straddle_monorail', 'Straddle-Beam Monorail'],
+    ['rail_suspended_monorail', 'Suspended Skytrain Monorail'],
+    ['rail_aerial_gondola', 'Panoramic Aerial Gondola']
   ],
+  ...RAIL_OPTIONS,
   silhouetteFamily: Object.entries(SILHOUETTE_PROFILES).map(([id, def]) => [id, def.label]),
   rooflineStyle: [
     ['flat', 'Flat Utility Roof'],
@@ -4061,6 +6862,74 @@ const CATEGORIES = {
   scene: SCHEMA.scene.filter((x) => x.key && x.key !== 'lightingTime').map((x) => x.key)
 };
 
+const ROAD_BUS_STYLES = new Set([
+  'minibus',
+  'city_bus',
+  'articulated_bus',
+  'double_decker_bus',
+  'school_bus'
+]);
+
+const ROAD_CAR_STYLES = new Set([
+  'compact_car',
+  'sedan',
+  'hatchback',
+  'coupe',
+  'wagon',
+  'taxi',
+  'suv',
+  'retro_futuristic',
+  'convertible',
+  'micro_city_car',
+  'police_car'
+]);
+
+const RAIL_BODY_FAMILIES = new Set([
+  'rail_diesel_road_switcher',
+  'rail_diesel_switcher',
+  'rail_electric_loco',
+  'rail_streamlined_diesel',
+  'rail_steam_loco',
+  'rail_maintenance',
+  'rail_highspeed_lead',
+  'rail_highspeed_coach',
+  'rail_passenger_coach',
+  'rail_bilevel_coach',
+  'rail_dome_coach',
+  'rail_subway_classic',
+  'rail_metro_modern',
+  'rail_people_mover',
+  'rail_historic_streetcar',
+  'rail_articulated_tram',
+  'rail_open_tram',
+  'rail_freight_boxcar',
+  'rail_freight_flatcar',
+  'rail_freight_tank',
+  'rail_freight_hopper',
+  'rail_freight_caboose',
+  'rail_straddle_monorail',
+  'rail_suspended_monorail',
+  'rail_aerial_gondola'
+]);
+
+function isRailConfig(cfg) {
+  if (!cfg || typeof cfg !== 'object') return false;
+  if (cfg.vehicleDomain === 'rail') return true;
+  if (RAIL_BODY_FAMILIES.has(cfg.bodyFamily)) return true;
+  return RAIL_ARCHETYPES.some((a) => a.id === cfg.style);
+}
+
+function getArchetypeCategoryGroup(archOrId) {
+  const arch = typeof archOrId === 'string' ? getStyle(archOrId) : archOrId;
+  if (!arch) return 'cars';
+  if (arch.vehicleDomain === 'rail' || RAIL_ARCHETYPES.some((a) => a.id === arch.id)) {
+    return 'transit_rail';
+  }
+  if (ROAD_BUS_STYLES.has(arch.id)) return 'buses';
+  if (ROAD_CAR_STYLES.has(arch.id)) return 'cars';
+  return 'commercial';
+}
+
 function getStyle(styleId) {
   return STYLES.find((x) => x.id === styleId) || STYLES[1];
 }
@@ -4075,37 +6944,114 @@ function baseForStyle(styleId) {
   return sanitiseConfig({ ...copy(BASE), ...copy(preset) });
 }
 
+function sanitiseFieldWithDef(merged, def, fallback) {
+  const key = def.key;
+  if (def.type === 'color') {
+    merged[key] = colorHex(merged[key], fallback);
+  } else if (def.type === 'boolean') {
+    merged[key] = typeof merged[key] === 'boolean' ? merged[key] : Boolean(fallback);
+  } else if (def.type === 'select') {
+    const list = def.optionsKey === 'materialFamily'
+      ? OPTIONS.materialFamily
+      : (OPTIONS[key] || []);
+    merged[key] = list.some(([v]) => v === merged[key]) ? merged[key] : fallback;
+  } else if (def.type === 'text') {
+    merged[key] = String(merged[key] ?? fallback).slice(0, 40);
+  } else {
+    const num = Number(merged[key]);
+    merged[key] = Number.isFinite(num)
+      ? clamp(num, def.min ?? -Infinity, def.max ?? Infinity)
+      : fallback;
+  }
+}
+
 function sanitiseConfig(data) {
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
     return sanitiseConfig(copy(BASE));
   }
   const style = STYLES.some((x) => x.id === data.style) ? data.style : BASE.style;
-  const presetRaw = PRESETS[getStyle(style).preset] || {};
-  const merged = { ...copy(BASE), ...copy(presetRaw), ...copy(data), style };
+  const arch = getStyle(style);
+  const presetRaw = PRESETS[arch.preset] || {};
+  const isRail = arch.vehicleDomain === 'rail' || isRailConfig({ ...presetRaw, ...data, style });
+
+  if (isRail) {
+    const merged = {
+      ...copy(BASE),
+      ...copy(RAIL_BASE_DEFAULTS),
+      ...copy(presetRaw),
+      ...copy(data),
+      style,
+      vehicleDomain: 'rail'
+    };
+
+    if (!RAIL_BODY_FAMILIES.has(merged.bodyFamily)) {
+      merged.bodyFamily = presetRaw.bodyFamily || arch.bodyFamily || 'rail_diesel_road_switcher';
+    }
+    if (!SILHOUETTE_PROFILES[merged.silhouetteFamily]) {
+      merged.silhouetteFamily = presetRaw.silhouetteFamily || 'diesel_road_switcher';
+    }
+
+    const railSharedTabs = ['materials', 'scene'];
+    for (const tabKey of railSharedTabs) {
+      for (const def of SCHEMA[tabKey] || []) {
+        if (!def.key) continue;
+        const fallback = presetRaw[def.key] !== undefined ? presetRaw[def.key] : BASE[def.key];
+        sanitiseFieldWithDef(merged, def, fallback);
+      }
+    }
+
+    const extraRoadMetaKeys = ['roleVariant', 'lightBar', 'doorsOpen', 'interiorDetail', 'signText'];
+    for (const key of extraRoadMetaKeys) {
+      for (const rows of Object.values(SCHEMA)) {
+        const def = rows.find((d) => d.key === key);
+        if (def) {
+          const fallback = presetRaw[key] !== undefined ? presetRaw[key] : BASE[key];
+          sanitiseFieldWithDef(merged, def, fallback);
+          break;
+        }
+      }
+    }
+
+    for (const rows of Object.values(RAIL_SCHEMA)) {
+      for (const def of rows) {
+        if (!def.key || def.key === 'style') continue;
+        const fallback = presetRaw[def.key] !== undefined
+          ? presetRaw[def.key]
+          : (RAIL_BASE_DEFAULTS[def.key] !== undefined ? RAIL_BASE_DEFAULTS[def.key] : BASE[def.key]);
+        sanitiseFieldWithDef(merged, def, fallback);
+      }
+    }
+
+    merged.seed = clamp(Math.floor(Number(merged.seed) || 1024), 1, 99999999);
+    merged.railBogieAxles = clamp(Math.round(merged.railBogieAxles), 2, 3);
+    merged.railExhaustCount = clamp(Math.round(merged.railExhaustCount), 0, 3);
+    merged.railWindowCount = clamp(Math.round(merged.railWindowCount), 0, 12);
+    merged.railWheelSpinDeg = ((Number(merged.railWheelSpinDeg) || 0) % 360 + 360) % 360;
+    if (data.doorsOpen === true && Number(data.railDoorsOpen) !== 0 && merged.railDoorsOpen < 0.05) {
+      merged.railDoorsOpen = 1;
+    }
+    merged.doorsOpen = merged.railDoorsOpen > 0.05;
+    merged.interiorDetail = Boolean(merged.railInteriorEnabled);
+    merged.railUnitNumber = String(merged.railUnitNumber || presetRaw.railUnitNumber || 'B-4012').slice(0, 18);
+    merged.railRouteBullet = String(merged.railRouteBullet || presetRaw.railRouteBullet || 'A').slice(0, 6);
+    merged.railPantographHeight = clamp(Number(merged.railPantographHeight ?? 0.85), 0, 1);
+    merged.railCabinSwingDeg = clamp(Number(merged.railCabinSwingDeg ?? 0), -12, 12);
+
+    delete merged.label;
+    return merged;
+  }
+
+  const merged = { ...copy(BASE), ...copy(presetRaw), ...copy(data), style, vehicleDomain: 'road' };
+  if (RAIL_BODY_FAMILIES.has(merged.bodyFamily)) {
+    merged.bodyFamily = presetRaw.bodyFamily || arch.bodyFamily || 'three_box';
+  }
 
   for (const rows of Object.values(SCHEMA)) {
     for (const def of rows) {
       if (!def.key || def.key === 'style') continue;
       const key = def.key;
       const fallback = presetRaw[key] !== undefined ? presetRaw[key] : BASE[key];
-
-      if (def.type === 'color') {
-        merged[key] = colorHex(merged[key], fallback);
-      } else if (def.type === 'boolean') {
-        merged[key] = typeof merged[key] === 'boolean' ? merged[key] : Boolean(fallback);
-      } else if (def.type === 'select') {
-        const list = def.optionsKey === 'materialFamily'
-          ? OPTIONS.materialFamily
-          : (OPTIONS[key] || []);
-        merged[key] = list.some(([v]) => v === merged[key]) ? merged[key] : fallback;
-      } else if (def.type === 'text') {
-        merged[key] = String(merged[key] ?? fallback).slice(0, 40);
-      } else {
-        const num = Number(merged[key]);
-        merged[key] = Number.isFinite(num)
-          ? clamp(num, def.min ?? -Infinity, def.max ?? Infinity)
-          : fallback;
-      }
+      sanitiseFieldWithDef(merged, def, fallback);
     }
   }
 
@@ -4133,9 +7079,490 @@ function applyPresetWithLocks(currentState, targetPresetData, locks = new Set())
   return sanitiseConfig(next);
 }
 
+  // --- Module: transit/rail-layout.js ---
+function trLayoutComputeEquipmentHeight(cfg) {
+  let extra = 0;
+  if (cfg.railRoofEquipment === 'diesel_radiator') extra = Math.max(extra, 0.24);
+  else if (cfg.railRoofEquipment === 'hvac_twin') extra = Math.max(extra, 0.26);
+  else if (cfg.railRoofEquipment === 'tank_catwalk') extra = Math.max(extra, 0.34);
+  else if (cfg.railRoofEquipment === 'roofwalk_only') extra = Math.max(extra, 0.12);
+
+  if (cfg.railExhaustCount > 0 && (cfg.bodyFamily === 'rail_diesel_road_switcher' || cfg.bodyFamily === 'rail_diesel_switcher')) {
+    extra = Math.max(extra, 0.22);
+  }
+  if (cfg.bodyFamily === 'rail_electric_loco' || cfg.bodyFamily === 'rail_highspeed_lead' || cfg.bodyFamily === 'rail_articulated_tram') {
+    extra = Math.max(extra, 0.45 + (cfg.railPantographHeight || 0.85) * 0.6);
+  }
+  if (cfg.bodyFamily === 'rail_historic_streetcar' || cfg.bodyFamily === 'rail_open_tram') {
+    extra = Math.max(extra, 1.45);
+  }
+  if (cfg.lightBar && cfg.lightBar !== 'none') {
+    extra = Math.max(extra, 0.26);
+  }
+  return roundNum(extra, 3);
+}
+
+function resolveRailVehicleLayout(rawCfg) {
+  const cfg = sanitiseConfig(rawCfg);
+  const warnings = [];
+  const bf = cfg.bodyFamily || 'rail_diesel_road_switcher';
+  const profile = SILHOUETTE_PROFILES[cfg.silhouetteFamily] || SILHOUETTE_PROFILES.diesel_road_switcher;
+  const gauge = getTrackGaugeSpec(cfg.railTrackGauge);
+  const couplerSpec = getCouplerSpec(cfg.railCouplerType);
+
+  const length = clamp(cfg.overallLength, 3.2, 24.0);
+  const maxWidthByGauge = gauge.maxVehicleWidth + 0.15;
+  const width = clamp(cfg.overallWidth, 2.0, Math.min(3.4, maxWidthByGauge));
+  if (Math.abs(width - cfg.overallWidth) > 0.01) {
+    warnings.push(`Clamped rail carbody width to ${roundNum(width, 2)}m for ${gauge.label}`);
+  }
+  const halfW = width * 0.5;
+
+  const wheelRadius = clamp(cfg.railWheelRadius, 0.18, 0.66);
+  const wheelThickness = 0.135;
+  const height = clamp(cfg.overallHeight, 3.1, 5.2);
+
+  const minDeckY = Math.max(0.62, wheelRadius * 2 + 0.12);
+  const maxDeckY = Math.min(1.85, height - 1.45);
+  const deckY = clamp(cfg.railDeckHeight, minDeckY, Math.max(minDeckY + 0.05, maxDeckY));
+  if (Math.abs(deckY - cfg.railDeckHeight) > 0.01) {
+    warnings.push(`Adjusted frame deck height to ${roundNum(deckY, 2)}m to clear wheelsets`);
+  }
+
+  const bodyTopY = Math.max(deckY + 1.45, height);
+  const underbodyClearanceY = clamp(wheelRadius * 0.68, 0.2, deckY - 0.22);
+
+  const bogieAxles = clamp(Math.round(cfg.railBogieAxles), 2, 3);
+  const minBogieWb = Math.min(length * 0.34, wheelRadius * 2.15 * (bogieAxles - 1) + 0.12);
+  const bogieWheelbase = clamp(cfg.railBogieWheelbase, Math.max(0.45, minBogieWb), Math.min(4.2, length * 0.45));
+  const axleSpacing = bogieAxles > 1 ? bogieWheelbase / (bogieAxles - 1) : 0;
+
+  const maxBogieSpacing = Math.max(1.0, length - bogieWheelbase - 0.55);
+  const bogieSpacing = clamp(cfg.railBogieSpacing, Math.min(0.8, maxBogieSpacing), maxBogieSpacing);
+  if (Math.abs(bogieSpacing - cfg.railBogieSpacing) > 0.05) {
+    warnings.push(`Clamped bogie center spacing to ${roundNum(bogieSpacing, 2)}m for body length ${roundNum(length, 1)}m`);
+  }
+
+  const frontBogieZ = bogieSpacing * 0.5;
+  const rearBogieZ = -bogieSpacing * 0.5;
+
+  const localOffsets = bogieAxles === 3
+    ? [bogieWheelbase * 0.5, 0, -bogieWheelbase * 0.5]
+    : [bogieWheelbase * 0.5, -bogieWheelbase * 0.5];
+
+  const bogies = [
+    {
+      id: 'front',
+      pivotZ: roundNum(frontBogieZ, 4),
+      axleCount: bogieAxles,
+      wheelbase: roundNum(bogieWheelbase, 4),
+      axleSpacing: roundNum(axleSpacing, 4),
+      wheelRadius: roundNum(wheelRadius, 4),
+      wheelCenterX: gauge.railCenterHalfX,
+      style: cfg.railBogieStyle || 'loco_heavy',
+      localAxleZs: localOffsets.map((z) => roundNum(z, 4)),
+      worldAxleZs: localOffsets.map((z) => roundNum(frontBogieZ + z, 4))
+    },
+    {
+      id: 'rear',
+      pivotZ: roundNum(rearBogieZ, 4),
+      axleCount: bogieAxles,
+      wheelbase: roundNum(bogieWheelbase, 4),
+      axleSpacing: roundNum(axleSpacing, 4),
+      wheelRadius: roundNum(wheelRadius, 4),
+      wheelCenterX: gauge.railCenterHalfX,
+      style: cfg.railBogieStyle || 'loco_heavy',
+      localAxleZs: localOffsets.map((z) => roundNum(z, 4)),
+      worldAxleZs: localOffsets.map((z) => roundNum(rearBogieZ + z, 4))
+    }
+  ];
+
+  const axles = [];
+  for (const bogie of bogies) {
+    bogie.worldAxleZs.forEach((wz, idx) => {
+      axles.push({
+        id: `${bogie.id}_axle_${idx}`,
+        bogieId: bogie.id,
+        role: cfg.railPowered ? 'traction' : 'idler',
+        z: wz,
+        trackWidth: roundNum(gauge.railCenterHalfX * 2, 4),
+        wheelCenterX: roundNum(gauge.railCenterHalfX, 4),
+        dual: false
+      });
+    });
+  }
+
+  const couplerY = bf === 'rail_aerial_gondola'
+    ? 4.85
+    : bf === 'rail_suspended_monorail'
+      ? roundNum(deckY + 1.25, 3)
+      : clamp(couplerSpec.anchorHeight, 0.56, Math.max(0.7, deckY - 0.08));
+  const frontPivotZ = length * 0.5 - 0.12;
+  const rearPivotZ = -length * 0.5 + 0.12;
+  const frontPullFaceZ = length * 0.5 + couplerSpec.protrusion;
+  const rearPullFaceZ = -length * 0.5 - couplerSpec.protrusion;
+
+  const couplers = {
+    frontType: couplerSpec.id,
+    rearType: couplerSpec.id,
+    y: roundNum(couplerY, 4),
+    protrusion: couplerSpec.protrusion,
+    frontPivotZ: roundNum(frontPivotZ, 4),
+    rearPivotZ: roundNum(rearPivotZ, 4),
+    frontPullFaceZ: roundNum(frontPullFaceZ, 4),
+    rearPullFaceZ: roundNum(rearPullFaceZ, 4)
+  };
+
+  const isLoco = [
+    'rail_diesel_road_switcher',
+    'rail_diesel_switcher',
+    'rail_electric_loco',
+    'rail_streamlined_diesel',
+    'rail_steam_loco',
+    'rail_maintenance'
+  ].includes(bf);
+  const isFreight = [
+    'rail_freight_boxcar',
+    'rail_freight_flatcar',
+    'rail_freight_tank',
+    'rail_freight_hopper',
+    'rail_freight_caboose'
+  ].includes(bf);
+
+  const unitType = isLoco ? 'locomotive' : (isFreight ? 'freight_wagon' : 'passenger_coach');
+  const isHoodDiesel = bf === 'rail_diesel_road_switcher' || bf === 'rail_diesel_switcher';
+
+  const hasPantograph = bf === 'rail_electric_loco' ||
+    bf === 'rail_highspeed_lead' ||
+    bf === 'rail_articulated_tram' ||
+    (bf === 'rail_highspeed_coach' && (cfg.railPantographHeight || 0) > 0.05);
+  const hasTrolleyPole = bf === 'rail_historic_streetcar' || bf === 'rail_open_tram';
+  const customRunningGear = [
+    'rail_steam_loco',
+    'rail_articulated_tram',
+    'rail_straddle_monorail',
+    'rail_suspended_monorail',
+    'rail_aerial_gondola'
+  ].includes(bf);
+
+  const defaultStageMode = bf === 'rail_straddle_monorail'
+    ? 'monorail_straddle'
+    : bf === 'rail_suspended_monorail'
+      ? 'monorail_suspended'
+      : bf === 'rail_aerial_gondola'
+        ? 'cableway_aerial'
+        : (bf === 'rail_historic_streetcar' || bf === 'rail_articulated_tram' || bf === 'rail_open_tram')
+          ? 'tram_street'
+          : 'rail_straight';
+
+  const platformLen = 0.55;
+  const usableStartZ = -length * 0.5 + platformLen;
+  const usableEndZ = length * 0.5 - platformLen;
+  const usableLen = Math.max(2.0, usableEndZ - usableStartZ);
+
+  const doors = [];
+  const zones = {
+    deckY: roundNum(deckY, 4),
+    bodyTopY: roundNum(bodyTopY, 4),
+    underbodyClearanceY: roundNum(underbodyClearanceY, 4),
+    usableStartZ: roundNum(usableStartZ, 4),
+    usableEndZ: roundNum(usableEndZ, 4),
+    fuelTank: null,
+    loco: null,
+    boxcar: null,
+    flatcar: null,
+    tank: null,
+    passenger: null
+  };
+
+  if (isHoodDiesel) {
+    const isSwitcher = cfg.bodyFamily === 'rail_diesel_switcher';
+    const cabLen = clamp(isSwitcher ? 2.45 : 2.75, 2.0, Math.min(3.5, usableLen * 0.35));
+    const noseMax = Math.max(0.8, usableLen - cabLen - 2.6);
+    const shortNoseLen = clamp(cfg.railNoseLength, 0.8, noseMax);
+    const cabPos = cfg.railCabPosition || (isSwitcher ? 'rear' : 'forward');
+
+    let shortNoseZone = null;
+    let cabZone = null;
+    let longHoodZone = null;
+
+    if (cabPos === 'rear') {
+      const cabStart = usableStartZ + 0.15;
+      const cabEnd = cabStart + cabLen;
+      const hoodStart = cabEnd;
+      const hoodEnd = usableEndZ - (isSwitcher ? 0.25 : 0.35);
+      cabZone = { startZ: roundNum(cabStart, 4), endZ: roundNum(cabEnd, 4), length: roundNum(cabLen, 4) };
+      longHoodZone = { startZ: roundNum(hoodStart, 4), endZ: roundNum(hoodEnd, 4), length: roundNum(hoodEnd - hoodStart, 4) };
+    } else if (cabPos === 'center') {
+      const cabStart = -cabLen * 0.5;
+      const cabEnd = cabLen * 0.5;
+      shortNoseZone = { startZ: roundNum(cabEnd, 4), endZ: roundNum(usableEndZ - 0.15, 4), length: roundNum(usableEndZ - 0.15 - cabEnd, 4) };
+      cabZone = { startZ: roundNum(cabStart, 4), endZ: roundNum(cabEnd, 4), length: roundNum(cabLen, 4) };
+      longHoodZone = { startZ: roundNum(usableStartZ + 0.15, 4), endZ: roundNum(cabStart, 4), length: roundNum(cabStart - (usableStartZ + 0.15), 4) };
+    } else {
+      const noseEnd = usableEndZ;
+      const noseStart = noseEnd - shortNoseLen;
+      const cabEnd = noseStart;
+      const cabStart = cabEnd - cabLen;
+      const hoodStart = usableStartZ;
+      const hoodEnd = cabStart;
+      shortNoseZone = { startZ: roundNum(noseStart, 4), endZ: roundNum(noseEnd, 4), length: roundNum(shortNoseLen, 4) };
+      cabZone = { startZ: roundNum(cabStart, 4), endZ: roundNum(cabEnd, 4), length: roundNum(cabLen, 4) };
+      longHoodZone = { startZ: roundNum(hoodStart, 4), endZ: roundNum(hoodEnd, 4), length: roundNum(hoodEnd - hoodStart, 4) };
+    }
+
+    const tankMaxLen = Math.max(1.2, bogieSpacing - bogieWheelbase - 0.48);
+    const fuelTankLen = clamp(cfg.railFuelTankLength, 1.1, tankMaxLen);
+    zones.fuelTank = {
+      startZ: roundNum(-fuelTankLen * 0.5, 4),
+      endZ: roundNum(fuelTankLen * 0.5, 4),
+      length: roundNum(fuelTankLen, 4),
+      width: roundNum(Math.min(width * 0.72, 2.2), 4),
+      bottomY: roundNum(underbodyClearanceY + 0.04, 4),
+      topY: roundNum(deckY - 0.14, 4)
+    };
+    zones.loco = {
+      cabPosition: cabPos,
+      hoodWidth: roundNum(clamp(width * cfg.railHoodWidthRatio, 1.35, width - 0.68), 4),
+      cabRoofY: roundNum(bodyTopY, 4),
+      longHoodRoofY: roundNum(bodyTopY - (isSwitcher ? 0.42 : 0.14), 4),
+      shortNoseRoofY: roundNum(
+        cfg.railNoseSlope === 'high_hood'
+          ? bodyTopY - 0.16
+          : cfg.railNoseSlope === 'flat_switcher'
+            ? deckY + (bodyTopY - deckY) * 0.56
+            : deckY + (bodyTopY - deckY) * 0.62,
+        4
+      ),
+      shortNose: shortNoseZone,
+      cab: cabZone,
+      longHood: longHoodZone
+    };
+  } else if (cfg.bodyFamily === 'rail_freight_boxcar') {
+    const doorW = clamp(length * 0.19, 2.0, 3.2);
+    const doorH = Math.max(1.4, bodyTopY - deckY - 0.24);
+    for (const side of [-1, 1]) {
+      doors.push({
+        id: `boxcar_${side < 0 ? 'left' : 'right'}_0`,
+        side,
+        z: 0,
+        width: roundNum(doorW, 3),
+        sillY: roundNum(deckY + 0.08, 3),
+        height: roundNum(doorH, 3),
+        slideDir: 1,
+        maxSlide: roundNum(doorW * 0.85, 3)
+      });
+    }
+    zones.boxcar = {
+      bodyStartZ: roundNum(-length * 0.5 + 0.26, 4),
+      bodyEndZ: roundNum(length * 0.5 - 0.26, 4),
+      doorWidth: roundNum(doorW, 3),
+      eavesY: roundNum(bodyTopY - 0.14, 4)
+    };
+  } else if (cfg.bodyFamily === 'rail_freight_flatcar') {
+    const cargoMaxW = roundNum(Math.min(width - 0.22, 2.65), 3);
+    const cargoMaxL = roundNum(Math.max(4.5, length - 0.85), 3);
+    zones.flatcar = {
+      deckTopY: roundNum(deckY + 0.06, 4),
+      cargoMaxW,
+      cargoMaxL,
+      cargoMaxTopY: roundNum(Math.min(gauge.loadingGaugeHeight - 0.15, deckY + 2.75), 4)
+    };
+  } else if (cfg.bodyFamily === 'rail_freight_tank') {
+    const maxRadiusByWidth = halfW - 0.08;
+    const maxRadiusByHeight = (bodyTopY - deckY - 0.2) * 0.5;
+    const tankRadius = clamp(cfg.railTankDiameter * 0.5, 0.82, Math.min(maxRadiusByWidth, maxRadiusByHeight));
+    const tankCenterY = deckY + tankRadius + 0.1;
+    zones.tank = {
+      radius: roundNum(tankRadius, 4),
+      centerY: roundNum(tankCenterY, 4),
+      barrelStartZ: roundNum(-length * 0.5 + 0.85, 4),
+      barrelEndZ: roundNum(length * 0.5 - 0.85, 4),
+      barrelLength: roundNum(Math.max(4.5, length - 1.7), 4)
+    };
+  } else if (unitType === 'passenger_coach') {
+    const doorW = (bf === 'rail_subway_classic' || bf === 'rail_metro_modern') ? 1.32
+      : bf === 'rail_aerial_gondola' ? 0.92
+      : 1.06;
+    const cabinRoofLimit = bf === 'rail_suspended_monorail'
+      ? Math.min(bodyTopY - 1.55, deckY + 2.45)
+      : bf === 'rail_aerial_gondola'
+        ? Math.min(bodyTopY - 1.15, deckY + 2.15)
+        : bodyTopY;
+    const doorH = Math.max(1.45, Math.min(2.12, cabinRoofLimit - deckY - 0.32));
+
+    let doorZs = [];
+    if (bf === 'rail_subway_classic' || bf === 'rail_metro_modern') {
+      const span = length * 0.29;
+      doorZs = [-span, 0, span];
+    } else if (bf === 'rail_people_mover' || bf === 'rail_aerial_gondola') {
+      doorZs = [0];
+    } else if (bf === 'rail_articulated_tram') {
+      const span = length * 0.27;
+      doorZs = [-span, span];
+    } else if (bf === 'rail_highspeed_lead') {
+      doorZs = [-(length * 0.5 - 1.45), length * 0.5 - clamp(cfg.railNoseLength || 4.8, 3.0, 5.5) - 0.85];
+    } else if (bf === 'rail_open_tram') {
+      doorZs = [];
+    } else {
+      const doorOffsetZ = Math.max(2.2, length * 0.5 - 1.38);
+      doorZs = [-doorOffsetZ, doorOffsetZ];
+    }
+
+    doorZs.forEach((dz, idx) => {
+      const slideDir = dz > 0 ? -1 : 1;
+      for (const side of [-1, 1]) {
+        doors.push({
+          id: `pax_${idx}_${side < 0 ? 'left' : 'right'}`,
+          side,
+          z: roundNum(dz, 4),
+          width: doorW,
+          sillY: roundNum(deckY + 0.04, 3),
+          height: roundNum(doorH, 3),
+          slideDir,
+          maxSlide: roundNum(doorW * 0.86, 3)
+        });
+      }
+    });
+
+    const doorOffsetZ = doorZs.length >= 2 ? Math.abs(doorZs[doorZs.length - 1]) : Math.max(1.2, length * 0.38);
+    const saloonHalf = Math.max(1.2, doorOffsetZ - doorW * 0.5 - 0.36);
+    zones.passenger = {
+      bodyStartZ: roundNum(-length * 0.5 + 0.14, 4),
+      bodyEndZ: roundNum(length * 0.5 - 0.14, 4),
+      saloonStartZ: roundNum(-saloonHalf, 4),
+      saloonEndZ: roundNum(saloonHalf, 4),
+      windowSillY: roundNum(deckY + 0.84, 4),
+      windowTopY: roundNum(Math.min(cabinRoofLimit - 0.34, deckY + 1.86), 4),
+      eavesY: roundNum(cabinRoofLimit - 0.18, 4),
+      doorOffsetZ: roundNum(doorOffsetZ, 4),
+      doorWidth: doorW,
+      doorHeight: roundNum(doorH, 3)
+    };
+  }
+
+  const equipmentExtraH = trLayoutComputeEquipmentHeight(cfg);
+  const maxHeightWithEquipment = roundNum(bodyTopY + equipmentExtraH, 3);
+  const beltY = roundNum(deckY + (bodyTopY - deckY) * 0.45, 4);
+
+  const rearLen = roundNum(Math.max(1.0, length * 0.25), 4);
+  const hoodLen = roundNum(Math.max(1.0, length * 0.25), 4);
+  const cabinLen = roundNum(Math.max(1.5, length - rearLen - hoodLen), 4);
+
+  const pivots = {
+    carbodyOrigin: { x: 0, y: 0, z: 0 },
+    bogies: bogies.map((b) => ({
+      id: b.id,
+      anchor: { x: 0, y: 0, z: b.pivotZ },
+      wheelCenterY: b.wheelRadius
+    })),
+    couplers: {
+      front: { x: 0, y: couplers.y, z: couplers.frontPivotZ, pullFaceZ: couplers.frontPullFaceZ },
+      rear: { x: 0, y: couplers.y, z: couplers.rearPivotZ, pullFaceZ: couplers.rearPullFaceZ }
+    },
+    doors: doors.map((dr) => ({
+      id: dr.id,
+      side: dr.side < 0 ? 'left' : 'right',
+      anchor: { x: roundNum(dr.side * halfW, 3), y: dr.sillY, z: dr.z },
+      slideAxis: 'z',
+      slideDistance: roundNum(dr.slideDir * dr.maxSlide, 3)
+    }))
+  };
+
+  const railLayout = {
+    unitType,
+    gauge,
+    bogies,
+    couplers,
+    doors,
+    zones,
+    pivots,
+    hasPantograph,
+    hasTrolleyPole,
+    customRunningGear,
+    defaultStageMode,
+    maxHeightWithEquipment,
+    dimensions: {
+      length: roundNum(length, 4),
+      width: roundNum(width, 4),
+      height: roundNum(bodyTopY, 4),
+      halfWidth: roundNum(halfW, 4),
+      groundClearance: roundNum(underbodyClearanceY, 4),
+      beltY,
+      lowerBodyHeight: roundNum(beltY - underbodyClearanceY, 4),
+      greenhouseHeight: roundNum(bodyTopY - beltY, 4),
+      cargoRoofTopY: roundNum(bodyTopY, 4),
+      wheelArchTopY: roundNum(deckY, 4),
+      wheelArchRadius: roundNum(wheelRadius + 0.08, 4),
+      wheelRadius: roundNum(wheelRadius, 4),
+      wheelThickness,
+      trackWidth: roundNum(gauge.railCenterHalfX * 2, 4),
+      wheelbase: roundNum(bogieSpacing, 4),
+      frontOverhang: roundNum(length * 0.5 - frontBogieZ, 4),
+      rearOverhang: roundNum(length * 0.5 + rearBogieZ, 4),
+      roofWidthRatio: 0.94,
+      frontWidthRatio: 1.0,
+      rearWidthRatio: 1.0,
+      boxiness: roundNum(profile.boxiness, 4)
+    }
+  };
+
+  const compatibility = buildTransitCompatibilityProfile(cfg, railLayout);
+  railLayout.compatibility = compatibility;
+
+  return {
+    dimensions: railLayout.dimensions,
+    sections: {
+      rear: {
+        startZ: roundNum(-length * 0.5, 4),
+        endZ: roundNum(-length * 0.5 + rearLen, 4),
+        length: rearLen
+      },
+      gap: {
+        startZ: roundNum(-length * 0.5 + rearLen, 4),
+        endZ: roundNum(-length * 0.5 + rearLen, 4),
+        length: 0,
+        enabled: false
+      },
+      cabin: {
+        startZ: roundNum(-length * 0.5 + rearLen, 4),
+        endZ: roundNum(length * 0.5 - hoodLen, 4),
+        length: cabinLen,
+        greenhouseBottomStartZ: roundNum(-length * 0.5 + rearLen, 4),
+        roofStartZ: roundNum(-length * 0.5 + rearLen, 4),
+        roofEndZ: roundNum(length * 0.5 - hoodLen, 4),
+        hasContinuousGreenhouseOverCargo: unitType === 'passenger_coach'
+      },
+      hood: {
+        startZ: roundNum(length * 0.5 - hoodLen, 4),
+        endZ: roundNum(length * 0.5, 4),
+        length: hoodLen
+      },
+      roofMount: {
+        surfaceY: roundNum(bodyTopY, 4),
+        minZ: roundNum(-length * 0.5 + 1.0, 4),
+        maxZ: roundNum(length * 0.5 - 1.0, 4),
+        cabRoofY: roundNum(bodyTopY, 4),
+        cabRoofMinZ: roundNum(-length * 0.5 + 1.0, 4),
+        cabRoofMaxZ: roundNum(length * 0.5 - 1.0, 4)
+      }
+    },
+    axles,
+    busDoors: [],
+    rail: railLayout,
+    validation: {
+      valid: true,
+      warnings
+    }
+  };
+}
+
   // --- Module: core/layout.js ---
 function resolveVehicleLayout(rawCfg) {
   const cfg = sanitiseConfig(rawCfg);
+  if (isRailConfig(cfg)) {
+    return resolveRailVehicleLayout(cfg);
+  }
   const warnings = [];
   const profile = SILHOUETTE_PROFILES[cfg.silhouetteFamily] || SILHOUETTE_PROFILES.executive_sedan;
 
@@ -4493,6 +7920,79 @@ function bpVecToBUnits(x, y, z) {
 
 function computeVehicleBounds(cfg, layout) {
   const d = layout.dimensions;
+  if (layout.rail) {
+    const rail = layout.rail;
+    const maxHalfW = roundNum(Math.max(d.halfWidth + (cfg.railHandrails ? 0.08 : 0.02), rail.gauge.railCenterHalfX + 0.25), 4);
+    const topY = roundNum(rail.maxHeightWithEquipment, 4);
+    const minZ = roundNum(rail.couplers.rearPullFaceZ, 4);
+    const maxZ = roundNum(rail.couplers.frontPullFaceZ, 4);
+    const totalWidth = roundNum(maxHalfW * 2, 4);
+    const totalLength = roundNum(maxZ - minZ, 4);
+    const padW = roundNum(Math.max(rail.gauge.sleeperWidth, totalWidth + 0.4), 3);
+    const padL = roundNum(totalLength + 0.5, 3);
+
+    return {
+      meters: {
+        minX: -maxHalfW,
+        maxX: maxHalfW,
+        minY: 0,
+        maxY: topY,
+        minZ,
+        maxZ,
+        width: totalWidth,
+        length: totalLength,
+        height: topY
+      },
+      bGameUnits: {
+        unitsPerMeter: B_UNITS_PER_METER,
+        width: roundNum(totalWidth * B_UNITS_PER_METER, 1),
+        length: roundNum(totalLength * B_UNITS_PER_METER, 1),
+        height: roundNum(topY * B_UNITS_PER_METER, 1),
+        min: bpVecToBUnits(-maxHalfW, 0, maxZ),
+        max: bpVecToBUnits(maxHalfW, topY, minZ)
+      },
+      parkingFootprint: {
+        meters: { width: padW, length: padL },
+        bGameUnits: {
+          width: roundNum(padW * B_UNITS_PER_METER, 1),
+          length: roundNum(padL * B_UNITS_PER_METER, 1)
+        }
+      },
+      collisionBounds: {
+        compositeBox: {
+          center: { x: 0, y: roundNum(topY * 0.5, 4), z: roundNum((minZ + maxZ) * 0.5, 4) },
+          size: { x: totalWidth, y: topY, z: totalLength }
+        },
+        lowerHullBox: {
+          center: { x: 0, y: roundNum(rail.zones.deckY * 0.5, 4), z: 0 },
+          size: { x: d.width, y: roundNum(rail.zones.deckY, 4), z: d.length }
+        },
+        upperCabinBox: {
+          center: { x: 0, y: roundNum((rail.zones.deckY + d.height) * 0.5, 4), z: 0 },
+          size: { x: d.width, y: roundNum(d.height - rail.zones.deckY, 4), z: d.length }
+        },
+        cargoBox: {
+          center: { x: 0, y: roundNum((rail.zones.deckY + d.height) * 0.5, 4), z: 0 },
+          size: { x: d.width, y: roundNum(d.height - rail.zones.deckY, 4), z: d.length }
+        },
+        wheels: layout.axles.flatMap((axle) => ([
+          {
+            id: `${axle.id}_left`,
+            center: { x: -axle.wheelCenterX, y: d.wheelRadius, z: axle.z },
+            radius: d.wheelRadius,
+            width: d.wheelThickness
+          },
+          {
+            id: `${axle.id}_right`,
+            center: { x: axle.wheelCenterX, y: d.wheelRadius, z: axle.z },
+            radius: d.wheelRadius,
+            width: d.wheelThickness
+          }
+        ]))
+      }
+    };
+  }
+
   const maxHalfW = roundNum(
     Math.max(
       d.halfWidth + cfg.fenderFlare,
@@ -4642,6 +8142,7 @@ function generateVehicleBlueprint(rawCfg, options = {}) {
     style: cfg.style,
     archetype: cfg.style,
     archetypeLabel: arch.label,
+    vehicleDomain: layout.rail ? 'rail' : 'road',
     usageVariant: cfg.roleVariant,
     dimensions: layout.dimensions,
     wheelbase: layout.dimensions.wheelbase,
@@ -4686,6 +8187,8 @@ function generateVehicleBlueprint(rawCfg, options = {}) {
       bGameUnits: bounds.bGameUnits
     },
     validation: layout.validation,
+    transitCompatibility: layout.rail ? layout.rail.compatibility : null,
+    pivots: layout.rail ? layout.rail.pivots : null,
     config: cfg,
     geometryStats: options.geometryStats || null
   };
@@ -4763,8 +8266,8 @@ function generateCoherentPalette(paletteFamilyId, seed = 1024, roleVariant = 'ci
   const rimTone = pick(r, ['#b7c0c8', '#c3ccd4', '#9aa4ae', '#adb6bf']);
   const glassTone = pick(r, ['#223545', '#1d2d3d', '#283d4e', '#1a2735']);
 
-  const bodyPrimaryMaterial = familyKey === 'muted_industrial' || familyKey === 'retro_city'
-    ? (r() > 0.45 ? 'matte_body' : 'painted_metal')
+  const bodyPrimaryMaterial = familyKey === 'muted_industrial' || familyKey === 'retro_city' || familyKey === 'freight_rail'
+    ? (r() > 0.45 ? 'matte_body' : (familyKey === 'freight_rail' && r() > 0.5 ? 'worn_paint' : 'painted_metal'))
     : 'painted_metal';
 
   return {
@@ -5012,6 +8515,23 @@ function getSolidVehicleMaterial(hexColor, shininess = 22, emissiveHex = '#00000
   return mat;
 }
 
+function getTranslucentRailGlassMaterial(hexColor, windowTint = 0.35) {
+  const clean = colorHex(hexColor, '#26445d');
+  const op = clamp(0.28 + (Number(windowTint) ?? 0.35) * 0.52, 0.32, 0.74);
+  const key = `railglass|${clean}|${op.toFixed(2)}`;
+  if (matCache.has(key)) return matCache.get(key);
+  const mat = new THREE.MeshPhongMaterial({
+    color: clean,
+    shininess: 120,
+    specular: '#95c2e6',
+    transparent: true,
+    opacity: op,
+    depthWrite: false
+  });
+  matCache.set(key, mat);
+  return mat;
+}
+
 function getSilhouetteClayMaterial() {
   const key = 'veh_silhouette_clay_mat';
   if (!matCache.has(key)) {
@@ -5072,6 +8592,7 @@ function resolveVehicleMaterialBundle(cfg, options = {}) {
       windowTint: cfg.windowTint,
       seed: cfg.seed + 79
     }),
+    railGlass: getTranslucentRailGlassMaterial(cfg.glassColor, cfg.windowTint),
     utility: getVehicleMaterial(cfg.utilityMaterial, cfg.utilityColor, {
       role: 'utility',
       colorVariation: cfg.colorVariation * 0.5,
@@ -5116,6 +8637,17 @@ function reapplyVehicleMaterials(root, cfg, view = {}) {
       obj.material.wireframe = Boolean(view.wireframe);
     }
   });
+}
+
+function reapplyConsistMaterials(consistRoot, view = {}) {
+  if (!consistRoot) return;
+  const units = consistRoot.userData?.unitGroups;
+  if (!Array.isArray(units)) return;
+  for (const uGrp of units) {
+    if (uGrp?.userData?.unitConfig) {
+      reapplyVehicleMaterials(uGrp, uGrp.userData.unitConfig, view);
+    }
+  }
 }
 
   // --- Module: geometry/primitives.js ---
@@ -8317,9 +11849,3894 @@ function buildVehicleDetails(batcher, rootGroup, layout, cfg, materialBundle) {
   }
 }
 
+  // --- Module: transit/bogies.js ---
+function trBogieBuildWheelsetGroup(axleIdx, localZ, wheelRadius, wheelCenterX, materialBundle) {
+  const grp = new THREE.Group();
+  grp.name = `Wheelset_${axleIdx}`;
+  grp.position.set(0, wheelRadius, localZ);
+  grp.userData = {
+    pivotType: 'wheelset',
+    axleIndex: axleIdx,
+    localZ,
+    wheelRadius
+  };
+
+  const batcher = new VehicleBatcher();
+
+  // Solid steel axle shaft
+  batcher.addCylinder(0, 0, 0, 0.062, 0.062, wheelCenterX * 2 + 0.34, 10, 'x', 'chassisDark', 'wheel');
+
+  const treadW = 0.124;
+  const flangeR = wheelRadius + 0.028;
+  const flangeW = 0.024;
+  const flangeX = wheelCenterX - treadW * 0.5 + flangeW * 0.5 - 0.008;
+
+  for (const side of [-1, 1]) {
+    const wx = side * wheelCenterX;
+
+    // Steel wheel tread (rides at top-of-rail y = 0)
+    batcher.addCylinder(wx, 0, 0, wheelRadius, wheelRadius, treadW, 16, 'x', 'tire', 'wheel');
+
+    // Inner rail-guiding flange
+    batcher.addCylinder(side * flangeX, 0, 0, flangeR, flangeR, flangeW, 16, 'x', 'chrome', 'wheel');
+
+    // Outer recessed wheel plate & hub boss (makes wheel spin readable)
+    batcher.addCylinder(wx + side * (treadW * 0.34), 0, 0, wheelRadius * 0.72, wheelRadius * 0.72, treadW * 0.42, 12, 'x', 'rim', 'wheel');
+    batcher.addCylinder(wx + side * (treadW * 0.55), 0, 0, wheelRadius * 0.28, wheelRadius * 0.28, 0.045, 10, 'x', 'chrome', 'wheel');
+
+    // Paired radial ribs on outer wheel face so wheel rotation reads clearly in motion
+    batcher.addBox(wx + side * (treadW * 0.52), 0, 0, 0.018, wheelRadius * 1.15, 0.055, {
+      materialRole: 'utility',
+      layer: 'wheel'
+    });
+    batcher.addBox(wx + side * (treadW * 0.52), 0, 0, 0.018, 0.055, wheelRadius * 1.15, {
+      materialRole: 'utility',
+      layer: 'wheel'
+    });
+  }
+
+  batcher.finalize(grp, materialBundle);
+  return grp;
+}
+
+function buildRailBogieGroup(bogieSpec, layout, cfg, materialBundle) {
+  const grp = new THREE.Group();
+  grp.name = `Bogie_${bogieSpec.id}`;
+  grp.position.set(0, 0, bogieSpec.pivotZ);
+
+  const d = layout.dimensions;
+  const deckY = layout.rail.zones.deckY;
+  const r = bogieSpec.wheelRadius;
+  const wx = bogieSpec.wheelCenterX;
+  const style = bogieSpec.style || cfg.railBogieStyle || 'loco_heavy';
+  const isHeavyLoco = style === 'loco_heavy' || style === 'freight_3axle';
+  const isPassenger = style === 'passenger_coil';
+
+  const sideFrameX = wx + 0.22;
+  const frameLen = bogieSpec.wheelbase + r * 2.15;
+  const frameTopY = Math.min(deckY - 0.14, r * 1.48);
+  const frameMidY = r * 0.92;
+
+  const batcher = new VehicleBatcher();
+
+  // Central bolster beam & kingpin column connecting cleanly up to carbody frame
+  const bolsterW = sideFrameX * 2 + 0.16;
+  batcher.addBox(0, frameTopY - 0.06, 0, bolsterW, 0.18, isHeavyLoco ? 0.58 : 0.44, {
+    materialRole: 'chassisDark',
+    layer: 'chassis'
+  });
+  const kingpinTop = Math.max(frameTopY + 0.06, deckY - 0.02);
+  batcher.addCylinder(0, (frameTopY + kingpinTop) * 0.5, 0, 0.34, 0.38, kingpinTop - frameTopY + 0.08, 12, 'y', 'chassisDark', 'chassis');
+
+  // Longitudinal inner traction/brake support bars
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (wx * 0.48), frameMidY, 0, 0.09, 0.14, frameLen * 0.86, {
+      materialRole: 'chassisDark',
+      layer: 'chassis'
+    });
+  }
+
+  // Left & Right sideframes, coil/air suspension packs, journal bearing boxes, and brake shoes
+  for (const side of [-1, 1]) {
+    const sx = side * sideFrameX;
+
+    // Upper sideframe beam
+    batcher.addBox(sx, frameTopY, 0, 0.14, 0.16, frameLen, {
+      materialRole: 'chassisDark',
+      layer: 'chassis'
+    });
+
+    // Lower stepped sideframe bar between axles
+    const lowerLen = Math.max(0.7, bogieSpec.wheelbase * 0.68);
+    batcher.addBox(sx, r * 0.56, 0, 0.13, 0.13, lowerLen, {
+      materialRole: 'chassisDark',
+      layer: 'chassis'
+    });
+
+    // End tie cross-beams tying sideframes at front and rear of bogie
+    const endTieZ = frameLen * 0.47;
+    batcher.addBox(0, frameTopY - 0.02, endTieZ, sideFrameX * 2, 0.11, 0.11, {
+      materialRole: 'chassisDark',
+      layer: 'chassis'
+    });
+    batcher.addBox(0, frameTopY - 0.02, -endTieZ, sideFrameX * 2, 0.11, 0.11, {
+      materialRole: 'chassisDark',
+      layer: 'chassis'
+    });
+
+    // Secondary suspension coils or passenger air-spring pods
+    if (isPassenger) {
+      batcher.addCylinder(sx, frameTopY + 0.04, 0, 0.19, 0.19, 0.24, 12, 'y', 'tire', 'chassis');
+      batcher.addBox(sx, frameTopY - 0.06, 0.34, 0.08, 0.08, 0.42, { materialRole: 'utility', layer: 'chassis' });
+    } else {
+      for (const sOff of [-0.14, 0.14]) {
+        batcher.addCylinder(sx + side * 0.01, frameMidY - 0.02, sOff, 0.085, 0.085, 0.28, 10, 'y', 'utility', 'chassis');
+      }
+    }
+
+    // Axle pedestal jaws, roller bearing end-caps, brake beams & traction motors
+    bogieSpec.localAxleZs.forEach((az) => {
+      // Bearing housing box
+      batcher.addBox(sx + side * 0.04, r, az, 0.16, 0.24, 0.26, {
+        materialRole: 'chassisDark',
+        layer: 'chassis'
+      });
+      // Outer Timken-style journal end-cap
+      batcher.addCylinder(sx + side * 0.12, r, az, 0.085, 0.085, 0.06, 8, 'x', 'utility', 'chassis');
+
+      // Primary coil springs flanking each journal box
+      for (const pOff of [-0.16, 0.16]) {
+        batcher.addCylinder(sx, r + 0.13, az + pOff, 0.048, 0.048, 0.16, 8, 'y', 'utility', 'chassis');
+      }
+
+      // Brake shoe blocks beside wheel tread
+      const shoeDir = az >= 0 ? -1 : 1;
+      batcher.addBox(side * wx, r, az + shoeDir * (r * 0.96), 0.11, 0.19, 0.07, {
+        materialRole: 'bumper',
+        layer: 'chassis'
+      });
+    });
+
+    // Sandboxes / lifeguards at outer bogie corners for locomotives
+    if (isHeavyLoco) {
+      for (const endSign of [-1, 1]) {
+        batcher.addBox(side * wx, r * 0.58, endSign * (frameLen * 0.46), 0.11, 0.18, 0.1, {
+          materialRole: 'utility',
+          layer: 'chassis'
+        });
+      }
+    }
+  }
+
+  // Traction motor blocks inside wheelset spans for powered / heavy bogies
+  if (cfg.railPowered || isHeavyLoco) {
+    bogieSpec.localAxleZs.forEach((az, i) => {
+      const dir = i === 0 ? -1 : 1;
+      batcher.addBox(0, r + 0.02, az + dir * 0.24, wx * 1.15, 0.28, 0.34, {
+        materialRole: 'utility',
+        layer: 'chassis'
+      });
+    });
+  }
+
+  batcher.finalize(grp, materialBundle);
+
+  const wheelsets = bogieSpec.localAxleZs.map((az, idx) => {
+    const ws = trBogieBuildWheelsetGroup(idx, az, r, wx, materialBundle);
+    grp.add(ws);
+    return ws;
+  });
+
+  grp.userData = {
+    pivotType: 'bogie',
+    bogieId: bogieSpec.id,
+    pivotZ: bogieSpec.pivotZ,
+    axleCount: bogieSpec.axleCount,
+    wheelsets
+  };
+
+  return grp;
+}
+
+  // --- Module: transit/couplers.js ---
+function buildRailCouplerGroup(couplerSpec, endId, layout, cfg, materialBundle) {
+  const grp = new THREE.Group();
+  grp.name = `Coupler_${endId}`;
+  const isFront = endId === 'front';
+  const dir = isFront ? 1 : -1;
+  const pivotZ = isFront ? couplerSpec.frontPivotZ : couplerSpec.rearPivotZ;
+  const couplerType = isFront ? couplerSpec.frontType : couplerSpec.rearType;
+
+  grp.position.set(0, couplerSpec.y, pivotZ);
+  grp.userData = {
+    pivotType: 'coupler',
+    endId,
+    couplerType,
+    pivotZ,
+    pullFaceZ: isFront ? couplerSpec.frontPullFaceZ : couplerSpec.rearPullFaceZ
+  };
+  if (couplerType === 'cable_grip') {
+    grp.userData.disabled = true;
+    return grp;
+  }
+
+  const batcher = new VehicleBatcher();
+  const reach = Math.max(0.32, couplerSpec.protrusion + 0.12);
+
+  // Draft gear pocket under end sill
+  batcher.addBox(0, 0.02, -dir * 0.08, 0.34, 0.24, 0.34, {
+    materialRole: 'chassisDark',
+    layer: 'chassis'
+  });
+
+  if (couplerType === 'buffer_chain') {
+    // Classic European buffers + center drawbar hook & chain
+    const endSillZ = dir * 0.12;
+    for (const side of [-1, 1]) {
+      const bx = side * 0.875;
+      const rTop = dir > 0 ? 0.095 : 0.12;
+      const rBot = dir > 0 ? 0.12 : 0.095;
+      batcher.addCylinder(bx, 0.04, endSillZ + dir * 0.16, rTop, rBot, 0.34, 10, 'z', 'chassisDark', 'detail');
+      batcher.addCylinder(bx, 0.04, endSillZ + dir * 0.36, 0.19, 0.19, 0.055, 12, 'z', 'utility', 'detail');
+    }
+    // Center drawbar hook & hanging screw-link chain
+    batcher.addBox(0, 0.02, dir * (reach * 0.45), 0.1, 0.11, reach * 0.72, {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+    batcher.addBox(0, -0.09, dir * (reach * 0.78), 0.07, 0.2, 0.1, {
+      rotX: dir * 0.22,
+      materialRole: 'chassisDark',
+      layer: 'detail'
+    });
+  } else if (couplerType === 'automatic_schaku') {
+    // Modern Scharfenberg coupler arm, drum head, alignment horn & MU box
+    batcher.addBox(0, 0, dir * (reach * 0.38), 0.14, 0.13, reach * 0.76, {
+      materialRole: 'chassisDark',
+      layer: 'detail'
+    });
+    batcher.addCylinder(0, 0, dir * (reach * 0.82), 0.18, 0.18, 0.18, 12, 'z', 'utility', 'detail');
+    batcher.addCylinder(0.08, 0.02, dir * (reach * 0.94), dir > 0 ? 0.02 : 0.055, dir > 0 ? 0.055 : 0.02, 0.12, 8, 'z', 'chrome', 'detail');
+    batcher.addBox(0, -0.11, dir * (reach * 0.78), 0.24, 0.09, 0.14, {
+      materialRole: 'bumper',
+      layer: 'detail'
+    });
+  } else if (couplerType === 'close_passenger') {
+    // Semi-permanent close-coupled passenger bar & jumper cables
+    batcher.addBox(0, 0, dir * (reach * 0.42), 0.13, 0.12, reach * 0.84, {
+      materialRole: 'chassisDark',
+      layer: 'detail'
+    });
+    batcher.addBox(0, 0, dir * (reach * 0.84), 0.26, 0.18, 0.12, {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+    for (const side of [-1, 1]) {
+      batcher.addCylinder(side * 0.26, -0.08, dir * (reach * 0.6), 0.028, 0.028, reach * 0.7, 6, 'z', 'tire', 'detail');
+    }
+  } else {
+    // Standard AAR Knuckle Coupler (shank + chunky knuckle head + lock pin + brake air hose)
+    batcher.addBox(0, 0, dir * (reach * 0.38), 0.15, 0.13, reach * 0.74, {
+      materialRole: 'chassisDark',
+      layer: 'detail'
+    });
+    // Coupler head block & curved knuckle jaw
+    const headZ = dir * (reach * 0.82);
+    batcher.addBox(-0.04, 0.01, headZ, 0.26, 0.21, 0.22, {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+    batcher.addBox(0.08, 0.01, headZ + dir * 0.07, 0.13, 0.19, 0.14, {
+      rotY: dir * 0.35,
+      materialRole: 'chassisDark',
+      layer: 'detail'
+    });
+    // Cut-lever bar & hanging brake air hose
+    batcher.addBox(0.28, 0.07, dir * 0.12, 0.56, 0.024, 0.024, {
+      materialRole: 'chrome',
+      layer: 'detail'
+    });
+    batcher.addBox(-0.22, -0.14, dir * (reach * 0.45), 0.045, 0.28, 0.045, {
+      rotX: dir * 0.38,
+      materialRole: 'tire',
+      layer: 'detail'
+    });
+  }
+
+  batcher.finalize(grp, materialBundle);
+  return grp;
+}
+
+function buildRailEndGangway(batcher, endZ, dir, deckY, bodyTopY) {
+  const gwW = 1.24;
+  const gwH = Math.max(1.5, Math.min(2.18, bodyTopY - deckY - 0.35));
+  const gwMidY = deckY + 0.1 + gwH * 0.5;
+  const depth = 0.24;
+  const zCenter = endZ + dir * (depth * 0.5);
+
+  // Ribbed dark rubber diaphragm folds
+  for (let i = 0; i < 3; i++) {
+    const segZ = endZ + dir * ((i + 0.5) * (depth / 3));
+    batcher.addBox(0, gwMidY, segZ, gwW - (i % 2) * 0.05, gwH - (i % 2) * 0.04, depth / 3.4, {
+      materialRole: 'chassisDark',
+      layer: 'body'
+    });
+  }
+  // Steel face-plate frame around doorway
+  const plateZ = zCenter + dir * (depth * 0.5 + 0.012);
+  batcher.addBox(-gwW * 0.46, gwMidY, plateZ, 0.09, gwH, 0.03, { materialRole: 'utility', layer: 'detail' });
+  batcher.addBox(gwW * 0.46, gwMidY, plateZ, 0.09, gwH, 0.03, { materialRole: 'utility', layer: 'detail' });
+  batcher.addBox(0, deckY + 0.1 + gwH - 0.045, plateZ, gwW, 0.09, 0.03, { materialRole: 'utility', layer: 'detail' });
+  batcher.addBox(0, deckY + 0.08, plateZ, gwW * 0.88, 0.06, 0.12, { materialRole: 'utility', layer: 'detail' });
+}
+
+  // --- Module: transit/rail-parts.js ---
+function trPartSetPantographHeight(pantoGroup, factor = 0.85) {
+  if (!pantoGroup?.userData?.isPantograph) return;
+  const f = clamp(Number(factor) ?? 0.85, 0, 1);
+  const baseTilt = lerp(1.38, 0.42, f);
+  const upperTilt = lerp(-2.72, -0.84, f);
+  const { lowerArm, upperArm, head, armLen, baseY } = pantoGroup.userData;
+  if (lowerArm) lowerArm.rotation.x = baseTilt;
+  if (upperArm) {
+    const elbowY = Math.cos(baseTilt) * armLen;
+    const elbowZ = Math.sin(baseTilt) * armLen;
+    upperArm.position.set(0, baseY + elbowY, elbowZ);
+    upperArm.rotation.x = baseTilt + upperTilt;
+    if (head) {
+      const topY = elbowY + Math.cos(baseTilt + upperTilt) * armLen;
+      const topZ = elbowZ + Math.sin(baseTilt + upperTilt) * armLen;
+      head.position.set(0, baseY + topY, topZ);
+    }
+  }
+}
+
+function trPartBuildPantographGroup(id, x, roofY, z, materialBundle, options = {}) {
+  const grp = new THREE.Group();
+  grp.name = `Pantograph_${id}`;
+  grp.position.set(x, roofY, z);
+  const dir = options.dir || 1;
+  grp.rotation.y = dir < 0 ? Math.PI : 0;
+
+  const baseBatch = new VehicleBatcher();
+  // Ceramic insulators & base skid frame
+  for (const ix of [-0.52, 0.52]) {
+    for (const iz of [-0.42, 0.42]) {
+      baseBatch.addCylinder(ix, 0.06, iz, 0.055, 0.065, 0.12, 8, 'y', 'livery', 'detail');
+    }
+  }
+  baseBatch.addBox(0, 0.13, 0, 1.18, 0.05, 0.96, { materialRole: 'chassisDark', layer: 'detail' });
+  baseBatch.finalize(grp, materialBundle);
+
+  const armLen = options.armLen || 0.92;
+  const baseY = 0.16;
+
+  // Lower pivoting arm
+  const lowerArm = new THREE.Group();
+  lowerArm.name = `${id}_LowerArm`;
+  lowerArm.position.set(0, baseY, 0);
+  const lBatch = new VehicleBatcher();
+  for (const sx of [-0.28, 0.28]) {
+    lBatch.addBox(sx, armLen * 0.5, 0, 0.048, armLen, 0.052, { materialRole: 'livery', layer: 'detail' });
+  }
+  lBatch.addBox(0, armLen * 0.65, 0, 0.6, 0.04, 0.04, { materialRole: 'utility', layer: 'detail' });
+  lBatch.finalize(lowerArm, materialBundle);
+  grp.add(lowerArm);
+
+  // Upper single-arm assembly
+  const upperArm = new THREE.Group();
+  upperArm.name = `${id}_UpperArm`;
+  const uBatch = new VehicleBatcher();
+  uBatch.addBox(0, armLen * 0.5, 0, 0.058, armLen, 0.058, { materialRole: 'chrome', layer: 'detail' });
+  uBatch.finalize(upperArm, materialBundle);
+  grp.add(upperArm);
+
+  // Collector bow head (graphite contact strips + end horns)
+  const head = new THREE.Group();
+  head.name = `${id}_CollectorHead`;
+  const hBatch = new VehicleBatcher();
+  hBatch.addBox(0, 0.04, 0, 1.48, 0.045, 0.22, { materialRole: 'utility', layer: 'detail' });
+  hBatch.addBox(0, 0.075, -0.05, 1.38, 0.03, 0.045, { materialRole: 'chassisDark', layer: 'detail' });
+  hBatch.addBox(0, 0.075, 0.05, 1.38, 0.03, 0.045, { materialRole: 'chassisDark', layer: 'detail' });
+  for (const sx of [-1, 1]) {
+    hBatch.addBox(sx * 0.82, 0.015, 0, 0.2, 0.03, 0.16, { rotZ: -sx * 0.35, materialRole: 'livery', layer: 'detail' });
+  }
+  hBatch.finalize(head, materialBundle);
+  grp.add(head);
+
+  grp.userData = {
+    isPantograph: true,
+    lowerArm,
+    upperArm,
+    head,
+    armLen,
+    baseY
+  };
+
+  trPartSetPantographHeight(grp, options.heightFactor ?? 0.85);
+  return grp;
+}
+
+function trPartBuildTrolleyPole(batcher, roofY, zCenter, dir = -1) {
+  // Swivel spring base
+  batcher.addCylinder(0, roofY + 0.08, zCenter, 0.16, 0.2, 0.14, 10, 'y', 'utility', 'detail');
+  // Angled insulated trolley pole rising toward overhead wire
+  const poleLen = 2.65;
+  const pitch = dir * 0.62;
+  const tipY = roofY + 0.14 + Math.cos(0.62) * poleLen * 0.5;
+  const tipZ = zCenter + dir * Math.sin(0.62) * poleLen * 0.5;
+  batcher.addBox(0, tipY, tipZ, 0.045, poleLen, 0.045, {
+    rotX: pitch,
+    materialRole: 'livery',
+    layer: 'detail'
+  });
+  const endY = roofY + 0.14 + Math.cos(0.62) * poleLen;
+  const endZ = zCenter + dir * Math.sin(0.62) * poleLen;
+  batcher.addCylinder(0, endY, endZ, 0.09, 0.09, 0.05, 10, 'x', 'chrome', 'detail');
+}
+
+function trPartAddPassengerShellWithDoors(batcher, bodyStartZ, bodyEndZ, deckY, eavesY, bodyTopY, halfW, doorList, cfg, options = {}) {
+  const wallThick = options.wallThick || 0.12;
+  const wallX = halfW - wallThick * 0.5;
+  const width = halfW * 2;
+  const winSillY = options.winSillY || (deckY + 0.84);
+  const winTopY = options.winTopY || (eavesY - 0.16);
+  const lowerH = Math.max(0.25, winSillY - deckY);
+  const winH = Math.max(0.35, winTopY - winSillY);
+  const upperH = Math.max(0.14, eavesY - winTopY);
+  const bodyLen = bodyEndZ - bodyStartZ;
+  const paxGlass = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Build ordered unique door spans along Z
+  const rightDoors = (doorList || []).filter((dr) => dr.side === 1).sort((a, b) => a.z - b.z);
+  const spans = [];
+  let cursor = bodyStartZ;
+  for (const dr of rightDoors) {
+    const d0 = dr.z - dr.width * 0.5;
+    const d1 = dr.z + dr.width * 0.5;
+    if (d0 > cursor + 0.05) spans.push([cursor, d0]);
+    cursor = Math.max(cursor, d1);
+  }
+  if (bodyEndZ > cursor + 0.05) spans.push([cursor, bodyEndZ]);
+
+  for (const side of [-1, 1]) {
+    const sx = side * wallX;
+    // Continuous upper header above doors & windows
+    batcher.addBox(sx, eavesY - upperH * 0.5, (bodyStartZ + bodyEndZ) * 0.5, wallThick, upperH, bodyLen, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+
+    // Lower walls & window bays for each solid span between doorways
+    for (const [zA, zB] of spans) {
+      const spanLen = zB - zA;
+      const midZ = (zA + zB) * 0.5;
+      batcher.addBox(sx, deckY + lowerH * 0.5, midZ, wallThick, lowerH, spanLen, {
+        materialRole: 'primary',
+        layer: 'body'
+      });
+
+      if (spanLen < 0.7) {
+        // Solid end corner post beside door
+        batcher.addBox(sx, winSillY + winH * 0.5, midZ, wallThick, winH + 0.02, spanLen, {
+          materialRole: 'primary',
+          layer: 'body'
+        });
+      } else {
+        const winCount = Math.max(1, Math.min(8, Math.round((spanLen / Math.max(4, bodyLen)) * (cfg.railWindowCount || 8))));
+        const bayPitch = spanLen / winCount;
+        const pillarLen = clamp(bayPitch * 0.22, 0.14, 0.32);
+        const paneLen = Math.max(0.32, bayPitch - pillarLen);
+        const winMidY = winSillY + winH * 0.5;
+
+        if (cfg.railLiveryPattern === 'window_band') {
+          batcher.addBox(side * (halfW - 0.028), winMidY, midZ, 0.075, winH + 0.08, spanLen, {
+            materialRole: 'secondary',
+            layer: 'body'
+          });
+        }
+        for (let i = 0; i <= winCount; i++) {
+          const pz = zA + i * bayPitch;
+          batcher.addBox(sx, winMidY, pz, wallThick, winH + 0.04, pillarLen, {
+            materialRole: cfg.railLiveryPattern === 'window_band' ? 'secondary' : 'primary',
+            layer: 'body'
+          });
+          if (i < winCount) {
+            const wz = pz + bayPitch * 0.5;
+            batcher.addBox(side * (halfW - 0.05), winMidY, wz, 0.03, winH * 0.88, paneLen * 0.94, {
+              materialRole: paxGlass,
+              layer: 'glass'
+            });
+          }
+        }
+      }
+
+      if (cfg.railLiveryPattern !== 'solid') {
+        batcher.addBox(side * (halfW + 0.008), winSillY - 0.14, midZ, 0.02, 0.15, spanLen, {
+          materialRole: 'livery',
+          layer: 'body'
+        });
+      }
+    }
+
+    // Header lintel above each door opening
+    for (const dr of rightDoors) {
+      const drTop = dr.sillY + dr.height;
+      if (eavesY > drTop + 0.02) {
+        batcher.addBox(sx, (drTop + eavesY) * 0.5, dr.z, wallThick, eavesY - drTop, dr.width, {
+          materialRole: 'primary',
+          layer: 'body'
+        });
+      }
+    }
+  }
+
+  // Curved roof crown
+  if (options.skipRoof !== true) {
+    batcher.addLoftedSlices([
+      {
+        z: bodyStartZ,
+        bottomY: eavesY - 0.02,
+        beltY: lerp(eavesY, bodyTopY, 0.55),
+        topY: bodyTopY,
+        hwBottom: halfW,
+        hwBelt: halfW * 0.88,
+        hwTop: halfW * 0.56,
+        chamferBot: 0.02,
+        chamferTop: 0.08
+      },
+      {
+        z: bodyEndZ,
+        bottomY: eavesY - 0.02,
+        beltY: lerp(eavesY, bodyTopY, 0.55),
+        topY: bodyTopY,
+        hwBottom: halfW,
+        hwBelt: halfW * 0.88,
+        hwTop: halfW * 0.56,
+        chamferBot: 0.02,
+        chamferTop: 0.08
+      }
+    ], options.roofRole || 'secondary', 'body');
+  }
+
+  // Simplified interior floor, ceiling light & seats strictly inside longest non-door span
+  if (cfg.railInteriorEnabled && options.skipInterior !== true) {
+    batcher.addBox(0, deckY + 0.025, (bodyStartZ + bodyEndZ) * 0.5, width - 0.22, 0.05, bodyLen - 0.2, {
+      materialRole: 'interiorDark',
+      layer: 'interior'
+    });
+    batcher.addBox(0, eavesY - 0.05, (bodyStartZ + bodyEndZ) * 0.5, 0.3, 0.035, bodyLen - 0.9, {
+      materialRole: 'headlight',
+      layer: 'interior'
+    });
+    for (const [zA, zB] of spans) {
+      if (zB - zA < 1.2) continue;
+      if (options.longitudinalSeats) {
+        for (const side of [-1, 1]) {
+          batcher.addBox(side * (halfW - 0.38), deckY + 0.42, (zA + zB) * 0.5, 0.46, 0.14, zB - zA - 0.25, {
+            materialRole: 'livery',
+            layer: 'interior'
+          });
+          batcher.addBox(side * (halfW - 0.19), deckY + 0.72, (zA + zB) * 0.5, 0.1, 0.52, zB - zA - 0.25, {
+            materialRole: 'secondary',
+            layer: 'interior'
+          });
+        }
+      } else {
+        const rows = Math.max(2, Math.floor((zB - zA - 0.3) / 1.02));
+        for (let i = 0; i < rows; i++) {
+          const sz = lerp(zA + 0.35, zB - 0.35, i / Math.max(1, rows - 1));
+          for (const side of [-1, 1]) {
+            batcher.addBox(side * (halfW - 0.56), deckY + 0.42, sz, 0.72, 0.14, 0.44, { materialRole: 'livery', layer: 'interior' });
+            batcher.addBox(side * (halfW - 0.56), deckY + 0.78, sz - 0.16, 0.7, 0.62, 0.1, { materialRole: 'livery', layer: 'interior' });
+          }
+        }
+      }
+    }
+  }
+}
+
+function trPartBuildSlidingDoorGroups(rootGroup, doorList, halfW, deckY, winSillY, cfg, materialBundle, options = {}) {
+  const paxGlass = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+  const out = [];
+  for (const dr of doorList || []) {
+    const grp = new THREE.Group();
+    grp.name = `Door_${dr.id}`;
+    const dBatch = new VehicleBatcher();
+    const dx = dr.side * (halfW - 0.02);
+    const dMidY = dr.sillY + dr.height * 0.5;
+    dBatch.addBox(dx, dMidY, dr.z, 0.068, dr.height, dr.width * 0.96, {
+      materialRole: options.doorRole || 'secondary',
+      layer: 'body'
+    });
+    dBatch.addBox(dx + dr.side * 0.014, dMidY + dr.height * 0.18, dr.z, 0.052, dr.height * 0.38, dr.width * 0.62, {
+      materialRole: paxGlass,
+      layer: 'glass'
+    });
+    dBatch.addBox(dx + dr.side * 0.032, winSillY - 0.14, dr.z, 0.02, 0.15, dr.width * 0.92, {
+      materialRole: 'livery',
+      layer: 'body'
+    });
+    dBatch.finalize(grp, materialBundle);
+    grp.userData = {
+      pivotType: 'door',
+      doorId: dr.id,
+      basePos: [0, 0, 0],
+      slideVector: [0, 0, dr.slideDir * dr.maxSlide]
+    };
+    rootGroup.add(grp);
+    out.push(grp);
+  }
+  return out;
+}
+
+  // --- Module: transit/rail-locos-ext.js ---
+function trLocoExtBuildElectric(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const deckY = layout.rail.zones.deckY;
+  const bodyTopY = layout.rail.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const cabLen = 2.35;
+  const bodyMidLen = d.length - cabLen * 2;
+  const roofEaveY = bodyTopY - 0.24;
+  const winBotY = deckY + 1.08;
+  const winTopY = roofEaveY - 0.22;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Heavy underframe skirt, buffer beams & transformer bay between bogies
+  batcher.addBox(0, deckY - 0.12, 0, d.width, 0.24, d.length, { materialRole: 'secondary', layer: 'chassis' });
+  batcher.addBox(0, deckY - 0.44, 0, d.width * 0.72, 0.46, Math.max(2.2, d.wheelbase - 3.3), {
+    materialRole: 'chassisDark',
+    layer: 'chassis'
+  });
+
+  // Main central equipment machine room body with recessed cooling louver banks
+  const bodyH = roofEaveY - deckY;
+  batcher.addBox(0, deckY + bodyH * 0.5, 0, d.width, bodyH, bodyMidLen, {
+    materialRole: 'primary',
+    layer: 'body'
+  });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW + 0.012), deckY + bodyH * 0.58, 0, 0.03, bodyH * 0.44, bodyMidLen * 0.72, {
+      materialRole: 'secondary',
+      layer: 'detail'
+    });
+    for (let i = 0; i < 6; i++) {
+      const lz = lerp(-bodyMidLen * 0.34, bodyMidLen * 0.34, i / 5);
+      batcher.addBox(side * (halfW + 0.025), deckY + bodyH * 0.58, lz, 0.022, bodyH * 0.38, 0.85, {
+        materialRole: 'utility',
+        layer: 'detail'
+      });
+    }
+    batcher.addBox(side * (halfW + 0.014), deckY + 0.22, 0, 0.025, 0.18, d.length * 0.94, {
+      materialRole: 'livery',
+      layer: 'body'
+    });
+  }
+
+  // Twin sloped aerodynamic European cabs (front & rear)
+  for (const endSign of [-1, 1]) {
+    const cabInnerZ = endSign * (bodyMidLen * 0.5);
+    const cabOuterZ = endSign * halfL;
+    const zA = endSign > 0 ? cabInnerZ : cabOuterZ;
+    const zB = endSign > 0 ? cabOuterZ : cabInnerZ;
+
+    // Lower cab apron & snowplow cowcatcher
+    batcher.addBox(0, deckY + (winBotY - deckY) * 0.5, (zA + zB) * 0.5, d.width, winBotY - deckY, cabLen, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+    batcher.addBox(0, deckY - 0.36, endSign * (halfL - 0.12), d.width * 0.9, 0.34, 0.14, {
+      materialRole: 'chassisDark',
+      layer: 'chassis'
+    });
+
+    // Raked upper cab windshield block
+    const sInner = { z: cabInnerZ, bottomY: winBotY, beltY: lerp(winBotY, roofEaveY, 0.6), topY: roofEaveY, hwBottom: halfW, hwBelt: halfW, hwTop: halfW * 0.9 };
+    const sOuter = { z: cabOuterZ - endSign * 0.18, bottomY: winBotY, beltY: lerp(winBotY, roofEaveY, 0.55), topY: roofEaveY - 0.08, hwBottom: halfW * 0.94, hwBelt: halfW * 0.9, hwTop: halfW * 0.78 };
+    batcher.addLoftedSlices(endSign > 0 ? [sInner, sOuter] : [sOuter, sInner], 'primary', 'body');
+
+    // Front panoramic twin-pane windshield & cab side windows
+    const wsZ = cabOuterZ - endSign * 0.1;
+    for (const sx of [-0.62, 0.62]) {
+      batcher.addBox(sx, (winBotY + winTopY) * 0.5, wsZ, 1.05, winTopY - winBotY, 0.14, {
+        rotX: -endSign * 0.16,
+        materialRole: glassRole,
+        layer: 'glass'
+      });
+    }
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (halfW - 0.02), (winBotY + winTopY) * 0.5, endSign * (halfL - cabLen * 0.45), 0.06, (winTopY - winBotY) * 0.85, cabLen * 0.48, {
+        materialRole: glassRole,
+        layer: 'glass'
+      });
+      if (cfg.railHandrails) {
+        batcher.addBox(side * (halfW + 0.03), deckY + 0.65, endSign * (halfL - cabLen * 0.88), 0.035, 0.95, 0.035, {
+          materialRole: 'livery',
+          layer: 'detail'
+        });
+      }
+    }
+  }
+
+  // Roof crown & high-voltage busbar + dual articulated pantographs
+  batcher.addLoftedSlices([
+    { z: -halfL + 1.0, bottomY: roofEaveY - 0.02, beltY: lerp(roofEaveY, bodyTopY, 0.5), topY: bodyTopY, hwBottom: halfW * 0.92, hwBelt: halfW * 0.8, hwTop: halfW * 0.58 },
+    { z: halfL - 1.0, bottomY: roofEaveY - 0.02, beltY: lerp(roofEaveY, bodyTopY, 0.5), topY: bodyTopY, hwBottom: halfW * 0.92, hwBelt: halfW * 0.8, hwTop: halfW * 0.58 }
+  ], 'secondary', 'body');
+
+  // Roof HV busbar & resistor grid pods
+  batcher.addBox(0, bodyTopY + 0.07, 0, 0.08, 0.06, bodyMidLen * 0.95, { materialRole: 'livery', layer: 'detail' });
+  batcher.addBox(0, bodyTopY + 0.11, 0, 1.42, 0.22, 3.2, { materialRole: 'utility', layer: 'detail' });
+
+  const pantographs = [];
+  const pantoZ = Math.max(3.6, bodyMidLen * 0.34);
+  const pFactor = cfg.railPantographHeight ?? 0.92;
+  for (const [idx, pair] of [[-pantoZ, -1], [pantoZ, 1]].entries()) {
+    const [pz, dir] = pair;
+    const pGrp = trPartBuildPantographGroup(`electric_${idx}`, 0, bodyTopY, pz, materialBundle, {
+      dir,
+      heightFactor: idx === 1 ? pFactor : Math.max(0.08, pFactor * 0.12)
+    });
+    rootGroup.add(pGrp);
+    pantographs.push(pGrp);
+  }
+
+  return { doors: [], pantographs };
+}
+
+function trLocoExtBuildStreamlinedDiesel(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const deckY = layout.rail.zones.deckY;
+  const bodyTopY = layout.rail.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const noseLen = clamp(cfg.railNoseLength || 2.4, 1.6, 3.6);
+  const eaveY = bodyTopY - 0.28;
+  const noseEndZ = halfL;
+  const noseStartZ = noseEndZ - noseLen;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Full-length skirted underframe + underslung fuel tank
+  batcher.addBox(0, deckY - 0.1, 0, d.width, 0.22, d.length - 0.4, { materialRole: 'secondary', layer: 'chassis' });
+  batcher.addBox(0, deckY - 0.44, 0, d.width * 0.76, 0.46, Math.max(2.2, d.wheelbase - 3.7), {
+    materialRole: 'chassisDark',
+    layer: 'chassis'
+  });
+
+  // Main carbody loft from flat rear diaphragm forward to cab shoulder
+  batcher.addLoftedSlices([
+    { z: -halfL + 0.18, bottomY: deckY, beltY: lerp(deckY, eaveY, 0.72), topY: bodyTopY, hwBottom: halfW, hwBelt: halfW, hwTop: halfW * 0.68, chamferTop: 0.12 },
+    { z: noseStartZ, bottomY: deckY, beltY: lerp(deckY, eaveY, 0.72), topY: bodyTopY, hwBottom: halfW, hwBelt: halfW, hwTop: halfW * 0.68, chamferTop: 0.12 },
+    { z: lerp(noseStartZ, noseEndZ, 0.55), bottomY: deckY, beltY: deckY + 1.45, topY: deckY + 1.92, hwBottom: halfW * 0.94, hwBelt: halfW * 0.88, hwTop: halfW * 0.52, chamferTop: 0.14 },
+    { z: noseEndZ - 0.1, bottomY: deckY - 0.2, beltY: deckY + 0.65, topY: deckY + 1.25, hwBottom: halfW * 0.62, hwBelt: halfW * 0.58, hwTop: halfW * 0.36, chamferTop: 0.12 }
+  ], 'primary', 'body');
+
+  // Sweeping Warbonnet crimson/secondary nose hood & side accent stripe
+  batcher.addLoftedSlices([
+    { z: noseStartZ - 0.3, bottomY: deckY + 0.85, beltY: deckY + 1.5, topY: bodyTopY + 0.02, hwBottom: halfW + 0.02, hwBelt: halfW * 0.92, hwTop: halfW * 0.68 },
+    { z: lerp(noseStartZ, noseEndZ, 0.55), bottomY: deckY + 0.3, beltY: deckY + 1.45, topY: deckY + 1.94, hwBottom: halfW * 0.96, hwBelt: halfW * 0.9, hwTop: halfW * 0.54 },
+    { z: noseEndZ - 0.06, bottomY: deckY - 0.22, beltY: deckY + 0.65, topY: deckY + 1.27, hwBottom: halfW * 0.64, hwBelt: halfW * 0.6, hwTop: halfW * 0.38 }
+  ], 'secondary', 'body');
+
+  // Gold/Livery speed stripes along sides & circular chrome porthole windows
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW + 0.015), deckY + 0.78, -1.2, 0.025, 0.2, d.length * 0.72, {
+      materialRole: 'livery',
+      layer: 'body'
+    });
+    for (let p = 0; p < 4; p++) {
+      const pz = lerp(-halfL + 1.6, noseStartZ - 1.2, p / 3);
+      batcher.addCylinder(side * (halfW + 0.01), deckY + 1.75, pz, 0.24, 0.24, 0.04, 12, 'x', 'chrome', 'detail');
+      batcher.addCylinder(side * (halfW + 0.018), deckY + 1.75, pz, 0.18, 0.18, 0.04, 12, 'x', glassRole, 'glass');
+    }
+    // Side cab windows
+    batcher.addBox(side * (halfW - 0.02), bodyTopY - 0.75, noseStartZ - 0.6, 0.06, 0.58, 1.35, {
+      materialRole: glassRole,
+      layer: 'glass'
+    });
+  }
+
+  // Twin sloped F-unit cab windshields
+  for (const sx of [-0.52, 0.52]) {
+    batcher.addBox(sx, bodyTopY - 0.76, noseStartZ + 0.28, 0.76, 0.58, 0.12, {
+      rotX: -0.45,
+      materialRole: glassRole,
+      layer: 'glass'
+    });
+  }
+
+  // Roof radiator fan pods & twin exhaust stacks
+  for (let f = 0; f < 3; f++) {
+    const fz = lerp(-halfL + 2.2, noseStartZ - 2.2, f / 2);
+    batcher.addCylinder(0, bodyTopY + 0.08, fz, 0.52, 0.56, 0.14, 12, 'y', 'secondary', 'detail');
+    batcher.addCylinder(0, bodyTopY + 0.155, fz, 0.4, 0.4, 0.03, 12, 'y', 'chassisDark', 'detail');
+  }
+  for (const ez of [-1.2, 0.8]) {
+    batcher.addCylinder(0, bodyTopY + 0.14, ez, 0.12, 0.14, 0.26, 10, 'y', 'chassisDark', 'detail');
+  }
+
+  return { doors: [] };
+}
+
+function trLocoExtBuildSteam(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const deckY = layout.rail.zones.deckY;
+  const bodyTopY = layout.rail.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Split 18.8m length into Engine ([engineStartZ .. +halfL]) and Coal Tender ([-halfL .. engineStartZ - 0.35])
+  const tenderStartZ = -halfL + 0.25;
+  const tenderEndZ = tenderStartZ + 5.8;
+  const cabStartZ = tenderEndZ + 0.38;
+  const cabEndZ = cabStartZ + 2.35;
+  const fireboxEndZ = cabEndZ + 1.85;
+  const smokeboxEndZ = halfL - 0.85;
+  const boilerLen = smokeboxEndZ - cabEndZ;
+  const boilerMidZ = (cabEndZ + smokeboxEndZ) * 0.5;
+  const boilerR = clamp(halfW * 0.62, 0.78, 1.02);
+  const boilerCenterY = deckY + boilerR + 0.38;
+
+  // Engine main chassis frame, cowcatcher pilot, steam cylinders & running boards
+  const engLen = halfL - cabStartZ;
+  const engMidZ = (cabStartZ + halfL) * 0.5;
+  batcher.addBox(0, deckY - 0.14, engMidZ, 1.06, 0.34, engLen - 0.3, { materialRole: 'chassisDark', layer: 'chassis' });
+
+  // Running boards flanking boiler + brass handrail
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (boilerR + 0.28), deckY + 0.14, boilerMidZ, 0.38, 0.08, boilerLen + 0.4, {
+      materialRole: 'secondary',
+      layer: 'body'
+    });
+    batcher.addBox(side * (boilerR + 0.46), deckY + 0.14, boilerMidZ, 0.03, 0.09, boilerLen + 0.4, {
+      materialRole: 'livery',
+      layer: 'detail'
+    });
+    if (cfg.railHandrails) {
+      batcher.addBox(side * (boilerR + 0.08), boilerCenterY + 0.18, boilerMidZ, 0.03, 0.03, boilerLen * 0.92, {
+        materialRole: 'livery',
+        layer: 'detail'
+      });
+    }
+    // Twin outside steam cylinders near front drivers
+    batcher.addCylinder(side * 1.12, 0.64, smokeboxEndZ - 0.85, 0.36, 0.36, 1.25, 12, 'z', 'secondary', 'detail');
+    batcher.addCylinder(side * 1.08, 1.02, smokeboxEndZ - 0.85, 0.24, 0.24, 1.15, 10, 'z', 'chassisDark', 'detail');
+  }
+
+  // Angled slatted cowcatcher pilot at front nose
+  const pilotZ = halfL - 0.36;
+  batcher.addBox(0, deckY - 0.18, pilotZ, d.width * 0.88, 0.18, 0.55, { materialRole: 'chassisDark', layer: 'chassis' });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * 0.62, 0.52, halfL - 0.22, 1.28, 0.56, 0.08, {
+      rotY: -side * 0.44,
+      rotX: 0.22,
+      materialRole: 'chassisDark',
+      layer: 'chassis'
+    });
+  }
+
+  // Cylindrical Boiler, Brass Bands, Firebox & Smokebox
+  batcher.addCylinder(0, boilerCenterY, boilerMidZ, boilerR, boilerR, boilerLen, 16, 'z', 'secondary', 'body');
+  // Belpaire firebox widening slightly ahead of cab
+  batcher.addBox(0, boilerCenterY - 0.08, (cabEndZ + fireboxEndZ) * 0.5, boilerR * 1.98, boilerR * 1.75, fireboxEndZ - cabEndZ, {
+    materialRole: 'secondary',
+    layer: 'body'
+  });
+  // Charcoal smokebox front drum + conical smokebox door
+  const sbLen = 1.65;
+  const sbZ = smokeboxEndZ - sbLen * 0.5;
+  batcher.addCylinder(0, boilerCenterY, sbZ, boilerR + 0.025, boilerR + 0.025, sbLen, 16, 'z', 'primary', 'body');
+  batcher.addCylinder(0, boilerCenterY, smokeboxEndZ + 0.1, boilerR * 0.45, boilerR * 0.94, 0.22, 14, 'z', 'primary', 'body');
+
+  // Brass boiler rings, smokestack chimney, steam dome & sand dome
+  for (let b = 0; b < 4; b++) {
+    const bz = lerp(fireboxEndZ, smokeboxEndZ - sbLen - 0.2, b / 3);
+    batcher.addCylinder(0, boilerCenterY, bz, boilerR + 0.02, boilerR + 0.02, 0.055, 16, 'z', 'livery', 'detail');
+  }
+  const topY = boilerCenterY + boilerR;
+  batcher.addCylinder(0, topY + 0.34, sbZ + 0.1, 0.24, 0.18, 0.72, 12, 'y', 'primary', 'detail'); // Chimney stack
+  batcher.addCylinder(0, topY + 0.72, sbZ + 0.1, 0.28, 0.24, 0.09, 12, 'y', 'livery', 'detail');
+  batcher.addCylinder(0, topY + 0.26, boilerMidZ + 0.75, 0.44, 0.5, 0.54, 12, 'y', 'secondary', 'detail'); // Sand dome
+  batcher.addCylinder(0, topY + 0.28, boilerMidZ - 1.15, 0.4, 0.46, 0.58, 12, 'y', 'livery', 'detail'); // Brass steam dome
+
+  // Engineer Cab
+  const cabMidZ = (cabStartZ + cabEndZ) * 0.5;
+  const cabH = bodyTopY - deckY;
+  batcher.addBox(0, deckY + cabH * 0.42, cabMidZ, d.width * 0.94, cabH * 0.84, cabEndZ - cabStartZ, {
+    materialRole: 'secondary',
+    layer: 'body'
+  });
+  batcher.addBox(0, bodyTopY - 0.06, cabMidZ - 0.08, d.width * 1.0, 0.16, cabEndZ - cabStartZ + 0.45, {
+    materialRole: 'primary',
+    layer: 'body'
+  });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW * 0.94 + 0.01), bodyTopY - 0.56, cabMidZ, 0.05, 0.62, 1.35, {
+      materialRole: glassRole,
+      layer: 'glass'
+    });
+    batcher.addBox(side * (halfW * 0.94 + 0.015), deckY + 0.62, cabMidZ, 0.03, 0.12, 2.0, {
+      materialRole: 'livery',
+      layer: 'body'
+    });
+  }
+
+  // Coal Tender (rear car body + coal mound!)
+  const tMidZ = (tenderStartZ + tenderEndZ) * 0.5;
+  const tLen = tenderEndZ - tenderStartZ;
+  const tH = Math.max(1.8, bodyTopY - deckY - 0.45);
+  batcher.addBox(0, deckY - 0.1, tMidZ, d.width * 0.96, 0.22, tLen, { materialRole: 'chassisDark', layer: 'chassis' });
+  batcher.addBox(0, deckY + tH * 0.5, tMidZ, d.width * 0.92, tH, tLen - 0.12, { materialRole: 'secondary', layer: 'body' });
+  // Coal pile mound inside tender bunker
+  batcher.addBox(0, deckY + tH + 0.14, tMidZ + 0.2, d.width * 0.72, 0.42, tLen * 0.68, {
+    materialRole: 'chassisDark',
+    layer: 'detail'
+  });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW * 0.92 + 0.014), deckY + tH * 0.58, tMidZ, 0.025, 0.16, tLen * 0.88, {
+      materialRole: 'livery',
+      layer: 'body'
+    });
+  }
+
+  // Large Spoked Steam Driving Wheels (3 coupled axles) + Animated Connecting Rods!
+  const driverR = 0.66;
+  const driverX = layout.rail.gauge.railCenterHalfX;
+  const customWheelsets = [];
+  const driverZs = [boilerMidZ - 1.3, boilerMidZ + 0.22, boilerMidZ + 1.74];
+
+  for (let i = 0; i < driverZs.length; i++) {
+    const dz = driverZs[i];
+    const ws = new THREE.Group();
+    ws.name = `SteamDriver_${i}`;
+    ws.position.set(0, driverR, dz);
+    const wBatch = new VehicleBatcher();
+    wBatch.addCylinder(0, 0, 0, 0.075, 0.075, driverX * 2 + 0.24, 10, 'x', 'chassisDark', 'wheel');
+    for (const side of [-1, 1]) {
+      wBatch.addCylinder(side * driverX, 0, 0, driverR, driverR, 0.12, 16, 'x', 'tire', 'wheel');
+      wBatch.addCylinder(side * (driverX - 0.056), 0, 0, driverR + 0.028, driverR + 0.028, 0.024, 16, 'x', 'chrome', 'wheel');
+      wBatch.addCylinder(side * (driverX + 0.03), 0, 0, driverR * 0.8, driverR * 0.8, 0.06, 12, 'x', 'rim', 'wheel');
+      // Spokes + counterweight crescent
+      for (let sp = 0; sp < 4; sp++) {
+        wBatch.addBox(side * (driverX + 0.045), 0, 0, 0.024, driverR * 1.48, 0.055, {
+          rotX: (sp / 4) * Math.PI,
+          materialRole: 'rim',
+          layer: 'wheel'
+        });
+      }
+      wBatch.addBox(side * (driverX + 0.048), -driverR * 0.36, 0, 0.03, driverR * 0.34, driverR * 0.72, {
+        materialRole: 'livery',
+        layer: 'wheel'
+      });
+    }
+    wBatch.finalize(ws, materialBundle);
+    rootGroup.add(ws);
+    customWheelsets.push(ws);
+  }
+
+  // Animated Coupling & Connecting Rods (`SteamRod_left`, `SteamRod_right`)
+  const steamRods = [];
+  const rodSpan = driverZs[2] - driverZs[0] + 0.35;
+  const rodCenterZ = driverZs[1];
+  for (const side of [-1, 1]) {
+    const rodGrp = new THREE.Group();
+    rodGrp.name = `SteamRod_${side < 0 ? 'left' : 'right'}`;
+    const rx = side * (driverX + 0.11);
+    const ry = driverR - 0.22;
+    rodGrp.position.set(rx, ry, rodCenterZ);
+    const rBatch = new VehicleBatcher();
+    // Main horizontal coupling side rod linking all 3 drivers
+    rBatch.addBox(0, 0, 0, 0.045, 0.1, rodSpan, { materialRole: 'chrome', layer: 'detail' });
+    // Angled piston main rod reaching forward into steam cylinder crosshead
+    rBatch.addBox(0.02 * side, 0.04, rodSpan * 0.45 + 0.85, 0.05, 0.085, 1.95, {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+    rBatch.finalize(rodGrp, materialBundle);
+    rodGrp.userData = {
+      isSteamRod: true,
+      baseX: rx,
+      baseY: ry,
+      baseZ: rodCenterZ,
+      crankRadius: 0.22,
+      phaseOffset: side < 0 ? 0 : Math.PI * 0.5
+    };
+    rootGroup.add(rodGrp);
+    steamRods.push(rodGrp);
+  }
+
+  return { doors: [], steamRods, customWheelsets };
+}
+
+function trLocoExtBuildMaintenance(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const deckY = layout.rail.zones.deckY;
+  const bodyTopY = layout.rail.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Heavy yellow work frame + hazard striped end sills
+  batcher.addBox(0, deckY - 0.11, 0, d.width, 0.22, d.length, { materialRole: 'primary', layer: 'chassis' });
+  for (const endSign of [-1, 1]) {
+    const ez = endSign * (halfL + 0.01);
+    for (let i = -3; i <= 3; i++) {
+      batcher.addBox(i * 0.36, deckY - 0.11, ez, 0.18, 0.2, 0.02, {
+        materialRole: (i & 1) === 0 ? 'livery' : 'primary',
+        layer: 'detail'
+      });
+    }
+  }
+
+  // Forward operator utility cab
+  const cabZ = halfL - 2.1;
+  const cabH = bodyTopY - deckY;
+  batcher.addBox(0, deckY + cabH * 0.46, cabZ, d.width * 0.92, cabH * 0.92, 2.75, {
+    materialRole: 'primary',
+    layer: 'body'
+  });
+  batcher.addBox(0, bodyTopY - 0.06, cabZ, d.width * 0.96, 0.14, 2.9, { materialRole: 'secondary', layer: 'body' });
+  batcher.addBox(0, bodyTopY - 0.65, cabZ + 1.38, d.width * 0.72, 0.68, 0.06, { materialRole: glassRole, layer: 'glass' });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW * 0.92 + 0.01), bodyTopY - 0.65, cabZ + 0.2, 0.05, 0.68, 1.45, {
+      materialRole: glassRole,
+      layer: 'glass'
+    });
+  }
+
+  // Mid-deck tool locker boxes & hydraulic turntable pedestal
+  batcher.addBox(0, deckY + 0.55, 0.4, d.width * 0.82, 1.05, 2.6, { materialRole: 'secondary', layer: 'detail' });
+  const craneZ = -2.2;
+  batcher.addCylinder(0, deckY + 0.34, craneZ, 0.78, 0.86, 0.68, 12, 'y', 'secondary', 'detail');
+  batcher.addBox(0, deckY + 0.92, craneZ, 0.96, 0.52, 1.12, { materialRole: 'primary', layer: 'detail' });
+
+  // Articulated yellow lattice crane boom + winch cable + lifting hook
+  batcher.addBox(0, deckY + 1.95, craneZ - 1.45, 0.36, 0.42, 4.95, {
+    rotX: 0.38,
+    materialRole: 'primary',
+    layer: 'detail'
+  });
+  batcher.addBox(0, deckY + 2.42, craneZ - 3.65, 0.16, 0.72, 0.18, { materialRole: 'utility', layer: 'detail' });
+  batcher.addCylinder(0, deckY + 1.82, craneZ - 3.65, 0.025, 0.025, 0.75, 6, 'y', 'chassisDark', 'detail');
+  batcher.addBox(0, deckY + 1.4, craneZ - 3.65, 0.18, 0.24, 0.18, { materialRole: 'livery', layer: 'detail' });
+
+  // Roof amber warning lightbar on cab
+  if (cfg.lightBar && cfg.lightBar !== 'none') {
+    batcher.addBox(0, bodyTopY + 0.1, cabZ + 0.55, 1.15, 0.16, 0.24, { materialRole: 'amberLight', layer: 'detail' });
+  }
+  // Rear rail ties stack cargo on work flat deck
+  batcher.addBox(0, deckY + 0.25, -halfL + 1.35, d.width * 0.78, 0.45, 1.85, { materialRole: 'secondary', layer: 'detail' });
+
+  return { doors: [] };
+}
+
+  // --- Module: transit/rail-passenger-ext.js ---
+function trPaxExtBuildEndWalls(batcher, bodyEndZ, deckY, eavesY, bodyTopY, width, halfW, gangways) {
+  for (const endSign of [-1, 1]) {
+    const ez = endSign * (bodyEndZ - 0.08);
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (halfW - 0.42), (deckY + eavesY) * 0.5, ez, 0.82, eavesY - deckY, 0.16, {
+        materialRole: 'primary',
+        layer: 'body'
+      });
+    }
+    batcher.addBox(0, eavesY - 0.24, ez, width - 0.1, 0.48, 0.16, { materialRole: 'primary', layer: 'body' });
+    if (gangways) {
+      buildRailEndGangway(batcher, endSign * bodyEndZ, endSign, deckY, bodyTopY);
+    }
+  }
+}
+
+function trPaxExtBuildBulletLead(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const noseLen = clamp(cfg.railNoseLength || 4.8, 3.0, 5.8);
+  const noseStartZ = halfL - noseLen;
+  const bodyStartZ = -halfL + 0.14;
+  const eavesY = bodyTopY - 0.24;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Full aerodynamic underbody belly & shrouded bogie skirts
+  batcher.addBox(0, deckY - 0.14, -noseLen * 0.2, d.width - 0.06, 0.28, d.length - noseLen * 0.55, {
+    materialRole: 'secondary',
+    layer: 'chassis'
+  });
+  for (const bogie of rz.bogies) {
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (halfW - 0.04), deckY - 0.36, bogie.pivotZ, 0.08, 0.44, bogie.wheelbase + 1.25, {
+        materialRole: 'secondary',
+        layer: 'body'
+      });
+    }
+  }
+
+  // Passenger saloon behind sculpted nose
+  trPartAddPassengerShellWithDoors(batcher, bodyStartZ, noseStartZ, deckY, eavesY, bodyTopY, halfW, rz.doors, cfg, {
+    winSillY: deckY + 0.82,
+    winTopY: eavesY - 0.18,
+    roofRole: 'primary'
+  });
+
+  // Rear diaphragm end wall
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW - 0.42), (deckY + eavesY) * 0.5, bodyStartZ + 0.08, 0.82, eavesY - deckY, 0.16, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+  }
+  batcher.addBox(0, eavesY - 0.24, bodyStartZ + 0.08, d.width - 0.1, 0.48, 0.16, { materialRole: 'primary', layer: 'body' });
+  if (cfg.railGangways) {
+    buildRailEndGangway(batcher, bodyStartZ, -1, deckY, bodyTopY);
+  }
+
+  // Sculpted 3-stage aerodynamic Shinkansen / high-speed bullet nose
+  batcher.addLoftedSlices([
+    { z: noseStartZ, bottomY: deckY - 0.24, beltY: lerp(deckY, eavesY, 0.55), topY: bodyTopY, hwBottom: halfW, hwBelt: halfW, hwTop: halfW * 0.56, chamferTop: 0.12 },
+    { z: lerp(noseStartZ, halfL, 0.36), bottomY: deckY - 0.24, beltY: deckY + 1.22, topY: bodyTopY - 0.38, hwBottom: halfW * 0.94, hwBelt: halfW * 0.88, hwTop: halfW * 0.46, chamferTop: 0.14 },
+    { z: lerp(noseStartZ, halfL, 0.74), bottomY: deckY - 0.28, beltY: deckY + 0.68, topY: deckY + 1.15, hwBottom: halfW * 0.68, hwBelt: halfW * 0.62, hwTop: halfW * 0.3, chamferTop: 0.12 },
+    { z: halfL, bottomY: deckY - 0.34, beltY: deckY + 0.08, topY: deckY + 0.42, hwBottom: halfW * 0.26, hwBelt: halfW * 0.22, hwTop: halfW * 0.12, chamferTop: 0.06 }
+  ], 'primary', 'body');
+
+  // High-speed lower nose spoiler & dark cockpit canopy glass
+  batcher.addBox(0, deckY - 0.36, halfL - 0.65, d.width * 0.66, 0.24, 1.35, { materialRole: 'secondary', layer: 'chassis' });
+  batcher.addBox(0, bodyTopY - 0.66, noseStartZ + 1.45, d.width * 0.56, 0.54, 1.65, {
+    rotX: 0.44,
+    materialRole: glassRole,
+    layer: 'glass'
+  });
+  // Speed stripe tapering onto bullet nose
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW * 0.82), deckY + 0.62, noseStartZ + noseLen * 0.34, 0.06, 0.15, noseLen * 0.68, {
+      rotY: -side * 0.2,
+      materialRole: 'livery',
+      layer: 'body'
+    });
+  }
+
+  // Roof aerodynamic pantograph shrouds + articulated single-arm pantograph
+  const pantoZ = -halfL + 3.2;
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * 0.66, bodyTopY + 0.12, pantoZ, 0.12, 0.24, 2.5, { materialRole: 'secondary', layer: 'detail' });
+  }
+  const pantographs = [];
+  if (rz.hasPantograph) {
+    const pGrp = trPartBuildPantographGroup('hs_lead', 0, bodyTopY, pantoZ, materialBundle, {
+      dir: -1,
+      armLen: 0.84,
+      heightFactor: cfg.railPantographHeight ?? 0.9
+    });
+    rootGroup.add(pGrp);
+    pantographs.push(pGrp);
+  }
+
+  const doors = trPartBuildSlidingDoorGroups(rootGroup, rz.doors, halfW, deckY, deckY + 0.82, cfg, materialBundle);
+  return { doors, pantographs };
+}
+
+function trPaxExtBuildBulletCoach(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const pax = rz.zones.passenger;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const halfW = d.halfWidth;
+
+  // Underbody aero fairing + bogie skirts
+  batcher.addBox(0, deckY - 0.24, 0, d.width - 0.08, 0.44, pax.bodyEndZ - pax.bodyStartZ, {
+    materialRole: 'secondary',
+    layer: 'chassis'
+  });
+  trPartAddPassengerShellWithDoors(batcher, pax.bodyStartZ, pax.bodyEndZ, deckY, pax.eavesY, bodyTopY, halfW, rz.doors, cfg, {
+    winSillY: pax.windowSillY,
+    winTopY: pax.windowTopY,
+    roofRole: 'primary'
+  });
+  trPaxExtBuildEndWalls(batcher, pax.bodyEndZ, deckY, pax.eavesY, bodyTopY, d.width, halfW, cfg.railGangways);
+
+  const pantographs = [];
+  if (rz.hasPantograph) {
+    const pGrp = trPartBuildPantographGroup('hs_coach', 0, bodyTopY, 0, materialBundle, {
+      dir: 1,
+      armLen: 0.84,
+      heightFactor: cfg.railPantographHeight ?? 0
+    });
+    rootGroup.add(pGrp);
+    pantographs.push(pGrp);
+  }
+
+  const doors = trPartBuildSlidingDoorGroups(rootGroup, rz.doors, halfW, deckY, pax.windowSillY, cfg, materialBundle);
+  return { doors, pantographs };
+}
+
+function trPaxExtBuildBilevel(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const pax = rz.zones.passenger;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const wellStart = rz.bogies[1].pivotZ + rz.bogies[1].wheelbase * 0.5 + 0.65;
+  const wellEnd = rz.bogies[0].pivotZ - rz.bogies[0].wheelbase * 0.5 - 0.65;
+  const wellLen = Math.max(3.5, wellEnd - wellStart);
+  const lowFloorY = 0.52;
+  const midDeckY = deckY + 1.48;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Dropped center double-decker well between bogies + end frame decks over bogies
+  batcher.addBox(0, lowFloorY - 0.08, 0, d.width - 0.04, 0.16, wellLen, { materialRole: 'secondary', layer: 'chassis' });
+  for (const endSign of [-1, 1]) {
+    const endStart = endSign > 0 ? wellEnd : pax.bodyStartZ;
+    const endFinish = endSign > 0 ? pax.bodyEndZ : wellStart;
+    batcher.addBox(0, deckY - 0.08, (endStart + endFinish) * 0.5, d.width - 0.04, 0.16, Math.abs(endFinish - endStart), {
+      materialRole: 'secondary',
+      layer: 'chassis'
+    });
+  }
+
+  // Build lower & upper side walls across central well + end vestibule doors
+  const eaveY = bodyTopY - 0.24;
+  for (const side of [-1, 1]) {
+    const sx = side * (halfW - 0.07);
+    // Lower well lower skirt + upper deck divider band + top eaves band
+    batcher.addBox(sx, (lowFloorY + 0.85) * 0.5, 0, 0.14, 0.68, wellLen, { materialRole: 'primary', layer: 'body' });
+    batcher.addBox(sx, midDeckY, 0, 0.14, 0.34, wellLen, { materialRole: 'secondary', layer: 'body' });
+    batcher.addBox(sx, eaveY - 0.12, 0, 0.14, 0.24, pax.bodyEndZ - pax.bodyStartZ, { materialRole: 'primary', layer: 'body' });
+    // Continuous livery accent band separating decks
+    batcher.addBox(side * (halfW + 0.012), midDeckY, 0, 0.024, 0.16, pax.bodyEndZ - pax.bodyStartZ, {
+      materialRole: 'livery',
+      layer: 'body'
+    });
+
+    // Twin stacked window rows (lower + upper deck) along central well
+    const winCols = clamp(Math.round(cfg.railWindowCount || 8), 4, 10);
+    const pitch = wellLen / winCols;
+    for (let i = 0; i <= winCols; i++) {
+      const pz = wellStart + i * pitch;
+      batcher.addBox(sx, (lowFloorY + 0.85 + eaveY) * 0.5, pz, 0.14, eaveY - (lowFloorY + 0.8), 0.24, {
+        materialRole: 'primary',
+        layer: 'body'
+      });
+      if (i < winCols) {
+        const wz = pz + pitch * 0.5;
+        batcher.addBox(side * (halfW - 0.05), lowFloorY + 1.24, wz, 0.03, 0.64, pitch * 0.72, {
+          materialRole: glassRole,
+          layer: 'glass'
+        });
+        batcher.addBox(side * (halfW - 0.05), midDeckY + 0.68, wz, 0.03, 0.7, pitch * 0.72, {
+          materialRole: glassRole,
+          layer: 'glass'
+        });
+      }
+    }
+
+    // End walls around vestibule doors
+    for (const endSign of [-1, 1]) {
+      const drZ = endSign * pax.doorOffsetZ;
+      const innerStart = endSign > 0 ? wellEnd : drZ + pax.doorWidth * 0.5;
+      const innerEnd = endSign > 0 ? drZ - pax.doorWidth * 0.5 : wellStart;
+      if (innerEnd > innerStart + 0.1) {
+        batcher.addBox(sx, (deckY + eaveY) * 0.5, (innerStart + innerEnd) * 0.5, 0.14, eaveY - deckY, innerEnd - innerStart, {
+          materialRole: 'primary',
+          layer: 'body'
+        });
+      }
+      const outerLen = Math.max(0.24, pax.bodyEndZ - (pax.doorOffsetZ + pax.doorWidth * 0.5));
+      batcher.addBox(sx, (deckY + eaveY) * 0.5, endSign * (pax.bodyEndZ - outerLen * 0.5), 0.14, eaveY - deckY, outerLen, {
+        materialRole: 'primary',
+        layer: 'body'
+      });
+      batcher.addBox(sx, (deckY + pax.doorHeight + eaveY) * 0.5, drZ, 0.14, Math.max(0.1, eaveY - deckY - pax.doorHeight), pax.doorWidth, {
+        materialRole: 'primary',
+        layer: 'body'
+      });
+    }
+  }
+
+  // Octagonal beveled double-decker roof + HVAC pods
+  batcher.addLoftedSlices([
+    { z: pax.bodyStartZ, bottomY: eaveY - 0.02, beltY: lerp(eaveY, bodyTopY, 0.5), topY: bodyTopY, hwBottom: halfW, hwBelt: halfW * 0.84, hwTop: halfW * 0.58 },
+    { z: pax.bodyEndZ, bottomY: eaveY - 0.02, beltY: lerp(eaveY, bodyTopY, 0.5), topY: bodyTopY, hwBottom: halfW, hwBelt: halfW * 0.84, hwTop: halfW * 0.58 }
+  ], 'secondary', 'body');
+  for (const hz of [-4.5, 4.5]) {
+    batcher.addBox(0, bodyTopY + 0.09, hz, d.width * 0.52, 0.18, 2.0, { materialRole: 'utility', layer: 'detail' });
+  }
+
+  // Dual-deck interior floors & seats
+  if (cfg.railInteriorEnabled) {
+    batcher.addBox(0, lowFloorY + 0.03, 0, d.width - 0.24, 0.06, wellLen - 0.2, { materialRole: 'interiorDark', layer: 'interior' });
+    batcher.addBox(0, midDeckY - 0.04, 0, d.width - 0.24, 0.08, wellLen - 0.2, { materialRole: 'interiorDark', layer: 'interior' });
+    for (let rIdx = 0; rIdx < 6; rIdx++) {
+      const sz = lerp(wellStart + 0.6, wellEnd - 0.6, rIdx / 5);
+      for (const side of [-1, 1]) {
+        batcher.addBox(side * (halfW - 0.56), lowFloorY + 0.42, sz, 0.7, 0.14, 0.44, { materialRole: 'livery', layer: 'interior' });
+        batcher.addBox(side * (halfW - 0.56), midDeckY + 0.42, sz, 0.7, 0.14, 0.44, { materialRole: 'livery', layer: 'interior' });
+      }
+    }
+  }
+
+  trPaxExtBuildEndWalls(batcher, pax.bodyEndZ, deckY, eaveY, bodyTopY, d.width, halfW, cfg.railGangways);
+  const doors = trPartBuildSlidingDoorGroups(rootGroup, rz.doors, halfW, deckY, midDeckY, cfg, materialBundle);
+  return { doors };
+}
+
+function trPaxExtBuildDomeCoach(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const pax = rz.zones.passenger;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const mainRoofY = bodyTopY - 0.56;
+  const mainEavesY = mainRoofY - 0.22;
+  const halfW = d.halfWidth;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  batcher.addBox(0, deckY - 0.08, 0, d.width - 0.04, 0.16, pax.bodyEndZ - pax.bodyStartZ, {
+    materialRole: 'secondary',
+    layer: 'chassis'
+  });
+
+  trPartAddPassengerShellWithDoors(batcher, pax.bodyStartZ, pax.bodyEndZ, deckY, mainEavesY, mainRoofY, halfW, rz.doors, cfg, {
+    winSillY: deckY + 0.84,
+    winTopY: mainEavesY - 0.14,
+    roofRole: 'primary'
+  });
+  trPaxExtBuildEndWalls(batcher, pax.bodyEndZ, deckY, mainEavesY, mainRoofY, d.width, halfW, cfg.railGangways);
+
+  // Raised panoramic Vista-Dome observation bubble centered along coach roof
+  const domeLen = clamp(d.length * 0.42, 5.5, 8.2);
+  const domeHalfL = domeLen * 0.5;
+  const domeFloorY = mainRoofY - 0.15;
+  const domeTopY = bodyTopY;
+
+  batcher.addLoftedSlices([
+    { z: -domeHalfL - 0.45, bottomY: domeFloorY, beltY: mainRoofY + 0.08, topY: mainRoofY + 0.14, hwBottom: halfW * 0.9, hwBelt: halfW * 0.82, hwTop: halfW * 0.6 },
+    { z: -domeHalfL + 0.25, bottomY: domeFloorY, beltY: lerp(domeFloorY, domeTopY, 0.58), topY: domeTopY, hwBottom: halfW * 0.9, hwBelt: halfW * 0.82, hwTop: halfW * 0.54 },
+    { z: domeHalfL - 0.25, bottomY: domeFloorY, beltY: lerp(domeFloorY, domeTopY, 0.58), topY: domeTopY, hwBottom: halfW * 0.9, hwBelt: halfW * 0.82, hwTop: halfW * 0.54 },
+    { z: domeHalfL + 0.45, bottomY: domeFloorY, beltY: mainRoofY + 0.08, topY: mainRoofY + 0.14, hwBottom: halfW * 0.9, hwBelt: halfW * 0.82, hwTop: halfW * 0.6 }
+  ], 'secondary', 'body');
+
+  // Vista-Dome panoramic glass & frame ribs
+  batcher.addBox(0, domeTopY - 0.28, 0, d.width * 0.8, 0.52, domeLen - 0.7, {
+    materialRole: glassRole,
+    layer: 'glass'
+  });
+  for (let i = 0; i <= 5; i++) {
+    const rzPos = lerp(-domeHalfL + 0.35, domeHalfL - 0.35, i / 5);
+    batcher.addBox(0, domeTopY - 0.26, rzPos, d.width * 0.84, 0.58, 0.09, {
+      materialRole: 'primary',
+      layer: 'detail'
+    });
+  }
+  if (cfg.railInteriorEnabled) {
+    for (let i = 0; i < 4; i++) {
+      const sz = lerp(-domeHalfL + 0.9, domeHalfL - 0.9, i / 3);
+      for (const side of [-1, 1]) {
+        batcher.addBox(side * 0.58, domeFloorY + 0.24, sz, 0.66, 0.12, 0.42, { materialRole: 'livery', layer: 'interior' });
+      }
+    }
+  }
+
+  const doors = trPartBuildSlidingDoorGroups(rootGroup, rz.doors, halfW, deckY, deckY + 0.84, cfg, materialBundle);
+  return { doors };
+}
+
+function trPaxExtBuildSubwayClassic(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const pax = rz.zones.passenger;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const halfW = d.halfWidth;
+
+  batcher.addBox(0, deckY - 0.08, 0, d.width - 0.06, 0.16, pax.bodyEndZ - pax.bodyStartZ, {
+    materialRole: 'chassisDark',
+    layer: 'chassis'
+  });
+  // Underfloor traction/air boxes
+  for (const bz of [-2.0, 0, 2.0]) {
+    batcher.addBox(0, deckY - 0.36, bz, d.width * 0.72, 0.42, 1.35, { materialRole: 'chassisDark', layer: 'chassis' });
+  }
+
+  trPartAddPassengerShellWithDoors(batcher, pax.bodyStartZ, pax.bodyEndZ, deckY, pax.eavesY, bodyTopY, halfW, rz.doors, cfg, {
+    winSillY: pax.windowSillY,
+    winTopY: pax.windowTopY,
+    roofRole: 'primary',
+    longitudinalSeats: true
+  });
+  trPaxExtBuildEndWalls(batcher, pax.bodyEndZ, deckY, pax.eavesY, bodyTopY, d.width, halfW, cfg.railGangways);
+
+  // Stainless fluted lower corrugation strips + rooftop HVAC units
+  for (const side of [-1, 1]) {
+    for (const fy of [deckY + 0.22, deckY + 0.38]) {
+      batcher.addBox(side * (halfW + 0.008), fy, 0, 0.02, 0.04, pax.bodyEndZ - pax.bodyStartZ - 0.5, {
+        materialRole: 'chrome',
+        layer: 'detail'
+      });
+    }
+  }
+  for (const hz of [-3.4, 3.4]) {
+    batcher.addBox(0, bodyTopY + 0.09, hz, d.width * 0.52, 0.18, 2.0, { materialRole: 'utility', layer: 'detail' });
+  }
+
+  const doors = trPartBuildSlidingDoorGroups(rootGroup, rz.doors, halfW, deckY, pax.windowSillY, cfg, materialBundle, {
+    doorRole: 'chrome'
+  });
+  return { doors };
+}
+
+function trPaxExtBuildMetroModern(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const pax = rz.zones.passenger;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const cabLen = 1.65;
+  const noseStartZ = halfL - cabLen;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  batcher.addBox(0, deckY - 0.1, -cabLen * 0.4, d.width - 0.06, 0.2, d.length - cabLen * 0.8, {
+    materialRole: 'secondary',
+    layer: 'chassis'
+  });
+
+  trPartAddPassengerShellWithDoors(batcher, pax.bodyStartZ, noseStartZ, deckY, pax.eavesY, bodyTopY, halfW, rz.doors, cfg, {
+    winSillY: pax.windowSillY,
+    winTopY: pax.windowTopY,
+    roofRole: 'secondary',
+    longitudinalSeats: true
+  });
+
+  // Rear gangway end wall
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW - 0.42), (deckY + pax.eavesY) * 0.5, pax.bodyStartZ + 0.08, 0.82, pax.eavesY - deckY, 0.16, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+  }
+  batcher.addBox(0, pax.eavesY - 0.24, pax.bodyStartZ + 0.08, d.width - 0.1, 0.48, 0.16, { materialRole: 'primary', layer: 'body' });
+  if (cfg.railGangways) {
+    buildRailEndGangway(batcher, pax.bodyStartZ, -1, deckY, bodyTopY);
+  }
+
+  // Sleek rounded modern metro cab front with dark visor mask
+  batcher.addLoftedSlices([
+    { z: noseStartZ, bottomY: deckY - 0.14, beltY: lerp(deckY, pax.eavesY, 0.55), topY: bodyTopY, hwBottom: halfW, hwBelt: halfW, hwTop: halfW * 0.56 },
+    { z: halfL - 0.35, bottomY: deckY - 0.14, beltY: lerp(deckY, pax.eavesY, 0.55), topY: bodyTopY - 0.12, hwBottom: halfW * 0.94, hwBelt: halfW * 0.9, hwTop: halfW * 0.5 },
+    { z: halfL, bottomY: deckY - 0.1, beltY: deckY + 1.05, topY: bodyTopY - 0.34, hwBottom: halfW * 0.8, hwBelt: halfW * 0.76, hwTop: halfW * 0.42 }
+  ], 'primary', 'body');
+
+  batcher.addBox(0, pax.windowSillY + 0.45, halfL - 0.16, d.width * 0.76, 1.32, 0.34, {
+    rotX: 0.16,
+    materialRole: 'secondary',
+    layer: 'body'
+  });
+  batcher.addBox(0, pax.windowSillY + 0.46, halfL - 0.02, d.width * 0.66, 0.92, 0.12, {
+    rotX: 0.16,
+    materialRole: glassRole,
+    layer: 'glass'
+  });
+
+  // Roof HVAC shroud
+  batcher.addBox(0, bodyTopY + 0.09, -0.8, d.width * 0.58, 0.18, d.length * 0.55, {
+    materialRole: 'utility',
+    layer: 'detail'
+  });
+
+  const doors = trPartBuildSlidingDoorGroups(rootGroup, rz.doors, halfW, deckY, pax.windowSillY, cfg, materialBundle, {
+    doorRole: 'livery'
+  });
+  return { doors };
+}
+
+function trPaxExtBuildPeopleMover(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const pax = rz.zones.passenger;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  batcher.addBox(0, deckY - 0.08, 0, d.width - 0.06, 0.16, pax.bodyEndZ - pax.bodyStartZ, {
+    materialRole: 'secondary',
+    layer: 'chassis'
+  });
+
+  trPartAddPassengerShellWithDoors(batcher, pax.bodyStartZ, pax.bodyEndZ, deckY, pax.eavesY, bodyTopY, halfW, rz.doors, cfg, {
+    winSillY: pax.windowSillY,
+    winTopY: pax.windowTopY,
+    roofRole: 'primary',
+    longitudinalSeats: true
+  });
+
+  // Panoramic driverless end windshields on BOTH ends
+  for (const endSign of [-1, 1]) {
+    const ez = endSign * pax.bodyEndZ;
+    batcher.addBox(0, deckY + (pax.windowSillY - deckY) * 0.5, ez - endSign * 0.08, d.width - 0.08, pax.windowSillY - deckY, 0.18, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+    batcher.addBox(0, pax.eavesY - 0.12, ez - endSign * 0.08, d.width - 0.08, 0.26, 0.18, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+    batcher.addBox(0, (pax.windowSillY + pax.windowTopY) * 0.5, ez - endSign * 0.04, d.width * 0.78, (pax.windowTopY - pax.windowSillY) * 0.9, 0.06, {
+      materialRole: glassRole,
+      layer: 'glass'
+    });
+  }
+
+  batcher.addBox(0, bodyTopY + 0.08, 0, d.width * 0.56, 0.16, 2.2, { materialRole: 'utility', layer: 'detail' });
+  const doors = trPartBuildSlidingDoorGroups(rootGroup, rz.doors, halfW, deckY, pax.windowSillY, cfg, materialBundle, {
+    doorRole: 'livery'
+  });
+  return { doors };
+}
+
+function trPaxExtBuildHopper(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const bodyLen = d.length - 0.85;
+  const bodyH = bodyTopY - deckY;
+
+  // Underframe end sills + central sill + 3 sloped underside discharge hoppers
+  batcher.addBox(0, deckY - 0.12, 0, 0.4, 0.24, d.length, { materialRole: 'chassisDark', layer: 'chassis' });
+  for (const endSign of [-1, 1]) {
+    batcher.addBox(0, deckY - 0.1, endSign * (halfL - 0.18), d.width, 0.22, 0.36, { materialRole: 'primary', layer: 'chassis' });
+  }
+  const chuteStart = rz.bogies[1].pivotZ + rz.bogies[1].wheelbase * 0.5 + 0.55;
+  const chuteEnd = rz.bogies[0].pivotZ - rz.bogies[0].wheelbase * 0.5 - 0.55;
+  const chuteSpan = Math.max(2.0, chuteEnd - chuteStart);
+  for (let c = 0; c < 3; c++) {
+    const cz = lerp(chuteStart + 0.65, chuteEnd - 0.65, c / 2);
+    const bayW = Math.min(2.1, chuteSpan * 0.28);
+    batcher.addLoftedSlices([
+      { z: cz - bayW * 0.5, bottomY: deckY - 0.58, beltY: deckY - 0.3, topY: deckY, hwBottom: halfW * 0.24, hwBelt: halfW * 0.58, hwTop: halfW * 0.92 },
+      { z: cz + bayW * 0.5, bottomY: deckY - 0.58, beltY: deckY - 0.3, topY: deckY, hwBottom: halfW * 0.24, hwBelt: halfW * 0.58, hwTop: halfW * 0.92 }
+    ], 'primary', 'body');
+  }
+
+  // Open-top hopper tub side walls, top rim chord & sloped inner end sheets
+  const wallT = 0.14;
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW - wallT * 0.5), deckY + bodyH * 0.5, 0, wallT, bodyH, bodyLen, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+    batcher.addBox(side * (halfW - 0.04), bodyTopY - 0.05, 0, 0.18, 0.1, bodyLen + 0.06, {
+      materialRole: 'secondary',
+      layer: 'body'
+    });
+    // Vertical exterior structural posts
+    for (let r = 0; r < 10; r++) {
+      const rzPos = lerp(-bodyLen * 0.45, bodyLen * 0.45, r / 9);
+      batcher.addBox(side * (halfW + 0.025), deckY + bodyH * 0.5, rzPos, 0.06, bodyH - 0.06, 0.09, {
+        materialRole: 'primary',
+        layer: 'body'
+      });
+    }
+  }
+  for (const endSign of [-1, 1]) {
+    batcher.addBox(0, deckY + bodyH * 0.54, endSign * (bodyLen * 0.5 - 0.32), d.width - 0.12, bodyH * 0.88, 0.14, {
+      rotX: endSign * 0.28,
+      materialRole: 'primary',
+      layer: 'body'
+    });
+  }
+
+  // Interior dark steel floor & optional bulk heap cargo
+  batcher.addBox(0, deckY + 0.08, 0, d.width - 0.32, 0.12, bodyLen - 0.65, { materialRole: 'interiorDark', layer: 'interior' });
+  const cargoMode = cfg.railHopperCargo || 'coal_heap';
+  if (cargoMode !== 'none') {
+    const cargoRole = cargoMode === 'iron_ore' ? 'secondary' : (cargoMode === 'gravel_ballast' ? 'utility' : 'chassisDark');
+    const heapBaseY = bodyTopY - 0.45;
+    for (let h = 0; h < 3; h++) {
+      const hz = lerp(-bodyLen * 0.28, bodyLen * 0.28, h / 2);
+      batcher.addCylinder(0, heapBaseY + 0.24, hz, d.width * 0.34, d.width * 0.46, 0.48, 10, 'y', cargoRole, 'detail');
+    }
+    batcher.addBox(0, heapBaseY, 0, d.width - 0.36, 0.35, bodyLen - 1.4, { materialRole: cargoRole, layer: 'detail' });
+  }
+
+  return { doors: [] };
+}
+
+function trPaxExtBuildCaboose(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const cupolaTopY = bodyTopY;
+  const mainRoofY = bodyTopY - 0.68;
+  const eavesY = mainRoofY - 0.18;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const bodyLen = Math.max(5.5, d.length - 1.9);
+  const bodyHalfL = bodyLen * 0.5;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Underframe & front/rear open observation porches
+  batcher.addBox(0, deckY - 0.1, 0, d.width, 0.2, d.length, { materialRole: 'secondary', layer: 'chassis' });
+  for (const endSign of [-1, 1]) {
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (halfW - 0.14), deckY - 0.28, endSign * (halfL - 0.3), 0.26, 0.38, 0.34, {
+        materialRole: 'chassisDark',
+        layer: 'chassis'
+      });
+      if (cfg.railHandrails) {
+        const porchZ = endSign * (halfL - 0.06);
+        batcher.addBox(side * (halfW - 0.08), deckY + 0.48, porchZ, 0.03, 0.96, 0.03, { materialRole: 'livery', layer: 'detail' });
+        batcher.addBox(side * 0.52, deckY + 0.48, porchZ, 0.03, 0.96, 0.03, { materialRole: 'livery', layer: 'detail' });
+        batcher.addBox(side * ((halfW + 0.44) * 0.5), deckY + 0.94, porchZ, halfW - 0.54, 0.035, 0.035, { materialRole: 'livery', layer: 'detail' });
+      }
+    }
+  }
+
+  // Main caboose cabin + overhanging end roofs + livery belt stripe
+  const cabinH = eavesY - deckY;
+  batcher.addBox(0, deckY + cabinH * 0.5, 0, d.width, cabinH, bodyLen, { materialRole: 'primary', layer: 'body' });
+  batcher.addLoftedSlices([
+    { z: -halfL + 0.12, bottomY: eavesY - 0.02, beltY: lerp(eavesY, mainRoofY, 0.5), topY: mainRoofY, hwBottom: halfW + 0.04, hwBelt: halfW * 0.72, hwTop: 0.34 },
+    { z: halfL - 0.12, bottomY: eavesY - 0.02, beltY: lerp(eavesY, mainRoofY, 0.5), topY: mainRoofY, hwBottom: halfW + 0.04, hwBelt: halfW * 0.72, hwTop: 0.34 }
+  ], 'secondary', 'body');
+
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW + 0.012), deckY + 0.78, 0, 0.022, 0.16, bodyLen * 0.96, { materialRole: 'livery', layer: 'body' });
+    for (const wz of [-bodyHalfL * 0.54, bodyHalfL * 0.54]) {
+      batcher.addBox(side * (halfW - 0.01), deckY + 1.38, wz, 0.05, 0.62, 0.78, { materialRole: glassRole, layer: 'glass' });
+    }
+  }
+
+  // Raised central observation Cupola + stove chimney
+  const cupLen = 2.6;
+  const cupW = d.width * 0.74;
+  batcher.addBox(0, (mainRoofY + cupolaTopY) * 0.5 - 0.08, 0, cupW, 0.72, cupLen, { materialRole: 'primary', layer: 'body' });
+  batcher.addLoftedSlices([
+    { z: -cupLen * 0.54, bottomY: cupolaTopY - 0.16, beltY: cupolaTopY - 0.06, topY: cupolaTopY, hwBottom: cupW * 0.55, hwBelt: cupW * 0.38, hwTop: 0.2 },
+    { z: cupLen * 0.54, bottomY: cupolaTopY - 0.16, beltY: cupolaTopY - 0.06, topY: cupolaTopY, hwBottom: cupW * 0.55, hwBelt: cupW * 0.38, hwTop: 0.2 }
+  ], 'secondary', 'body');
+  for (const endSign of [-1, 1]) {
+    for (const sx of [-0.42, 0.42]) {
+      batcher.addBox(sx, cupolaTopY - 0.38, endSign * (cupLen * 0.5 + 0.01), 0.54, 0.34, 0.04, { materialRole: glassRole, layer: 'glass' });
+    }
+  }
+  batcher.addCylinder(0.45, mainRoofY + 0.32, 2.2, 0.08, 0.09, 0.65, 8, 'y', 'chassisDark', 'detail');
+
+  return { doors: [] };
+}
+
+  // --- Module: transit/rail-specialty.js ---
+function trSpecBuildHistoricStreetcar(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const pax = rz.zones.passenger;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const clereBaseY = bodyTopY - 0.32;
+  const eavesY = clereBaseY - 0.18;
+  const halfW = d.halfWidth;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Streetcar frame, end safety life-guard fenders & boarding steps
+  batcher.addBox(0, deckY - 0.09, 0, d.width * 0.94, 0.18, d.length - 0.25, { materialRole: 'chassisDark', layer: 'chassis' });
+  for (const endSign of [-1, 1]) {
+    batcher.addBox(0, 0.22, endSign * (d.length * 0.5 - 0.1), d.width * 0.78, 0.08, 0.42, {
+      materialRole: 'trim',
+      layer: 'chassis'
+    });
+  }
+
+  trPartAddPassengerShellWithDoors(batcher, pax.bodyStartZ, pax.bodyEndZ, deckY, eavesY, clereBaseY, halfW, rz.doors, cfg, {
+    winSillY: pax.windowSillY,
+    winTopY: eavesY - 0.12,
+    roofRole: 'secondary',
+    skipRoof: true
+  });
+
+  // Curved cream/brass front & rear streetcar dash aprons + windshields
+  for (const endSign of [-1, 1]) {
+    const ez = endSign * pax.bodyEndZ;
+    batcher.addLoftedSlices([
+      { z: ez - endSign * 0.22, bottomY: deckY, beltY: deckY + 0.85, topY: eavesY, hwBottom: halfW, hwBelt: halfW * 0.96, hwTop: halfW * 0.88 },
+      { z: ez, bottomY: deckY, beltY: deckY + 0.85, topY: eavesY, hwBottom: halfW * 0.78, hwBelt: halfW * 0.76, hwTop: halfW * 0.72 }
+    ], 'primary', 'body');
+    batcher.addBox(0, (pax.windowSillY + eavesY - 0.1) * 0.5, ez + endSign * 0.015, d.width * 0.64, eavesY - pax.windowSillY - 0.16, 0.05, {
+      materialRole: glassRole,
+      layer: 'glass'
+    });
+  }
+
+  // Lower deck arched roof + raised Clerestory Monitor Deck with glowing vent windows
+  batcher.addLoftedSlices([
+    { z: pax.bodyStartZ - 0.1, bottomY: eavesY - 0.02, beltY: clereBaseY - 0.04, topY: clereBaseY, hwBottom: halfW + 0.04, hwBelt: halfW * 0.88, hwTop: halfW * 0.66 },
+    { z: pax.bodyEndZ + 0.1, bottomY: eavesY - 0.02, beltY: clereBaseY - 0.04, topY: clereBaseY, hwBottom: halfW + 0.04, hwBelt: halfW * 0.88, hwTop: halfW * 0.66 }
+  ], 'trim', 'body');
+  const clereLen = (pax.bodyEndZ - pax.bodyStartZ) * 0.72;
+  batcher.addBox(0, clereBaseY + 0.16, 0, d.width * 0.52, 0.32, clereLen, { materialRole: 'secondary', layer: 'body' });
+  batcher.addBox(0, bodyTopY - 0.02, 0, d.width * 0.58, 0.07, clereLen + 0.22, { materialRole: 'trim', layer: 'body' });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (d.width * 0.26 + 0.01), clereBaseY + 0.16, 0, 0.025, 0.14, clereLen * 0.82, {
+      materialRole: 'headlight',
+      layer: 'detail'
+    });
+  }
+
+  trPartBuildTrolleyPole(batcher, bodyTopY, -0.4, -1);
+
+  const doors = trPartBuildSlidingDoorGroups(rootGroup, rz.doors, halfW, deckY, pax.windowSillY, cfg, materialBundle);
+  return { doors };
+}
+
+function trSpecBuildArticulatedTram(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const pax = rz.zones.passenger;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const eavesY = pax.eavesY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Split 21.6m tram into 3 genuine articulated modules joined at flexible bellows (jointZ = ±3.1m)
+  const jointZ = clamp(d.length * 0.145, 2.4, 3.6);
+  const centerLen = jointZ * 2 - 0.56;
+  const endLen = halfL - jointZ - 0.28;
+
+  // Center floating section (built directly into main batcher)
+  batcher.addBox(0, deckY - 0.08, 0, d.width - 0.06, 0.16, centerLen, { materialRole: 'secondary', layer: 'chassis' });
+  trPartAddPassengerShellWithDoors(batcher, -centerLen * 0.5, centerLen * 0.5, deckY, eavesY, bodyTopY, halfW, [], cfg, {
+    winSillY: pax.windowSillY,
+    winTopY: pax.windowTopY,
+    roofRole: 'primary'
+  });
+  batcher.addBox(0, bodyTopY + 0.09, 0, d.width * 0.58, 0.18, centerLen * 0.72, { materialRole: 'utility', layer: 'detail' });
+
+  // Ribbed accordion articulation bellows at both joints
+  for (const endSign of [-1, 1]) {
+    for (let b = 0; b < 3; b++) {
+      const bz = endSign * (jointZ - 0.22 + b * 0.22);
+      batcher.addBox(0, (deckY + bodyTopY) * 0.5, bz, d.width - 0.12 - (b % 2) * 0.06, bodyTopY - deckY - 0.16, 0.16, {
+        materialRole: 'chassisDark',
+        layer: 'body'
+      });
+    }
+  }
+
+  // Front & Rear articulated cab sections pivoted right at ±jointZ!
+  const tramSections = [];
+  const allDoors = [];
+  for (const endSign of [1, -1]) {
+    const secGrp = new THREE.Group();
+    secGrp.name = `TramSection_${endSign > 0 ? 'front' : 'rear'}`;
+    secGrp.position.set(0, 0, endSign * jointZ);
+    const sBatch = new VehicleBatcher();
+
+    const sStart = endSign > 0 ? 0.28 : -endLen - 0.28;
+    const sEnd = endSign > 0 ? endLen + 0.28 : -0.28;
+    const cabLen = 1.65;
+    const cabCutZ = endSign > 0 ? sEnd - cabLen : sStart + cabLen;
+    const passA = endSign > 0 ? sStart : cabCutZ;
+    const passB = endSign > 0 ? cabCutZ : sEnd;
+
+    const localDoors = rz.doors
+      .filter((dr) => (endSign > 0 ? dr.z > 0 : dr.z < 0))
+      .map((dr) => ({ ...dr, z: dr.z - endSign * jointZ }));
+
+    sBatch.addBox(0, deckY - 0.08, (sStart + sEnd) * 0.5, d.width - 0.06, 0.16, endLen, {
+      materialRole: 'secondary',
+      layer: 'chassis'
+    });
+    trPartAddPassengerShellWithDoors(sBatch, passA, passB, deckY, eavesY, bodyTopY, halfW, localDoors, cfg, {
+      winSillY: pax.windowSillY,
+      winTopY: pax.windowTopY,
+      roofRole: 'primary'
+    });
+
+    // Sleek angled low-floor tram cab front/rear nose
+    const tipZ = endSign > 0 ? sEnd : sStart;
+    const sBase = { z: cabCutZ, bottomY: deckY - 0.12, beltY: lerp(deckY, eavesY, 0.52), topY: bodyTopY, hwBottom: halfW, hwBelt: halfW, hwTop: halfW * 0.56 };
+    const sTip = { z: tipZ, bottomY: deckY - 0.18, beltY: deckY + 0.95, topY: bodyTopY - 0.3, hwBottom: halfW * 0.72, hwBelt: halfW * 0.68, hwTop: halfW * 0.36 };
+    sBatch.addLoftedSlices(endSign > 0 ? [sBase, sTip] : [sTip, sBase], 'secondary', 'body');
+    sBatch.addBox(0, pax.windowSillY + 0.42, tipZ - endSign * 0.42, d.width * 0.64, 1.04, 0.14, {
+      rotX: endSign * 0.32,
+      materialRole: glassRole,
+      layer: 'glass'
+    });
+
+    sBatch.finalize(secGrp, materialBundle);
+    const secDoors = trPartBuildSlidingDoorGroups(secGrp, localDoors, halfW, deckY, pax.windowSillY, cfg, materialBundle, {
+      doorRole: 'livery'
+    });
+    allDoors.push(...secDoors);
+
+    secGrp.userData = {
+      isTramSection: true,
+      endSign,
+      jointZ: endSign * jointZ
+    };
+    rootGroup.add(secGrp);
+    tramSections.push(secGrp);
+  }
+
+  // Add standard tram bogies at layout.rail.bogies + pantograph on center section
+  const customBogies = [];
+  const customWheelsets = [];
+  for (const bSpec of rz.bogies) {
+    const bg = buildRailBogieGroup(bSpec, layout, cfg, materialBundle);
+    rootGroup.add(bg);
+    customBogies.push(bg);
+    customWheelsets.push(...(bg.userData.wheelsets || []));
+  }
+
+  const pantographs = [];
+  if (rz.hasPantograph) {
+    const pGrp = trPartBuildPantographGroup('tram_main', 0, bodyTopY, 0, materialBundle, {
+      dir: 1,
+      armLen: 0.9,
+      heightFactor: cfg.railPantographHeight ?? 0.9
+    });
+    rootGroup.add(pGrp);
+    pantographs.push(pGrp);
+  }
+
+  return { doors: allDoors, pantographs, tramSections, customBogies, customWheelsets };
+}
+
+function trSpecBuildOpenTram(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const pax = rz.zones.passenger;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const clereBaseY = bodyTopY - 0.28;
+  const eavesY = clereBaseY - 0.14;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Teak deck + side boarding running steps
+  batcher.addBox(0, deckY - 0.08, 0, d.width, 0.16, d.length - 0.3, { materialRole: 'primary', layer: 'body' });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW + 0.12), deckY - 0.22, 0, 0.24, 0.06, d.length * 0.78, {
+      materialRole: 'utility',
+      layer: 'chassis'
+    });
+  }
+
+  // End bulkheads with windshields
+  for (const endSign of [-1, 1]) {
+    const ez = endSign * (halfL - 0.32);
+    batcher.addBox(0, deckY + 0.52, ez, d.width * 0.92, 1.04, 0.18, { materialRole: 'primary', layer: 'body' });
+    batcher.addBox(0, (deckY + 1.04 + eavesY) * 0.5, ez, d.width * 0.72, eavesY - deckY - 1.15, 0.06, {
+      materialRole: glassRole,
+      layer: 'glass'
+    });
+  }
+
+  // Open side brass stanchion poles + 6 cross slatted wooden benches!
+  const posts = 6;
+  const span = d.length - 1.3;
+  for (let i = 0; i < posts; i++) {
+    const pz = lerp(-span * 0.5, span * 0.5, i / (posts - 1));
+    for (const side of [-1, 1]) {
+      batcher.addCylinder(side * (halfW - 0.08), (deckY + eavesY) * 0.5, pz, 0.032, 0.032, eavesY - deckY, 8, 'y', 'livery', 'detail');
+    }
+    if (i < posts - 1) {
+      const bz = pz + span / ((posts - 1) * 2);
+      batcher.addBox(0, deckY + 0.42, bz, d.width * 0.84, 0.11, 0.46, { materialRole: 'primary', layer: 'interior' });
+      batcher.addBox(0, deckY + 0.78, bz - 0.16, d.width * 0.82, 0.58, 0.09, { materialRole: 'primary', layer: 'interior' });
+    }
+  }
+
+  // Canopy roof & clerestory deck + trolley pole
+  batcher.addLoftedSlices([
+    { z: -halfL + 0.1, bottomY: eavesY, beltY: clereBaseY - 0.04, topY: clereBaseY, hwBottom: halfW + 0.08, hwBelt: halfW * 0.86, hwTop: halfW * 0.62 },
+    { z: halfL - 0.1, bottomY: eavesY, beltY: clereBaseY - 0.04, topY: clereBaseY, hwBottom: halfW + 0.08, hwBelt: halfW * 0.86, hwTop: halfW * 0.62 }
+  ], 'secondary', 'body');
+  batcher.addBox(0, clereBaseY + 0.14, 0, d.width * 0.48, 0.26, d.length * 0.66, { materialRole: 'primary', layer: 'body' });
+  batcher.addBox(0, bodyTopY - 0.02, 0, d.width * 0.54, 0.06, d.length * 0.7, { materialRole: 'trim', layer: 'body' });
+  trPartBuildTrolleyPole(batcher, bodyTopY, -0.3, -1);
+
+  return { doors: [] };
+}
+
+function trSpecBuildStraddleMonorail(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const pax = rz.zones.passenger;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const noseLen = 2.05;
+  const noseStartZ = halfL - noseLen;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Deep slotted straddle skirts hanging below floor deck around the central guideway beam (clearing pier caps at y <= 0.28m)
+  const skirtBotY = 0.34;
+  const skirtH = deckY - skirtBotY;
+  const beamHalfClear = 0.52;
+  const skirtThick = Math.max(0.28, halfW - beamHalfClear);
+  const skirtCenterX = beamHalfClear + skirtThick * 0.5;
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * skirtCenterX, skirtBotY + skirtH * 0.5, 0, skirtThick, skirtH, d.length - 0.9, {
+      materialRole: 'secondary',
+      layer: 'body'
+    });
+    batcher.addBox(side * (halfW + 0.008), skirtBotY + 0.14, 0, 0.025, 0.12, d.length - 1.1, {
+      materialRole: 'livery',
+      layer: 'body'
+    });
+  }
+
+  trPartAddPassengerShellWithDoors(batcher, -halfL + 1.25, noseStartZ, deckY, pax.eavesY, bodyTopY, halfW, rz.doors, cfg, {
+    winSillY: pax.windowSillY,
+    winTopY: pax.windowTopY,
+    roofRole: 'primary'
+  });
+
+  // Sculpted panoramic monorail nose at +Z & aerodynamic tail at -Z
+  for (const endSign of [1, -1]) {
+    const baseZ = endSign > 0 ? noseStartZ : -halfL + 1.25;
+    const tipZ = endSign * halfL;
+    const sA = { z: baseZ, bottomY: deckY, beltY: lerp(deckY, pax.eavesY, 0.55), topY: bodyTopY, hwBottom: halfW, hwBelt: halfW, hwTop: halfW * 0.56 };
+    const sB = { z: tipZ, bottomY: deckY - 0.1, beltY: deckY + 1.0, topY: bodyTopY - 0.42, hwBottom: halfW * 0.72, hwBelt: halfW * 0.66, hwTop: halfW * 0.34 };
+    batcher.addLoftedSlices(endSign > 0 ? [sA, sB] : [sB, sA], 'secondary', 'body');
+    batcher.addBox(0, pax.windowSillY + 0.42, lerp(baseZ, tipZ, 0.62), d.width * 0.64, 0.98, 0.24, {
+      rotX: endSign * 0.38,
+      materialRole: glassRole,
+      layer: 'glass'
+    });
+  }
+
+  // Custom straddle-beam bogies with vertical load-bearing wheels (top of 1.15m beam) + horizontal side guide wheels!
+  const customBogies = [];
+  const customWheelsets = [];
+  for (const bSpec of rz.bogies) {
+    const bg = new THREE.Group();
+    bg.name = `Bogie_${bSpec.id}`;
+    bg.position.set(0, 0, bSpec.pivotZ);
+    const bBatch = new VehicleBatcher();
+    for (const side of [-1, 1]) {
+      bBatch.addBox(side * 0.56, 0.78, 0, 0.14, 0.72, bSpec.wheelbase + 0.65, { materialRole: 'chassisDark', layer: 'chassis' });
+      // Side guide wheel drums hugging the 0.85m beam flanks
+      for (const gz of [-bSpec.wheelbase * 0.38, bSpec.wheelbase * 0.38]) {
+        bBatch.addCylinder(side * 0.48, 0.52, gz, 0.18, 0.18, 0.12, 10, 'y', 'livery', 'wheel');
+      }
+    }
+    bBatch.finalize(bg, materialBundle);
+
+    const wsList = [];
+    for (let i = 0; i < bSpec.localAxleZs.length; i++) {
+      const az = bSpec.localAxleZs[i];
+      const ws = new THREE.Group();
+      ws.name = `Wheelset_${i}`;
+      ws.position.set(0, 1.15 + 0.34, az);
+      const wBatch = new VehicleBatcher();
+      wBatch.addCylinder(0, 0, 0, 0.34, 0.34, 0.42, 14, 'x', 'tire', 'wheel');
+      wBatch.addCylinder(0, 0, 0, 0.18, 0.18, 0.52, 10, 'x', 'rim', 'wheel');
+      wBatch.finalize(ws, materialBundle);
+      bg.add(ws);
+      wsList.push(ws);
+      customWheelsets.push(ws);
+    }
+    bg.userData = { pivotType: 'bogie', bogieId: bSpec.id, wheelsets: wsList };
+    rootGroup.add(bg);
+    customBogies.push(bg);
+  }
+
+  const doors = trPartBuildSlidingDoorGroups(rootGroup, rz.doors, halfW, deckY, pax.windowSillY, cfg, materialBundle, {
+    doorRole: 'livery'
+  });
+  return { doors, customBogies, customWheelsets };
+}
+
+function trSpecBuildSuspendedMonorail(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const pax = rz.zones.passenger;
+  const deckY = rz.zones.deckY;
+  const cabinRoofY = Math.min(rz.zones.bodyTopY - 1.55, deckY + 2.48);
+  const eavesY = pax.eavesY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Upper overhead running-gear bogies at y = 4.55m (gliding along the suspended steel girder)
+  const customBogies = [];
+  const customWheelsets = [];
+  const overheadRailY = 4.55;
+  for (const bSpec of rz.bogies) {
+    const bg = new THREE.Group();
+    bg.name = `Bogie_${bSpec.id}`;
+    bg.position.set(0, 0, bSpec.pivotZ);
+    const bBatch = new VehicleBatcher();
+    bBatch.addBox(0, overheadRailY + 0.08, 0, 0.92, 0.24, bSpec.wheelbase + 0.72, {
+      materialRole: 'chassisDark',
+      layer: 'chassis'
+    });
+    // Vertical steel drop neck descending beneath overhead rail beam
+    bBatch.addBox(0, lerp(cabinRoofY, overheadRailY, 0.5), 0, 0.34, overheadRailY - cabinRoofY + 0.1, 0.46, {
+      materialRole: 'utility',
+      layer: 'chassis'
+    });
+    // C-shaped curved overhead hanger bracket wrapping around roof edge
+    bBatch.addBox(-halfW * 0.24, cabinRoofY + 0.28, 0, halfW * 0.48, 0.22, 0.44, {
+      materialRole: 'utility',
+      layer: 'chassis'
+    });
+    bBatch.finalize(bg, materialBundle);
+
+    const wsList = [];
+    for (let i = 0; i < bSpec.localAxleZs.length; i++) {
+      const az = bSpec.localAxleZs[i];
+      const ws = new THREE.Group();
+      ws.name = `Wheelset_${i}`;
+      ws.position.set(0, overheadRailY + 0.2, az);
+      const wBatch = new VehicleBatcher();
+      wBatch.addCylinder(0, 0, 0, 0.055, 0.055, 0.95, 8, 'x', 'chassisDark', 'wheel');
+      for (const side of [-1, 1]) {
+        wBatch.addCylinder(side * 0.3, 0, 0, 0.26, 0.26, 0.1, 12, 'x', 'tire', 'wheel');
+        wBatch.addCylinder(side * 0.3, 0, 0, 0.14, 0.14, 0.14, 10, 'x', 'chrome', 'wheel');
+      }
+      wBatch.finalize(ws, materialBundle);
+      bg.add(ws);
+      wsList.push(ws);
+      customWheelsets.push(ws);
+    }
+    bg.userData = { pivotType: 'bogie', bogieId: bSpec.id, wheelsets: wsList };
+    rootGroup.add(bg);
+    customBogies.push(bg);
+  }
+
+  // Hanging Cabin Suspension Pivot Group at y = cabinRoofY (so cabin swings gently as a real pendulum!)
+  const cabinPivot = new THREE.Group();
+  cabinPivot.name = 'CabinSuspension';
+  cabinPivot.position.set(0, cabinRoofY, 0);
+  const cBatch = new VehicleBatcher();
+  const relDeckY = deckY - cabinRoofY;
+  const relEavesY = eavesY - cabinRoofY;
+  const relWinSillY = pax.windowSillY - cabinRoofY;
+  const relWinTopY = pax.windowTopY - cabinRoofY;
+
+  // Suspension mounting bolster bar atop hanging cabin roof
+  cBatch.addBox(0, 0.08, 0, 0.68, 0.18, d.length * 0.68, { materialRole: 'utility', layer: 'chassis' });
+
+  const localDoors = rz.doors.map((dr) => ({ ...dr, sillY: dr.sillY - cabinRoofY }));
+  const noseLen = 1.35;
+  trPartAddPassengerShellWithDoors(cBatch, -halfL + noseLen, halfL - noseLen, relDeckY, relEavesY, 0, halfW, localDoors, cfg, {
+    winSillY: relWinSillY,
+    winTopY: relWinTopY,
+    roofRole: 'secondary'
+  });
+
+  // Tapered front & rear panoramic skytrain noses
+  for (const endSign of [1, -1]) {
+    const baseZ = endSign * (halfL - noseLen);
+    const tipZ = endSign * halfL;
+    const sA = { z: baseZ, bottomY: relDeckY, beltY: lerp(relDeckY, relEavesY, 0.55), topY: 0, hwBottom: halfW, hwBelt: halfW, hwTop: halfW * 0.56 };
+    const sB = { z: tipZ, bottomY: relDeckY + 0.08, beltY: lerp(relDeckY, 0, 0.45), topY: -0.28, hwBottom: halfW * 0.72, hwBelt: halfW * 0.68, hwTop: halfW * 0.36 };
+    cBatch.addLoftedSlices(endSign > 0 ? [sA, sB] : [sB, sA], 'primary', 'body');
+    cBatch.addBox(0, (relWinSillY + relWinTopY) * 0.5, lerp(baseZ, tipZ, 0.58), d.width * 0.64, (relWinTopY - relWinSillY) * 0.92, 0.2, {
+      rotX: endSign * 0.25,
+      materialRole: glassRole,
+      layer: 'glass'
+    });
+  }
+
+  cBatch.finalize(cabinPivot, materialBundle);
+  const doors = trPartBuildSlidingDoorGroups(cabinPivot, localDoors, halfW, relDeckY, relWinSillY, cfg, materialBundle, {
+    doorRole: 'livery'
+  });
+  rootGroup.add(cabinPivot);
+
+  return { doors, cabinPivot, customBogies, customWheelsets };
+}
+
+function trSpecBuildAerialGondola(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const deckY = rz.zones.deckY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const cabinRoofY = Math.min(3.75, deckY + 2.15);
+  const cableY = 4.85;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Overhead Detachable Cable Grip & Haul-Rope Sheave Truck at y = cableY (4.85m)
+  const customBogies = [];
+  const customWheelsets = [];
+  const gripGrp = new THREE.Group();
+  gripGrp.name = 'Bogie_front';
+  const gBatch = new VehicleBatcher();
+  gBatch.addBox(0, cableY + 0.05, 0, 0.24, 0.18, 0.92, { materialRole: 'utility', layer: 'chassis' });
+  gBatch.addBox(0, cableY - 0.14, 0, 0.14, 0.26, 0.22, { materialRole: 'chassisDark', layer: 'chassis' });
+  // Swept C-arm steel hanger struts joining cable grip (0, cableY - 0.12) via outer elbow to cabin roof bolster (0, cabinRoofY + 0.08)
+  const addHangerStrut = (x1, y1, x2, y2) => {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const len = Math.hypot(dx, dy) + 0.08;
+    gBatch.addBox((x1 + x2) * 0.5, (y1 + y2) * 0.5, 0, 0.11, len, 0.12, {
+      rotZ: -Math.atan2(dx, dy),
+      materialRole: 'utility',
+      layer: 'chassis'
+    });
+  };
+  const elbowX = halfW * 0.88;
+  const elbowY = lerp(cabinRoofY + 0.08, cableY - 0.14, 0.52);
+  addHangerStrut(0, cabinRoofY + 0.08, elbowX, elbowY);
+  addHangerStrut(elbowX, elbowY, 0, cableY - 0.12);
+  gBatch.addBox(elbowX, elbowY, 0, 0.14, 0.14, 0.14, { materialRole: 'utility', layer: 'chassis' });
+  gBatch.addBox(0, cabinRoofY + 0.08, 0, halfW * 0.85, 0.14, 0.28, { materialRole: 'utility', layer: 'chassis' });
+  gBatch.finalize(gripGrp, materialBundle);
+
+  const wsList = [];
+  for (const [idx, sz] of [-0.34, 0.34].entries()) {
+    const ws = new THREE.Group();
+    ws.name = `Wheelset_${idx}`;
+    ws.position.set(0, cableY + 0.08, sz);
+    const wBatch = new VehicleBatcher();
+    wBatch.addCylinder(0, 0, 0, 0.16, 0.16, 0.08, 12, 'x', 'chrome', 'wheel');
+    wBatch.finalize(ws, materialBundle);
+    gripGrp.add(ws);
+    wsList.push(ws);
+    customWheelsets.push(ws);
+  }
+  gripGrp.userData = { pivotType: 'bogie', bogieId: 'front', wheelsets: wsList };
+  rootGroup.add(gripGrp);
+  customBogies.push(gripGrp);
+
+  // Hanging Gondola Cabin Suspension Pivot at y = cabinRoofY
+  const cabinPivot = new THREE.Group();
+  cabinPivot.name = 'CabinSuspension';
+  cabinPivot.position.set(0, cabinRoofY, 0);
+  const cBatch = new VehicleBatcher();
+  const relDeck = deckY - cabinRoofY;
+  const relBelt = relDeck + 0.82;
+  const relRoof = 0;
+
+  // Faceted panoramic gondola hull (lower painted tub + roof crown)
+  cBatch.addLoftedSlices([
+    { z: -halfL + 0.12, bottomY: relDeck, beltY: lerp(relDeck, relBelt, 0.6), topY: relBelt, hwBottom: halfW * 0.68, hwBelt: halfW * 0.86, hwTop: halfW * 0.88 },
+    { z: -halfL * 0.45, bottomY: relDeck - 0.04, beltY: lerp(relDeck, relBelt, 0.6), topY: relBelt, hwBottom: halfW * 0.86, hwBelt: halfW, hwTop: halfW },
+    { z: halfL * 0.45, bottomY: relDeck - 0.04, beltY: lerp(relDeck, relBelt, 0.6), topY: relBelt, hwBottom: halfW * 0.86, hwBelt: halfW, hwTop: halfW },
+    { z: halfL - 0.12, bottomY: relDeck, beltY: lerp(relDeck, relBelt, 0.6), topY: relBelt, hwBottom: halfW * 0.68, hwBelt: halfW * 0.86, hwTop: halfW * 0.88 }
+  ], 'primary', 'body');
+
+  // Roof cap & vent pod
+  cBatch.addLoftedSlices([
+    { z: -halfL + 0.25, bottomY: relRoof - 0.16, beltY: relRoof - 0.06, topY: relRoof, hwBottom: halfW * 0.78, hwBelt: halfW * 0.68, hwTop: halfW * 0.48 },
+    { z: halfL - 0.25, bottomY: relRoof - 0.16, beltY: relRoof - 0.06, topY: relRoof, hwBottom: halfW * 0.78, hwBelt: halfW * 0.68, hwTop: halfW * 0.48 }
+  ], 'secondary', 'body');
+
+  // Corner window mullions + side panoramic glass split cleanly around the central doorway
+  const winH = relRoof - 0.16 - relBelt;
+  const winMidY = relBelt + winH * 0.5;
+  const doorHalfSpan = (rz.doors[0]?.width || 0.92) * 0.5 + 0.03;
+  const paneOuterZ = halfL * 0.65;
+  const sidePaneLen = Math.max(0.18, paneOuterZ - doorHalfSpan);
+  const sidePaneCenterZ = (paneOuterZ + doorHalfSpan) * 0.5;
+  for (const sx of [-1, 1]) {
+    for (const sz of [-1, 1]) {
+      cBatch.addBox(sx * (halfW * 0.84), winMidY, sz * paneOuterZ, 0.1, winH + 0.05, 0.1, {
+        materialRole: 'trim',
+        layer: 'body'
+      });
+      cBatch.addBox(sx * (halfW * 0.88), winMidY, sz * doorHalfSpan, 0.05, winH + 0.03, 0.05, {
+        materialRole: 'trim',
+        layer: 'body'
+      });
+      cBatch.addBox(sx * (halfW * 0.9), winMidY, sz * sidePaneCenterZ, 0.04, winH * 0.92, sidePaneLen, {
+        materialRole: glassRole,
+        layer: 'glass'
+      });
+    }
+  }
+  for (const sz of [-1, 1]) {
+    cBatch.addBox(0, winMidY, sz * (halfL * 0.78), d.width * 0.72, winH * 0.92, 0.04, {
+      materialRole: glassRole,
+      layer: 'glass'
+    });
+  }
+
+  // Interior facing benches inside gondola cabin
+  if (cfg.railInteriorEnabled) {
+    for (const sz of [-halfL * 0.46, halfL * 0.46]) {
+      cBatch.addBox(0, relDeck + 0.36, sz, d.width * 0.66, 0.12, 0.42, { materialRole: 'secondary', layer: 'interior' });
+    }
+  }
+
+  cBatch.finalize(cabinPivot, materialBundle);
+  const localDoors = rz.doors.map((dr) => ({ ...dr, sillY: dr.sillY - cabinRoofY, height: Math.min(dr.height, winH + 0.72) }));
+  const doors = trPartBuildSlidingDoorGroups(cabinPivot, localDoors, halfW * 0.94, relDeck, relBelt, cfg, materialBundle, {
+    doorRole: 'livery'
+  });
+  rootGroup.add(cabinPivot);
+
+  return { doors, cabinPivot, customBogies, customWheelsets };
+}
+
+  // --- Module: transit/rail-body.js ---
+function trBodyAddStirrupStep(batcher, x, deckY, z) {
+  batcher.addBox(x, deckY - 0.24, z, 0.035, 0.36, 0.035, { materialRole: 'chassisDark', layer: 'chassis' });
+  batcher.addBox(x, deckY - 0.24, z + 0.14, 0.035, 0.36, 0.035, { materialRole: 'chassisDark', layer: 'chassis' });
+  batcher.addBox(x, deckY - 0.42, z + 0.07, 0.04, 0.035, 0.18, { materialRole: 'utility', layer: 'chassis' });
+}
+
+function trBodyAddHandbrakeWheel(batcher, x, y, z) {
+  batcher.addBox(x, y - 0.14, z, 0.11, 0.24, 0.09, { materialRole: 'utility', layer: 'detail' });
+  batcher.addCylinder(x, y, z - 0.06, 0.21, 0.21, 0.032, 10, 'z', 'livery', 'detail');
+  batcher.addBox(x, y, z - 0.065, 0.38, 0.03, 0.025, { materialRole: 'utility', layer: 'detail' });
+  batcher.addBox(x, y, z - 0.065, 0.03, 0.38, 0.025, { materialRole: 'utility', layer: 'detail' });
+}
+
+function trBodyAddSideLadder(batcher, side, xPos, yBot, yTop, zCenter, width = 0.38) {
+  const h = Math.max(0.4, yTop - yBot);
+  const midY = (yBot + yTop) * 0.5;
+  const railX = xPos + side * 0.035;
+  for (const dz of [-width * 0.5, width * 0.5]) {
+    batcher.addBox(railX, midY, zCenter + dz, 0.026, h, 0.026, { materialRole: 'utility', layer: 'detail' });
+  }
+  const rungs = Math.max(3, Math.floor(h / 0.34));
+  for (let i = 0; i <= rungs; i++) {
+    const ry = lerp(yBot + 0.12, yTop - 0.1, i / Math.max(1, rungs));
+    batcher.addBox(railX, ry, zCenter, 0.024, 0.024, width, { materialRole: 'utility', layer: 'detail' });
+  }
+}
+
+function trBodyAddHandrailSpan(batcher, x1, y1, z1, x2, y2, z2, railRole = 'livery', postRole = 'utility', postSpacing = 1.15) {
+  const dx = x2 - x1;
+  const dz = z2 - z1;
+  const spanLen = Math.hypot(dx, dz);
+  if (spanLen < 0.08) return;
+  const yaw = Math.atan2(dx, dz);
+  const mx = (x1 + x2) * 0.5;
+  const mz = (z1 + z2) * 0.5;
+  const topY = (y1 + y2) * 0.5 + 0.96;
+  const midY = (y1 + y2) * 0.5 + 0.52;
+
+  batcher.addBox(mx, topY, mz, 0.03, 0.032, spanLen, { rotY: yaw, materialRole: railRole, layer: 'detail' });
+  batcher.addBox(mx, midY, mz, 0.024, 0.024, spanLen, { rotY: yaw, materialRole: postRole, layer: 'detail' });
+
+  const posts = Math.max(2, Math.round(spanLen / postSpacing) + 1);
+  for (let i = 0; i < posts; i++) {
+    const t = posts === 1 ? 0.5 : i / (posts - 1);
+    const px = lerp(x1, x2, t);
+    const py = lerp(y1, y2, t);
+    const pz = lerp(z1, z2, t);
+    batcher.addBox(px, py + 0.49, pz, 0.028, 0.98, 0.028, { materialRole: postRole, layer: 'detail' });
+  }
+}
+
+function trBodyAddLiveryStripe(batcher, halfW, y, zStart, zEnd, height = 0.16, role = 'livery') {
+  const len = zEnd - zStart;
+  if (len <= 0.1) return;
+  const cz = (zStart + zEnd) * 0.5;
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW + 0.008), y, cz, 0.02, height, len, {
+      materialRole: role,
+      layer: 'body'
+    });
+  }
+}
+
+function trBodyAddWindowPane(batcher, cx, cy, cz, w, h, d, glassRole = 'glass') {
+  batcher.addBox(cx, cy, cz, w, h, d, {
+    materialRole: glassRole,
+    layer: 'glass'
+  });
+}
+
+function trBodyBuildLocomotive(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const deckY = rz.zones.deckY;
+  const loco = rz.zones.loco;
+  const halfW = d.halfWidth;
+  const length = d.length;
+  const isSwitcher = cfg.bodyFamily === 'rail_diesel_switcher';
+
+  // 1. Heavy locomotive frame sill & deck plate
+  const frameH = 0.24;
+  const frameMidY = deckY - frameH * 0.5;
+  batcher.addBox(0, frameMidY, 0, d.width, frameH, length, {
+    materialRole: 'secondary',
+    layer: 'chassis'
+  });
+  // Side sill safety band
+  trBodyAddLiveryStripe(batcher, halfW, frameMidY, -length * 0.49, length * 0.49, 0.09, 'livery');
+
+  // Hazard chevrons on switcher end sills
+  if (cfg.railLiveryPattern === 'hazard_switcher') {
+    for (const endSign of [-1, 1]) {
+      const ez = endSign * (length * 0.5 + 0.01);
+      for (let i = -3; i <= 3; i++) {
+        batcher.addBox(i * 0.36, frameMidY, ez, 0.18, frameH * 0.85, 0.02, {
+          materialRole: (i & 1) === 0 ? 'livery' : 'primary',
+          layer: 'detail'
+        });
+      }
+    }
+  }
+
+  // 2. Front & Rear Snowplow Pilots + Corner Step Wells
+  for (const endSign of [-1, 1]) {
+    const endZ = endSign * (length * 0.5);
+    const pilotTopY = deckY - frameH;
+    const pilotBotY = Math.max(0.24, rz.zones.underbodyClearanceY - 0.04);
+    const pilotH = Math.max(0.32, pilotTopY - pilotBotY);
+    const pilotMidY = pilotBotY + pilotH * 0.5;
+
+    if (!isSwitcher) {
+      // V-shaped snowplow pilot blades
+      for (const side of [-1, 1]) {
+        batcher.addBox(side * (halfW * 0.36), pilotMidY, endZ - endSign * 0.08, halfW * 0.78, pilotH, 0.08, {
+          rotY: -endSign * side * 0.38,
+          materialRole: 'chassisDark',
+          layer: 'chassis'
+        });
+      }
+      // Central coupler pocket cutout reinforcement
+      batcher.addBox(0, pilotMidY + 0.06, endZ - endSign * 0.18, 0.56, pilotH * 0.78, 0.18, {
+        materialRole: 'chassisDark',
+        layer: 'chassis'
+      });
+    } else {
+      // Switcher stepped end footboards
+      batcher.addBox(0, pilotBotY + 0.08, endZ - endSign * 0.06, d.width * 0.88, 0.16, 0.16, {
+        materialRole: 'chassisDark',
+        layer: 'chassis'
+      });
+    }
+
+    // Corner boarding steps on both sides at front and rear
+    for (const side of [-1, 1]) {
+      const stepX = side * (halfW - 0.16);
+      const stepZ = endZ - endSign * 0.34;
+      batcher.addBox(stepX, deckY - 0.44, stepZ, 0.28, 0.05, 0.38, { materialRole: 'utility', layer: 'chassis' });
+      batcher.addBox(stepX, deckY - 0.68, stepZ, 0.28, 0.05, 0.34, { materialRole: 'utility', layer: 'chassis' });
+      batcher.addBox(side * (halfW - 0.02), deckY - 0.44, stepZ, 0.04, 0.52, 0.38, { materialRole: 'chassisDark', layer: 'chassis' });
+    }
+  }
+
+  // 3. Underslung Diesel Fuel Tank & Air Reservoirs
+  const ft = rz.zones.fuelTank;
+  if (ft) {
+    const ftH = Math.max(0.45, ft.topY - ft.bottomY);
+    const ftMidY = ft.bottomY + ftH * 0.5;
+    batcher.addBox(0, ftMidY, (ft.startZ + ft.endZ) * 0.5, ft.width, ftH, ft.length, {
+      materialRole: 'chassisDark',
+      layer: 'chassis'
+    });
+    // Side fuel gauge sight glass & filler cap
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (ft.width * 0.5 + 0.02), ftMidY + 0.06, 0, 0.05, 0.22, ft.length * 0.72, {
+        materialRole: 'utility',
+        layer: 'chassis'
+      });
+      batcher.addCylinder(side * (ft.width * 0.42), ft.topY - 0.04, ft.startZ + 0.42, 0.15, 0.15, ft.length * 0.56, 10, 'z', 'utility', 'chassis');
+    }
+  }
+
+  // 4. Short Nose (if present)
+  if (loco.shortNose && loco.shortNose.length > 0.35) {
+    const sn = loco.shortNose;
+    const snLen = sn.length;
+    const snMidZ = (sn.startZ + sn.endZ) * 0.5;
+    const snTopY = loco.shortNoseRoofY;
+    const snH = Math.max(0.9, snTopY - deckY);
+    const noseW = cfg.railNoseSlope === 'flat_switcher' ? loco.hoodWidth : d.width * 0.92;
+    const noseHalfW = noseW * 0.5;
+
+    batcher.addLoftedSlices([
+      {
+        z: sn.startZ,
+        bottomY: deckY,
+        beltY: lerp(deckY, snTopY, 0.7),
+        topY: snTopY,
+        hwBottom: noseHalfW,
+        hwBelt: noseHalfW,
+        hwTop: noseHalfW * 0.88,
+        chamferBot: 0.02,
+        chamferTop: 0.1
+      },
+      {
+        z: sn.endZ,
+        bottomY: deckY,
+        beltY: lerp(deckY, snTopY - 0.08, 0.72),
+        topY: snTopY - (cfg.railNoseSlope === 'low_sloped' ? 0.14 : 0.04),
+        hwBottom: noseHalfW * 0.96,
+        hwBelt: noseHalfW * 0.96,
+        hwTop: noseHalfW * 0.82,
+        chamferBot: 0.02,
+        chamferTop: 0.12
+      }
+    ], 'primary', 'body');
+
+    // Nose side stripes & front nose door
+    trBodyAddLiveryStripe(batcher, noseHalfW * 0.96, deckY + snH * 0.5, sn.startZ + 0.08, sn.endZ - 0.08, 0.18, 'livery');
+    batcher.addBox(0, deckY + snH * 0.46, sn.endZ + 0.015, 0.58, snH * 0.74, 0.03, {
+      materialRole: 'secondary',
+      layer: 'detail'
+    });
+    // Anti-climber nose rib
+    batcher.addBox(0, deckY + 0.06, sn.endZ + 0.06, noseW * 0.92, 0.11, 0.12, {
+      materialRole: 'utility',
+      layer: 'chassis'
+    });
+  }
+
+  // 5. Locomotive Cab
+  if (loco.cab) {
+    const cab = loco.cab;
+    const cabLen = cab.length;
+    const cabMidZ = (cab.startZ + cab.endZ) * 0.5;
+    const cabTopY = loco.cabRoofY;
+    const cabH = Math.max(1.8, cabTopY - deckY);
+    const cabW = d.width * 0.96;
+    const cabHalfW = cabW * 0.5;
+    const cabShoulderY = cabTopY - 0.26;
+    const cabFloorThick = 0.12;
+
+    // Lower cab body below window belt
+    const winBotY = Math.max(loco.shortNoseRoofY + 0.04, deckY + cabH * 0.48);
+    const winTopY = cabShoulderY - 0.1;
+    const lowerCabH = winBotY - deckY;
+    batcher.addBox(0, deckY + lowerCabH * 0.5, cabMidZ, cabW, lowerCabH, cabLen, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+
+    // Cab corner & center pillars framing windows
+    const pThick = 0.18;
+    const winH = Math.max(0.45, winTopY - winBotY);
+    const winMidY = (winBotY + winTopY) * 0.5;
+    for (const sx of [-1, 1]) {
+      for (const sz of [-1, 1]) {
+        batcher.addBox(sx * (cabHalfW - pThick * 0.5), winMidY, cabMidZ + sz * (cabLen * 0.5 - pThick * 0.5), pThick, winH + 0.04, pThick, {
+          materialRole: 'primary',
+          layer: 'body'
+        });
+      }
+      // Side window vertical mullion
+      batcher.addBox(sx * (cabHalfW - 0.04), winMidY, cabMidZ, 0.09, winH, 0.14, {
+        materialRole: 'primary',
+        layer: 'body'
+      });
+    }
+    // Center front/rear windshield mullions
+    for (const sz of [-1, 1]) {
+      batcher.addBox(0, winMidY, cabMidZ + sz * (cabLen * 0.5 - 0.05), 0.14, winH, 0.1, {
+        materialRole: 'primary',
+        layer: 'body'
+      });
+    }
+
+    // Cab ceiling / pitched roof crown
+    batcher.addLoftedSlices([
+      {
+        z: cab.startZ,
+        bottomY: winTopY,
+        beltY: cabShoulderY,
+        topY: cabTopY,
+        hwBottom: cabHalfW,
+        hwBelt: cabHalfW,
+        hwTop: cabHalfW * 0.72,
+        chamferBot: 0.01,
+        chamferTop: 0.12
+      },
+      {
+        z: cab.endZ,
+        bottomY: winTopY,
+        beltY: cabShoulderY,
+        topY: cabTopY,
+        hwBottom: cabHalfW,
+        hwBelt: cabHalfW,
+        hwTop: cabHalfW * 0.72,
+        chamferBot: 0.01,
+        chamferTop: 0.12
+      }
+    ], 'primary', 'body');
+
+    // Roof secondary paint cap & cab sun visors
+    batcher.addBox(0, cabTopY - 0.02, cabMidZ, cabW * 0.7, 0.07, cabLen * 0.94, {
+      materialRole: 'secondary',
+      layer: 'body'
+    });
+    for (const sz of [-1, 1]) {
+      batcher.addBox(0, winTopY + 0.03, cabMidZ + sz * (cabLen * 0.5 + 0.09), cabW * 0.88, 0.04, 0.2, {
+        rotX: sz * 0.2,
+        materialRole: 'trim',
+        layer: 'detail'
+      });
+    }
+
+    // Cab glazing (translucent when interior enabled so control desk shows)
+    const cabGlassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+    for (const sz of [-1, 1]) {
+      const wz = cabMidZ + sz * (cabLen * 0.5 - 0.02);
+      for (const sx of [-1, 1]) {
+        trBodyAddWindowPane(batcher, sx * (cabHalfW * 0.48), winMidY, wz, cabHalfW * 0.68, winH * 0.84, 0.04, cabGlassRole);
+      }
+    }
+    for (const sx of [-1, 1]) {
+      const wx = sx * (cabHalfW - 0.03);
+      for (const subZ of [-cabLen * 0.22, cabLen * 0.22]) {
+        trBodyAddWindowPane(batcher, wx, winMidY, cabMidZ + subZ, 0.04, winH * 0.84, cabLen * 0.32, cabGlassRole);
+      }
+    }
+
+    // Cab side livery stripe
+    trBodyAddLiveryStripe(batcher, cabHalfW, deckY + lowerCabH * 0.58, cab.startZ + 0.04, cab.endZ - 0.04, 0.18, 'livery');
+
+    // Simplified Engineer Cab Interior (control desk + 2 seats)
+    if (cfg.railInteriorEnabled) {
+      batcher.addBox(0, deckY + cabFloorThick * 0.5, cabMidZ, cabW * 0.86, cabFloorThick, cabLen * 0.86, {
+        materialRole: 'interiorDark',
+        layer: 'interior'
+      });
+      batcher.addBox(0.45, deckY + 0.52, cabMidZ + (loco.cabPosition === 'rear' ? 0.55 : 0.45), 0.78, 0.72, 0.52, {
+        materialRole: 'trim',
+        layer: 'interior'
+      });
+      for (const sx of [-0.55, 0.55]) {
+        batcher.addBox(sx, deckY + 0.48, cabMidZ - 0.25, 0.44, 0.14, 0.42, { materialRole: 'secondary', layer: 'interior' });
+        batcher.addBox(sx, deckY + 0.82, cabMidZ - 0.42, 0.42, 0.56, 0.1, { materialRole: 'secondary', layer: 'interior' });
+      }
+    }
+  }
+
+  // 6. Narrower Long Engine Hood with Walkways, Louver Grilles, Exhausts & Radiator Fans
+  if (loco.longHood && loco.longHood.length > 0.5) {
+    const lh = loco.longHood;
+    const lhLen = lh.length;
+    const lhMidZ = (lh.startZ + lh.endZ) * 0.5;
+    const hoodW = loco.hoodWidth;
+    const hoodHalfW = hoodW * 0.5;
+    const hoodTopY = loco.longHoodRoofY;
+    const hoodH = hoodTopY - deckY;
+
+    batcher.addLoftedSlices([
+      {
+        z: lh.startZ,
+        bottomY: deckY,
+        beltY: lerp(deckY, hoodTopY, 0.8),
+        topY: hoodTopY,
+        hwBottom: hoodHalfW,
+        hwBelt: hoodHalfW,
+        hwTop: hoodHalfW * 0.78,
+        chamferBot: 0.01,
+        chamferTop: 0.14
+      },
+      {
+        z: lh.endZ,
+        bottomY: deckY,
+        beltY: lerp(deckY, hoodTopY, 0.8),
+        topY: hoodTopY,
+        hwBottom: hoodHalfW,
+        hwBelt: hoodHalfW,
+        hwTop: hoodHalfW * 0.78,
+        chamferBot: 0.01,
+        chamferTop: 0.14
+      }
+    ], 'primary', 'body');
+
+    // Dynamic brake blister on road-switcher hood
+    if (!isSwitcher && lhLen > 3.2) {
+      const dbZ = lerp(lh.startZ, lh.endZ, loco.cabPosition === 'forward' ? 0.74 : 0.35);
+      batcher.addBox(0, hoodTopY - 0.48, dbZ, hoodW + 0.24, 0.62, Math.min(2.4, lhLen * 0.32), {
+        materialRole: 'primary',
+        layer: 'body'
+      });
+    }
+
+    // Engine hood side livery band
+    trBodyAddLiveryStripe(batcher, hoodHalfW, deckY + hoodH * 0.42, lh.startZ + 0.1, lh.endZ - 0.1, 0.18, 'livery');
+
+    // Engine compartment door seams & upper side radiator intake grilles
+    const bays = Math.max(3, Math.floor(lhLen / 1.15));
+    for (let i = 0; i < bays; i++) {
+      const bz = lerp(lh.startZ + 0.55, lh.endZ - 0.55, i / Math.max(1, bays - 1));
+      for (const side of [-1, 1]) {
+        batcher.addBox(side * (hoodHalfW + 0.01), deckY + hoodH * 0.36, bz, 0.018, hoodH * 0.58, 0.04, {
+          materialRole: 'trim',
+          layer: 'detail'
+        });
+        if (i < 2 || (isSwitcher && i === 0)) {
+          // Dark louvered radiator grille panels near rear/radiator end
+          batcher.addBox(side * (hoodHalfW + 0.012), hoodTopY - 0.58, bz, 0.025, 0.64, 0.82, {
+            materialRole: 'chassisDark',
+            layer: 'detail'
+          });
+        }
+      }
+    }
+
+    // Front/Rear radiator end screen
+    const radEndZ = loco.cabPosition === 'rear' ? lh.endZ + 0.015 : lh.startZ - 0.015;
+    batcher.addBox(0, deckY + hoodH * 0.55, radEndZ, hoodW * 0.68, hoodH * 0.52, 0.03, {
+      materialRole: 'chassisDark',
+      layer: 'detail'
+    });
+
+    // Roof radiator fans & diesel exhaust stacks
+    if (cfg.railRoofEquipment === 'diesel_radiator') {
+      const fanCount = isSwitcher ? 1 : 3;
+      const fanDir = loco.cabPosition === 'rear' ? 0.72 : 0.24;
+      for (let f = 0; f < fanCount; f++) {
+        const fz = lerp(lh.startZ + 0.9, lh.endZ - 0.9, clamp(fanDir + f * 0.13, 0.12, 0.88));
+        batcher.addCylinder(0, hoodTopY + 0.08, fz, 0.48, 0.52, 0.16, 12, 'y', 'secondary', 'detail');
+        batcher.addCylinder(0, hoodTopY + 0.165, fz, 0.39, 0.39, 0.03, 12, 'y', 'chassisDark', 'detail');
+      }
+    }
+
+    const exhCount = clamp(Math.round(cfg.railExhaustCount), 0, 3);
+    for (let e = 0; e < exhCount; e++) {
+      const ez = lerp(lh.startZ + 1.2, lh.endZ - 1.2, clamp(0.48 + e * 0.15, 0.2, 0.85));
+      batcher.addCylinder(0, hoodTopY + 0.14, ez, 0.11, 0.13, 0.28, 10, 'y', 'chassisDark', 'detail');
+    }
+  }
+
+  // 7. Walkway Safety Handrails & End Stanchions
+  if (cfg.railHandrails) {
+    const railX = halfW - 0.06;
+    const endZ = length * 0.5 - 0.06;
+    for (const side of [-1, 1]) {
+      // Side walkway safety rails (broken around full-width cab)
+      if (loco.cab) {
+        const rearLen = loco.cab.startZ - (-endZ);
+        if (rearLen > 0.6) {
+          trBodyAddHandrailSpan(batcher, side * railX, deckY, -endZ, side * railX, deckY, loco.cab.startZ - 0.06);
+        }
+        const frontLen = endZ - loco.cab.endZ;
+        if (frontLen > 0.6) {
+          trBodyAddHandrailSpan(batcher, side * railX, deckY, loco.cab.endZ + 0.06, side * railX, deckY, endZ);
+        }
+      } else {
+        trBodyAddHandrailSpan(batcher, side * railX, deckY, -endZ, side * railX, deckY, endZ);
+      }
+
+      // End platform railings leaving central gangway gap
+      trBodyAddHandrailSpan(batcher, side * railX, deckY, endZ, side * 0.48, deckY, endZ, 'livery', 'utility', 0.5);
+      trBodyAddHandrailSpan(batcher, side * railX, deckY, -endZ, side * 0.48, deckY, -endZ, 'livery', 'utility', 0.5);
+    }
+  }
+
+  return { doors: [] };
+}
+
+function trBodyBuildBoxcar(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const box = rz.zones.boxcar;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const eavesY = box.eavesY;
+  const halfW = d.halfWidth;
+  const wallH = eavesY - deckY;
+  const doorW = box.doorWidth;
+  const halfDoorW = doorW * 0.5;
+  const bodyLen = box.bodyEndZ - box.bodyStartZ;
+
+  // Underframe center sill, bolsters, end sills & air brake cylinder
+  batcher.addBox(0, deckY - 0.14, 0, 0.42, 0.28, d.length, { materialRole: 'chassisDark', layer: 'chassis' });
+  for (const bogie of rz.bogies) {
+    batcher.addBox(0, deckY - 0.12, bogie.pivotZ, d.width * 0.9, 0.18, 0.34, { materialRole: 'chassisDark', layer: 'chassis' });
+  }
+  for (const endSign of [-1, 1]) {
+    batcher.addBox(0, deckY - 0.12, endSign * (d.length * 0.5 - 0.14), d.width, 0.24, 0.28, {
+      materialRole: 'primary',
+      layer: 'chassis'
+    });
+    for (const side of [-1, 1]) {
+      trBodyAddStirrupStep(batcher, side * (halfW - 0.08), deckY, endSign * (d.length * 0.5 - 0.46));
+    }
+  }
+  batcher.addCylinder(0.45, deckY - 0.24, 1.4, 0.16, 0.16, 0.85, 10, 'z', 'chassisDark', 'chassis');
+
+  // Interior timber floor deck & dark inner shell (visible when sliding door opens)
+  batcher.addBox(0, deckY + 0.04, 0, d.width - 0.16, 0.08, bodyLen - 0.12, {
+    materialRole: 'secondary',
+    layer: 'interior'
+  });
+  batcher.addBox(0, deckY + wallH * 0.5, 0, d.width - 0.34, wallH - 0.12, bodyLen - 0.24, {
+    materialRole: 'interiorDark',
+    layer: 'interior'
+  });
+
+  // Interior freight crates visible through open door
+  const crateRng = rng32((cfg.seed || 7421) + 33);
+  for (let c = 0; c < 3; c++) {
+    const cz = -0.8 + c * 0.82;
+    const cw = 0.72 + crateRng() * 0.35;
+    const ch = 0.68 + crateRng() * 0.55;
+    batcher.addBox((c % 2 === 0 ? -0.32 : 0.28), deckY + 0.08 + ch * 0.5, cz, cw, ch, 0.68, {
+      materialRole: c === 1 ? 'livery' : 'utility',
+      layer: 'interior'
+    });
+  }
+
+  // Split side walls around center sliding doorway + overhead header lintel
+  const segThickness = 0.14;
+  const sideWallX = halfW - segThickness * 0.5;
+  const rearSegLen = Math.max(0.5, -halfDoorW - box.bodyStartZ);
+  const rearSegZ = (box.bodyStartZ - halfDoorW) * 0.5;
+  const frontSegLen = Math.max(0.5, box.bodyEndZ - halfDoorW);
+  const frontSegZ = (box.bodyEndZ + halfDoorW) * 0.5;
+  const headerH = 0.28;
+
+  for (const side of [-1, 1]) {
+    const sx = side * sideWallX;
+    batcher.addBox(sx, deckY + wallH * 0.5, rearSegZ, segThickness, wallH, rearSegLen, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+    batcher.addBox(sx, deckY + wallH * 0.5, frontSegZ, segThickness, wallH, frontSegLen, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+    // Header lintel above doorway
+    batcher.addBox(sx, eavesY - headerH * 0.5, 0, segThickness, headerH, doorW, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+    // Door upper & lower guide rails spanning doorway + slide zone
+    batcher.addBox(side * (halfW + 0.03), eavesY - 0.12, halfDoorW * 0.65, 0.07, 0.08, doorW * 1.95, {
+      materialRole: 'trim',
+      layer: 'detail'
+    });
+    batcher.addBox(side * (halfW + 0.03), deckY + 0.06, halfDoorW * 0.65, 0.07, 0.08, doorW * 1.95, {
+      materialRole: 'trim',
+      layer: 'detail'
+    });
+  }
+
+  // Exterior structural steel side posts & corrugated end walls
+  for (const zSpan of [[box.bodyStartZ + 0.18, -halfDoorW - 0.14], [halfDoorW + 0.14, box.bodyEndZ - 0.18]]) {
+    const ribCount = 5;
+    for (let i = 0; i < ribCount; i++) {
+      const rzPos = lerp(zSpan[0], zSpan[1], i / (ribCount - 1));
+      for (const side of [-1, 1]) {
+        batcher.addBox(side * (halfW + 0.018), deckY + wallH * 0.5, rzPos, 0.055, wallH - 0.06, 0.09, {
+          materialRole: 'primary',
+          layer: 'body'
+        });
+      }
+    }
+  }
+
+  // End walls with horizontal corrugation ribs
+  for (const endSign of [-1, 1]) {
+    const ez = endSign * (d.length * 0.5 - 0.34);
+    batcher.addBox(0, deckY + wallH * 0.5, ez, d.width - 0.08, wallH, 0.16, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+    for (let rIdx = 0; rIdx < 6; rIdx++) {
+      const ry = lerp(deckY + 0.35, eavesY - 0.25, rIdx / 5);
+      batcher.addBox(0, ry, ez + endSign * 0.09, d.width - 0.24, 0.09, 0.04, {
+        materialRole: 'primary',
+        layer: 'body'
+      });
+    }
+  }
+
+  // Pitched steel boxcar roof & roofwalk
+  batcher.addLoftedSlices([
+    { z: box.bodyStartZ, bottomY: eavesY - 0.02, beltY: eavesY + 0.05, topY: bodyTopY, hwBottom: halfW + 0.02, hwBelt: halfW * 0.6, hwTop: 0.28, chamferBot: 0.01, chamferTop: 0.02 },
+    { z: box.bodyEndZ, bottomY: eavesY - 0.02, beltY: eavesY + 0.05, topY: bodyTopY, hwBottom: halfW + 0.02, hwBelt: halfW * 0.6, hwTop: 0.28, chamferBot: 0.01, chamferTop: 0.02 }
+  ], 'secondary', 'body');
+
+  if (cfg.railRoofEquipment === 'roofwalk_only' || cfg.railRoofEquipment === 'diesel_radiator') {
+    batcher.addBox(0, bodyTopY + 0.045, 0, 0.72, 0.05, bodyLen + 0.24, {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+  }
+
+  // Side livery belt stripe
+  if (cfg.railLiveryPattern !== 'solid') {
+    trBodyAddLiveryStripe(batcher, halfW, deckY + wallH * 0.72, box.bodyStartZ + 0.1, -halfDoorW - 0.04, 0.16, 'livery');
+    trBodyAddLiveryStripe(batcher, halfW, deckY + wallH * 0.72, halfDoorW + 0.04, box.bodyEndZ - 0.1, 0.16, 'livery');
+  }
+
+  // Ladders & B-end handbrake wheel
+  if (cfg.railHandrails) {
+    trBodyAddSideLadder(batcher, -1, -halfW, deckY + 0.08, eavesY - 0.06, box.bodyStartZ + 0.35);
+    trBodyAddSideLadder(batcher, 1, halfW, deckY + 0.08, eavesY - 0.06, box.bodyEndZ - 0.35);
+  }
+  trBodyAddHandbrakeWheel(batcher, -0.58, deckY + wallH * 0.56, box.bodyStartZ - 0.12);
+
+  // Articulated Sliding Boxcar Doors (Left & Right)
+  const doorGroups = [];
+  const doorH = Math.max(1.2, wallH - headerH - 0.06);
+  const doorMidY = deckY + 0.04 + doorH * 0.5;
+  for (const dr of rz.doors) {
+    const grp = new THREE.Group();
+    grp.name = `Door_${dr.id}`;
+    const dBatch = new VehicleBatcher();
+    const dx = dr.side * (halfW + 0.018);
+
+    dBatch.addBox(dx, doorMidY, dr.z, 0.065, doorH, dr.width, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+    // Door structural ribs & central lock rod
+    for (let r = -2; r <= 2; r++) {
+      dBatch.addBox(dx + dr.side * 0.032, doorMidY, dr.z + r * (dr.width * 0.2), 0.028, doorH * 0.92, 0.08, {
+        materialRole: 'secondary',
+        layer: 'detail'
+      });
+    }
+    dBatch.addBox(dx + dr.side * 0.042, doorMidY - 0.1, dr.z - dr.width * 0.36, 0.04, doorH * 0.5, 0.05, {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+    if (cfg.railLiveryPattern !== 'solid') {
+      dBatch.addBox(dx + dr.side * 0.038, deckY + wallH * 0.72, dr.z, 0.02, 0.16, dr.width * 0.96, {
+        materialRole: 'livery',
+        layer: 'body'
+      });
+    }
+
+    dBatch.finalize(grp, materialBundle);
+    grp.userData = {
+      pivotType: 'door',
+      doorId: dr.id,
+      basePos: [0, 0, 0],
+      slideVector: [0, 0, dr.slideDir * dr.maxSlide]
+    };
+    rootGroup.add(grp);
+    doorGroups.push(grp);
+  }
+
+  return { doors: doorGroups };
+}
+
+function trBodyAddShippingContainer(batcher, cx, baseY, cz, w, h, len, bodyRole, accentRole) {
+  batcher.addBox(cx, baseY + h * 0.5, cz, w, h, len, {
+    materialRole: bodyRole,
+    layer: 'body'
+  });
+  // Corrugated vertical ribs along container sides
+  const ribCount = Math.max(6, Math.floor(len / 0.62));
+  for (let i = 0; i < ribCount; i++) {
+    const rz = lerp(cz - len * 0.44, cz + len * 0.44, i / (ribCount - 1));
+    for (const side of [-1, 1]) {
+      batcher.addBox(cx + side * (w * 0.5 + 0.012), baseY + h * 0.5, rz, 0.03, h * 0.88, 0.09, {
+        materialRole: bodyRole,
+        layer: 'body'
+      });
+    }
+  }
+  // Corner castings & twist-lock pillars
+  for (const sx of [-1, 1]) {
+    for (const sz of [-1, 1]) {
+      batcher.addBox(cx + sx * (w * 0.5 - 0.04), baseY + h * 0.5, cz + sz * (len * 0.5 - 0.04), 0.12, h + 0.02, 0.12, {
+        materialRole: accentRole,
+        layer: 'detail'
+      });
+    }
+  }
+  // End double-door locking bars
+  for (const bx of [-0.36, -0.14, 0.14, 0.36]) {
+    batcher.addBox(cx + bx, baseY + h * 0.5, cz + len * 0.5 + 0.015, 0.035, h * 0.86, 0.028, {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+  }
+}
+
+function trBodyBuildFlatcar(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const fc = rz.zones.flatcar;
+  const deckY = rz.zones.deckY;
+  const halfW = d.halfWidth;
+  const r = rng32((cfg.seed || 3090) + 19);
+
+  // Heavy side sills + timber/steel planked deck
+  batcher.addBox(0, deckY - 0.11, 0, d.width, 0.24, d.length, {
+    materialRole: 'primary',
+    layer: 'chassis'
+  });
+  batcher.addBox(0, fc.deckTopY - 0.025, 0, d.width - 0.14, 0.05, d.length - 0.24, {
+    materialRole: 'secondary',
+    layer: 'body'
+  });
+
+  // Iconic tapered Fishbelly Center Sill between bogies
+  const fbStart = rz.bogies[1].pivotZ + rz.bogies[1].wheelbase * 0.55;
+  const fbEnd = rz.bogies[0].pivotZ - rz.bogies[0].wheelbase * 0.55;
+  if (fbEnd - fbStart > 2.0) {
+    batcher.addLoftedSlices([
+      { z: fbStart, bottomY: deckY - 0.24, beltY: deckY - 0.14, topY: deckY - 0.04, hwBottom: 0.24, hwBelt: 0.28, hwTop: 0.28, chamferBot: 0.01, chamferTop: 0.01 },
+      { z: lerp(fbStart, fbEnd, 0.18), bottomY: deckY - 0.58, beltY: deckY - 0.28, topY: deckY - 0.04, hwBottom: 0.24, hwBelt: 0.28, hwTop: 0.28, chamferBot: 0.01, chamferTop: 0.01 },
+      { z: lerp(fbStart, fbEnd, 0.82), bottomY: deckY - 0.58, beltY: deckY - 0.28, topY: deckY - 0.04, hwBottom: 0.24, hwBelt: 0.28, hwTop: 0.28, chamferBot: 0.01, chamferTop: 0.01 },
+      { z: fbEnd, bottomY: deckY - 0.24, beltY: deckY - 0.14, topY: deckY - 0.04, hwBottom: 0.24, hwBelt: 0.28, hwTop: 0.28, chamferBot: 0.01, chamferTop: 0.01 }
+    ], 'chassisDark', 'chassis');
+  }
+
+  // Side stake pockets & corner stirrups
+  const pocketCount = Math.max(6, Math.floor(d.length / 1.5));
+  for (let i = 0; i < pocketCount; i++) {
+    const pz = lerp(-d.length * 0.45, d.length * 0.45, i / (pocketCount - 1));
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (halfW + 0.03), deckY - 0.09, pz, 0.07, 0.18, 0.11, {
+        materialRole: 'utility',
+        layer: 'detail'
+      });
+    }
+  }
+  for (const endSign of [-1, 1]) {
+    for (const side of [-1, 1]) {
+      trBodyAddStirrupStep(batcher, side * (halfW - 0.08), deckY, endSign * (d.length * 0.5 - 0.4));
+    }
+  }
+  trBodyAddHandbrakeWheel(batcher, -halfW + 0.28, deckY + 0.26, -d.length * 0.5 + 0.1);
+
+  // Deterministic Procedural Cargo
+  const cargoType = cfg.railCargoType || 'containers_double_20';
+  const maxW = fc.cargoMaxW;
+  const maxL = fc.cargoMaxL;
+  const maxH = Math.max(1.2, fc.cargoMaxTopY - fc.deckTopY);
+
+  if (cargoType === 'containers_double_20') {
+    const cLen = Math.min(6.05, (maxL - 0.5) * 0.5);
+    const cW = Math.min(2.44, maxW);
+    const cH = Math.min(2.55, maxH);
+    const gap = 0.26;
+    const zRear = -(cLen * 0.5 + gap * 0.5);
+    const zFront = cLen * 0.5 + gap * 0.5;
+    trBodyAddShippingContainer(batcher, 0, fc.deckTopY, zFront, cW, cH, cLen, 'livery', 'chassisDark');
+    trBodyAddShippingContainer(batcher, 0, fc.deckTopY, zRear, cW, cH, cLen, 'secondary', 'chassisDark');
+  } else if (cargoType === 'container_40') {
+    const cLen = Math.min(12.15, maxL - 0.25);
+    const cW = Math.min(2.44, maxW);
+    const cH = Math.min(2.58, maxH);
+    trBodyAddShippingContainer(batcher, 0, fc.deckTopY, 0, cW, cH, cLen, 'livery', 'chassisDark');
+  } else if (cargoType === 'lumber_stack') {
+    const stackW = Math.min(2.35, maxW - 0.18);
+    const stackL = Math.min(maxL - 0.6, d.length * 0.82);
+    const rows = 3;
+    const bundleH = 0.54;
+    for (let row = 0; row < rows; row++) {
+      const by = fc.deckTopY + 0.08 + row * (bundleH + 0.07) + bundleH * 0.5;
+      batcher.addBox(0, by, 0, stackW, bundleH, stackL, {
+        materialRole: row % 2 === 0 ? 'livery' : 'secondary',
+        layer: 'body'
+      });
+      // Tie-down straps & dunnage cross-bars
+      for (let s = -2; s <= 2; s++) {
+        batcher.addBox(0, by, s * (stackL * 0.21), stackW + 0.04, bundleH + 0.06, 0.06, {
+          materialRole: 'chassisDark',
+          layer: 'detail'
+        });
+      }
+    }
+    // Upright steel stakes in side pockets
+    for (let i = 0; i < 4; i++) {
+      const sz = lerp(-stackL * 0.44, stackL * 0.44, i / 3);
+      for (const side of [-1, 1]) {
+        batcher.addBox(side * (stackW * 0.5 + 0.08), fc.deckTopY + 1.05, sz, 0.08, 2.1, 0.08, {
+          materialRole: 'utility',
+          layer: 'detail'
+        });
+      }
+    }
+  } else if (cargoType === 'steel_pipes') {
+    const pipeLen = Math.min(maxL - 0.7, d.length * 0.8);
+    const pipeR = 0.26;
+    const cols = [[-0.65, -0.02], [0, -0.02], [0.65, -0.02], [-0.33, 0.44], [0.33, 0.44], [0, 0.9]];
+    for (const [px, pyOff] of cols) {
+      batcher.addCylinder(px, fc.deckTopY + pipeR + 0.08 + pyOff, 0, pipeR, pipeR, pipeLen, 10, 'z', 'utility', 'body');
+      batcher.addCylinder(px, fc.deckTopY + pipeR + 0.08 + pyOff, 0, pipeR * 0.74, pipeR * 0.74, pipeLen + 0.015, 10, 'z', 'chassisDark', 'detail');
+    }
+    for (let i = 0; i < 4; i++) {
+      const sz = lerp(-pipeLen * 0.42, pipeLen * 0.42, i / 3);
+      batcher.addBox(0, fc.deckTopY + 0.06, sz, maxW - 0.1, 0.12, 0.14, { materialRole: 'secondary', layer: 'detail' });
+      for (const side of [-1, 1]) {
+        batcher.addBox(side * (maxW * 0.46), fc.deckTopY + 0.78, sz, 0.08, 1.56, 0.08, { materialRole: 'livery', layer: 'detail' });
+      }
+    }
+  } else if (cargoType === 'crates_machinery') {
+    const crateCount = 4;
+    const span = maxL * 0.82;
+    for (let i = 0; i < crateCount; i++) {
+      const cz = lerp(-span * 0.38, span * 0.38, i / (crateCount - 1));
+      const cw = 1.45 + r() * 0.65;
+      const ch = 1.15 + r() * 0.85;
+      const cl = 1.65 + r() * 0.85;
+      batcher.addBox(0, fc.deckTopY + ch * 0.5, cz, cw, ch, cl, {
+        materialRole: i === 1 ? 'livery' : (i === 2 ? 'utility' : 'secondary'),
+        layer: 'body'
+      });
+      batcher.addBox(0, fc.deckTopY + ch + 0.02, cz, cw * 0.92, 0.05, cl * 0.92, {
+        materialRole: 'trim',
+        layer: 'detail'
+      });
+    }
+  }
+
+  return { doors: [] };
+}
+
+function trBodyBuildTankCar(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const tk = rz.zones.tank;
+  const deckY = rz.zones.deckY;
+  const halfW = d.halfWidth;
+
+  // Stub/frame sills & end walkways
+  batcher.addBox(0, deckY - 0.12, 0, 0.46, 0.24, d.length, { materialRole: 'chassisDark', layer: 'chassis' });
+  for (const endSign of [-1, 1]) {
+    const ez = endSign * (d.length * 0.5 - 0.45);
+    batcher.addBox(0, deckY - 0.06, ez, d.width, 0.16, 0.9, { materialRole: 'primary', layer: 'chassis' });
+    batcher.addBox(0, deckY + 0.04, ez, d.width * 0.92, 0.05, 0.72, { materialRole: 'utility', layer: 'detail' });
+    for (const side of [-1, 1]) {
+      trBodyAddStirrupStep(batcher, side * (halfW - 0.08), deckY, endSign * (d.length * 0.5 - 0.28));
+    }
+  }
+
+  // Curved cradle saddles over both bogies holding the cylindrical barrel
+  for (const bogie of rz.bogies) {
+    batcher.addBox(0, deckY + 0.16, bogie.pivotZ, tk.radius * 1.48, 0.42, 0.58, {
+      materialRole: 'secondary',
+      layer: 'chassis'
+    });
+  }
+
+  // Horizontal cylindrical pressure tank + stepped dome caps
+  const barrelMidY = tk.centerY;
+  const barrelLen = tk.barrelLength;
+  batcher.addCylinder(0, barrelMidY, 0, tk.radius, tk.radius, barrelLen, 16, 'z', 'primary', 'body');
+
+  for (const endSign of [-1, 1]) {
+    const capBaseZ = endSign * (barrelLen * 0.5);
+    const addDomeRing = (zOffset, len, rInner, rOuter, matRole) => {
+      const rTop = endSign > 0 ? rOuter : rInner;
+      const rBot = endSign > 0 ? rInner : rOuter;
+      batcher.addCylinder(0, barrelMidY, capBaseZ + endSign * zOffset, rTop, rBot, len, 16, 'z', matRole, 'body');
+    };
+    addDomeRing(0.14, 0.28, tk.radius * 0.99, tk.radius * 0.8, 'primary');
+    addDomeRing(0.34, 0.16, tk.radius * 0.8, tk.radius * 0.46, 'primary');
+    addDomeRing(0.43, 0.06, tk.radius * 0.46, tk.radius * 0.24, 'secondary');
+  }
+
+  // Center hazard / livery stripe band wrapped around tank barrel
+  if (cfg.railLiveryPattern !== 'solid') {
+    batcher.addCylinder(0, barrelMidY, 0, tk.radius + 0.015, tk.radius + 0.015, 0.72, 16, 'z', 'livery', 'body');
+  }
+  // Tank support band rings
+  for (const bogie of rz.bogies) {
+    batcher.addCylinder(0, barrelMidY, bogie.pivotZ, tk.radius + 0.02, tk.radius + 0.02, 0.12, 16, 'z', 'chassisDark', 'detail');
+  }
+
+  // Top central Manway Dome, relief valve stack & grated catwalk
+  const tankTopY = barrelMidY + tk.radius;
+  batcher.addCylinder(0, tankTopY + 0.14, 0, 0.48, 0.52, 0.28, 12, 'y', 'secondary', 'detail');
+  batcher.addCylinder(0, tankTopY + 0.31, 0, 0.38, 0.38, 0.06, 12, 'y', 'utility', 'detail');
+  batcher.addCylinder(0.18, tankTopY + 0.36, 0.15, 0.07, 0.09, 0.18, 8, 'y', 'livery', 'detail');
+
+  if (cfg.railRoofEquipment === 'tank_catwalk' || cfg.railRoofEquipment === 'diesel_radiator') {
+    batcher.addBox(0, tankTopY + 0.04, 0, 0.68, 0.05, Math.min(4.4, barrelLen * 0.52), {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+    if (cfg.railHandrails) {
+      for (const side of [-1, 1]) {
+        trBodyAddHandrailSpan(batcher, side * 0.38, tankTopY - 0.16, -1.75, side * 0.38, tankTopY - 0.16, 1.75, 'livery', 'utility', 0.85);
+      }
+    }
+  }
+
+  // Bottom discharge valve manifold & side vertical access ladders
+  batcher.addCylinder(0, barrelMidY - tk.radius - 0.12, 0, 0.14, 0.14, 0.26, 8, 'y', 'utility', 'chassis');
+  if (cfg.railHandrails) {
+    for (const side of [-1, 1]) {
+      trBodyAddSideLadder(batcher, side, side * tk.radius, deckY, tankTopY + 0.04, 0, 0.42);
+      const endZ = d.length * 0.5 - 0.12;
+      trBodyAddHandrailSpan(batcher, side * (halfW - 0.06), deckY, endZ, side * 0.48, deckY, endZ, 'livery', 'utility', 0.5);
+    }
+  }
+  trBodyAddHandbrakeWheel(batcher, -halfW + 0.32, deckY + 0.36, -d.length * 0.5 + 0.08);
+
+  return { doors: [] };
+}
+
+function trBodyBuildPassengerCoach(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const pax = rz.zones.passenger;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const eavesY = pax.eavesY;
+  const halfW = d.halfWidth;
+  const wallThick = 0.13;
+  const wallX = halfW - wallThick * 0.5;
+  const bodyLen = pax.bodyEndZ - pax.bodyStartZ;
+
+  // 1. Underframe floor & equipment skirts/boxes between bogies
+  batcher.addBox(0, deckY - 0.08, 0, d.width - 0.04, 0.16, bodyLen, {
+    materialRole: 'secondary',
+    layer: 'chassis'
+  });
+
+  const equipStart = rz.bogies[1].pivotZ + rz.bogies[1].wheelbase * 0.55 + 0.45;
+  const equipEnd = rz.bogies[0].pivotZ - rz.bogies[0].wheelbase * 0.55 - 0.45;
+  if (equipEnd - equipStart > 1.8) {
+    const equipSpan = equipEnd - equipStart;
+    const boxCount = Math.max(3, Math.floor(equipSpan / 2.2));
+    for (let i = 0; i < boxCount; i++) {
+      const bz = lerp(equipStart + 0.75, equipEnd - 0.75, i / Math.max(1, boxCount - 1));
+      batcher.addBox(0, deckY - 0.42, bz, d.width * 0.76, 0.52, Math.min(1.65, equipSpan / (boxCount + 0.4)), {
+        materialRole: i % 2 === 0 ? 'chassisDark' : 'secondary',
+        layer: 'chassis'
+      });
+    }
+  }
+
+  // 2. Vestibule door pockets, boarding steps & end corner walls
+  const doorOffset = pax.doorOffsetZ;
+  const halfDoorW = pax.doorWidth * 0.5;
+  const lowerWallH = pax.windowSillY - deckY;
+  const winH = pax.windowTopY - pax.windowSillY;
+  const upperBandH = eavesY - pax.windowTopY;
+  const doorTopY = deckY + 0.04 + pax.doorHeight;
+
+  for (const side of [-1, 1]) {
+    const sx = side * wallX;
+    // Lower skirt & sill wall along saloon only (open at doorways)
+    const saloonWallLen = pax.saloonEndZ - pax.saloonStartZ + 0.72;
+    batcher.addBox(sx, deckY + lowerWallH * 0.5, 0, wallThick, lowerWallH, saloonWallLen, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+    // Upper frieze header spanning full body length above doors & windows
+    batcher.addBox(sx, eavesY - upperBandH * 0.5, 0, wallThick, upperBandH, bodyLen, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+    // End corner body walls beyond vestibule doors
+    const cornerLen = Math.max(0.28, pax.bodyEndZ - (doorOffset + halfDoorW));
+    for (const endSign of [-1, 1]) {
+      const cz = endSign * (doorOffset + halfDoorW + cornerLen * 0.5);
+      batcher.addBox(sx, (deckY + eavesY) * 0.5, cz, wallThick, eavesY - deckY, cornerLen, {
+        materialRole: 'primary',
+        layer: 'body'
+      });
+      // Door header lintel
+      batcher.addBox(sx, (doorTopY + eavesY) * 0.5, endSign * doorOffset, wallThick, Math.max(0.08, eavesY - doorTopY), pax.doorWidth, {
+        materialRole: 'primary',
+        layer: 'body'
+      });
+      // Entry boarding step plate inside vestibule
+      batcher.addBox(side * (halfW - 0.18), deckY - 0.14, endSign * doorOffset, 0.34, 0.06, pax.doorWidth * 0.92, {
+        materialRole: 'utility',
+        layer: 'chassis'
+      });
+    }
+  }
+
+  // 3. Coach End Walls & Gangways
+  for (const endSign of [-1, 1]) {
+    const ez = endSign * (pax.bodyEndZ - 0.08);
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (halfW - 0.42), (deckY + eavesY) * 0.5, ez, 0.82, eavesY - deckY, 0.16, {
+        materialRole: 'primary',
+        layer: 'body'
+      });
+    }
+    batcher.addBox(0, eavesY - 0.25, ez, d.width - 0.1, 0.5, 0.16, { materialRole: 'primary', layer: 'body' });
+    if (cfg.railGangways) {
+      buildRailEndGangway(batcher, endSign * pax.bodyEndZ, endSign, deckY, bodyTopY);
+    }
+  }
+
+  // 4. Gently Curved Coach Roof & Rooftop Twin HVAC Pods
+  batcher.addLoftedSlices([
+    {
+      z: pax.bodyStartZ,
+      bottomY: eavesY - 0.02,
+      beltY: lerp(eavesY, bodyTopY, 0.55),
+      topY: bodyTopY,
+      hwBottom: halfW,
+      hwBelt: halfW * 0.88,
+      hwTop: halfW * 0.58,
+      chamferBot: 0.02,
+      chamferTop: 0.08
+    },
+    {
+      z: pax.bodyEndZ,
+      bottomY: eavesY - 0.02,
+      beltY: lerp(eavesY, bodyTopY, 0.55),
+      topY: bodyTopY,
+      hwBottom: halfW,
+      hwBelt: halfW * 0.88,
+      hwTop: halfW * 0.58,
+      chamferBot: 0.02,
+      chamferTop: 0.08
+    }
+  ], 'secondary', 'body');
+
+  if (cfg.railRoofEquipment === 'hvac_twin' || cfg.railRoofEquipment === 'diesel_radiator') {
+    for (const hz of [-bodyLen * 0.24, bodyLen * 0.24]) {
+      batcher.addBox(0, bodyTopY + 0.1, hz, d.width * 0.54, 0.24, 2.35, {
+        materialRole: 'utility',
+        layer: 'detail'
+      });
+      batcher.addBox(0, bodyTopY + 0.225, hz, d.width * 0.44, 0.03, 1.85, {
+        materialRole: 'chassisDark',
+        layer: 'detail'
+      });
+    }
+  }
+
+  // 5. Passenger Side Window Bays & Pillar Mullions
+  const winCount = clamp(Math.round(cfg.railWindowCount || 8), 4, 12);
+  const saloonStart = pax.saloonStartZ;
+  const saloonEnd = pax.saloonEndZ;
+  const saloonLen = saloonEnd - saloonStart;
+  const bayPitch = saloonLen / winCount;
+  const pillarLen = clamp(bayPitch * 0.22, 0.16, 0.34);
+  const paneLen = Math.max(0.45, bayPitch - pillarLen);
+  const winMidY = (pax.windowSillY + pax.windowTopY) * 0.5;
+  const paxGlassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  for (const side of [-1, 1]) {
+    // Window band accent framing
+    if (cfg.railLiveryPattern === 'window_band') {
+      batcher.addBox(side * (halfW - 0.03), winMidY, 0, 0.08, winH + 0.12, saloonLen, {
+        materialRole: 'secondary',
+        layer: 'body'
+      });
+    }
+    for (let i = 0; i <= winCount; i++) {
+      const pz = saloonStart + i * bayPitch;
+      batcher.addBox(side * wallX, winMidY, pz, wallThick, winH + 0.06, pillarLen, {
+        materialRole: cfg.railLiveryPattern === 'window_band' ? 'secondary' : 'primary',
+        layer: 'body'
+      });
+      if (i < winCount) {
+        const wz = pz + bayPitch * 0.5;
+        trBodyAddWindowPane(batcher, side * (halfW - 0.055), winMidY, wz, 0.03, winH * 0.88, paneLen * 0.94, paxGlassRole);
+      }
+    }
+  }
+
+  // Side livery stripe below window line & lower skirt band
+  if (cfg.railLiveryPattern !== 'solid') {
+    trBodyAddLiveryStripe(batcher, halfW, pax.windowSillY - 0.16, saloonStart - 0.3, saloonEnd + 0.3, 0.16, 'livery');
+    trBodyAddLiveryStripe(batcher, halfW, deckY + 0.14, saloonStart - 0.3, saloonEnd + 0.3, 0.14, 'secondary');
+  }
+
+  // 6. Simplified Low-Poly Passenger Interior (strictly clear of vestibule doorways!)
+  if (cfg.railInteriorEnabled) {
+    // Continuous interior floor & ceiling light strip
+    batcher.addBox(0, deckY + 0.03, 0, d.width - 0.24, 0.06, bodyLen - 0.18, {
+      materialRole: 'interiorDark',
+      layer: 'interior'
+    });
+    batcher.addBox(0, eavesY - 0.06, 0, 0.34, 0.04, bodyLen - 1.2, {
+      materialRole: 'headlight',
+      layer: 'interior'
+    });
+
+    // Vestibule bulkhead partitions separating passenger saloon from doors
+    for (const endSign of [-1, 1]) {
+      const bulkZ = endSign * (doorOffset - halfDoorW - 0.22);
+      for (const side of [-1, 1]) {
+        batcher.addBox(side * (halfW - 0.56), deckY + 1.02, bulkZ, 0.82, 1.96, 0.09, {
+          materialRole: 'secondary',
+          layer: 'interior'
+        });
+      }
+    }
+
+    // Paired low-poly passenger seats along saloon
+    const rowCount = Math.max(4, Math.floor((saloonLen - 0.6) / 1.05));
+    for (let rIdx = 0; rIdx < rowCount; rIdx++) {
+      const sz = lerp(saloonStart + 0.45, saloonEnd - 0.45, rIdx / Math.max(1, rowCount - 1));
+      for (const side of [-1, 1]) {
+        const seatX = side * (halfW - 0.62);
+        batcher.addBox(seatX, deckY + 0.44, sz, 0.78, 0.16, 0.46, { materialRole: 'livery', layer: 'interior' });
+        batcher.addBox(seatX, deckY + 0.82, sz - 0.18, 0.76, 0.68, 0.11, { materialRole: 'livery', layer: 'interior' });
+      }
+    }
+  }
+
+  // 7. Articulated Sliding Passenger Vestibule Doors (4 doors)
+  const doorGroups = [];
+  const dMidY = deckY + 0.04 + pax.doorHeight * 0.5;
+  for (const dr of rz.doors) {
+    const grp = new THREE.Group();
+    grp.name = `Door_${dr.id}`;
+    const dBatch = new VehicleBatcher();
+    const dx = dr.side * (halfW - 0.025);
+
+    dBatch.addBox(dx, dMidY, dr.z, 0.07, pax.doorHeight, dr.width * 0.96, {
+      materialRole: 'secondary',
+      layer: 'body'
+    });
+    // Door upper glass window
+    dBatch.addBox(dx + dr.side * 0.015, dMidY + pax.doorHeight * 0.18, dr.z, 0.055, pax.doorHeight * 0.36, dr.width * 0.64, {
+      materialRole: paxGlassRole,
+      layer: 'glass'
+    });
+    // Door center accent stripe
+    dBatch.addBox(dx + dr.side * 0.032, pax.windowSillY - 0.16, dr.z, 0.02, 0.16, dr.width * 0.92, {
+      materialRole: 'livery',
+      layer: 'body'
+    });
+
+    dBatch.finalize(grp, materialBundle);
+    grp.userData = {
+      pivotType: 'door',
+      doorId: dr.id,
+      basePos: [0, 0, 0],
+      slideVector: [0, 0, dr.slideDir * dr.maxSlide]
+    };
+    rootGroup.add(grp);
+    doorGroups.push(grp);
+  }
+
+  return { doors: doorGroups };
+}
+
+function buildRailCarbody(batcher, rootGroup, layout, cfg, materialBundle) {
+  switch (cfg.bodyFamily) {
+    case 'rail_diesel_road_switcher':
+    case 'rail_diesel_switcher':
+      return trBodyBuildLocomotive(batcher, layout, cfg);
+    case 'rail_electric_loco':
+      return trLocoExtBuildElectric(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_streamlined_diesel':
+      return trLocoExtBuildStreamlinedDiesel(batcher, layout, cfg);
+    case 'rail_steam_loco':
+      return trLocoExtBuildSteam(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_maintenance':
+      return trLocoExtBuildMaintenance(batcher, layout, cfg);
+    case 'rail_highspeed_lead':
+      return trPaxExtBuildBulletLead(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_highspeed_coach':
+      return trPaxExtBuildBulletCoach(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_bilevel_coach':
+      return trPaxExtBuildBilevel(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_dome_coach':
+      return trPaxExtBuildDomeCoach(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_subway_classic':
+      return trPaxExtBuildSubwayClassic(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_metro_modern':
+      return trPaxExtBuildMetroModern(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_people_mover':
+      return trPaxExtBuildPeopleMover(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_freight_boxcar':
+      return trBodyBuildBoxcar(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_freight_flatcar':
+      return trBodyBuildFlatcar(batcher, layout, cfg);
+    case 'rail_freight_tank':
+      return trBodyBuildTankCar(batcher, layout, cfg);
+    case 'rail_freight_hopper':
+      return trPaxExtBuildHopper(batcher, layout, cfg);
+    case 'rail_freight_caboose':
+      return trPaxExtBuildCaboose(batcher, layout, cfg);
+    case 'rail_passenger_coach':
+      return trBodyBuildPassengerCoach(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_historic_streetcar':
+      return trSpecBuildHistoricStreetcar(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_articulated_tram':
+      return trSpecBuildArticulatedTram(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_open_tram':
+      return trSpecBuildOpenTram(batcher, layout, cfg);
+    case 'rail_straddle_monorail':
+      return trSpecBuildStraddleMonorail(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_suspended_monorail':
+      return trSpecBuildSuspendedMonorail(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_aerial_gondola':
+      return trSpecBuildAerialGondola(batcher, rootGroup, layout, cfg, materialBundle);
+    default:
+      return trBodyBuildLocomotive(batcher, layout, cfg);
+  }
+}
+
+  // --- Module: transit/rail-details.js ---
+function trDetailMakeNumberPlate(parent, text, w, h, x, y, z, rotY = 0, options = {}) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 80;
+  const ctx = canvas.getContext('2d');
+  const bg = colorHex(options.bgHex, '#181e26');
+  const fg = colorHex(options.fgHex, '#f4f7fb');
+  if (ctx) {
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, 256, 80);
+    ctx.strokeStyle = colorHex(options.borderHex, fg);
+    ctx.lineWidth = 4;
+    ctx.strokeRect(4, 4, 248, 72);
+    ctx.fillStyle = fg;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const label = String(text || 'B-4012').slice(0, 18);
+    let fontSize = 36;
+    ctx.font = `bold ${fontSize}px Arial`;
+    while (fontSize > 16 && ctx.measureText(label).width > 228) {
+      fontSize -= 2;
+      ctx.font = `bold ${fontSize}px Arial`;
+    }
+    ctx.fillText(label, 128, 42);
+  }
+  const tex = new THREE.CanvasTexture(canvas);
+  const mat = options.lit
+    ? new THREE.MeshLambertMaterial({ map: tex, color: '#ffffff', emissive: bg, emissiveIntensity: 0.45 })
+    : new THREE.MeshLambertMaterial({ map: tex, color: '#ffffff' });
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.018), mat);
+  mesh.position.set(x, y, z);
+  if (rotY) mesh.rotation.y = rotY;
+  mesh.castShadow = false;
+  mesh.receiveShadow = true;
+  mesh.userData = {
+    layer: 'detail',
+    materialRole: 'signFace',
+    _tex: tex,
+    _ownedMat: true
+  };
+  if (parent) parent.add(mesh);
+  return mesh;
+}
+
+function buildRailDetails(batcher, rootGroup, layout, cfg) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const deckY = rz.zones.deckY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const bf = cfg.bodyFamily;
+  const unitNum = String(cfg.railUnitNumber || cfg.signText || 'B-4012').slice(0, 16);
+  const routeBullet = String(cfg.railRouteBullet || '').slice(0, 6);
+
+  if (rz.unitType === 'locomotive') {
+    const loco = rz.zones.loco;
+    const isRearCab = loco ? loco.cabPosition === 'rear' : false;
+    const frontEndZ = halfL;
+    const rearEndZ = -halfL;
+
+    if (loco) {
+      // Headlight & pilot ditch lights on front
+      const headBaseY = loco.shortNose ? loco.shortNoseRoofY - 0.25 : deckY + 1.45;
+      const headBaseZ = loco.shortNose ? loco.shortNose.endZ + 0.025 : (loco.longHood ? loco.longHood.endZ + 0.025 : frontEndZ - 0.4);
+      batcher.addBox(0, headBaseY, headBaseZ, 0.38, 0.2, 0.05, { materialRole: 'chassisDark', layer: 'detail' });
+      for (const hx of [-0.09, 0.09]) {
+        batcher.addCylinder(hx, headBaseY, headBaseZ + 0.025, 0.068, 0.068, 0.03, 10, 'z', 'headlight', 'detail');
+      }
+      // Lower front pilot ditch lights
+      for (const side of [-1, 1]) {
+        batcher.addBox(side * 0.68, deckY + 0.08, frontEndZ - 0.14, 0.14, 0.14, 0.12, { materialRole: 'chassisDark', layer: 'detail' });
+        batcher.addCylinder(side * 0.68, deckY + 0.08, frontEndZ - 0.075, 0.052, 0.052, 0.025, 8, 'z', 'headlight', 'detail');
+      }
+
+      // Rear headlight & red marker lamps
+      const rearHoodZ = loco.longHood && !isRearCab ? loco.longHood.startZ - 0.02 : (loco.cab ? loco.cab.startZ - 0.02 : rearEndZ + 0.4);
+      batcher.addBox(0, loco.longHoodRoofY - 0.28, rearHoodZ, 0.34, 0.18, 0.05, { materialRole: 'chassisDark', layer: 'detail' });
+      batcher.addCylinder(0, loco.longHoodRoofY - 0.28, rearHoodZ - 0.025, 0.065, 0.065, 0.03, 10, 'z', 'headlight', 'detail');
+      for (const side of [-1, 1]) {
+        batcher.addCylinder(side * 0.72, deckY + 0.14, rearEndZ + 0.02, 0.052, 0.052, 0.03, 8, 'z', 'taillight', 'detail');
+      }
+
+      // Cab roof 3-chime air horn & optional warning beacon
+      if (loco.cab) {
+        const cabMidZ = (loco.cab.startZ + loco.cab.endZ) * 0.5;
+        const cabTopY = loco.cabRoofY;
+        for (let h = -1; h <= 1; h++) {
+          batcher.addCylinder(h * 0.085, cabTopY + 0.08, cabMidZ - 0.32, 0.038, 0.024, 0.26, 8, 'z', 'utility', 'detail');
+        }
+        if (cfg.lightBar && cfg.lightBar !== 'none') {
+          batcher.addCylinder(0, cabTopY + 0.08, cabMidZ + 0.36, 0.11, 0.12, 0.15, 10, 'y', 'amberLight', 'detail');
+        }
+
+        // Cab side number boards (both sides) + illuminated brow number board
+        for (const side of [-1, 1]) {
+          trDetailMakeNumberPlate(rootGroup, unitNum, 0.92, 0.24, side * (halfW * 0.96 + 0.024), deckY + 0.95, cabMidZ, side * Math.PI * 0.5, {
+            bgHex: cfg.bodySecondaryColor || '#1f2731',
+            fgHex: cfg.liveryStripeColor || '#eab02e',
+            lit: false
+          });
+        }
+        trDetailMakeNumberPlate(rootGroup, unitNum, 0.74, 0.18, 0, cabTopY - 0.22, loco.cab.endZ + 0.025, 0, {
+          bgHex: '#151a22',
+          fgHex: '#f8fafc',
+          lit: Boolean(cfg.headlightsLit)
+        });
+      }
+    } else if (bf === 'rail_electric_loco') {
+      const topY = rz.zones.bodyTopY;
+      for (const endSign of [-1, 1]) {
+        const zFace = endSign * (halfL - 0.12);
+        const role = endSign > 0 ? 'headlight' : 'taillight';
+        for (const sx of [-0.62, 0.62]) {
+          batcher.addCylinder(sx, deckY + 0.56, zFace + endSign * 0.05, 0.08, 0.08, 0.04, 10, 'z', role, 'detail');
+        }
+        batcher.addCylinder(0, topY - 0.32, zFace - endSign * 0.22, 0.075, 0.075, 0.04, 10, 'z', 'headlight', 'detail');
+      }
+      for (const side of [-1, 1]) {
+        trDetailMakeNumberPlate(rootGroup, unitNum, 1.08, 0.24, side * (halfW + 0.026), deckY + 0.56, 0, side * Math.PI * 0.5, {
+          bgHex: cfg.bodySecondaryColor || '#1e2736',
+          fgHex: '#f8fafc',
+          borderHex: cfg.liveryStripeColor || '#eab02e',
+          lit: false
+        });
+      }
+    } else if (bf === 'rail_streamlined_diesel') {
+      const topY = rz.zones.bodyTopY;
+      // Stacked bulldog nose cyclops & lower Gyralite headlamps + rear red markers
+      for (const hy of [deckY + 0.92, deckY + 1.24]) {
+        batcher.addCylinder(0, hy, frontEndZ - 0.14, 0.105, 0.105, 0.06, 12, 'z', 'headlight', 'detail');
+      }
+      batcher.addCylinder(0, topY - 0.24, frontEndZ - 1.5, 0.085, 0.085, 0.06, 10, 'z', 'headlight', 'detail');
+      for (const sx of [-0.68, 0.68]) {
+        batcher.addCylinder(sx, deckY + 0.48, rearEndZ + 0.04, 0.06, 0.06, 0.04, 8, 'z', 'taillight', 'detail');
+      }
+      for (const side of [-1, 1]) {
+        trDetailMakeNumberPlate(rootGroup, unitNum, 1.15, 0.25, side * (halfW + 0.026), deckY + 0.98, -1.6, side * Math.PI * 0.5, {
+          bgHex: cfg.bodySecondaryColor || '#c92d29',
+          fgHex: cfg.liveryStripeColor || '#f2c13a',
+          lit: false
+        });
+      }
+    } else if (bf === 'rail_steam_loco') {
+      const boilerR = clamp(halfW * 0.62, 0.78, 1.02);
+      const boilerCenterY = deckY + boilerR + 0.38;
+      const smokeboxEndZ = halfL - 0.85;
+      // Classic brass smokebox headlamp & bracket + pilot marker lanterns
+      batcher.addBox(0, boilerCenterY + 0.44, smokeboxEndZ - 0.04, 0.28, 0.08, 0.28, { materialRole: 'utility', layer: 'detail' });
+      batcher.addCylinder(0, boilerCenterY + 0.6, smokeboxEndZ + 0.04, 0.16, 0.16, 0.22, 12, 'z', 'secondary', 'detail');
+      batcher.addCylinder(0, boilerCenterY + 0.6, smokeboxEndZ + 0.16, 0.13, 0.13, 0.03, 12, 'z', 'headlight', 'detail');
+      for (const sx of [-0.72, 0.72]) {
+        batcher.addCylinder(sx, deckY + 0.28, frontEndZ - 0.22, 0.06, 0.06, 0.1, 8, 'z', 'headlight', 'detail');
+      }
+      batcher.addCylinder(0, deckY + 1.48, rearEndZ + 0.24, 0.075, 0.075, 0.04, 10, 'z', 'taillight', 'detail');
+      const cabZ = -halfL + 0.25 + 5.8 + 0.38 + 1.175;
+      for (const side of [-1, 1]) {
+        trDetailMakeNumberPlate(rootGroup, unitNum, 0.88, 0.22, side * (halfW * 0.94 + 0.024), deckY + 0.92, cabZ, side * Math.PI * 0.5, {
+          bgHex: '#181a1f',
+          fgHex: cfg.liveryStripeColor || '#d4a644',
+          lit: false
+        });
+      }
+    } else {
+      // Maintenance crane & rail truck workhead floodlamps + side fleet plate
+      for (const endSign of [-1, 1]) {
+        for (const sx of [-0.6, 0.6]) {
+          batcher.addCylinder(sx, deckY + 0.02, endSign * (halfL - 0.02), 0.06, 0.06, 0.03, 8, 'z', endSign > 0 ? 'headlight' : 'taillight', 'detail');
+        }
+      }
+      for (const side of [-1, 1]) {
+        trDetailMakeNumberPlate(rootGroup, unitNum, 1.0, 0.2, side * (halfW * 0.95 + 0.024), deckY - 0.06, -halfL * 0.22, side * Math.PI * 0.5, {
+          bgHex: '#232830',
+          fgHex: cfg.liveryStripeColor || '#f2c13a',
+          lit: false
+        });
+      }
+    }
+  } else if (rz.unitType === 'passenger_coach') {
+    const pax = rz.zones.passenger;
+    const endZ = pax.bodyEndZ;
+    const labelPlate = routeBullet ? `${routeBullet} · ${unitNum}` : String(cfg.signText || unitNum).slice(0, 18);
+
+    if (bf === 'rail_suspended_monorail' || bf === 'rail_aerial_gondola') {
+      const cabinGrp = rootGroup.getObjectByName('CabinSuspension') || rootGroup;
+      const relSillY = pax.windowSillY - cabinGrp.position.y;
+      if (bf === 'rail_aerial_gondola') {
+        for (const endSign of [-1, 1]) {
+          trDetailMakeNumberPlate(cabinGrp, routeBullet || unitNum, 0.72, 0.2, 0, relSillY - 0.28, endSign * (halfL * 0.72), endSign < 0 ? Math.PI : 0, {
+            bgHex: cfg.bodySecondaryColor || '#2c3947',
+            fgHex: '#f8fafc',
+            borderHex: cfg.liveryStripeColor || '#f5c438',
+            lit: Boolean(cfg.headlightsLit)
+          });
+        }
+      } else {
+        for (const side of [-1, 1]) {
+          trDetailMakeNumberPlate(cabinGrp, labelPlate, 1.05, 0.22, side * (halfW + 0.024), relSillY - 0.3, 0, side * Math.PI * 0.5, {
+            bgHex: cfg.bodySecondaryColor || '#223344',
+            fgHex: '#f8fafc',
+            borderHex: cfg.liveryStripeColor || '#58c4d9',
+            lit: Boolean(cfg.emergencyLightsLit)
+          });
+        }
+      }
+    } else if (bf === 'rail_highspeed_lead') {
+      for (const sx of [-0.52, 0.52]) {
+        batcher.addCylinder(sx, deckY + 0.56, halfL - 0.95, 0.072, 0.072, 0.04, 10, 'z', 'headlight', 'detail');
+      }
+      for (const side of [-1, 1]) {
+        batcher.addCylinder(side * (halfW - 0.34), pax.eavesY - 0.32, -endZ - 0.015, 0.052, 0.052, 0.03, 8, 'z', 'taillight', 'detail');
+        trDetailMakeNumberPlate(rootGroup, labelPlate, 1.28, 0.24, side * (halfW + 0.024), pax.windowSillY - 0.34, -1.6, side * Math.PI * 0.5, {
+          bgHex: cfg.bodySecondaryColor || '#1e3556',
+          fgHex: '#f8fafc',
+          borderHex: cfg.liveryStripeColor || '#3899e0',
+          lit: false
+        });
+      }
+    } else {
+      // Flat/raked transit & rail passenger vehicles
+      const isMetroEnd = bf === 'rail_subway_classic' || bf === 'rail_metro_modern' || bf === 'rail_people_mover' || bf === 'rail_straddle_monorail';
+      const isStreetcarEnd = bf === 'rail_historic_streetcar' || bf === 'rail_articulated_tram' || bf === 'rail_open_tram';
+      const lampHalfX = (bf === 'rail_metro_modern' || bf === 'rail_straddle_monorail') ? halfW * 0.52 : (halfW - 0.32);
+
+      for (const endSign of [-1, 1]) {
+        const zPos = endSign * (endZ + 0.016);
+        if (isStreetcarEnd) {
+          batcher.addCylinder(0, deckY + 0.62, zPos, 0.11, 0.11, 0.04, 10, 'z', endSign > 0 ? 'headlight' : 'taillight', 'detail');
+          trDetailMakeNumberPlate(rootGroup, routeBullet || cfg.signText || 'LINE 12', 0.78, 0.18, 0, pax.eavesY - 0.12, zPos + endSign * 0.015, endSign < 0 ? Math.PI : 0, {
+            bgHex: '#181e26',
+            fgHex: '#fde047',
+            lit: true
+          });
+        } else {
+          for (const side of [-1, 1]) {
+            const role = isMetroEnd && endSign > 0 ? 'headlight' : 'taillight';
+            batcher.addCylinder(side * lampHalfX, isMetroEnd ? deckY + 0.54 : pax.eavesY - 0.28, zPos, 0.055, 0.055, 0.03, 8, 'z', role, 'detail');
+          }
+          if (isMetroEnd) {
+            trDetailMakeNumberPlate(rootGroup, routeBullet || cfg.signText || 'M1', 0.7, 0.2, 0, pax.eavesY - 0.16, zPos + endSign * 0.018, endSign < 0 ? Math.PI : 0, {
+              bgHex: '#11161f',
+              fgHex: cfg.liveryStripeColor || '#f5c438',
+              lit: true
+            });
+          }
+        }
+      }
+
+      const sidePlateZ = (bf === 'rail_subway_classic' || bf === 'rail_metro_modern') ? d.length * 0.145 : (bf === 'rail_people_mover' ? -2.2 : 0);
+      const sidePlateY = bf === 'rail_bilevel_coach' ? deckY + 1.98 : (bf === 'rail_open_tram' ? deckY + 0.28 : pax.windowSillY - 0.34);
+      const sidePlateX = (bf === 'rail_historic_streetcar' ? halfW * 0.94 : halfW) + 0.024;
+      for (const side of [-1, 1]) {
+        trDetailMakeNumberPlate(rootGroup, labelPlate, 1.25, 0.24, side * sidePlateX, sidePlateY, sidePlateZ, side * Math.PI * 0.5, {
+          bgHex: cfg.bodySecondaryColor || '#253c59',
+          fgHex: '#f5f9fc',
+          borderHex: cfg.liveryStripeColor || '#25a58d',
+          lit: Boolean(cfg.emergencyLightsLit)
+        });
+      }
+    }
+  } else {
+    // Freight wagon reporting marks & end reflector markers
+    for (const endSign of [-1, 1]) {
+      for (const side of [-1, 1]) {
+        batcher.addBox(side * (halfW - 0.14), deckY - 0.04, endSign * (d.length * 0.5 + 0.008), 0.11, 0.07, 0.02, {
+          materialRole: 'taillight',
+          layer: 'detail'
+        });
+      }
+    }
+    if (bf === 'rail_freight_boxcar') {
+      const box = rz.zones.boxcar;
+      const markZ = lerp(box.bodyStartZ + 0.85, -box.doorWidth * 0.5 - 0.85, 0.5);
+      for (const side of [-1, 1]) {
+        trDetailMakeNumberPlate(rootGroup, unitNum, 1.15, 0.28, side * (halfW + 0.028), deckY + 1.15, markZ, side * Math.PI * 0.5, {
+          bgHex: cfg.bodyPrimaryColor || '#8c3b2e',
+          fgHex: cfg.liveryStripeColor || '#dfd5c2',
+          lit: false
+        });
+      }
+    } else if (bf === 'rail_freight_tank') {
+      const tk = rz.zones.tank;
+      for (const side of [-1, 1]) {
+        trDetailMakeNumberPlate(rootGroup, unitNum, 1.1, 0.26, side * (tk.radius + 0.025), tk.centerY, -2.1, side * Math.PI * 0.5, {
+          bgHex: cfg.bodyPrimaryColor || '#272d34',
+          fgHex: '#f0f4f8',
+          lit: false
+        });
+      }
+    } else if (bf === 'rail_freight_hopper') {
+      for (const side of [-1, 1]) {
+        trDetailMakeNumberPlate(rootGroup, unitNum, 1.12, 0.26, side * (halfW * 0.96 + 0.026), deckY + 1.18, 0, side * Math.PI * 0.5, {
+          bgHex: cfg.bodyPrimaryColor || '#4d535c',
+          fgHex: cfg.liveryStripeColor || '#e2a336',
+          lit: false
+        });
+      }
+    } else if (bf === 'rail_freight_caboose') {
+      for (const side of [-1, 1]) {
+        trDetailMakeNumberPlate(rootGroup, unitNum, 0.98, 0.24, side * (halfW * 0.94 + 0.026), deckY + 0.95, -1.1, side * Math.PI * 0.5, {
+          bgHex: cfg.bodyPrimaryColor || '#b83227',
+          fgHex: cfg.liveryStripeColor || '#f2c13a',
+          lit: false
+        });
+      }
+    } else {
+      for (const side of [-1, 1]) {
+        trDetailMakeNumberPlate(rootGroup, unitNum, 1.05, 0.18, side * (halfW + 0.024), deckY - 0.1, 0, side * Math.PI * 0.5, {
+          bgHex: '#1f252c',
+          fgHex: cfg.liveryStripeColor || '#e09a2f',
+          lit: false
+        });
+      }
+    }
+  }
+}
+
+  // --- Module: transit/rail-vehicle.js ---
+function applyRailVehiclePose(railRoot, pose = {}) {
+  if (!railRoot || !railRoot.userData?.railParts) return;
+  const parts = railRoot.userData.railParts;
+
+  if (Number.isFinite(pose.frontBogieYawRad) && parts.bogieMap?.front) {
+    parts.bogieMap.front.rotation.y = pose.frontBogieYawRad;
+  }
+  if (Number.isFinite(pose.rearBogieYawRad) && parts.bogieMap?.rear) {
+    parts.bogieMap.rear.rotation.y = pose.rearBogieYawRad;
+  }
+  if (Number.isFinite(pose.wheelSpinRad)) {
+    for (const ws of parts.wheelsets || []) {
+      ws.rotation.x = pose.wheelSpinRad;
+    }
+    for (const rod of parts.steamRods || []) {
+      const ud = rod.userData || {};
+      const r = ud.crankRadius || 0.22;
+      const theta = pose.wheelSpinRad + (ud.phaseOffset || 0);
+      const axleY = (ud.baseY ?? 0.44) + r;
+      rod.position.set(
+        ud.baseX || 0,
+        axleY - Math.cos(theta) * r,
+        (ud.baseZ || 0) - Math.sin(theta) * r
+      );
+    }
+  }
+  if (Number.isFinite(pose.doorOpenFactor)) {
+    const f = clamp(pose.doorOpenFactor, 0, 1);
+    for (const dr of parts.doors || []) {
+      const base = dr.userData?.basePos || [0, 0, 0];
+      const vec = dr.userData?.slideVector || [0, 0, 0];
+      dr.position.set(base[0] + vec[0] * f, base[1] + vec[1] * f, base[2] + vec[2] * f);
+    }
+  }
+  if (Number.isFinite(pose.pantographHeight)) {
+    const ph = clamp(pose.pantographHeight, 0, 1);
+    for (const pGrp of parts.pantographs || []) {
+      trPartSetPantographHeight(pGrp, ph);
+    }
+  }
+  if (Number.isFinite(pose.tramArticulationRad)) {
+    const art = clamp(pose.tramArticulationRad, -0.4, 0.4);
+    for (const sec of parts.tramSections || []) {
+      sec.rotation.y = (sec.userData?.endSign || 1) * art;
+    }
+  }
+  if (Number.isFinite(pose.cabinSwingRad) && parts.cabinPivot) {
+    parts.cabinPivot.rotation.z = clamp(pose.cabinSwingRad, -0.25, 0.25);
+  }
+}
+
+function createRailVehicle(rawCfg, options = {}) {
+  const cfg = sanitiseConfig(rawCfg);
+  const layout = resolveRailVehicleLayout(cfg);
+  const root = vehRoot(null, 0, 0, 0);
+  root.name = `RailVehicle_${cfg.style}_${cfg.seed}`;
+
+  const materialBundle = resolveVehicleMaterialBundle(cfg, {
+    lightingTime: options.lightingTime || cfg.lightingTime
+  });
+
+  const carbodyGroup = new THREE.Group();
+  carbodyGroup.name = 'Carbody';
+  root.add(carbodyGroup);
+
+  const batcher = new VehicleBatcher();
+  const bodyResult = buildRailCarbody(batcher, carbodyGroup, layout, cfg, materialBundle);
+  buildRailDetails(batcher, carbodyGroup, layout, cfg, materialBundle);
+
+  const bodyMeshes = batcher.finalize(carbodyGroup, materialBundle, {
+    castShadow: options.castShadow !== false,
+    receiveShadow: options.receiveShadow !== false
+  });
+
+  const bogies = [];
+  const bogieMap = {};
+  const wheelsets = [];
+  if (bodyResult?.customBogies?.length) {
+    for (const bg of bodyResult.customBogies) {
+      bogies.push(bg);
+      if (bg.userData?.bogieId) bogieMap[bg.userData.bogieId] = bg;
+    }
+  } else {
+    for (const bogieSpec of layout.rail.bogies) {
+      const bogieGrp = buildRailBogieGroup(bogieSpec, layout, cfg, materialBundle);
+      root.add(bogieGrp);
+      bogies.push(bogieGrp);
+      bogieMap[bogieSpec.id] = bogieGrp;
+      for (const ws of bogieGrp.userData.wheelsets || []) {
+        wheelsets.push(ws);
+      }
+    }
+  }
+  for (const ws of bodyResult?.customWheelsets || []) {
+    wheelsets.push(ws);
+  }
+
+  const couplers = [];
+  for (const endId of ['front', 'rear']) {
+    const couplerGrp = buildRailCouplerGroup(layout.rail.couplers, endId, layout, cfg, materialBundle);
+    carbodyGroup.add(couplerGrp);
+    couplers.push(couplerGrp);
+  }
+
+  let triangles = 0;
+  let vertices = 0;
+  let drawCalls = 0;
+  root.traverse((obj) => {
+    if (!obj.isMesh) return;
+    drawCalls++;
+    const geo = obj.geometry;
+    if (geo) {
+      if (geo.index) triangles += geo.index.count / 3;
+      else if (geo.attributes?.position) triangles += geo.attributes.position.count / 3;
+      if (geo.attributes?.position) vertices += geo.attributes.position.count;
+    }
+  });
+
+  const geometryStats = {
+    drawCalls,
+    batchedBuckets: bodyMeshes.length,
+    triangles: Math.round(triangles),
+    vertices: Math.round(vertices)
+  };
+
+  const blueprint = generateVehicleBlueprint(cfg, {
+    layout,
+    geometryStats
+  });
+
+  root.userData.blueprint = blueprint;
+  root.userData.layout = layout;
+  root.userData.unitConfig = cfg;
+  root.userData.railParts = {
+    carbody: carbodyGroup,
+    bogies,
+    bogieMap,
+    wheelsets,
+    couplers,
+    doors: bodyResult?.doors || [],
+    pantographs: bodyResult?.pantographs || [],
+    steamRods: bodyResult?.steamRods || [],
+    tramSections: bodyResult?.tramSections || [],
+    cabinPivot: bodyResult?.cabinPivot || null
+  };
+
+  const yawRad = degToRad(clamp(cfg.railBogieYawDeg || 0, -15, 15));
+  applyRailVehiclePose(root, {
+    frontBogieYawRad: yawRad,
+    rearBogieYawRad: -yawRad,
+    wheelSpinRad: degToRad(cfg.railWheelSpinDeg || 0),
+    doorOpenFactor: clamp(cfg.railDoorsOpen ?? (cfg.doorsOpen ? 1 : 0), 0, 1),
+    pantographHeight: cfg.railPantographHeight ?? 0.85,
+    tramArticulationRad: options.tramArticulationRad ?? degToRad(clamp(yawRad * 25, -18, 18)),
+    cabinSwingRad: degToRad(clamp(cfg.railCabinSwingDeg || 0, -12, 12))
+  });
+
+  return root;
+}
+
   // --- Module: geometry/vehicle.js ---
 function createCityVehicle(rawCfg, options = {}) {
   const cfg = sanitiseConfig(rawCfg);
+  if (isRailConfig(cfg)) {
+    return createRailVehicle(cfg, options);
+  }
   const layout = resolveVehicleLayout(cfg);
   const root = vehRoot(null, 0, 0, 0);
   root.name = `CityVehicle_${cfg.style}_${cfg.seed}`;
@@ -8371,6 +15788,1102 @@ function createCityVehicle(rawCfg, options = {}) {
   return root;
 }
 
+  // --- Module: transit/track-preview.js ---
+function trTrackNormalizeAngle(rad) {
+  let a = Number(rad) || 0;
+  while (a > Math.PI) a -= Math.PI * 2;
+  while (a < -Math.PI) a += Math.PI * 2;
+  return a;
+}
+
+const TRACK_MODES = [
+  'rail_straight',
+  'rail_curved',
+  'rail_incline',
+  'tram_street',
+  'monorail_straddle',
+  'monorail_suspended',
+  'cableway_aerial'
+];
+
+function trTrackDefaultGaugeForMode(mode) {
+  switch (mode) {
+    case 'tram_street':
+      return 'street_tram_1435';
+    case 'monorail_straddle':
+      return 'monorail_beam';
+    case 'monorail_suspended':
+      return 'suspended_beam';
+    case 'cableway_aerial':
+      return 'cableway_rope';
+    default:
+      return 'standard_1435';
+  }
+}
+
+function createTrackRoute(options = {}) {
+  const mode = TRACK_MODES.includes(options.mode) ? options.mode : 'rail_straight';
+  const curved = mode === 'rail_curved' || Boolean(options.curved);
+  const electrified = mode === 'tram_street' || Boolean(options.electrified);
+  const curveRadius = clamp(Number(options.curveRadius) || 48, 24, 220);
+  const gradePercent = clamp(Number(options.gradePercent) || 3.0, 0.5, 8.0);
+  const trackGaugeId = options.trackGaugeId || trTrackDefaultGaugeForMode(mode);
+  const gauge = getTrackGaugeSpec(trackGaugeId);
+  const totalLength = clamp(Number(options.totalLength) || 96, 36, 280);
+  const sMin = -totalLength * 0.62;
+  const sMax = totalLength * 0.38;
+
+  return {
+    mode,
+    curved,
+    electrified,
+    curveRadius,
+    gradePercent,
+    trackGaugeId: gauge.id,
+    gauge,
+    totalLength,
+    sMin,
+    sMax
+  };
+}
+
+function sampleRouteAtS(route, s) {
+  const arcS = Number(s) || 0;
+  if (!route) {
+    return {
+      s: arcS,
+      x: 0,
+      y: 0,
+      z: arcS,
+      tx: 0,
+      ty: 0,
+      tz: 1,
+      rx: 1,
+      ry: 0,
+      rz: 0,
+      yaw: 0,
+      pitchRotX: 0,
+      gradePercent: 0,
+      curvature: 0
+    };
+  }
+
+  if (route.mode === 'rail_incline') {
+    const slope = (route.gradePercent || 3.0) / 100;
+    const invHyp = 1 / Math.hypot(1, slope);
+    const cosP = invHyp;
+    const sinP = slope * invHyp;
+    const pitchAngle = Math.atan(slope);
+    return {
+      s: arcS,
+      x: 0,
+      y: arcS * sinP,
+      z: arcS * cosP,
+      tx: 0,
+      ty: sinP,
+      tz: cosP,
+      rx: 1,
+      ry: 0,
+      rz: 0,
+      yaw: 0,
+      pitchRotX: -pitchAngle,
+      gradePercent: route.gradePercent || 3.0,
+      curvature: 0
+    };
+  }
+
+  if (route.curved || route.mode === 'rail_curved') {
+    const R = Math.max(20, route.curveRadius || 48);
+    const theta = arcS / R;
+    const cosT = Math.cos(theta);
+    const sinT = Math.sin(theta);
+
+    return {
+      s: arcS,
+      x: R * (1 - cosT),
+      y: 0,
+      z: R * sinT,
+      tx: sinT,
+      ty: 0,
+      tz: cosT,
+      rx: cosT,
+      ry: 0,
+      rz: -sinT,
+      yaw: theta,
+      pitchRotX: 0,
+      gradePercent: 0,
+      curvature: 1 / R
+    };
+  }
+
+  return {
+    s: arcS,
+    x: 0,
+    y: 0,
+    z: arcS,
+    tx: 0,
+    ty: 0,
+    tz: 1,
+    rx: 1,
+    ry: 0,
+    rz: 0,
+    yaw: 0,
+    pitchRotX: 0,
+    gradePercent: 0,
+    curvature: 0
+  };
+}
+
+function solveRailUnitOnRoute(unitLayout, route, sCenter = 0, reversed = false) {
+  const rail = unitLayout?.rail;
+  const isCurved = Boolean(route?.curved || route?.mode === 'rail_curved');
+  if (!rail || !rail.bogies || rail.bogies.length < 2) {
+    const pt = sampleRouteAtS(route, sCenter);
+    return {
+      position: [pt.x, pt.y, pt.z],
+      yaw: pt.yaw + (reversed ? Math.PI : 0),
+      pitchRotX: reversed ? -pt.pitchRotX : pt.pitchRotX,
+      frontBogieLocalYaw: 0,
+      rearBogieLocalYaw: 0,
+      tramArticulationRad: 0,
+      cabinSwingRad: isCurved ? clamp((pt.curvature || 0) * 2.2, -0.09, 0.09) : 0,
+      centerThrowMeters: 0,
+      endThrowMeters: 0,
+      maxBogieYawDeg: 0
+    };
+  }
+
+  const frontBogie = rail.bogies[0];
+  const rearBogie = rail.bogies[rail.bogies.length - 1];
+  const dirSign = reversed ? -1 : 1;
+  const sFront = sCenter + dirSign * frontBogie.pivotZ;
+  const sRear = sCenter + dirSign * rearBogie.pivotZ;
+
+  const pFront = sampleRouteAtS(route, sFront);
+  const pRear = sampleRouteAtS(route, sRear);
+  const pMid = sampleRouteAtS(route, sCenter);
+
+  const cx = (pFront.x + pRear.x) * 0.5;
+  const cy = (pFront.y + pRear.y) * 0.5;
+  const cz = (pFront.z + pRear.z) * 0.5;
+
+  const dx = pFront.x - pRear.x;
+  const dy = pFront.y - pRear.y;
+  const dz = pFront.z - pRear.z;
+  const horiz = Math.max(0.001, Math.hypot(dx, dz));
+  const carYaw = Math.atan2(dx, dz);
+  const carPitchRotX = -Math.atan2(dy, horiz);
+
+  const worldFrontBogieYaw = pFront.yaw + (reversed ? Math.PI : 0);
+  const worldRearBogieYaw = pRear.yaw + (reversed ? Math.PI : 0);
+  const frontBogieLocalYaw = trTrackNormalizeAngle(worldFrontBogieYaw - carYaw);
+  const rearBogieLocalYaw = trTrackNormalizeAngle(worldRearBogieYaw - carYaw);
+
+  const chordMidDist = Math.hypot(cx - pMid.x, cz - pMid.z);
+  const maxBogieYawDeg = roundNum(
+    Math.max(Math.abs(frontBogieLocalYaw), Math.abs(rearBogieLocalYaw)) * (180 / Math.PI),
+    2
+  );
+  const bogieSpacing = Math.abs(frontBogie.pivotZ - rearBogie.pivotZ);
+  const maxOverhang = Math.max(unitLayout.dimensions.frontOverhang, unitLayout.dimensions.rearOverhang);
+  const endThrowMeters = isCurved
+    ? roundNum((maxOverhang * (bogieSpacing + maxOverhang)) / (2 * Math.max(20, route.curveRadius)), 3)
+    : 0;
+
+  return {
+    position: [cx, cy, cz],
+    yaw: carYaw,
+    pitchRotX: carPitchRotX,
+    frontBogieLocalYaw,
+    rearBogieLocalYaw,
+    tramArticulationRad: clamp((frontBogieLocalYaw - rearBogieLocalYaw) * 0.42, -0.32, 0.32),
+    cabinSwingRad: isCurved ? clamp((pMid.curvature || 0) * 2.2, -0.09, 0.09) : 0,
+    centerThrowMeters: roundNum(chordMidDist, 3),
+    endThrowMeters,
+    maxBogieYawDeg,
+    sFront,
+    sRear
+  };
+}
+
+function trTrackAddCatenaryGantries(batcher, route, sMin, sMax, contactY = 5.85, singlePoleX = 0) {
+  const stepLen = route.curved ? 2.5 : 6.0;
+  for (let s = sMin; s < sMax; s += stepLen) {
+    const sNext = Math.min(sMax, s + stepLen);
+    if (sNext - s < 0.05) continue;
+    const pA = sampleRouteAtS(route, s);
+    const pB = sampleRouteAtS(route, sNext);
+    const mx = (pA.x + pB.x) * 0.5;
+    const my = (pA.y + pB.y) * 0.5;
+    const mz = (pA.z + pB.z) * 0.5;
+    const dx = pB.x - pA.x;
+    const dy = pB.y - pA.y;
+    const dz = pB.z - pA.z;
+    const chord = Math.hypot(dx, dy, dz);
+    const yaw = Math.atan2(dx, dz);
+    const pitch = -Math.atan2(dy, Math.max(0.001, Math.hypot(dx, dz)));
+
+    batcher.addBox(mx, my + contactY, mz, 0.026, 0.026, chord + 0.04, {
+      rotY: yaw,
+      rotX: pitch,
+      materialRole: 'catenaryWire',
+      layer: 'track'
+    });
+    batcher.addBox(mx, my + contactY + 0.52, mz, 0.02, 0.02, chord + 0.04, {
+      rotY: yaw,
+      rotX: pitch,
+      materialRole: 'railHead',
+      layer: 'track'
+    });
+  }
+
+  for (let s = sMin + 4; s <= sMax - 4; s += 14) {
+    const p = sampleRouteAtS(route, s);
+    const poleX = singlePoleX || 2.85;
+    batcher.addBox(p.x + poleX * p.rx, p.y + (contactY + 0.85) * 0.5, p.z + poleX * p.rz, 0.22, contactY + 1.1, 0.22, {
+      rotY: p.yaw,
+      materialRole: 'steelPortal',
+      layer: 'track'
+    });
+    if (!singlePoleX) {
+      batcher.addBox(p.x - poleX * p.rx, p.y + (contactY + 0.85) * 0.5, p.z - poleX * p.rz, 0.22, contactY + 1.1, 0.22, {
+        rotY: p.yaw,
+        materialRole: 'steelPortal',
+        layer: 'track'
+      });
+      batcher.addBox(p.x, p.y + contactY + 0.72, p.z, poleX * 2 + 0.24, 0.2, 0.22, {
+        rotY: p.yaw,
+        materialRole: 'steelPortal',
+        layer: 'track'
+      });
+    } else {
+      batcher.addBox(p.x + poleX * 0.45 * p.rx, p.y + contactY + 0.52, p.z + poleX * 0.45 * p.rz, Math.abs(poleX) + 0.35, 0.14, 0.14, {
+        rotY: p.yaw,
+        materialRole: 'steelPortal',
+        layer: 'track'
+      });
+    }
+    // Vertical registration dropper down to contact wire
+    batcher.addBox(p.x, p.y + contactY + 0.28, p.z, 0.08, 0.52, 0.08, {
+      rotY: p.yaw,
+      materialRole: 'markerCap',
+      layer: 'track'
+    });
+  }
+}
+
+function trTrackBuildConventionalRail(batcher, route, halfRailX, railW, railH, sleeperW) {
+  const stepLen = route.curved ? 2.0 : 4.0;
+  const sMin = route.sMin;
+  const sMax = route.sMax;
+
+  for (let s = sMin; s < sMax; s += stepLen) {
+    const sNext = Math.min(sMax, s + stepLen);
+    if (sNext - s < 0.05) continue;
+    const pA = sampleRouteAtS(route, s);
+    const pB = sampleRouteAtS(route, sNext);
+    const mx = (pA.x + pB.x) * 0.5;
+    const my = (pA.y + pB.y) * 0.5;
+    const mz = (pA.z + pB.z) * 0.5;
+    const dx = pB.x - pA.x;
+    const dy = pB.y - pA.y;
+    const dz = pB.z - pA.z;
+    const chord = Math.hypot(dx, dy, dz);
+    const yaw = Math.atan2(dx, dz);
+    const pitch = -Math.atan2(dy, Math.max(0.001, Math.hypot(dx, dz)));
+
+    batcher.addBox(mx, my - 0.365, mz, sleeperW + 0.9, 0.23, chord + 0.14, {
+      rotY: yaw,
+      rotX: pitch,
+      materialRole: 'ballast',
+      layer: 'track'
+    });
+    batcher.addBox(mx, my - 0.5, mz, sleeperW + 1.5, 0.08, chord + 0.16, {
+      rotY: yaw,
+      rotX: pitch,
+      materialRole: 'ground',
+      layer: 'track'
+    });
+
+    const rx = Math.cos(yaw);
+    const rz = -Math.sin(yaw);
+    for (const side of [-1, 1]) {
+      const rCx = mx + side * halfRailX * rx;
+      const rCz = mz + side * halfRailX * rz;
+      batcher.addBox(rCx, my - railH * 0.55, rCz, railW * 0.72, railH * 0.75, chord + 0.05, {
+        rotY: yaw,
+        rotX: pitch,
+        materialRole: 'railWeb',
+        layer: 'track'
+      });
+      batcher.addBox(rCx, my - 0.022, rCz, railW, 0.044, chord + 0.05, {
+        rotY: yaw,
+        rotX: pitch,
+        materialRole: 'railHead',
+        layer: 'track'
+      });
+    }
+  }
+
+  for (let s = sMin + 0.3; s <= sMax - 0.3; s += 0.68) {
+    const p = sampleRouteAtS(route, s);
+    batcher.addBox(p.x, p.y - railH - 0.065, p.z, sleeperW, 0.13, 0.24, {
+      rotY: p.yaw,
+      rotX: p.pitchRotX,
+      materialRole: 'sleeper',
+      layer: 'track'
+    });
+    for (const side of [-1, 1]) {
+      batcher.addBox(p.x + side * halfRailX * p.rx, p.y - railH + 0.008, p.z + side * halfRailX * p.rz, 0.2, 0.02, 0.24, {
+        rotY: p.yaw,
+        rotX: p.pitchRotX,
+        materialRole: 'railWeb',
+        layer: 'track'
+      });
+    }
+  }
+
+  for (let s = sMin + 6; s <= sMax - 6; s += 15) {
+    const p = sampleRouteAtS(route, s);
+    const postDist = sleeperW * 0.5 + 0.9;
+    const px = p.x + postDist * p.rx;
+    const pz = p.z + postDist * p.rz;
+    batcher.addBox(px, p.y + 0.4, pz, 0.1, 1.1, 0.1, { rotY: p.yaw, materialRole: 'markerPost', layer: 'track' });
+    batcher.addBox(px, p.y + 0.85, pz, 0.12, 0.18, 0.12, { rotY: p.yaw, materialRole: 'markerCap', layer: 'track' });
+  }
+
+  if (route.electrified) {
+    trTrackAddCatenaryGantries(batcher, route, sMin, sMax, 5.85, 0);
+  }
+}
+
+function trTrackBuildStreetTram(batcher, route, halfRailX, railW) {
+  const stepLen = route.curved ? 2.0 : 4.0;
+  for (let s = route.sMin; s < route.sMax; s += stepLen) {
+    const sNext = Math.min(route.sMax, s + stepLen);
+    if (sNext - s < 0.05) continue;
+    const pA = sampleRouteAtS(route, s);
+    const pB = sampleRouteAtS(route, sNext);
+    const mx = (pA.x + pB.x) * 0.5;
+    const mz = (pA.z + pB.z) * 0.5;
+    const dx = pB.x - pA.x;
+    const dz = pB.z - pA.z;
+    const chord = Math.hypot(dx, dz);
+    const yaw = Math.atan2(dx, dz);
+    const rx = Math.cos(yaw);
+    const rz = -Math.sin(yaw);
+
+    // Asphalt avenue street slab + central cobblestone tram strip + sidewalks
+    batcher.addBox(mx, -0.09, mz, 8.6, 0.14, chord + 0.15, { rotY: yaw, materialRole: 'asphalt', layer: 'track' });
+    batcher.addBox(mx, -0.015, mz, 2.5, 0.025, chord + 0.15, { rotY: yaw, materialRole: 'concrete', layer: 'track' });
+    for (const side of [-1, 1]) {
+      batcher.addBox(mx + side * 4.7, 0.04, mz, 1.4, 0.24, chord + 0.15, { rotY: yaw, materialRole: 'concrete', layer: 'track' });
+      const rCx = mx + side * halfRailX * rx;
+      const rCz = mz + side * halfRailX * rz;
+      batcher.addBox(rCx, -0.018, rCz, railW + 0.03, 0.036, chord + 0.06, { rotY: yaw, materialRole: 'railHead', layer: 'track' });
+    }
+  }
+  trTrackAddCatenaryGantries(batcher, route, route.sMin, route.sMax, 5.15, 3.6);
+}
+
+function trTrackBuildStraddleMonorail(batcher, route) {
+  const stepLen = route.curved ? 2.0 : 4.0;
+  for (let s = route.sMin; s < route.sMax; s += stepLen) {
+    const sNext = Math.min(route.sMax, s + stepLen);
+    if (sNext - s < 0.05) continue;
+    const pA = sampleRouteAtS(route, s);
+    const pB = sampleRouteAtS(route, sNext);
+    const mx = (pA.x + pB.x) * 0.5;
+    const mz = (pA.z + pB.z) * 0.5;
+    const chord = Math.hypot(pB.x - pA.x, pB.z - pA.z);
+    const yaw = Math.atan2(pB.x - pA.x, pB.z - pA.z);
+
+    // Prestressed concrete guideway box beam with top riding face at y = 1.15m
+    batcher.addBox(mx, 0.68, mz, 0.62, 0.94, chord + 0.14, { rotY: yaw, materialRole: 'concrete', layer: 'track' });
+    batcher.addBox(mx, 1.135, mz, 0.56, 0.03, chord + 0.14, { rotY: yaw, materialRole: 'railHead', layer: 'track' });
+  }
+  for (let s = route.sMin + 5; s <= route.sMax - 5; s += 12) {
+    const p = sampleRouteAtS(route, s);
+    batcher.addBox(p.x, 0.1, p.z, 1.28, 0.36, 1.1, { rotY: p.yaw, materialRole: 'concrete', layer: 'track' });
+    batcher.addBox(p.x, -1.8, p.z, 0.92, 3.6, 0.92, { rotY: p.yaw, materialRole: 'concreteDark', layer: 'track' });
+    batcher.addBox(p.x, -3.65, p.z, 2.2, 0.35, 2.2, { rotY: p.yaw, materialRole: 'ground', layer: 'track' });
+  }
+}
+
+function trTrackBuildSuspendedMonorail(batcher, route) {
+  const stepLen = route.curved ? 2.0 : 4.0;
+  for (let s = route.sMin; s < route.sMax; s += stepLen) {
+    const sNext = Math.min(route.sMax, s + stepLen);
+    if (sNext - s < 0.05) continue;
+    const pA = sampleRouteAtS(route, s);
+    const pB = sampleRouteAtS(route, sNext);
+    const mx = (pA.x + pB.x) * 0.5;
+    const mz = (pA.z + pB.z) * 0.5;
+    const chord = Math.hypot(pB.x - pA.x, pB.z - pA.z);
+    const yaw = Math.atan2(pB.x - pA.x, pB.z - pA.z);
+
+    // Overhead steel running box girder (flange seats suspended wheels at y = 4.55..4.75)
+    batcher.addBox(mx, 4.92, mz, 0.54, 0.58, chord + 0.14, { rotY: yaw, materialRole: 'steelPortal', layer: 'track' });
+    batcher.addBox(mx, 4.6, mz, 0.72, 0.08, chord + 0.14, { rotY: yaw, materialRole: 'railHead', layer: 'track' });
+    // Street surface far beneath suspended monorail
+    batcher.addBox(mx, -0.65, mz, 7.2, 0.14, chord + 0.14, { rotY: yaw, materialRole: 'asphalt', layer: 'track' });
+  }
+  for (let s = route.sMin + 5; s <= route.sMax - 5; s += 13) {
+    const p = sampleRouteAtS(route, s);
+    // Portal A-frame trestles straddling wide at x = +-3.6m so cabin never hits frames
+    batcher.addBox(p.x, 5.42, p.z, 7.6, 0.38, 0.42, { rotY: p.yaw, materialRole: 'steelPortal', layer: 'track' });
+    for (const side of [-1, 1]) {
+      batcher.addBox(p.x + side * 3.6 * p.rx, 2.38, p.z + side * 3.6 * p.rz, 0.34, 6.2, 0.38, {
+        rotY: p.yaw,
+        materialRole: 'steelPortal',
+        layer: 'track'
+      });
+      batcher.addBox(p.x + side * 3.6 * p.rx, -0.68, p.z + side * 3.6 * p.rz, 0.85, 0.45, 0.85, {
+        rotY: p.yaw,
+        materialRole: 'concrete',
+        layer: 'track'
+      });
+    }
+  }
+}
+
+function trTrackBuildAerialCableway(batcher, route) {
+  const cableY = 4.85;
+  const stepLen = 4.0;
+  for (let s = route.sMin; s < route.sMax; s += stepLen) {
+    const sNext = Math.min(route.sMax, s + stepLen);
+    if (sNext - s < 0.05) continue;
+    const pA = sampleRouteAtS(route, s);
+    const pB = sampleRouteAtS(route, sNext);
+    const mx = (pA.x + pB.x) * 0.5;
+    const mz = (pA.z + pB.z) * 0.5;
+    const chord = Math.hypot(pB.x - pA.x, pB.z - pA.z);
+    const yaw = Math.atan2(pB.x - pA.x, pB.z - pA.z);
+
+    // Twin parallel steel track/haul cables at y = 4.85m + faint ground shadow pad far below
+    for (const cxOff of [-0.14, 0.14]) {
+      batcher.addBox(mx + cxOff * Math.cos(yaw), cableY, mz - cxOff * Math.sin(yaw), 0.042, 0.042, chord + 0.06, {
+        rotY: yaw,
+        materialRole: 'railHead',
+        layer: 'track'
+      });
+    }
+    batcher.addBox(mx, -0.8, mz, 4.4, 0.1, chord + 0.12, { rotY: yaw, materialRole: 'ground', layer: 'track' });
+  }
+  // Offset gondola pylons on +X side with high cantilever sheave arms reaching x = 0 at cableY
+  for (const sTower of [route.sMin + 9, route.sMax - 9]) {
+    const p = sampleRouteAtS(route, sTower);
+    const mastX = 3.2;
+    batcher.addBox(p.x + mastX * p.rx, 2.35, p.z + mastX * p.rz, 0.45, 6.4, 0.45, {
+      rotY: p.yaw,
+      materialRole: 'steelPortal',
+      layer: 'track'
+    });
+    batcher.addBox(p.x + mastX * p.rx, -0.75, p.z + mastX * p.rz, 1.5, 0.5, 1.5, {
+      rotY: p.yaw,
+      materialRole: 'concrete',
+      layer: 'track'
+    });
+    batcher.addBox(p.x + mastX * 0.46 * p.rx, cableY + 0.45, p.z + mastX * 0.46 * p.rz, mastX + 0.65, 0.28, 0.34, {
+      rotY: p.yaw,
+      materialRole: 'steelPortal',
+      layer: 'track'
+    });
+    // Multi-sheave roller beam cradling cables at x = 0
+    batcher.addBox(p.x, cableY + 0.2, p.z, 0.42, 0.28, 1.85, { rotY: p.yaw, materialRole: 'markerCap', layer: 'track' });
+  }
+}
+
+function buildTrackFixtureGroup(route, lightingTime = 'day') {
+  const grp = new THREE.Group();
+  grp.name = `TrackFixture_${route.mode}`;
+  const isNight = lightingTime === 'night';
+  const gauge = route.gauge || getTrackGaugeSpec(route.trackGaugeId);
+  const halfRailX = gauge.railCenterHalfX;
+  const railW = gauge.railHeadWidth;
+  const railH = gauge.railHeight;
+  const sleeperW = gauge.sleeperWidth;
+
+  const batcher = new VehicleBatcher();
+  if (route.mode === 'tram_street') {
+    trTrackBuildStreetTram(batcher, route, halfRailX, railW);
+  } else if (route.mode === 'monorail_straddle') {
+    trTrackBuildStraddleMonorail(batcher, route);
+  } else if (route.mode === 'monorail_suspended') {
+    trTrackBuildSuspendedMonorail(batcher, route);
+  } else if (route.mode === 'cableway_aerial') {
+    trTrackBuildAerialCableway(batcher, route);
+  } else {
+    trTrackBuildConventionalRail(batcher, route, halfRailX, railW, railH, sleeperW);
+  }
+
+  const trackMaterials = {
+    ballast: getSolidVehicleMaterial(isNight ? '#282d33' : '#585d63', 8),
+    ground: getSolidVehicleMaterial(isNight ? '#161c22' : '#353d44', 6),
+    asphalt: getSolidVehicleMaterial(isNight ? '#181c22' : '#2d323a', 10),
+    concrete: getSolidVehicleMaterial(isNight ? '#444b54' : '#8d96a0', 16),
+    concreteDark: getSolidVehicleMaterial(isNight ? '#2c3239' : '#636b75', 14),
+    steelPortal: getSolidVehicleMaterial(isNight ? '#2f3d4c' : '#54667a', 42),
+    catenaryWire: getSolidVehicleMaterial(isNight ? '#7a8894' : '#4a5562', 60),
+    sleeper: getSolidVehicleMaterial(isNight ? '#241e1a' : '#4a3d33', 10),
+    railWeb: getSolidVehicleMaterial(isNight ? '#3a322d' : '#5c4b3f', 24),
+    railHead: getSolidVehicleMaterial(isNight ? '#7a8896' : '#a9b5c0', 95),
+    markerPost: getSolidVehicleMaterial('#d6dde6', 18),
+    markerCap: getSolidVehicleMaterial('#e09e2e', 30)
+  };
+
+  batcher.finalize(grp, trackMaterials, { castShadow: false, receiveShadow: true });
+  return grp;
+}
+
+  // --- Module: transit/consist.js ---
+const TRAINSET_STORAGE_KEY = 'b-remastered-city-trainset-presets-v1';
+
+function trConsistMakeUnitEntry(presetOrCfg, index = 0, options = {}) {
+  const base = typeof presetOrCfg === 'string'
+    ? (PRESETS[presetOrCfg] || PRESETS.freight_boxcar)
+    : (presetOrCfg || PRESETS.freight_boxcar);
+  const cfg = sanitiseConfig({
+    ...copy(BASE),
+    ...copy(base),
+    ...(options.overrides || {}),
+    vehicleDomain: 'rail'
+  });
+  return {
+    unitId: options.unitId || `unit_${index + 1}_${cfg.style}`,
+    preset: base.style || cfg.style,
+    reversed: Boolean(options.reversed),
+    config: cfg
+  };
+}
+
+function createConsistFromPreset(presetId = 'freight_manifest', seedOverride = null) {
+  const def = RAIL_DEFAULT_CONSISTS[presetId] || RAIL_DEFAULT_CONSISTS.freight_manifest;
+  const seed = clamp(Math.floor(Number(seedOverride) || 4012), 1, 99999999);
+  const consist = {
+    schemaVersion: TRAINSET_SCHEMA_VERSION,
+    presetId: def.id,
+    name: def.name,
+    description: def.description,
+    seed,
+    sharedLivery: Boolean(def.sharedLivery),
+    couplingGap: clamp(Number(def.couplingGap) || 0.16, 0.06, 0.65),
+    sharedPalette: def.sharedPalette ? copy(def.sharedPalette) : {
+      bodyPrimaryColor: '#253c59',
+      bodySecondaryColor: '#c8d2dc',
+      liveryStripeColor: '#25a58d'
+    },
+    units: (def.units || []).map((u, idx) => trConsistMakeUnitEntry(u.preset, idx, {
+      reversed: u.reversed,
+      overrides: { ...(u.overrides || {}), seed: seed + idx * 101 }
+    }))
+  };
+
+  if (consist.sharedLivery) {
+    applySharedLiveryToConsist(consist, consist.sharedPalette);
+  }
+  return sanitiseConsist(consist);
+}
+
+function sanitiseConsist(raw) {
+  if (!raw || typeof raw !== 'object') {
+    return createConsistFromPreset('freight_manifest');
+  }
+  const unitsIn = Array.isArray(raw.units) && raw.units.length > 0
+    ? raw.units
+    : RAIL_DEFAULT_CONSISTS.freight_manifest.units.map((u, idx) => trConsistMakeUnitEntry(u.preset, idx, u));
+
+  const units = unitsIn.slice(0, 16).map((u, idx) => {
+    const rawCfg = u?.config || PRESETS[u?.preset] || PRESETS.freight_boxcar;
+    const cfg = sanitiseConfig({ ...copy(rawCfg), vehicleDomain: 'rail' });
+    return {
+      unitId: String(u?.unitId || `unit_${idx + 1}_${cfg.style}`),
+      preset: u?.preset || cfg.style,
+      reversed: Boolean(u?.reversed),
+      config: cfg
+    };
+  });
+
+  return {
+    schemaVersion: TRAINSET_SCHEMA_VERSION,
+    presetId: String(raw.presetId || 'custom'),
+    name: String(raw.name || 'Custom Rail Consist').slice(0, 48),
+    description: String(raw.description || 'Modular railway consist formation.').slice(0, 140),
+    seed: clamp(Math.floor(Number(raw.seed) || 4012), 1, 99999999),
+    sharedLivery: Boolean(raw.sharedLivery),
+    couplingGap: roundNum(clamp(Number(raw.couplingGap) ?? 0.16, 0.06, 0.65), 3),
+    sharedPalette: {
+      bodyPrimaryColor: raw.sharedPalette?.bodyPrimaryColor || units[0]?.config?.bodyPrimaryColor || '#24426b',
+      bodySecondaryColor: raw.sharedPalette?.bodySecondaryColor || units[0]?.config?.bodySecondaryColor || '#1f2731',
+      liveryStripeColor: raw.sharedPalette?.liveryStripeColor || units[0]?.config?.liveryStripeColor || '#eab02e'
+    },
+    units
+  };
+}
+
+function addConsistUnit(consist, presetId = 'freight_boxcar', insertIndex = -1) {
+  const next = sanitiseConsist(consist);
+  if (next.units.length >= 16) return next;
+  const idx = insertIndex >= 0 && insertIndex <= next.units.length ? insertIndex : next.units.length;
+  const leadGauge = next.units[0]?.config?.railTrackGauge || 'standard_1435';
+  const entry = trConsistMakeUnitEntry(presetId, next.units.length, {
+    unitId: `unit_${Date.now()}_${next.units.length + 1}`,
+    overrides: {
+      railTrackGauge: leadGauge,
+      seed: next.seed + (next.units.length + 1) * 137
+    }
+  });
+  if (next.sharedLivery && next.sharedPalette) {
+    entry.config.bodyPrimaryColor = next.sharedPalette.bodyPrimaryColor;
+    entry.config.bodySecondaryColor = next.sharedPalette.bodySecondaryColor;
+    entry.config.liveryStripeColor = next.sharedPalette.liveryStripeColor;
+  }
+  next.units.splice(idx, 0, entry);
+  return sanitiseConsist(next);
+}
+
+function removeConsistUnit(consist, index) {
+  const next = sanitiseConsist(consist);
+  if (next.units.length <= 1 || index < 0 || index >= next.units.length) return next;
+  next.units.splice(index, 1);
+  return sanitiseConsist(next);
+}
+
+function duplicateConsistUnit(consist, index) {
+  const next = sanitiseConsist(consist);
+  if (next.units.length >= 16 || index < 0 || index >= next.units.length) return next;
+  const src = next.units[index];
+  const dup = {
+    unitId: `unit_${Date.now()}_dup_${next.units.length + 1}`,
+    preset: src.preset,
+    reversed: src.reversed,
+    config: copy(src.config)
+  };
+  dup.config.seed = (Number(src.config.seed) || 1000) + 17;
+  next.units.splice(index + 1, 0, dup);
+  return sanitiseConsist(next);
+}
+
+function reorderConsistUnit(consist, fromIndex, toIndex) {
+  const next = sanitiseConsist(consist);
+  if (
+    fromIndex < 0 || fromIndex >= next.units.length ||
+    toIndex < 0 || toIndex >= next.units.length ||
+    fromIndex === toIndex
+  ) {
+    return next;
+  }
+  const [moved] = next.units.splice(fromIndex, 1);
+  next.units.splice(toIndex, 0, moved);
+  return sanitiseConsist(next);
+}
+
+function reverseConsistUnit(consist, index) {
+  const next = sanitiseConsist(consist);
+  if (index < 0 || index >= next.units.length) return next;
+  next.units[index].reversed = !next.units[index].reversed;
+  return sanitiseConsist(next);
+}
+
+function applySharedLiveryToConsist(consist, paletteOverride = null, locks = new Set()) {
+  const palette = paletteOverride || consist.sharedPalette || {
+    bodyPrimaryColor: consist.units[0]?.config?.bodyPrimaryColor || '#253c59',
+    bodySecondaryColor: consist.units[0]?.config?.bodySecondaryColor || '#c8d2dc',
+    liveryStripeColor: consist.units[0]?.config?.liveryStripeColor || '#25a58d'
+  };
+  consist.sharedPalette = copy(palette);
+  for (const unit of consist.units || []) {
+    if (!locks.has('bodyPrimaryColor')) unit.config.bodyPrimaryColor = palette.bodyPrimaryColor;
+    if (!locks.has('bodySecondaryColor')) unit.config.bodySecondaryColor = palette.bodySecondaryColor;
+    if (!locks.has('liveryStripeColor')) unit.config.liveryStripeColor = palette.liveryStripeColor;
+    unit.config = sanitiseConfig(unit.config);
+  }
+  return consist;
+}
+
+function randomizeConsistUnit(consist, index, locks = new Set(), rngFn = null) {
+  const next = sanitiseConsist(consist);
+  if (index < 0 || index >= next.units.length) return next;
+  const unit = next.units[index];
+  const r = rngFn || rng32(((Number(unit.config.seed) || 1024) + Math.floor(Math.random() * 88888)) >>> 0);
+  const palFam = unit.config.bodyFamily === 'rail_passenger_coach' ? 'passenger_rail' : pick(r, ['freight_rail', 'muted_industrial', 'construction_yellow']);
+  const pal = generateCoherentPalette(palFam, Math.floor(r() * 999999) + 1, unit.config.roleVariant);
+  for (const [k, v] of Object.entries(pal)) {
+    if (!locks.has(k)) unit.config[k] = v;
+  }
+  if (!locks.has('railCargoType') && unit.config.bodyFamily === 'rail_freight_flatcar') {
+    unit.config.railCargoType = pick(r, ['containers_double_20', 'container_40', 'lumber_stack', 'steel_pipes', 'crates_machinery']);
+  }
+  if (!locks.has('railLiveryPattern')) {
+    unit.config.railLiveryPattern = pick(r, ['solid', 'two_tone_stripe', 'window_band', 'single_band', 'hazard_switcher']);
+  }
+  unit.config.seed = Math.floor(r() * 8999999) + 1000;
+  unit.config = sanitiseConfig(unit.config);
+  return next;
+}
+
+function randomizeWholeConsist(consist, locks = new Set()) {
+  const seed = Math.floor(Math.random() * 8999999) + 1000;
+  const r = rng32(seed);
+  const count = clamp(consist?.units?.length || 4, 2, 6);
+  const leadStyle = locks.has('style') ? consist.units[0]?.config?.style : pick(r, ['diesel_locomotive', 'diesel_switcher']);
+  const freightPool = ['freight_boxcar', 'freight_flatcar', 'freight_tank_car', 'passenger_coach'];
+  let next = sanitiseConsist({
+    ...consist,
+    presetId: 'custom_random',
+    name: `Random Consist #${seed % 1000}`,
+    seed,
+    units: [
+      trConsistMakeUnitEntry(leadStyle, 0, { overrides: { seed } }),
+      ...Array.from({ length: count - 1 }, (_, idx) => trConsistMakeUnitEntry(pick(r, freightPool), idx + 1, {
+        reversed: r() > 0.78,
+        overrides: { seed: seed + (idx + 1) * 131 }
+      }))
+    ]
+  });
+  for (let i = 0; i < next.units.length; i++) {
+    next = randomizeConsistUnit(next, i, locks, r);
+  }
+  if (next.sharedLivery) {
+    const pal = generateCoherentPalette(pick(r, Object.keys(PALETTE_FAMILIES)), seed + 71, 'transit');
+    applySharedLiveryToConsist(next, {
+      bodyPrimaryColor: pal.bodyPrimaryColor,
+      bodySecondaryColor: pal.bodySecondaryColor,
+      liveryStripeColor: pal.liveryStripeColor
+    }, locks);
+  }
+  return next;
+}
+
+function computeConsistLayout(consist, route = null, leadS = 0) {
+  const clean = sanitiseConsist(consist);
+  const unitBlueprints = clean.units.map((u) => generateVehicleBlueprint(u.config));
+  const placements = [];
+  const couplings = [];
+  let cursorFrontS = Number(leadS) || 0;
+
+  for (let i = 0; i < clean.units.length; i++) {
+    const unit = clean.units[i];
+    const bp = unitBlueprints[i];
+    const compat = bp.transitCompatibility;
+    const bodyLen = bp.dimensions.length;
+    const couplerFrontReach = Math.abs(compat.coupling.pullFaceFrontZ) - bodyLen * 0.5;
+    const couplerRearReach = Math.abs(compat.coupling.pullFaceRearZ) - bodyLen * 0.5;
+    const leadReach = unit.reversed ? couplerRearReach : couplerFrontReach;
+    const trailReach = unit.reversed ? couplerFrontReach : couplerRearReach;
+
+    const unitCenterS = i === 0
+      ? cursorFrontS - (bodyLen * 0.5 + leadReach)
+      : cursorFrontS - (bodyLen * 0.5 + leadReach);
+
+    const trailEndS = unitCenterS - (bodyLen * 0.5 + trailReach);
+
+    let routePose = null;
+    if (route) {
+      routePose = solveRailUnitOnRoute({
+        dimensions: bp.dimensions,
+        rail: {
+          bogies: bp.pivots.bogies.map((b) => ({
+            id: b.id,
+            pivotZ: b.anchor.z
+          }))
+        }
+      }, route, unitCenterS, unit.reversed);
+    }
+
+    placements.push({
+      index: i,
+      unitId: unit.unitId,
+      style: unit.config.style,
+      reversed: unit.reversed,
+      centerS: roundNum(unitCenterS, 4),
+      arcLengthOffsetMeters: roundNum((leadS - unitCenterS), 4),
+      frontPullFaceS: roundNum(unitCenterS + bodyLen * 0.5 + leadReach, 4),
+      rearPullFaceS: roundNum(trailEndS, 4),
+      routePose
+    });
+
+    if (i > 0) {
+      const prevUnit = clean.units[i - 1];
+      const prevBp = unitBlueprints[i - 1];
+      const prevCouplerType = prevUnit.reversed
+        ? prevBp.transitCompatibility.coupling.frontCouplerType
+        : prevBp.transitCompatibility.coupling.rearCouplerType;
+      const currCouplerType = unit.reversed
+        ? compat.coupling.rearCouplerType
+        : compat.coupling.frontCouplerType;
+      const linkCheck = areCouplersCompatible(prevCouplerType, currCouplerType);
+
+      let relativeYawDeg = 0;
+      if (routePose && placements[i - 1]?.routePose) {
+        const prevTrackYaw = placements[i - 1].routePose.yaw + (prevUnit.reversed ? Math.PI : 0);
+        const currTrackYaw = routePose.yaw + (unit.reversed ? Math.PI : 0);
+        const diff = Math.abs(trTrackNormalizeAngle(prevTrackYaw - currTrackYaw));
+        relativeYawDeg = roundNum(diff * (180 / Math.PI), 2);
+      }
+
+      couplings.push({
+        index: i - 1,
+        fromUnitId: prevUnit.unitId,
+        toUnitId: unit.unitId,
+        fromCouplerType: prevCouplerType,
+        toCouplerType: currCouplerType,
+        gapMeters: clean.couplingGap,
+        compatible: linkCheck.compatible,
+        reason: linkCheck.reason,
+        relativeYawDeg,
+        maxAllowedYawDeg: linkCheck.maxYawDeg,
+        yawExceeded: relativeYawDeg > linkCheck.maxYawDeg
+      });
+    }
+
+    cursorFrontS = trailEndS - clean.couplingGap;
+  }
+
+  const firstFrontS = placements[0]?.frontPullFaceS ?? 0;
+  const lastRearS = placements[placements.length - 1]?.rearPullFaceS ?? 0;
+  const totalLength = roundNum(Math.max(0, firstFrontS - lastRearS), 3);
+
+  return {
+    consist: clean,
+    unitBlueprints,
+    placements,
+    couplings,
+    totalLength
+  };
+}
+
+function validateConsist(consist, route = null) {
+  const errors = [];
+  const warnings = [];
+  const clean = sanitiseConsist(consist);
+  const solved = computeConsistLayout(clean, route, 0);
+  const leadGauge = clean.units[0]?.config?.railTrackGauge || 'standard_1435';
+
+  let totalAxles = 0;
+  let poweredCount = 0;
+  let maxWidth = 0;
+  let maxHeight = 0;
+  let tightestMinCurve = 20;
+
+  for (let i = 0; i < clean.units.length; i++) {
+    const unit = clean.units[i];
+    const unitVal = validateVehicleBlueprint(unit.config);
+    if (!unitVal.ok) {
+      errors.push(`Unit #${i + 1} (${unit.config.style}): ${unitVal.errors.join('; ')}`);
+    }
+    const bp = solved.unitBlueprints[i];
+    totalAxles += bp.axles?.length || 4;
+    if (bp.transitCompatibility?.identity?.powered) poweredCount++;
+    maxWidth = Math.max(maxWidth, bp.bounds?.meters?.width || 3.0);
+    maxHeight = Math.max(maxHeight, bp.bounds?.meters?.height || 4.2);
+    tightestMinCurve = Math.max(tightestMinCurve, bp.transitCompatibility?.railway?.minimumCurveRadius || 24);
+
+    if (unit.config.railTrackGauge !== leadGauge) {
+      errors.push(`Unit #${i + 1} (${unit.config.railUnitNumber}) track gauge ${unit.config.railTrackGauge} mismatches lead unit gauge ${leadGauge}`);
+    }
+
+    const pose = solved.placements[i]?.routePose;
+    if (pose && route?.mode === 'rail_curved') {
+      if (pose.maxBogieYawDeg > 16.5) {
+        errors.push(`Unit #${i + 1} bogie yaw ${pose.maxBogieYawDeg}° exceeds safe articulation limit (16.5°) on ${route.curveRadius}m curve`);
+      } else if (pose.maxBogieYawDeg > 11.5) {
+        warnings.push(`Unit #${i + 1} bogie steering high (${pose.maxBogieYawDeg}°) on ${route.curveRadius}m curve`);
+      }
+      if (pose.endThrowMeters > 0.65) {
+        warnings.push(`Unit #${i + 1} curved overhang throw is ${pose.endThrowMeters}m — check platform clearance`);
+      }
+    }
+  }
+
+  for (const link of solved.couplings) {
+    if (!link.compatible) {
+      errors.push(`Coupling #${link.index + 1} (${link.fromUnitId} -> ${link.toUnitId}): ${link.reason}`);
+    }
+    if (link.yawExceeded) {
+      errors.push(`Coupling #${link.index + 1} articulation ${link.relativeYawDeg}° exceeds limit (${link.maxAllowedYawDeg}°)`);
+    }
+  }
+
+  if (poweredCount === 0) {
+    warnings.push('Consist currently has no powered locomotive unit');
+  }
+
+  return {
+    ok: errors.length === 0,
+    errors,
+    warnings,
+    summary: {
+      unitCount: clean.units.length,
+      totalLengthMeters: solved.totalLength,
+      totalLengthBUnits: roundNum(solved.totalLength * B_UNITS_PER_METER, 1),
+      totalAxles,
+      poweredUnits: poweredCount,
+      maxWidthMeters: roundNum(maxWidth, 3),
+      maxHeightMeters: roundNum(maxHeight, 3),
+      trackGaugeId: leadGauge,
+      trackGaugeLabel: getTrackGaugeSpec(leadGauge).label,
+      minimumCurveRadiusMeters: roundNum(tightestMinCurve, 1)
+    },
+    solved
+  };
+}
+
+function generateConsistBlueprint(consist, options = {}) {
+  const clean = sanitiseConsist(consist);
+  const route = options.route || null;
+  const val = validateConsist(clean, route);
+  const corePayload = {
+    schemaVersion: TRAINSET_SCHEMA_VERSION,
+    seed: clean.seed,
+    units: clean.units.map((u) => ({ style: u.config.style, reversed: u.reversed, config: u.config })),
+    couplingGap: clean.couplingGap
+  };
+  const revHash = hashBlueprintString(JSON.stringify(corePayload));
+
+  return {
+    schemaVersion: TRAINSET_SCHEMA_VERSION,
+    generator: GENERATOR_META,
+    trainsetId: `trainset_${clean.presetId}_${clean.seed}_${revHash.slice(0, 10)}`,
+    trainsetRevision: `rev_${revHash}`,
+    name: clean.name,
+    description: clean.description,
+    seed: clean.seed,
+    sharedLivery: clean.sharedLivery,
+    sharedPalette: clean.sharedPalette,
+    couplingGap: clean.couplingGap,
+    summary: val.summary,
+    units: clean.units.map((u, i) => ({
+      index: i,
+      unitId: u.unitId,
+      reversed: u.reversed,
+      arcLengthOffsetMeters: val.solved.placements[i]?.arcLengthOffsetMeters || 0,
+      vehicleBlueprint: val.solved.unitBlueprints[i]
+    })),
+    couplings: val.solved.couplings,
+    validation: {
+      ok: val.ok,
+      errors: val.errors,
+      warnings: val.warnings
+    }
+  };
+}
+
+function validateConsistBlueprint(input) {
+  const errors = [];
+  const warnings = [];
+  if (!input || typeof input !== 'object') {
+    return { ok: false, errors: ['Input must be a JSON object'], warnings, consist: null, blueprint: null };
+  }
+  if (input.schemaVersion && input.schemaVersion !== TRAINSET_SCHEMA_VERSION) {
+    warnings.push(`Expected schemaVersion ${TRAINSET_SCHEMA_VERSION}, got ${input.schemaVersion}`);
+  }
+  if (!Array.isArray(input.units) || input.units.length === 0) {
+    errors.push('Trainset blueprint missing units array');
+    return { ok: false, errors, warnings, consist: null, blueprint: null };
+  }
+
+  const normalizedUnits = input.units.map((u, idx) => ({
+    unitId: u.unitId || `unit_${idx + 1}`,
+    preset: u.preset || u.vehicleBlueprint?.style || u.config?.style || 'freight_boxcar',
+    reversed: Boolean(u.reversed),
+    config: u.vehicleBlueprint?.config || u.config || PRESETS[u.preset] || PRESETS.freight_boxcar
+  }));
+
+  const clean = sanitiseConsist({
+    ...input,
+    units: normalizedUnits
+  });
+  const val = validateConsist(clean);
+  const bp = generateConsistBlueprint(clean);
+  return {
+    ok: val.ok,
+    errors: [...errors, ...val.errors],
+    warnings: [...warnings, ...val.warnings],
+    consist: clean,
+    blueprint: bp
+  };
+}
+
+function positionConsistOnRoute(consistGroup, route, leadDistanceS = 0, wheelSpinRad = 0, doorOpenFactor = null, poseOptions = {}) {
+  if (!consistGroup?.userData?.consistData) return null;
+  const consist = consistGroup.userData.consistData;
+  const activeRoute = route || consistGroup.userData.route || createTrackRoute({ mode: 'rail_straight' });
+  const solved = computeConsistLayout(consist, activeRoute, leadDistanceS);
+  const unitGroups = consistGroup.userData.unitGroups || [];
+
+  for (let i = 0; i < unitGroups.length; i++) {
+    const uGrp = unitGroups[i];
+    const placement = solved.placements[i];
+    if (!uGrp || !placement?.routePose) continue;
+    const pose = placement.routePose;
+    uGrp.rotation.order = 'YXZ';
+    uGrp.position.set(pose.position[0], pose.position[1], pose.position[2]);
+    uGrp.rotation.set(pose.pitchRotX, pose.yaw, 0);
+
+    const cfg = uGrp.userData?.unitConfig || {};
+    const radius = Math.max(0.3, uGrp.userData?.layout?.dimensions?.wheelRadius || 0.45);
+    const localSpin = (placement.reversed ? -1 : 1) * (wheelSpinRad / (radius / 0.48));
+    const doorFactor = doorOpenFactor !== null ? doorOpenFactor : clamp(cfg.railDoorsOpen ?? 0, 0, 1);
+
+    applyRailVehiclePose(uGrp, {
+      frontBogieYawRad: pose.frontBogieLocalYaw,
+      rearBogieYawRad: pose.rearBogieLocalYaw,
+      wheelSpinRad: localSpin,
+      doorOpenFactor: doorFactor,
+      pantographHeight: poseOptions.pantographHeight ?? cfg.railPantographHeight ?? 0.85,
+      tramArticulationRad: pose.tramArticulationRad || 0,
+      cabinSwingRad: poseOptions.cabinSwingRad ?? pose.cabinSwingRad ?? 0
+    });
+  }
+
+  consistGroup.userData.lastSolved = solved;
+  return solved;
+}
+
+function createConsistMeshGroup(rawConsist, options = {}) {
+  const consist = sanitiseConsist(rawConsist);
+  const root = new THREE.Group();
+  root.name = `Trainset_${consist.presetId}_${consist.seed}`;
+
+  const unitGroups = consist.units.map((unit, idx) => {
+    const uGrp = createRailVehicle(unit.config, options);
+    uGrp.name = `Unit_${idx}_${unit.config.style}`;
+    uGrp.userData.consistUnitIndex = idx;
+    uGrp.userData.consistUnitId = unit.unitId;
+    uGrp.userData.reversed = unit.reversed;
+    root.add(uGrp);
+    return uGrp;
+  });
+
+  const baseLayout = computeConsistLayout(consist, null, 0);
+  const defaultLength = Math.max(96, baseLayout.totalLength * 2.5);
+  const leadBf = consist.units[0]?.config?.bodyFamily;
+  const defaultMode = options.trackMode || (leadBf === 'rail_straddle_monorail'
+    ? 'monorail_straddle'
+    : leadBf === 'rail_suspended_monorail'
+      ? 'monorail_suspended'
+      : 'rail_straight');
+  const route = options.route || createTrackRoute({
+    mode: defaultMode,
+    electrified: Boolean(options.electrified),
+    trackGaugeId: consist.units[0]?.config?.railTrackGauge || 'standard_1435',
+    totalLength: defaultLength
+  });
+
+  const leadS = Number.isFinite(Number(options.leadS))
+    ? Number(options.leadS)
+    : baseLayout.totalLength * 0.5;
+
+  root.userData.consistData = consist;
+  root.userData.unitGroups = unitGroups;
+  root.userData.route = route;
+  root.userData.consistBlueprint = generateConsistBlueprint(consist, { route });
+
+  positionConsistOnRoute(root, route, leadS, Number(options.wheelSpinRad) || 0, options.doorOpenFactor ?? null, options);
+  return root;
+}
+
   // --- Module: studio/preview.js ---
 function disposeObject(obj) {
   if (!obj) return;
@@ -8416,22 +16929,19 @@ function previewMakeLabelSprite(text, bgColor = '#0c2334', borderColor = '#4de2f
   return sprite;
 }
 
-function buildVehicleDebugGizmos(vehicleGroup) {
-  const root = new THREE.Group();
-  root.name = 'VehicleDebugGizmos';
-  if (!vehicleGroup?.userData?.blueprint) return root;
-
-  const bp = vehicleGroup.userData.blueprint;
+function previewBuildSingleGizmo(vehicleGroup, targetRoot, showFrontArrow = true) {
+  const bp = vehicleGroup?.userData?.blueprint;
+  if (!bp) return;
   const park = bp.parkingFootprint?.meters || { width: 2.5, length: 5.0 };
   const colBox = bp.collisionBounds?.compositeBox;
 
-  // Parking Footprint Wireframe Box on ground
+  // Parking / Track Footprint Wireframe Box on ground
   const padGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(park.width, 0.04, park.length));
   const padMat = new THREE.LineBasicMaterial({ color: '#3af0b8' });
   const padWire = new THREE.LineSegments(padGeo, padMat);
   padWire.position.y = 0.025;
   padWire.userData = { _ownedMat: true };
-  root.add(padWire);
+  targetRoot.add(padWire);
 
   // Composite Collision Bounds Wireframe
   if (colBox) {
@@ -8440,20 +16950,37 @@ function buildVehicleDebugGizmos(vehicleGroup) {
     const colWire = new THREE.LineSegments(colGeo, colMat);
     colWire.position.set(colBox.center.x, colBox.center.y, colBox.center.z);
     colWire.userData = { _ownedMat: true };
-    root.add(colWire);
+    targetRoot.add(colWire);
   }
 
   // Forward (+Z) Direction Arrow
-  const frontZ = (bp.bounds?.meters?.maxZ || 2.2) + 0.15;
-  const arrow = new THREE.ArrowHelper(
-    new THREE.Vector3(0, 0, 1),
-    new THREE.Vector3(0, 0.12, frontZ),
-    0.9,
-    0x4de2ff,
-    0.26,
-    0.16
-  );
-  root.add(arrow);
+  if (showFrontArrow) {
+    const frontZ = (bp.bounds?.meters?.maxZ || 2.2) + 0.15;
+    const arrow = new THREE.ArrowHelper(
+      new THREE.Vector3(0, 0, 1),
+      new THREE.Vector3(0, 0.12, frontZ),
+      0.9,
+      0x4de2ff,
+      0.26,
+      0.16
+    );
+    targetRoot.add(arrow);
+  }
+
+  // Rail Coupler & Bogie Anchors when rail blueprint
+  if (bp.pivots?.couplers) {
+    const cMat = new THREE.MeshBasicMaterial({ color: '#4de2ff' });
+    const sGeo = new THREE.SphereGeometry(0.11, 8, 8);
+    for (const endKey of ['front', 'rear']) {
+      const anc = bp.pivots.couplers[endKey];
+      if (!anc) continue;
+      const sp = new THREE.Mesh(sGeo.clone(), cMat);
+      sp.position.set(anc.x, anc.y, anc.pullFaceZ ?? anc.z);
+      sp.userData = { _ownedMat: true };
+      targetRoot.add(sp);
+    }
+    sGeo.dispose();
+  }
 
   // Axle Line & Wheel Center Markers
   for (const axle of bp.axles || []) {
@@ -8462,13 +16989,60 @@ function buildVehicleDebugGizmos(vehicleGroup) {
     const bar = new THREE.Mesh(barGeo, axMat);
     bar.position.set(0, 0.03, axle.z);
     bar.userData = { _ownedMat: true };
-    root.add(bar);
+    targetRoot.add(bar);
 
     const lbl = previewMakeLabelSprite(`${axle.id} (${axle.z}m)`, '#1b0f26', '#ff6ec7');
     lbl.position.set(axle.wheelCenterX + 0.65, 0.35, axle.z);
-    root.add(lbl);
+    targetRoot.add(lbl);
+  }
+}
+
+function buildVehicleDebugGizmos(vehicleGroup) {
+  const root = new THREE.Group();
+  root.name = 'VehicleDebugGizmos';
+  if (!vehicleGroup) return root;
+  vehicleGroup.updateMatrixWorld(true);
+
+  if (Array.isArray(vehicleGroup.userData?.unitGroups)) {
+    const unitGroups = vehicleGroup.userData.unitGroups;
+    unitGroups.forEach((uGrp, idx) => {
+      const unitFrame = new THREE.Group();
+      unitFrame.rotation.order = 'YXZ';
+      unitFrame.position.copy(uGrp.position);
+      unitFrame.rotation.copy(uGrp.rotation);
+      previewBuildSingleGizmo(uGrp, unitFrame, idx === 0);
+      root.add(unitFrame);
+    });
+
+    // Coupling link status lines between adjacent units
+    const couplings = vehicleGroup.userData?.lastSolved?.couplings || [];
+    for (let i = 0; i < couplings.length; i++) {
+      const link = couplings[i];
+      const uA = unitGroups[i];
+      const uB = unitGroups[i + 1];
+      if (!uA || !uB) continue;
+      const bpA = uA.userData?.blueprint;
+      const bpB = uB.userData?.blueprint;
+      if (!bpA?.pivots?.couplers || !bpB?.pivots?.couplers) continue;
+      const revA = Boolean(uA.userData?.reversed);
+      const revB = Boolean(uB.userData?.reversed);
+      const localA = revA ? bpA.pivots.couplers.front : bpA.pivots.couplers.rear;
+      const localB = revB ? bpB.pivots.couplers.rear : bpB.pivots.couplers.front;
+      const pA = new THREE.Vector3(localA.x, localA.y, localA.pullFaceZ ?? localA.z).applyMatrix4(uA.matrixWorld);
+      const pB = new THREE.Vector3(localB.x, localB.y, localB.pullFaceZ ?? localB.z).applyMatrix4(uB.matrixWorld);
+      const lineGeo = new THREE.BufferGeometry().setFromPoints([pA, pB]);
+      const lineMat = new THREE.LineBasicMaterial({
+        color: link.compatible && !link.yawExceeded ? '#3af0b8' : '#ff4d5a'
+      });
+      const line = new THREE.Line(lineGeo, lineMat);
+      line.userData = { _ownedMat: true };
+      root.add(line);
+    }
+    return root;
   }
 
+  if (!vehicleGroup.userData?.blueprint) return root;
+  previewBuildSingleGizmo(vehicleGroup, root, true);
   return root;
 }
 
@@ -8488,13 +17062,49 @@ function addEnvBox(parent, x, y, z, w, h, d, colorHex, receiveShadow = true) {
   return mesh;
 }
 
-function rebuildVehicleEnvironment(environmentGroup, mode, showGrid, boundsMeters = null, lightingTime = 'day') {
+function rebuildVehicleEnvironment(environmentGroup, mode, showGrid, boundsMeters = null, lightingTime = 'day', trackOptions = null) {
   disposeObject(environmentGroup);
-  if (mode === 'none' && !showGrid) return;
+  if (mode === 'none' && !showGrid) return null;
 
   const isNight = lightingTime === 'night';
-  const span = boundsMeters ? Math.max(boundsMeters.length * 2.6, boundsMeters.width * 4, 14) : 14;
-  const gridSpan = Math.max(18, span * 1.4);
+  const span = boundsMeters ? Math.max(boundsMeters.length * 2.2, boundsMeters.width * 4, 14) : 14;
+  const gridSpan = Math.max(18, Math.min(220, span * 1.4));
+
+  const railEnvModes = new Set([
+    'rail_straight',
+    'rail_curved',
+    'rail_incline',
+    'tram_street',
+    'monorail_straddle',
+    'monorail_suspended',
+    'cableway_aerial'
+  ]);
+  if (railEnvModes.has(mode)) {
+    const route = createTrackRoute({
+      mode,
+      curved: Boolean(trackOptions?.curved),
+      electrified: Boolean(trackOptions?.electrified),
+      curveRadius: trackOptions?.curveRadius || 48,
+      gradePercent: trackOptions?.gradePercent || 3.0,
+      trackGaugeId: trackOptions?.trackGaugeId || undefined,
+      totalLength: Math.max(96, (boundsMeters?.length || 18) * 2.6)
+    });
+    const trackGrp = buildTrackFixtureGroup(route, lightingTime);
+    environmentGroup.add(trackGrp);
+    if (showGrid) {
+      const gridColor = isNight ? 0x1e4b68 : 0x2a6988;
+      const subColor = isNight ? 0x0e2334 : 0x163246;
+      const grid = new THREE.GridHelper(Math.max(60, gridSpan), 36, gridColor, subColor);
+      const gridY = mode === 'monorail_straddle'
+        ? -3.75
+        : (mode === 'monorail_suspended' || mode === 'cableway_aerial')
+          ? -0.95
+          : -0.55;
+      grid.position.set(0, gridY, 0);
+      environmentGroup.add(grid);
+    }
+    return route;
+  }
 
   if (showGrid) {
     const gridColor = isNight ? 0x1e4b68 : 0x2a6988;
@@ -8512,7 +17122,7 @@ function rebuildVehicleEnvironment(environmentGroup, mode, showGrid, boundsMeter
     disc.receiveShadow = true;
     disc.userData = { _ownedMat: true };
     environmentGroup.add(disc);
-    return;
+    return null;
   }
 
   const asphaltColor = isNight ? '#111820' : '#252c34';
@@ -8571,6 +17181,7 @@ function rebuildVehicleEnvironment(environmentGroup, mode, showGrid, boundsMeter
 
 function resetCameraForFocus(camera, orbit, vehicleGroup, focusMode = 'hero', scene = null) {
   if (!camera || !orbit || !vehicleGroup) return;
+  vehicleGroup.updateMatrixWorld(true);
 
   const box = new THREE.Box3().setFromObject(vehicleGroup);
   const size = new THREE.Vector3();
@@ -8582,31 +17193,67 @@ function resetCameraForFocus(camera, orbit, vehicleGroup, focusMode = 'hero', sc
   const safeW = Math.max(1.6, size.x || 1.9);
   const safeH = Math.max(1.2, size.y || 1.6);
   const maxDim = Math.max(safeLen, safeW, safeH);
+  const aspect = Math.max(0.45, Number(camera.aspect) || 1.3);
+  const aspectPad = aspect < 1.05 ? Math.min(2.1, 1.08 / aspect) : 1.0;
 
-  camera.far = Math.max(400, maxDim * 35);
+  camera.far = Math.max(600, maxDim * 35);
   camera.near = 0.08;
   camera.updateProjectionMatrix();
-  orbit.minDistance = Math.max(1.8, maxDim * 0.45);
-  orbit.maxDistance = Math.max(36, maxDim * 6.5);
+  orbit.minDistance = Math.max(1.8, Math.min(8, maxDim * 0.18));
+  orbit.maxDistance = Math.max(48, maxDim * 5.8 * aspectPad);
 
   if (scene?.fog) {
-    scene.fog.near = Math.max(25, maxDim * 4);
-    scene.fog.far = Math.max(120, maxDim * 18);
+    scene.fog.near = Math.max(45, maxDim * 4.2 * aspectPad);
+    scene.fog.far = Math.max(180, maxDim * 15 * aspectPad);
   }
 
+  const leadUnit = Array.isArray(vehicleGroup.userData?.unitGroups)
+    ? vehicleGroup.userData.unitGroups[0]
+    : vehicleGroup;
+
   if (focusMode === 'profile') {
-    orbit.target.set(center.x, safeH * 0.48, center.z);
-    const dist = Math.max(4.8, safeLen * 1.42, safeH * 2.1);
-    camera.position.set(center.x + dist, safeH * 0.58, center.z);
+    orbit.target.set(center.x, center.y, center.z);
+    const dist = Math.max(5.0, maxDim * 1.18 * aspectPad, safeH * 2.2);
+    camera.position.set(center.x + dist, center.y + safeH * 0.28, center.z);
   } else if (focusMode === 'street') {
-    orbit.target.set(center.x, safeH * 0.45, center.z + safeLen * 0.08);
-    const dist = Math.max(4.2, maxDim * 1.25);
-    camera.position.set(center.x + dist * 0.62, Math.max(1.15, safeH * 0.56), center.z + dist * 0.85);
+    orbit.target.set(center.x, center.y, center.z + safeLen * 0.08);
+    const dist = Math.max(4.4, maxDim * 1.18 * aspectPad);
+    camera.position.set(center.x + dist * 0.58, Math.max(1.25, center.y + safeH * 0.24), center.z + dist * 0.82);
+  } else if (focusMode === 'top') {
+    orbit.target.set(center.x, center.y * 0.5, center.z);
+    const dist = Math.max(6.5, maxDim * 1.28 * aspectPad);
+    camera.position.set(center.x + 0.01, center.y + dist, center.z);
+  } else if (focusMode === 'fit_train') {
+    orbit.target.set(center.x, center.y * 0.72, center.z);
+    const dist = Math.max(9.0, maxDim * 1.22 * aspectPad);
+    camera.position.set(center.x + dist * 0.72, center.y + dist * 0.42, center.z + dist * 0.68);
+  } else if (focusMode === 'cab' && leadUnit) {
+    const uBox = new THREE.Box3().setFromObject(leadUnit);
+    const uCenter = new THREE.Vector3();
+    const uSize = new THREE.Vector3();
+    uBox.getCenter(uCenter);
+    uBox.getSize(uSize);
+    const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(leadUnit.quaternion);
+    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(leadUnit.quaternion);
+    const frontPt = uCenter.clone().addScaledVector(fwd, uSize.z * 0.34);
+    orbit.target.copy(frontPt).setY(uCenter.y + 0.4);
+    camera.position.copy(frontPt).addScaledVector(fwd, 5.2 * aspectPad).addScaledVector(right, 4.4 * aspectPad);
+    camera.position.y = uCenter.y + 2.0;
+  } else if (focusMode === 'bogie' && leadUnit) {
+    const bPivot = leadUnit.userData?.railParts?.bogieMap?.front;
+    const targetWorld = new THREE.Vector3();
+    if (bPivot) bPivot.getWorldPosition(targetWorld);
+    else leadUnit.getWorldPosition(targetWorld);
+    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(leadUnit.quaternion);
+    const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(leadUnit.quaternion);
+    orbit.target.set(targetWorld.x, targetWorld.y + 0.52, targetWorld.z);
+    camera.position.copy(orbit.target).addScaledVector(right, 3.6).addScaledVector(fwd, 1.4);
+    camera.position.y = targetWorld.y + 1.05;
   } else {
     // Hero 3/4 view
-    orbit.target.set(center.x, safeH * 0.44, center.z);
-    const dist = Math.max(4.8, maxDim * 1.32);
-    camera.position.set(center.x + dist * 0.76, safeH * 0.65 + dist * 0.3, center.z + dist * 0.78);
+    orbit.target.set(center.x, center.y * 0.86, center.z);
+    const dist = Math.max(4.8, maxDim * 1.24 * aspectPad);
+    camera.position.set(center.x + dist * 0.72, center.y + safeH * 0.3 + dist * 0.28, center.z + dist * 0.74);
   }
 
   orbit.update();
@@ -8910,7 +17557,23 @@ async function exportVehicleGLB(state, ready, activeBlueprintName, loadExporterF
   }
 }
 
-function applyImportedVehicleData(parsed, sourceLabel = 'Imported Vehicle', applyFn = null, toast = null) {
+function applyImportedVehicleData(parsed, sourceLabel = 'Imported Vehicle', applyFn = null, toast = null, applyConsistFn = null) {
+  if (parsed && (parsed.schemaVersion === TRAINSET_SCHEMA_VERSION || (Array.isArray(parsed.units) && parsed.units.length > 0))) {
+    const tRes = validateConsistBlueprint(parsed);
+    if (!tRes.ok && !tRes.consist) {
+      if (toast) toast(`Trainset Import Rejected: ${tRes.errors.join('; ')}`);
+      return tRes;
+    }
+    if (applyConsistFn) {
+      applyConsistFn(tRes.consist, sourceLabel);
+    }
+    if (toast) {
+      const warnMsg = tRes.warnings.length ? ` (${tRes.warnings.length} Warnings)` : '';
+      toast(`Loaded Trainset: ${tRes.consist.name || sourceLabel}${warnMsg}`);
+    }
+    return tRes;
+  }
+
   const res = validateVehicleBlueprint(parsed);
   if (!res.ok) {
     if (toast) toast(`Import Rejected: ${res.errors.join('; ')}`);
@@ -8928,19 +17591,403 @@ function applyImportedVehicleData(parsed, sourceLabel = 'Imported Vehicle', appl
   return res;
 }
 
-function handleVehicleFileImport(file, onApply, toast) {
+function handleVehicleFileImport(file, onApply, toast, onApplyConsist = null) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = () => {
     try {
       const parsed = JSON.parse(String(reader.result || '{}'));
-      const cleanName = file.name.replace(/\.(vehicle\.)?json$/i, '');
-      applyImportedVehicleData(parsed, cleanName, onApply, toast);
+      const cleanName = file.name.replace(/\.(vehicle|trainset)?\.json$/i, '').replace(/\.json$/i, '');
+      applyImportedVehicleData(parsed, cleanName, onApply, toast, onApplyConsist);
     } catch (err) {
       if (toast) toast(`Invalid Json File: ${err.message}`);
     }
   };
   reader.readAsText(file);
+}
+
+function exportConsistBlueprint(consist, route = null, toast = null) {
+  const clean = sanitiseConsist(consist);
+  const bp = generateConsistBlueprint(clean, { route });
+  const name = safeVehicleName({ style: clean.presetId }, clean.name || 'rail-trainset');
+  const blob = new Blob([JSON.stringify(bp, null, 2)], { type: 'application/json' });
+  fileDownload(`${name}.trainset.json`, blob);
+  if (toast) toast(`Exported Trainset Blueprint: ${name}.trainset.json`);
+  return bp;
+}
+
+async function exportConsistGLB(consist, route, leadS, ready, loadExporterFn, toast, setStatus) {
+  if (!ready) {
+    if (toast) toast('Wait For 3d Preview Before Exporting Trainset');
+    return;
+  }
+  try {
+    if (setStatus) setStatus('Preparing Trainset Glb...');
+    await loadExporterFn();
+    const clean = sanitiseConsist(consist);
+    const exportGroup = createConsistMeshGroup(clean, { route, leadS });
+    exportGroup.updateMatrixWorld(true);
+
+    const exporter = new THREE.GLTFExporter();
+    const name = safeVehicleName({ style: clean.presetId }, clean.name || 'rail-trainset');
+    if (setStatus) setStatus('Generating Trainset Glb...');
+
+    await new Promise((resolve, reject) => {
+      try {
+        exporter.parse(
+          exportGroup,
+          (result) => {
+            const blob = result instanceof ArrayBuffer
+              ? new Blob([result], { type: 'model/gltf-binary' })
+              : new Blob([JSON.stringify(result, null, 2)], { type: 'model/gltf+json' });
+            fileDownload(`${name}.glb`, blob);
+            if (toast) toast(`Exported 3d Trainset: ${name}.glb`);
+            resolve();
+          },
+          { binary: true, onlyVisible: false }
+        );
+      } catch (err) {
+        reject(err);
+      }
+    });
+    expDisposeTempGroup(exportGroup);
+    if (setStatus) setStatus('Trainset Export Complete');
+  } catch (err) {
+    console.error('Trainset Glb Export Error:', err);
+    if (toast) toast(`Trainset Export Error: ${err.message}`);
+    if (setStatus) setStatus('Export Failed');
+  }
+}
+
+  // --- Module: studio/consist-ui.js ---
+function consistUiGetSavedList() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(TRAINSET_STORAGE_KEY) || '[]');
+    return Array.isArray(raw) ? raw : [];
+  } catch {
+    return [];
+  }
+}
+
+function renderConsistPanel(container, ctx) {
+  if (!container || !ctx) return;
+  container.innerHTML = '';
+
+  const consist = ctx.consist;
+  if (!consist) return;
+  const validation = ctx.consistValidation || { ok: true, errors: [], warnings: [], summary: {}, solved: { couplings: [] } };
+  const selectedIdx = clamp(ctx.selectedUnitIndex || 0, 0, Math.max(0, consist.units.length - 1));
+
+  // 1. Consist Preset Selector & Mode Prompt
+  const headerGrp = document.createElement('div');
+  headerGrp.className = 'studio-group-label';
+  headerGrp.textContent = 'Trainset & Consist Composer';
+  container.appendChild(headerGrp);
+
+  if (ctx.studioMode !== 'trainset') {
+    const banner = document.createElement('div');
+    banner.className = 'studio-control-group studio-field consist-mode-banner';
+    banner.innerHTML = `
+      <p class="studio-hint">You are currently previewing a single vehicle. Switch to <strong>Trainset Mode</strong> to assemble and run a multi-car consist on the track.</p>
+      <button type="button" class="studio-btn studio-btn-primary" id="btn-enter-trainset-mode"><i class="fa-solid fa-train"></i> Switch To Trainset Mode</button>
+    `;
+    container.appendChild(banner);
+    banner.querySelector('#btn-enter-trainset-mode')?.addEventListener('click', () => {
+      if (ctx.onEnterTrainsetMode) ctx.onEnterTrainsetMode();
+    });
+  }
+
+  // Preset dropdown
+  const presetBox = document.createElement('div');
+  presetBox.className = 'studio-control-group studio-field';
+  presetBox.innerHTML = `<div class="studio-row-head"><label>Curated Consist Preset</label></div>`;
+  const presetSel = document.createElement('select');
+  presetSel.className = 'studio-select';
+  for (const [id, def] of Object.entries(RAIL_DEFAULT_CONSISTS)) {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = `${def.name} (${def.units.length} cars)`;
+    if (consist.presetId === id) opt.selected = true;
+    presetSel.appendChild(opt);
+  }
+  if (!RAIL_DEFAULT_CONSISTS[consist.presetId]) {
+    const customOpt = document.createElement('option');
+    customOpt.value = consist.presetId;
+    customOpt.textContent = `${consist.name || 'Custom Consist'} (${consist.units.length} cars)`;
+    customOpt.selected = true;
+    presetSel.appendChild(customOpt);
+  }
+  presetSel.addEventListener('change', () => {
+    if (ctx.onLoadConsistPreset && RAIL_DEFAULT_CONSISTS[presetSel.value]) {
+      ctx.onLoadConsistPreset(presetSel.value);
+    }
+  });
+  presetBox.appendChild(presetSel);
+  container.appendChild(presetBox);
+
+  // 2. Formation Unit List + Inter-Car Coupler Status
+  const unitGrp = document.createElement('div');
+  unitGrp.className = 'studio-group-label';
+  unitGrp.textContent = `Formation Order (${consist.units.length} Units)`;
+  container.appendChild(unitGrp);
+
+  const listWrap = document.createElement('div');
+  listWrap.className = 'consist-unit-list';
+
+  const couplings = validation.solved?.couplings || [];
+  consist.units.forEach((unit, idx) => {
+    const arch = getStyle(unit.config.style);
+    const isSel = idx === selectedIdx;
+    const row = document.createElement('div');
+    row.className = 'consist-unit-row' + (isSel ? ' active' : '');
+    row.dataset.unitIndex = String(idx);
+
+    const mainBtn = document.createElement('button');
+    mainBtn.type = 'button';
+    mainBtn.className = 'consist-unit-select';
+    mainBtn.innerHTML = `
+      <span class="preset-swatch" style="background:${unit.config.bodyPrimaryColor || '#4c7ca8'}"></span>
+      <span class="consist-unit-info">
+        <span class="consist-unit-title">#${idx + 1} ${unit.config.railUnitNumber || arch.label}${unit.reversed ? ' (Rev)' : ''}</span>
+        <span class="consist-unit-sub">${arch.label} · ${Number(unit.config.overallLength).toFixed(1)}m · ${unit.config.railPowered ? 'Powered' : 'Unpowered'}</span>
+      </span>
+    `;
+    mainBtn.addEventListener('click', () => {
+      if (ctx.onSelectConsistUnit) ctx.onSelectConsistUnit(idx);
+    });
+
+    const actions = document.createElement('div');
+    actions.className = 'consist-unit-actions';
+
+    const makeActBtn = (title, iconClass, onClick, disabled = false) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'consist-mini-icon';
+      b.title = title;
+      b.disabled = disabled;
+      b.innerHTML = `<i class="fa-solid ${iconClass}" aria-hidden="true"></i>`;
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        onClick();
+      });
+      return b;
+    };
+
+    actions.appendChild(makeActBtn('Move Up', 'fa-arrow-up', () => ctx.onReorderConsistUnit?.(idx, idx - 1), idx === 0));
+    actions.appendChild(makeActBtn('Move Down', 'fa-arrow-down', () => ctx.onReorderConsistUnit?.(idx, idx + 1), idx === consist.units.length - 1));
+    actions.appendChild(makeActBtn('Reverse Orientation', 'fa-right-left', () => ctx.onReverseConsistUnit?.(idx)));
+    actions.appendChild(makeActBtn('Duplicate Car', 'fa-copy', () => ctx.onDuplicateConsistUnit?.(idx), consist.units.length >= 16));
+    actions.appendChild(makeActBtn('Randomize Unit', 'fa-dice', () => ctx.onRandomizeConsistUnit?.(idx)));
+    actions.appendChild(makeActBtn('Remove Car', 'fa-trash', () => ctx.onRemoveConsistUnit?.(idx), consist.units.length <= 1));
+
+    row.appendChild(mainBtn);
+    row.appendChild(actions);
+    listWrap.appendChild(row);
+
+    // Coupler link indicator between unit idx and idx+1
+    if (idx < consist.units.length - 1) {
+      const link = couplings[idx];
+      const couplerBadge = document.createElement('div');
+      const isOk = !link || (link.compatible && !link.yawExceeded);
+      couplerBadge.className = 'consist-coupler-link ' + (isOk ? 'ok' : 'bad');
+      const labelTxt = link
+        ? `${link.fromCouplerType} ↔ ${link.toCouplerType} (${link.gapMeters}m${link.relativeYawDeg ? ` · ${link.relativeYawDeg}°` : ''})`
+        : `${consist.couplingGap}m coupler gap`;
+      couplerBadge.innerHTML = `<i class="fa-solid ${isOk ? 'fa-link' : 'fa-link-slash'}" aria-hidden="true"></i> <span>${labelTxt}</span>`;
+      listWrap.appendChild(couplerBadge);
+    }
+  });
+  container.appendChild(listWrap);
+
+  // 3. Add Vehicle Unit Bar
+  const addBox = document.createElement('div');
+  addBox.className = 'studio-control-group studio-field';
+  addBox.innerHTML = `<div class="studio-row-head"><label>Add Car To Formation</label></div>`;
+  const addRow = document.createElement('div');
+  addRow.className = 'studio-row-inline';
+  const addSel = document.createElement('select');
+  addSel.className = 'studio-select';
+  for (const arch of RAIL_ARCHETYPES) {
+    const opt = document.createElement('option');
+    opt.value = arch.preset;
+    opt.textContent = arch.label;
+    if (arch.preset === 'freight_boxcar') opt.selected = true;
+    addSel.appendChild(opt);
+  }
+  const addBtn = document.createElement('button');
+  addBtn.type = 'button';
+  addBtn.className = 'studio-mini-btn';
+  addBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add';
+  addBtn.addEventListener('click', () => {
+    ctx.onAddConsistUnit?.(addSel.value);
+  });
+  addRow.appendChild(addSel);
+  addRow.appendChild(addBtn);
+  addBox.appendChild(addRow);
+  container.appendChild(addBox);
+
+  // 4. Consist-Level Coupling & Shared Livery Controls
+  const cfgGrp = document.createElement('div');
+  cfgGrp.className = 'studio-group-label';
+  cfgGrp.textContent = 'Consist Livery & Coupling';
+  container.appendChild(cfgGrp);
+
+  const gapField = document.createElement('div');
+  gapField.className = 'studio-control-group studio-field';
+  gapField.innerHTML = `
+    <div class="studio-row-head">
+      <label>Coupling Gap</label>
+      <span class="studio-field-value">${Number(consist.couplingGap || 0.16).toFixed(2)}m</span>
+    </div>
+  `;
+  const gapSlider = document.createElement('input');
+  gapSlider.type = 'range';
+  gapSlider.className = 'studio-range';
+  gapSlider.min = '0.06';
+  gapSlider.max = '0.55';
+  gapSlider.step = '0.02';
+  gapSlider.value = String(consist.couplingGap || 0.16);
+  gapSlider.addEventListener('input', () => {
+    const valEl = gapField.querySelector('.studio-field-value');
+    if (valEl) valEl.textContent = `${Number(gapSlider.value).toFixed(2)}m`;
+  });
+  gapSlider.addEventListener('change', () => {
+    ctx.onConsistGapChanged?.(Number(gapSlider.value));
+  });
+  gapField.appendChild(gapSlider);
+  container.appendChild(gapField);
+
+  const liveryBox = document.createElement('div');
+  liveryBox.className = 'studio-control-group studio-field';
+  liveryBox.innerHTML = `
+    <div class="studio-row-head"><label>Shared Trainset Livery</label></div>
+    <label class="studio-row-inline studio-check-row">
+      <input type="checkbox" id="consist-shared-livery" ${consist.sharedLivery ? 'checked' : ''} />
+      <span>Sync Livery Colors Across Units</span>
+    </label>
+    <div class="consist-color-row">
+      <label><span>Primary</span><input type="color" id="consist-col-primary" class="studio-color-input" value="${consist.sharedPalette?.bodyPrimaryColor || '#253c59'}" /></label>
+      <label><span>Secondary</span><input type="color" id="consist-col-secondary" class="studio-color-input" value="${consist.sharedPalette?.bodySecondaryColor || '#c8d2dc'}" /></label>
+      <label><span>Stripe</span><input type="color" id="consist-col-stripe" class="studio-color-input" value="${consist.sharedPalette?.liveryStripeColor || '#25a58d'}" /></label>
+    </div>
+    <div class="studio-row-inline consist-btn-pair">
+      <button type="button" class="studio-mini-btn" id="btn-apply-shared-livery"><i class="fa-solid fa-fill-drip"></i> Apply Livery</button>
+      <button type="button" class="studio-mini-btn" id="btn-rand-consist"><i class="fa-solid fa-dice"></i> Randomize Train</button>
+    </div>
+  `;
+  container.appendChild(liveryBox);
+
+  const getPaletteInputs = () => ({
+    bodyPrimaryColor: liveryBox.querySelector('#consist-col-primary')?.value || '#253c59',
+    bodySecondaryColor: liveryBox.querySelector('#consist-col-secondary')?.value || '#c8d2dc',
+    liveryStripeColor: liveryBox.querySelector('#consist-col-stripe')?.value || '#25a58d'
+  });
+
+  liveryBox.querySelector('#consist-shared-livery')?.addEventListener('change', (e) => {
+    ctx.onToggleSharedLivery?.(Boolean(e.target.checked), getPaletteInputs());
+  });
+  liveryBox.querySelector('#btn-apply-shared-livery')?.addEventListener('click', () => {
+    ctx.onApplySharedLivery?.(getPaletteInputs());
+  });
+  liveryBox.querySelector('#btn-rand-consist')?.addEventListener('click', () => {
+    ctx.onRandomizeWholeConsist?.();
+  });
+
+  // 5. Validation & Compatibility Diagnostics
+  const diagGrp = document.createElement('div');
+  diagGrp.className = 'studio-group-label';
+  diagGrp.textContent = 'Consist Diagnostics';
+  container.appendChild(diagGrp);
+
+  const sum = validation.summary || {};
+  const diagBox = document.createElement('div');
+  diagBox.className = 'studio-control-group studio-field consist-diag-box';
+  diagBox.innerHTML = `
+    <div class="consist-diag-grid">
+      <span>Length: <strong>${sum.totalLengthMeters || 0}m</strong></span>
+      <span>Axles: <strong>${sum.totalAxles || 0}</strong></span>
+      <span>Powered: <strong>${sum.poweredUnits || 0}</strong></span>
+      <span>Min Curve: <strong>${sum.minimumCurveRadiusMeters || 24}m</strong></span>
+    </div>
+    <div class="studio-hint">${sum.trackGaugeLabel || 'Standard Gauge (1435mm)'}</div>
+  `;
+  if (validation.errors?.length) {
+    const errList = document.createElement('div');
+    errList.className = 'consist-diag-errors';
+    errList.innerHTML = validation.errors.map((e) => `<div><i class="fa-solid fa-circle-exclamation"></i> ${e}</div>`).join('');
+    diagBox.appendChild(errList);
+  }
+  if (validation.warnings?.length) {
+    const warnList = document.createElement('div');
+    warnList.className = 'consist-diag-warnings';
+    warnList.innerHTML = validation.warnings.map((w) => `<div><i class="fa-solid fa-triangle-exclamation"></i> ${w}</div>`).join('');
+    diagBox.appendChild(warnList);
+  }
+  container.appendChild(diagBox);
+
+  // 6. Save / Load Custom Consist Presets
+  const saveGrp = document.createElement('div');
+  saveGrp.className = 'studio-group-label';
+  saveGrp.textContent = 'Saved Consist Library';
+  container.appendChild(saveGrp);
+
+  const saveCard = document.createElement('div');
+  saveCard.className = 'studio-control-group studio-field';
+  saveCard.innerHTML = `
+    <div class="studio-custom-save">
+      <input type="text" id="consist-save-name" class="studio-input" placeholder="Trainset Name..." maxlength="40" value="${consist.name || ''}" />
+      <button type="button" class="studio-mini-btn" id="btn-save-consist">Save</button>
+    </div>
+    <div class="studio-custom-list" id="consist-saved-list"></div>
+  `;
+  container.appendChild(saveCard);
+
+  const savedWrap = saveCard.querySelector('#consist-saved-list');
+  const renderSavedConsists = () => {
+    const entries = consistUiGetSavedList();
+    savedWrap.innerHTML = '';
+    if (!entries.length) {
+      savedWrap.innerHTML = '<div class="studio-empty-note">No saved consist presets yet.</div>';
+      return;
+    }
+    entries.forEach((item, idx) => {
+      const row = document.createElement('div');
+      row.className = 'custom-preset-item';
+      const loadBtn = document.createElement('button');
+      loadBtn.type = 'button';
+      loadBtn.className = 'custom-preset-load';
+      loadBtn.innerHTML = `<span class="preset-swatch" style="background:${item.consist?.units?.[0]?.config?.bodyPrimaryColor || '#24426b'}"></span><span>${item.name} (${item.consist?.units?.length || 0})</span>`;
+      loadBtn.addEventListener('click', () => {
+        ctx.onLoadSavedConsist?.(copy(item.consist), item.name);
+      });
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'custom-preset-del';
+      delBtn.innerHTML = '<i class="fa-solid fa-trash" aria-hidden="true"></i>';
+      delBtn.addEventListener('click', () => {
+        const updated = entries.filter((_, i) => i !== idx);
+        localStorage.setItem(TRAINSET_STORAGE_KEY, JSON.stringify(updated));
+        renderSavedConsists();
+        ctx.onToast?.(`Removed "${item.name}"`);
+      });
+      row.appendChild(loadBtn);
+      row.appendChild(delBtn);
+      savedWrap.appendChild(row);
+    });
+  };
+  renderSavedConsists();
+
+  saveCard.querySelector('#btn-save-consist')?.addEventListener('click', () => {
+    const nameInput = saveCard.querySelector('#consist-save-name');
+    const name = (nameInput?.value || '').trim() || `Custom Trainset #${consist.seed % 1000}`;
+    const existing = consistUiGetSavedList();
+    const savedCopy = copy(consist);
+    savedCopy.name = name;
+    existing.unshift({ name, savedAt: new Date().toISOString(), consist: savedCopy });
+    localStorage.setItem(TRAINSET_STORAGE_KEY, JSON.stringify(existing.slice(0, 20)));
+    renderSavedConsists();
+    ctx.onToast?.(`Saved Trainset "${name}"`);
+  });
 }
 
   // --- Module: studio/controls.js ---
@@ -8980,7 +18027,14 @@ function ctrlBuildLockedToggle(key, locks, onToggle) {
   return btn;
 }
 
-function ctrlSchemaDefForKey(key) {
+function ctrlSchemaDefForKey(key, state = null) {
+  if (state && isRailConfig(state)) {
+    for (const rows of Object.values(RAIL_SCHEMA)) {
+      for (const def of rows) {
+        if (def.key === key) return def;
+      }
+    }
+  }
   for (const rows of Object.values(SCHEMA)) {
     for (const def of rows) {
       if (def.key === key) return def;
@@ -8998,11 +18052,19 @@ function ctrlSnapValue(num, def) {
   return clamp(roundNum(snapped, 4), min, max);
 }
 
-function renderStylePicker(container, activeStyle, onSelect) {
+function renderStylePicker(container, activeStyle, onSelect, categoryFilter = 'all', transitSubgroup = 'all_transit') {
   if (!container) return;
   container.innerHTML = '';
 
-  for (const arch of STYLES) {
+  const filtered = STYLES.filter((arch) => {
+    if (categoryFilter !== 'all' && getArchetypeCategoryGroup(arch) !== categoryFilter) return false;
+    if (categoryFilter === 'transit_rail' && transitSubgroup && transitSubgroup !== 'all_transit') {
+      return arch.categoryGroup === transitSubgroup;
+    }
+    return true;
+  });
+
+  for (const arch of filtered) {
     const preset = PRESETS[arch.preset] || {};
     const swatch = preset.bodyPrimaryColor || '#4c7ca8';
     const card = document.createElement('button');
@@ -9010,12 +18072,15 @@ function renderStylePicker(container, activeStyle, onSelect) {
     card.className = 'style-card' + (arch.id === activeStyle ? ' active' : '');
     card.dataset.style = arch.id;
     card.title = arch.description || arch.label;
+    const metaLabel = arch.vehicleDomain === 'rail'
+      ? `${arch.shortClass || 'Rail'} · ${SILHOUETTE_PROFILES[preset.silhouetteFamily]?.label || ''}`
+      : (SILHOUETTE_PROFILES[preset.silhouetteFamily]?.label || arch.shortClass || arch.silhouette || '');
     card.innerHTML = `
       <span class="style-card-top">
         <span class="style-swatch" style="background:${swatch}"></span>
         <span class="style-name">${arch.label}</span>
       </span>
-      <span class="style-meta">${SILHOUETTE_PROFILES[preset.silhouetteFamily]?.label || arch.shortClass || arch.silhouette || ''}</span>
+      <span class="style-meta">${metaLabel}</span>
     `;
     card.addEventListener('click', () => {
       if (onSelect) onSelect(arch.id);
@@ -9031,12 +18096,18 @@ function updateStylePicker(activeStyle) {
   }
 }
 
-function renderPresetList(container, activePresetId, onSelect) {
+function renderPresetList(container, activePresetId, onSelect, categoryFilter = 'all', transitSubgroup = 'all_transit') {
   if (!container) return;
   container.innerHTML = '';
 
   for (const [id, preset] of Object.entries(PRESETS)) {
     const arch = STYLES.find((s) => s.preset === id || s.id === id);
+    if (categoryFilter !== 'all' && arch && getArchetypeCategoryGroup(arch) !== categoryFilter) {
+      continue;
+    }
+    if (categoryFilter === 'transit_rail' && transitSubgroup && transitSubgroup !== 'all_transit' && arch?.categoryGroup !== transitSubgroup) {
+      continue;
+    }
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'preset-btn' + (id === activePresetId ? ' active' : '');
@@ -9112,7 +18183,7 @@ function renderCustomPresets(container, onLoad, toast) {
 }
 
 function ctrlApplyJitteredNumeric(next, key, baseVal, r, spanRatio = 0.14) {
-  const def = ctrlSchemaDefForKey(key);
+  const def = ctrlSchemaDefForKey(key, next);
   if (!def || def.type) return;
   const spread = Math.max((def.step || 0.01) * 2, Math.abs(baseVal) * spanRatio);
   const candidate = baseVal + (r() * 2 - 1) * spread;
@@ -9124,6 +18195,7 @@ function applySeedVariation(state, locks = new Set()) {
   const r = rng32(seedInt);
   const arch = getStyle(state.style);
   const presetBase = PRESETS[arch.preset] || PRESETS.sedan;
+  const railMode = isRailConfig(state);
 
   const setIfUnlocked = (key, val) => {
     if (!locks.has(key) && val !== undefined) {
@@ -9133,7 +18205,22 @@ function applySeedVariation(state, locks = new Set()) {
 
   let chosenFamily = state.paletteFamily || presetBase.paletteFamily || 'civilian_neutrals';
   if (!locks.has('paletteFamily')) {
-    if (!state.roleVariant || state.roleVariant === 'civilian') {
+    if (railMode) {
+      const freightOrHeavy = new Set([
+        'rail_diesel_road_switcher',
+        'rail_diesel_switcher',
+        'rail_steam_loco',
+        'rail_maintenance',
+        'rail_freight_boxcar',
+        'rail_freight_flatcar',
+        'rail_freight_tank',
+        'rail_freight_hopper',
+        'rail_freight_caboose'
+      ]);
+      chosenFamily = !freightOrHeavy.has(state.bodyFamily)
+        ? pick(r, ['passenger_rail', 'bright_city', 'retro_city'])
+        : pick(r, ['freight_rail', 'muted_industrial', 'construction_yellow']);
+    } else if (!state.roleVariant || state.roleVariant === 'civilian') {
       chosenFamily = pick(r, ['civilian_neutrals', 'bright_city', 'muted_industrial']);
     } else {
       chosenFamily = presetBase.paletteFamily || chosenFamily;
@@ -9144,7 +18231,27 @@ function applySeedVariation(state, locks = new Set()) {
   for (const [k, v] of Object.entries(pal)) {
     setIfUnlocked(k, v);
   }
-  setIfUnlocked('colorVariation', ctrlSnapValue(0.04 + r() * 0.12, ctrlSchemaDefForKey('colorVariation')));
+  setIfUnlocked('colorVariation', ctrlSnapValue(0.04 + r() * 0.12, ctrlSchemaDefForKey('colorVariation', state)));
+
+  if (railMode) {
+    const railJitters = ['overallLength', 'overallWidth', 'overallHeight', 'railDeckHeight', 'railWheelRadius'];
+    for (const key of railJitters) {
+      if (!locks.has(key)) {
+        const anchor = presetBase[key] !== undefined ? presetBase[key] : state[key];
+        ctrlApplyJitteredNumeric(state, key, anchor, r, 0.05);
+      }
+    }
+    if (!locks.has('railCargoType') && state.bodyFamily === 'rail_freight_flatcar') {
+      state.railCargoType = ctrlPickOption(r, OPTIONS.railCargoType);
+    }
+    if (!locks.has('railHopperCargo') && state.bodyFamily === 'rail_freight_hopper' && OPTIONS.railHopperCargo) {
+      state.railHopperCargo = ctrlPickOption(r, OPTIONS.railHopperCargo);
+    }
+    const clean = sanitiseConfig(state);
+    Object.assign(state, clean);
+    return state;
+  }
+
   setIfUnlocked('hubcapStyle', ctrlPickOption(r, OPTIONS.hubcapStyle));
 
   // Subtle +/- 6% deterministic proportion variation anchored to archetype preset defaults
@@ -9180,6 +18287,39 @@ function randomizeSettings(cat, state, locks = new Set(), rngFn = null) {
       next[key] = value;
     }
   };
+
+  if (isRailConfig(next)) {
+    for (const activeCat of targetCats) {
+      if (activeCat === 'materials') {
+        const famKeys = Object.keys(PALETTE_FAMILIES);
+        const chosenFamily = locks.has('paletteFamily') && next.paletteFamily ? next.paletteFamily : pick(r, famKeys);
+        const pal = generateCoherentPalette(chosenFamily, Math.floor(r() * 999999) + 1, next.roleVariant);
+        for (const [k, v] of Object.entries(pal)) {
+          writeIfUnlocked(k, v);
+        }
+        writeIfUnlocked('wearLevel', ctrlPickOption(r, OPTIONS.wearLevel));
+        writeIfUnlocked('colorVariation', ctrlSnapValue(r() * 0.22, ctrlSchemaDefForKey('colorVariation', next)));
+        continue;
+      }
+
+      const defs = (RAIL_SCHEMA[activeCat] || []).filter((d) => d.key && (!d.visibleFor || d.visibleFor.includes(next.bodyFamily)));
+      for (const def of defs) {
+        const k = def.key;
+        if (locks.has(k) || k === 'railUnitNumber' || k === 'signText' || k === 'railBogieYawDeg' || k === 'railWheelSpinDeg') continue;
+        if (def.type === 'boolean') {
+          next[k] = r() > 0.4;
+        } else if (def.type === 'select') {
+          next[k] = ctrlPickOption(r, OPTIONS[k]);
+        } else if (!def.type || def.type === 'number') {
+          const anchor = presetBase[k] !== undefined ? presetBase[k] : next[k];
+          ctrlApplyJitteredNumeric(next, k, anchor, r, 0.12);
+        }
+      }
+    }
+    const cleanRail = sanitiseConfig(next);
+    Object.assign(state, cleanRail);
+    return cleanRail;
+  }
 
   for (const activeCat of targetCats) {
     if (activeCat === 'materials') {
@@ -9435,9 +18575,34 @@ function ctrlBuildExportTab(container, ctx) {
   wrap.querySelector('#tab-snapshot')?.addEventListener('click', () => ctx.onSnapshot && ctx.onSnapshot());
 }
 
+function ctrlFilterRailRows(rows, bodyFamily) {
+  const filtered = [];
+  let pendingGroup = null;
+  for (const row of rows) {
+    if (row.group) {
+      pendingGroup = row;
+      continue;
+    }
+    if (row.visibleFor && !row.visibleFor.includes(bodyFamily)) {
+      continue;
+    }
+    if (pendingGroup) {
+      filtered.push(pendingGroup);
+      pendingGroup = null;
+    }
+    filtered.push(row);
+  }
+  return filtered;
+}
+
 function renderControls(tabId, container, state, locks, ctx) {
   if (!container) return;
   container.innerHTML = '';
+
+  if (tabId === 'consist') {
+    renderConsistPanel(container, ctx);
+    return;
+  }
 
   if (tabId === 'presets') {
     ctrlBuildPresetsTab(container, state, ctx);
@@ -9449,12 +18614,37 @@ function renderControls(tabId, container, state, locks, ctx) {
     return;
   }
 
-  const rows = SCHEMA[tabId] || [];
+  const railMode = isRailConfig(state);
+  if (railMode && ctx.studioMode === 'trainset') {
+    const unitBanner = document.createElement('div');
+    unitBanner.className = 'studio-control-group studio-field consist-editing-banner';
+    const arch = getStyle(state.style);
+    unitBanner.innerHTML = `
+      <div class="studio-row-head">
+        <strong>Editing Unit #${(ctx.selectedUnitIndex || 0) + 1}: ${state.railUnitNumber || arch.label}</strong>
+        <button type="button" class="studio-mini-btn" id="btn-back-consist">Consist</button>
+      </div>
+    `;
+    unitBanner.querySelector('#btn-back-consist')?.addEventListener('click', () => {
+      ctx.onSwitchTab?.('consist');
+    });
+    container.appendChild(unitBanner);
+  }
+
+  const rawRows = railMode && RAIL_SCHEMA[tabId] ? RAIL_SCHEMA[tabId] : (SCHEMA[tabId] || []);
+  const rows = railMode ? ctrlFilterRailRows(rawRows, state.bodyFamily) : rawRows;
   const materialOnlyKeys = new Set([
     ...CATEGORIES.materials,
     'windowTint',
     'headlightsLit',
     'emergencyLightsLit'
+  ]);
+  const poseOnlyKeys = new Set([
+    'railBogieYawDeg',
+    'railWheelSpinDeg',
+    'railDoorsOpen',
+    'railPantographHeight',
+    'railCabinSwingDeg'
   ]);
 
   for (const item of rows) {
@@ -9596,14 +18786,18 @@ function renderControls(tabId, container, state, locks, ctx) {
         const num = Number(slider.value);
         state[key] = num;
         if (valBadge) valBadge.textContent = ctrlFormatVal(num, item.step, item.unit);
-        if (materialOnlyKeys.has(key)) {
+        if (poseOnlyKeys.has(key) && ctx.onPoseChanged) {
+          ctx.onPoseChanged(true);
+        } else if (materialOnlyKeys.has(key)) {
           if (ctx.onMaterialChanged) ctx.onMaterialChanged(true);
         } else if (ctx.onStructureChanged) {
           ctx.onStructureChanged(true);
         }
       });
       slider.addEventListener('change', () => {
-        if (materialOnlyKeys.has(key)) {
+        if (poseOnlyKeys.has(key) && ctx.onPoseChanged) {
+          ctx.onPoseChanged(false);
+        } else if (materialOnlyKeys.has(key)) {
           if (ctx.onMaterialChanged) ctx.onMaterialChanged(false);
         } else if (ctx.onStructureChanged) {
           ctx.onStructureChanged(false);
@@ -9615,14 +18809,57 @@ function renderControls(tabId, container, state, locks, ctx) {
 
     container.appendChild(field);
   }
+
+  if (railMode && tabId === 'structure' && ctx.activeBlueprint?.transitCompatibility) {
+    const compat = ctx.activeBlueprint.transitCompatibility;
+    const grp = document.createElement('div');
+    grp.className = 'studio-group-label';
+    grp.textContent = 'Transit Compatibility Profile';
+    container.appendChild(grp);
+    const card = document.createElement('div');
+    card.className = 'studio-control-group studio-field consist-diag-box';
+    card.innerHTML = `
+      <div class="consist-diag-grid">
+        <span>Total Length: <strong>${compat.geometry.totalLengthOverCouplers}m</strong></span>
+        <span>Min Curve: <strong>${compat.railway.minimumCurveRadius}m</strong></span>
+        <span>Swept Width: <strong>${compat.geometry.dynamicSweptWidthAtMinRadius}m</strong></span>
+        <span>Max Grade: <strong>${compat.railway.maximumGradePercent}%</strong></span>
+      </div>
+      <div class="studio-hint">${compat.profileRevision} · ${compat.identity.infrastructureFamily} · ${compat.coupling.frontCouplerType}</div>
+    `;
+    container.appendChild(card);
+  }
 }
 
   // --- Module: index.js ---
 let state = sanitiseConfig({ ...copy(BASE), ...copy(PRESETS.sedan) });
+let consistState = createConsistFromPreset('freight_manifest');
+let consistValidation = validateConsist(consistState, null);
+let studioMode = 'vehicle';
+let selectedUnitIndex = 0;
+let categoryFilter = 'all';
+let transitSubgroup = 'all_transit';
 let activePreset = 'sedan';
 let activeBlueprintName = null;
 let activeTab = 'structure';
 const locks = new Set();
+
+const trackState = {
+  mode: 'rail_straight',
+  curved: false,
+  curveRadius: 48,
+  gradePercent: 3.0,
+  playing: false,
+  reverse: false,
+  speed: 6.0,
+  leadS: 0,
+  wheelSpinRad: 0,
+  followCamera: false,
+  doorsOpenPreview: false,
+  pantographRaised: true,
+  activeRoute: null,
+  lastTickMs: 0
+};
 
 const view = {
   focus: 'hero',
@@ -9684,7 +18921,11 @@ function vehAppCountTriangles(root) {
 
 function vehAppApplyViewFlags() {
   if (!vehicleRoot) return;
-  reapplyVehicleMaterials(vehicleRoot, state, view);
+  if (studioMode === 'trainset' || Array.isArray(vehicleRoot.userData?.unitGroups)) {
+    reapplyConsistMaterials(vehicleRoot, { ...view, lightingTime: state.lightingTime });
+  } else {
+    reapplyVehicleMaterials(vehicleRoot, state, view);
+  }
   const redSet = new Set();
   const blueSet = new Set();
   const amberSet = new Set();
@@ -9703,15 +18944,110 @@ function vehAppApplyViewFlags() {
   strobeWasActive = false;
 }
 
-function vehAppRebuildEnvironment() {
-  if (!envRoot) return;
-  const boundsMeters = vehicleRoot?.userData?.blueprint?.bounds?.meters || null;
-  rebuildVehicleEnvironment(envRoot, view.environment, view.grid, boundsMeters, state.lightingTime);
+const RAIL_ENV_MODES = new Set([
+  'rail_straight',
+  'rail_curved',
+  'rail_incline',
+  'tram_street',
+  'monorail_straddle',
+  'monorail_suspended',
+  'cableway_aerial'
+]);
+
+function vehAppIsRailEnv(mode) {
+  return RAIL_ENV_MODES.has(mode);
+}
+
+function vehAppIsFixedGuidewayMode(mode) {
+  return mode === 'tram_street' || mode === 'monorail_straddle' || mode === 'monorail_suspended' || mode === 'cableway_aerial';
+}
+
+function vehAppPreferredStageForConfig(cfg) {
+  const bf = cfg?.bodyFamily || '';
+  if (bf === 'rail_historic_streetcar' || bf === 'rail_articulated_tram' || bf === 'rail_open_tram') return 'tram_street';
+  if (bf === 'rail_straddle_monorail') return 'monorail_straddle';
+  if (bf === 'rail_suspended_monorail') return 'monorail_suspended';
+  if (bf === 'rail_aerial_gondola') return 'cableway_aerial';
+  return 'rail_straight';
+}
+
+function vehAppIsElectrifiedConfig(cfg) {
+  const elecSet = new Set([
+    'rail_electric_loco',
+    'rail_highspeed_lead',
+    'rail_highspeed_coach',
+    'rail_historic_streetcar',
+    'rail_articulated_tram',
+    'rail_open_tram'
+  ]);
+  if (studioMode === 'trainset') {
+    return (consistState?.units || []).some((u) => elecSet.has(u?.config?.bodyFamily));
+  }
+  return elecSet.has(cfg?.bodyFamily);
+}
+
+function vehAppSyncRailUI() {
+  const inRail = studioMode === 'trainset' || isRailConfig(state);
+  const railBar = $('#rail-preview-bar');
+  if (railBar) railBar.hidden = !inRail;
+
+  const subBar = $('#transit-subfilters');
+  if (subBar) subBar.hidden = categoryFilter !== 'transit_rail';
+
+  if (inRail && !vehAppIsRailEnv(view.environment) && view.environment !== 'studio' && view.environment !== 'none') {
+    view.environment = vehAppPreferredStageForConfig(state);
+    if (view.environment === 'rail_straight' && vehAppIsRailEnv(trackState.mode)) {
+      view.environment = trackState.mode;
+    }
+    const envSel = $('#environment-select');
+    if (envSel) envSel.value = view.environment;
+  } else if (!inRail && vehAppIsRailEnv(view.environment)) {
+    view.environment = 'street';
+    const envSel = $('#environment-select');
+    if (envSel) envSel.value = 'street';
+    trackState.playing = false;
+  }
+
+  for (const btn of $$('[data-track-mode]')) {
+    btn.classList.toggle('active', btn.dataset.trackMode === trackState.mode);
+  }
+  for (const btn of $$('[data-studio-mode]')) {
+    btn.classList.toggle('active', btn.dataset.studioMode === studioMode);
+  }
+  const pantoToggle = $('#rail-panto-toggle');
+  if (pantoToggle) pantoToggle.checked = Boolean(trackState.pantographRaised);
+  const playBtn = $('#btn-track-play');
+  if (playBtn) {
+    playBtn.classList.toggle('active', trackState.playing);
+    playBtn.innerHTML = trackState.playing
+      ? '<i class="fa-solid fa-pause"></i> Pause'
+      : '<i class="fa-solid fa-play"></i> Play';
+  }
+  $('#btn-track-reverse')?.classList.toggle('active', trackState.reverse);
+}
+
+function vehAppRebuildEnvironment(boundsOverride = null) {
+  if (!envRoot) return null;
+  const boundsMeters = boundsOverride || vehicleRoot?.userData?.blueprint?.bounds?.meters || null;
+  const route = rebuildVehicleEnvironment(
+    envRoot,
+    view.environment,
+    view.grid,
+    boundsMeters,
+    state.lightingTime,
+    {
+      curved: view.environment === 'rail_curved' || Boolean(trackState.curved),
+      electrified: vehAppIsElectrifiedConfig(state),
+      curveRadius: trackState.curveRadius,
+      gradePercent: trackState.gradePercent,
+      trackGaugeId: state.railTrackGauge || 'standard_1435'
+    }
+  );
+  trackState.activeRoute = route;
+  return route;
 }
 
 function updateStats(bp) {
-  if (!bp) return;
-  const dims = bp.dimensions || {};
   const lenEl = $('#stat-length');
   const wbEl = $('#stat-wheelbase');
   const axEl = $('#stat-axles');
@@ -9719,6 +19055,20 @@ function updateStats(bp) {
   const lblEl = $('#scene-label');
   const styleEl = $('#active-style-name');
 
+  if (studioMode === 'trainset' && vehicleRoot?.userData?.consistBlueprint) {
+    const tbp = vehicleRoot.userData.consistBlueprint;
+    const sum = tbp.summary || {};
+    if (lenEl) lenEl.textContent = `${Number(sum.totalLengthMeters || 0).toFixed(1)}m (${sum.unitCount} Cars)`;
+    if (wbEl) wbEl.textContent = `Min R ${Number(sum.minimumCurveRadiusMeters || 24).toFixed(0)}m`;
+    if (axEl) axEl.textContent = `${sum.totalAxles || 0} Axles`;
+    if (triEl) triEl.textContent = `${vehAppCountTriangles(vehicleRoot).toLocaleString()} Tris`;
+    if (styleEl) styleEl.textContent = tbp.name || 'Trainset Consist';
+    if (lblEl) lblEl.textContent = `${tbp.name} · ${sum.unitCount} Units (${sum.trackGaugeLabel || 'Standard Gauge'})`;
+    return;
+  }
+
+  if (!bp) return;
+  const dims = bp.dimensions || {};
   if (lenEl) lenEl.textContent = `${Number(dims.length ?? state.overallLength ?? 0).toFixed(2)}m`;
   if (wbEl) wbEl.textContent = `${Number(dims.wheelbase || 0).toFixed(2)}m`;
   if (axEl) {
@@ -9793,8 +19143,109 @@ function updateLighting() {
   vehAppApplyViewFlags();
 }
 
+function vehAppUpdateShadowBounds() {
+  if (!keyLight || !vehicleRoot) return;
+  const box = new THREE.Box3().setFromObject(vehicleRoot);
+  const center = new THREE.Vector3();
+  const size = new THREE.Vector3();
+  box.getCenter(center);
+  box.getSize(size);
+  const halfSpan = Math.max(12, Math.max(size.x, size.z) * 0.72);
+  keyLight.target.position.copy(center);
+  keyLight.target.updateMatrixWorld();
+  keyLight.position.set(center.x + halfSpan * 1.1, Math.max(18, halfSpan * 1.2), center.z + halfSpan * 1.1);
+  keyLight.shadow.camera.left = -halfSpan;
+  keyLight.shadow.camera.right = halfSpan;
+  keyLight.shadow.camera.top = halfSpan;
+  keyLight.shadow.camera.bottom = -halfSpan;
+  keyLight.shadow.camera.far = Math.max(70, halfSpan * 4.5);
+  keyLight.shadow.camera.updateProjectionMatrix();
+}
+
+function vehAppApplyPreferredStage(cfg) {
+  if (!isRailConfig(cfg) || view.environment === 'studio' || view.environment === 'none') return;
+  const pref = vehAppPreferredStageForConfig(cfg);
+  if (pref !== 'rail_straight' || vehAppIsFixedGuidewayMode(view.environment) || !vehAppIsRailEnv(view.environment)) {
+    view.environment = pref === 'rail_straight' && trackState.curved ? 'rail_curved' : pref;
+    trackState.mode = view.environment;
+    const envSel = $('#environment-select');
+    if (envSel) envSel.value = view.environment;
+  }
+}
+
+function vehAppPlaceSingleRailOnRoute() {
+  if (!vehicleRoot || !isRailConfig(state) || studioMode !== 'vehicle') return;
+  const route = trackState.activeRoute;
+  const pantoFactor = trackState.pantographRaised ? (state.railPantographHeight ?? 0.85) : 0;
+  const manualCabinRad = degToRad(clamp(state.railCabinSwingDeg || 0, -12, 12));
+  if (route) {
+    const pose = solveRailUnitOnRoute(vehicleRoot.userData.layout, route, trackState.leadS, false);
+    vehicleRoot.rotation.order = 'YXZ';
+    vehicleRoot.position.set(pose.position[0], pose.position[1], pose.position[2]);
+    vehicleRoot.rotation.set(pose.pitchRotX, pose.yaw, 0);
+    const doorFactor = trackState.doorsOpenPreview ? 1 : clamp(state.railDoorsOpen ?? 0, 0, 1);
+    const yawManual = degToRad(clamp(state.railBogieYawDeg || 0, -15, 15));
+    const spinManual = trackState.playing
+      ? trackState.wheelSpinRad
+      : degToRad(state.railWheelSpinDeg || 0);
+    applyRailVehiclePose(vehicleRoot, {
+      frontBogieYawRad: route.curved ? pose.frontBogieLocalYaw : yawManual,
+      rearBogieYawRad: route.curved ? pose.rearBogieLocalYaw : -yawManual,
+      wheelSpinRad: spinManual,
+      doorOpenFactor: doorFactor,
+      pantographHeight: pantoFactor,
+      tramArticulationRad: route.curved ? (pose.tramArticulationRad || 0) : degToRad(clamp(yawManual * 25, -18, 18)),
+      cabinSwingRad: manualCabinRad + (pose.cabinSwingRad || 0)
+    });
+  } else {
+    vehicleRoot.position.set(0, 0, 0);
+    vehicleRoot.rotation.set(0, 0, 0);
+    vehAppRefreshLivePose();
+  }
+}
+
+function vehAppRefreshLivePose() {
+  if (!vehicleRoot) return;
+  const pantoFactor = trackState.pantographRaised ? (state.railPantographHeight ?? 0.85) : 0;
+  const cabinRad = degToRad(clamp(state.railCabinSwingDeg || 0, -12, 12));
+  if (studioMode === 'trainset') {
+    const unitGrp = vehicleRoot.userData?.unitGroups?.[selectedUnitIndex];
+    if (unitGrp) {
+      unitGrp.userData.unitConfig = sanitiseConfig(state);
+      const yawRad = degToRad(clamp(state.railBogieYawDeg || 0, -15, 15));
+      applyRailVehiclePose(unitGrp, {
+        frontBogieYawRad: yawRad,
+        rearBogieYawRad: -yawRad,
+        wheelSpinRad: degToRad(state.railWheelSpinDeg || 0),
+        doorOpenFactor: trackState.doorsOpenPreview ? 1 : clamp(state.railDoorsOpen ?? 0, 0, 1),
+        pantographHeight: pantoFactor,
+        cabinSwingRad: cabinRad
+      });
+    }
+    return;
+  }
+  if (isRailConfig(state)) {
+    const yawRad = degToRad(clamp(state.railBogieYawDeg || 0, -15, 15));
+    applyRailVehiclePose(vehicleRoot, {
+      frontBogieYawRad: yawRad,
+      rearBogieYawRad: -yawRad,
+      wheelSpinRad: degToRad(state.railWheelSpinDeg || 0),
+      doorOpenFactor: trackState.doorsOpenPreview ? 1 : clamp(state.railDoorsOpen ?? 0, 0, 1),
+      pantographHeight: pantoFactor,
+      tramArticulationRad: degToRad(clamp(yawRad * 25, -18, 18)),
+      cabinSwingRad: cabinRad
+    });
+  }
+}
+
 function refreshMaterialsInPlace() {
   state = sanitiseConfig(state);
+  if (studioMode === 'trainset' && consistState.units[selectedUnitIndex]) {
+    consistState.units[selectedUnitIndex].config = copy(state);
+    if (vehicleRoot?.userData?.unitGroups?.[selectedUnitIndex]) {
+      vehicleRoot.userData.unitGroups[selectedUnitIndex].userData.unitConfig = copy(state);
+    }
+  }
   if (!ready || !vehicleRoot) return;
   vehAppApplyViewFlags();
   setStatus('Updated Materials');
@@ -9802,6 +19253,14 @@ function refreshMaterialsInPlace() {
 
 function rebuild(resetCam = false) {
   state = sanitiseConfig(state);
+  if (studioMode === 'trainset' && consistState.units[selectedUnitIndex]) {
+    consistState.units[selectedUnitIndex].config = copy(state);
+    if (consistState.sharedLivery) {
+      applySharedLiveryToConsist(consistState, consistState.sharedPalette, locks);
+      state = copy(consistState.units[selectedUnitIndex].config);
+    }
+  }
+  vehAppSyncRailUI();
   if (!ready || !scene) return;
 
   if (vehicleRoot) {
@@ -9811,19 +19270,49 @@ function rebuild(resetCam = false) {
   }
 
   const start = performance.now();
-  vehicleRoot = createCityVehicle(state);
-  scene.add(vehicleRoot);
+
+  if (studioMode === 'trainset') {
+    consistState = sanitiseConsist(consistState);
+    const preVal = validateConsist(consistState, null);
+    const route = vehAppRebuildEnvironment({
+      length: Math.max(44, (preVal.summary.totalLengthMeters || 50) + 12),
+      width: 4,
+      height: 5
+    });
+    if (route && (resetCam || trackState.leadS > route.sMax - 4 || trackState.leadS < route.sMin + preVal.summary.totalLengthMeters)) {
+      trackState.leadS = Math.min(route.sMax - 6, preVal.summary.totalLengthMeters * 0.45);
+    }
+    vehicleRoot = createConsistMeshGroup(consistState, {
+      route,
+      leadS: trackState.leadS,
+      wheelSpinRad: trackState.wheelSpinRad,
+      doorOpenFactor: trackState.doorsOpenPreview ? 1 : null,
+      pantographHeight: trackState.pantographRaised ? (state.railPantographHeight ?? 0.85) : 0,
+      lightingTime: state.lightingTime
+    });
+    scene.add(vehicleRoot);
+    consistValidation = validateConsist(consistState, route);
+  } else {
+    vehicleRoot = createCityVehicle(state);
+    scene.add(vehicleRoot);
+    vehAppRebuildEnvironment();
+    vehAppPlaceSingleRailOnRoute();
+  }
 
   vehAppApplyViewFlags();
-  vehAppRebuildEnvironment();
+  vehAppUpdateShadowBounds();
   rebuildVehicleDebugOverlay(debugRoot, vehicleRoot, view.debugOverlay);
 
   if (resetCam) {
-    resetCameraForFocus(camera, orbit, vehicleRoot, view.focus, scene);
+    const camMode = studioMode === 'trainset' && view.focus === 'hero' ? 'fit_train' : view.focus;
+    resetCameraForFocus(camera, orbit, vehicleRoot, camMode, scene);
   }
 
   const elapsed = (performance.now() - start).toFixed(1);
   updateStats(vehicleRoot.userData.blueprint);
+  if (activeTab === 'consist') {
+    renderControls('consist', $('#studio-controls'), state, locks, vehAppBuildControlContext());
+  }
   setStatus(`Ready (${elapsed}ms)`);
 }
 
@@ -9845,11 +19334,45 @@ function scheduleMaterialRefresh(immediate = false) {
   matTimer = setTimeout(refreshMaterialsInPlace, 30);
 }
 
+function vehAppSwitchStudioMode(nextMode, targetTab = null) {
+  if (nextMode !== 'vehicle' && nextMode !== 'trainset') return;
+  studioMode = nextMode;
+  if (studioMode === 'trainset') {
+    consistState = sanitiseConsist(consistState);
+    selectedUnitIndex = clamp(selectedUnitIndex, 0, consistState.units.length - 1);
+    state = copy(consistState.units[selectedUnitIndex].config);
+    activeTab = targetTab || 'consist';
+    if (!vehAppIsRailEnv(view.environment)) {
+      view.environment = trackState.mode || 'rail_straight';
+      const envSel = $('#environment-select');
+      if (envSel) envSel.value = view.environment;
+    }
+  } else {
+    trackState.playing = false;
+    if (activeTab === 'consist') activeTab = 'structure';
+    if (targetTab) activeTab = targetTab;
+  }
+  for (const t of $$('.studio-tab')) {
+    t.classList.toggle('active', t.dataset.tab === activeTab);
+  }
+  updateStylePicker(state.style);
+  renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+  rebuild(true);
+}
+
 function vehAppBuildControlContext() {
   return {
+    studioMode,
+    selectedUnitIndex,
+    consist: consistState,
+    consistValidation,
+    activeBlueprint: vehicleRoot?.userData?.blueprint || null,
     onStructureChanged(isLive) {
       activeBlueprintName = null;
       scheduleRebuild(!isLive ? true : false, false);
+    },
+    onPoseChanged() {
+      vehAppRefreshLivePose();
     },
     onMaterialChanged(isLive) {
       scheduleMaterialRefresh(isLive);
@@ -9863,6 +19386,102 @@ function vehAppBuildControlContext() {
       const desc = getStyle(styleId);
       loadPreset(desc.preset, styleId);
     },
+    onSwitchTab(tabId) {
+      activeTab = tabId;
+      for (const t of $$('.studio-tab')) t.classList.toggle('active', t.dataset.tab === activeTab);
+      renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+    },
+    onEnterTrainsetMode() {
+      vehAppSwitchStudioMode('trainset', 'consist');
+    },
+    onLoadConsistPreset(presetId) {
+      consistState = createConsistFromPreset(presetId, consistState.seed);
+      selectedUnitIndex = 0;
+      state = copy(consistState.units[0].config);
+      trackState.leadS = 0;
+      studioMode = 'trainset';
+      vehAppApplyPreferredStage(state);
+      rebuild(true);
+      renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+      toast(`Loaded Consist: ${RAIL_DEFAULT_CONSISTS[presetId]?.name || presetId}`);
+    },
+    onSelectConsistUnit(idx) {
+      selectedUnitIndex = clamp(idx, 0, consistState.units.length - 1);
+      state = copy(consistState.units[selectedUnitIndex].config);
+      activePreset = getStyle(state.style).preset;
+      updateStylePicker(state.style);
+      updatePresetList(activePreset);
+      renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+    },
+    onAddConsistUnit(presetId) {
+      consistState = addConsistUnit(consistState, presetId);
+      selectedUnitIndex = consistState.units.length - 1;
+      state = copy(consistState.units[selectedUnitIndex].config);
+      studioMode = 'trainset';
+      rebuild(true);
+      toast(`Added ${getStyle(state.style).label}`);
+    },
+    onRemoveConsistUnit(idx) {
+      consistState = removeConsistUnit(consistState, idx);
+      selectedUnitIndex = clamp(selectedUnitIndex, 0, consistState.units.length - 1);
+      state = copy(consistState.units[selectedUnitIndex].config);
+      rebuild(true);
+    },
+    onDuplicateConsistUnit(idx) {
+      consistState = duplicateConsistUnit(consistState, idx);
+      selectedUnitIndex = clamp(idx + 1, 0, consistState.units.length - 1);
+      state = copy(consistState.units[selectedUnitIndex].config);
+      rebuild(false);
+    },
+    onReorderConsistUnit(fromIdx, toIdx) {
+      consistState = reorderConsistUnit(consistState, fromIdx, toIdx);
+      selectedUnitIndex = clamp(toIdx, 0, consistState.units.length - 1);
+      state = copy(consistState.units[selectedUnitIndex].config);
+      rebuild(false);
+    },
+    onReverseConsistUnit(idx) {
+      consistState = reverseConsistUnit(consistState, idx);
+      rebuild(false);
+    },
+    onRandomizeConsistUnit(idx) {
+      consistState = randomizeConsistUnit(consistState, idx, locks);
+      if (idx === selectedUnitIndex) state = copy(consistState.units[idx].config);
+      rebuild(false);
+    },
+    onConsistGapChanged(gapVal) {
+      consistState.couplingGap = gapVal;
+      rebuild(false);
+    },
+    onToggleSharedLivery(enabled, palette) {
+      consistState.sharedLivery = enabled;
+      consistState.sharedPalette = palette;
+      if (enabled) applySharedLiveryToConsist(consistState, palette, locks);
+      state = copy(consistState.units[selectedUnitIndex].config);
+      rebuild(false);
+    },
+    onApplySharedLivery(palette) {
+      consistState.sharedPalette = palette;
+      applySharedLiveryToConsist(consistState, palette, locks);
+      state = copy(consistState.units[selectedUnitIndex].config);
+      rebuild(false);
+      toast('Applied Shared Livery To Consist');
+    },
+    onRandomizeWholeConsist() {
+      consistState = randomizeWholeConsist(consistState, locks);
+      selectedUnitIndex = 0;
+      state = copy(consistState.units[0].config);
+      rebuild(true);
+      toast('Randomized Rail Consist');
+    },
+    onLoadSavedConsist(loadedConsist, label) {
+      consistState = sanitiseConsist(loadedConsist);
+      selectedUnitIndex = 0;
+      state = copy(consistState.units[0].config);
+      studioMode = 'trainset';
+      rebuild(true);
+      toast(`Loaded "${label}"`);
+    },
+    onToast: toast,
     onNewSeed() {
       state.seed = Math.floor(Math.random() * 8999999) + 1000;
       applySeedVariation(state, locks);
@@ -9874,7 +19493,8 @@ function vehAppBuildControlContext() {
       toast(`Generated Seed #${state.seed}`);
     },
     onExportBlueprint() {
-      exportVehicleBlueprint(state, activeBlueprintName, toast);
+      if (studioMode === 'trainset') exportConsistBlueprint(consistState, trackState.activeRoute, toast);
+      else exportVehicleBlueprint(state, activeBlueprintName, toast);
     },
     onExportFleet() {
       exportTrafficFleetPack(state, 8, toast);
@@ -9883,7 +19503,11 @@ function vehAppBuildControlContext() {
       exportVehicleJSON(state, activeBlueprintName, toast);
     },
     onExportGLB() {
-      exportVehicleGLB(state, ready, activeBlueprintName, vehAppLoadGLTFExporter, toast, setStatus);
+      if (studioMode === 'trainset') {
+        exportConsistGLB(consistState, trackState.activeRoute, trackState.leadS, ready, vehAppLoadGLTFExporter, toast, setStatus);
+      } else {
+        exportVehicleGLB(state, ready, activeBlueprintName, vehAppLoadGLTFExporter, toast, setStatus);
+      }
     },
     onImportTrigger() {
       $('#file-import')?.click();
@@ -9902,11 +19526,23 @@ function loadPreset(presetId, explicitStyleId = null) {
   activePreset = presetId;
   activeBlueprintName = null;
 
+  if (studioMode === 'trainset' && !isRailConfig(state)) {
+    studioMode = 'vehicle';
+    trackState.playing = false;
+    if (activeTab === 'consist') activeTab = 'structure';
+  }
+  if (studioMode === 'trainset' && consistState.units[selectedUnitIndex]) {
+    consistState.units[selectedUnitIndex].preset = presetId;
+    consistState.units[selectedUnitIndex].config = copy(state);
+  }
+
   const seedEl = $('#seed-input');
   if (seedEl) seedEl.value = String(state.seed);
+  vehAppApplyPreferredStage(state);
 
   updateStylePicker(state.style);
   updatePresetList(activePreset);
+  for (const t of $$('.studio-tab')) t.classList.toggle('active', t.dataset.tab === activeTab);
   renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
   rebuild(true);
   toast(`Loaded Preset: ${preset.label || presetId}`);
@@ -9985,13 +19621,14 @@ async function initScene() {
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.set(1024, 1024);
     keyLight.shadow.camera.near = 1;
-    keyLight.shadow.camera.far = 55;
-    keyLight.shadow.camera.left = -10;
-    keyLight.shadow.camera.right = 10;
-    keyLight.shadow.camera.top = 10;
-    keyLight.shadow.camera.bottom = -10;
+    keyLight.shadow.camera.far = 90;
+    keyLight.shadow.camera.left = -14;
+    keyLight.shadow.camera.right = 14;
+    keyLight.shadow.camera.top = 14;
+    keyLight.shadow.camera.bottom = -14;
     keyLight.shadow.bias = -0.0005;
     scene.add(keyLight);
+    scene.add(keyLight.target);
 
     rimLight = new THREE.DirectionalLight('#7db0e3', 0.42);
     rimLight.position.set(-10, 8, -12);
@@ -10019,6 +19656,49 @@ async function initScene() {
 
     const animate = () => {
       requestAnimationFrame(animate);
+      const nowMs = performance.now();
+      const dt = trackState.lastTickMs ? clamp((nowMs - trackState.lastTickMs) / 1000, 0, 0.05) : 0;
+      trackState.lastTickMs = nowMs;
+
+      if ((studioMode === 'trainset' || isRailConfig(state)) && trackState.playing && vehicleRoot && trackState.activeRoute && dt > 0) {
+        const route = trackState.activeRoute;
+        const dir = trackState.reverse ? -1 : 1;
+        const ds = dir * trackState.speed * dt;
+        const trainLen = studioMode === 'trainset'
+          ? (vehicleRoot.userData?.consistBlueprint?.summary?.totalLengthMeters || 35)
+          : (state.overallLength || 16);
+        const minLead = route.sMin + trainLen + 4;
+        const maxLead = route.sMax - 4;
+        trackState.leadS += ds;
+        if (trackState.leadS > maxLead) trackState.leadS = minLead;
+        else if (trackState.leadS < minLead) trackState.leadS = maxLead;
+        trackState.wheelSpinRad += ds / 0.48;
+
+        const leadGrp = studioMode === 'trainset' ? vehicleRoot.userData?.unitGroups?.[0] : vehicleRoot;
+        const prevPos = leadGrp ? leadGrp.position.clone() : null;
+
+        if (studioMode === 'trainset') {
+          positionConsistOnRoute(
+            vehicleRoot,
+            route,
+            trackState.leadS,
+            trackState.wheelSpinRad,
+            trackState.doorsOpenPreview ? 1 : null,
+            {
+              pantographHeight: trackState.pantographRaised ? (state.railPantographHeight ?? 0.85) : 0
+            }
+          );
+        } else {
+          vehAppPlaceSingleRailOnRoute();
+        }
+
+        if (trackState.followCamera && leadGrp && prevPos && orbit && camera) {
+          const delta = leadGrp.position.clone().sub(prevPos);
+          orbit.target.add(delta);
+          camera.position.add(delta);
+        }
+      }
+
       if (orbit) {
         orbit.autoRotate = Boolean(view.autoRotate);
         orbit.autoRotateSpeed = 1.45;
@@ -10054,6 +19734,9 @@ function vehAppApplyImported(cfg, labelName, styleId, sourceLabel) {
   state = sanitiseConfig(cfg);
   activePreset = getStyle(styleId || state.style).preset;
   activeBlueprintName = labelName || null;
+  if (studioMode === 'trainset' && !isRailConfig(state)) {
+    studioMode = 'vehicle';
+  }
   const seedEl = $('#seed-input');
   if (seedEl) seedEl.value = String(state.seed);
   updateStylePicker(state.style);
@@ -10063,15 +19746,53 @@ function vehAppApplyImported(cfg, labelName, styleId, sourceLabel) {
   setStatus(`Loaded: ${sourceLabel}`);
 }
 
-function initUI() {
-  renderStylePicker($('#style-picker'), state.style, (styleId) => {
-    const arch = getStyle(styleId);
-    loadPreset(arch.preset, styleId);
-  });
+function vehAppApplyImportedConsist(consistData, sourceLabel) {
+  consistState = sanitiseConsist(consistData);
+  selectedUnitIndex = 0;
+  state = copy(consistState.units[0].config);
+  studioMode = 'trainset';
+  activeTab = 'consist';
+  for (const t of $$('.studio-tab')) t.classList.toggle('active', t.dataset.tab === activeTab);
+  updateStylePicker(state.style);
+  renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+  rebuild(true);
+  setStatus(`Loaded Consist: ${sourceLabel}`);
+}
 
-  renderPresetList($('#preset-list'), activePreset, (presetId) => {
-    loadPreset(presetId);
-  });
+function initUI() {
+  const refreshListsForCategory = () => {
+    renderStylePicker($('#style-picker'), state.style, (styleId) => {
+      const arch = getStyle(styleId);
+      loadPreset(arch.preset, styleId);
+    }, categoryFilter, transitSubgroup);
+    renderPresetList($('#preset-list'), activePreset, (presetId) => {
+      loadPreset(presetId);
+    }, categoryFilter, transitSubgroup);
+  };
+  refreshListsForCategory();
+
+  for (const pill of $$('[data-cat-filter]')) {
+    pill.addEventListener('click', () => {
+      categoryFilter = pill.dataset.catFilter || 'all';
+      for (const p of $$('[data-cat-filter]')) p.classList.toggle('active', p === pill);
+      vehAppSyncRailUI();
+      refreshListsForCategory();
+    });
+  }
+
+  for (const subPill of $$('[data-transit-subgroup]')) {
+    subPill.addEventListener('click', () => {
+      transitSubgroup = subPill.dataset.transitSubgroup || 'all_transit';
+      for (const p of $$('[data-transit-subgroup]')) p.classList.toggle('active', p === subPill);
+      refreshListsForCategory();
+    });
+  }
+
+  for (const modeBtn of $$('[data-studio-mode]')) {
+    modeBtn.addEventListener('click', () => {
+      vehAppSwitchStudioMode(modeBtn.dataset.studioMode || 'vehicle');
+    });
+  }
 
   renderCustomPresets($('#custom-presets'), (cfg, name) => {
     vehAppApplyImported(cfg, name, cfg?.style, name);
@@ -10196,7 +19917,114 @@ function initUI() {
 
   $('#environment-select')?.addEventListener('change', (e) => {
     view.environment = e.target.value || 'street';
-    vehAppRebuildEnvironment();
+    if (vehAppIsRailEnv(view.environment)) {
+      trackState.mode = view.environment;
+      trackState.curved = view.environment === 'rail_curved';
+    }
+    vehAppSyncRailUI();
+    if (studioMode === 'trainset' || isRailConfig(state)) rebuild(false);
+    else vehAppRebuildEnvironment();
+  });
+
+  for (const tBtn of $$('[data-track-mode]')) {
+    tBtn.addEventListener('click', () => {
+      const m = tBtn.dataset.trackMode || 'rail_straight';
+      trackState.mode = m;
+      trackState.curved = m === 'rail_curved';
+      if (m !== 'rail_incline' && vehAppIsFixedGuidewayMode(view.environment)) {
+        // Keep active street tram / monorail / cableway guideway and toggle straight vs curved
+      } else {
+        view.environment = m;
+        const envSel = $('#environment-select');
+        if (envSel) envSel.value = m;
+      }
+      vehAppSyncRailUI();
+      rebuild(false);
+    });
+  }
+
+  $('#track-curve-radius')?.addEventListener('input', (e) => {
+    trackState.curveRadius = clamp(Number(e.target.value) || 48, 25, 150);
+    const valEl = $('#track-curve-val');
+    if (valEl) valEl.textContent = `${Math.round(trackState.curveRadius)}m`;
+    if (view.environment === 'rail_curved' || trackState.curved) rebuild(false);
+  });
+
+  $('#btn-track-play')?.addEventListener('click', () => {
+    trackState.playing = !trackState.playing;
+    trackState.lastTickMs = performance.now();
+    vehAppSyncRailUI();
+  });
+
+  $('#btn-track-reverse')?.addEventListener('click', () => {
+    trackState.reverse = !trackState.reverse;
+    vehAppSyncRailUI();
+  });
+
+  $('#btn-track-reset')?.addEventListener('click', () => {
+    trackState.playing = false;
+    trackState.leadS = 0;
+    trackState.wheelSpinRad = 0;
+    vehAppSyncRailUI();
+    rebuild(true);
+  });
+
+  $('#track-speed')?.addEventListener('input', (e) => {
+    trackState.speed = clamp(Number(e.target.value) || 6, 1, 18);
+  });
+
+  $('#track-follow')?.addEventListener('change', (e) => {
+    trackState.followCamera = Boolean(e.target.checked);
+  });
+
+  $('#rail-doors-toggle')?.addEventListener('change', (e) => {
+    trackState.doorsOpenPreview = Boolean(e.target.checked);
+    state.railDoorsOpen = trackState.doorsOpenPreview ? 1 : 0;
+    state.doorsOpen = trackState.doorsOpenPreview;
+    if (studioMode === 'trainset') {
+      for (const u of consistState.units) {
+        u.config.railDoorsOpen = state.railDoorsOpen;
+        u.config.doorsOpen = state.doorsOpen;
+      }
+      positionConsistOnRoute(
+        vehicleRoot,
+        trackState.activeRoute,
+        trackState.leadS,
+        trackState.wheelSpinRad,
+        trackState.doorsOpenPreview ? 1 : 0,
+        {
+          pantographHeight: trackState.pantographRaised ? (state.railPantographHeight ?? 0.85) : 0
+        }
+      );
+    } else {
+      vehAppRefreshLivePose();
+    }
+    if (activeTab === 'doors') {
+      renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+    }
+  });
+
+  $('#rail-panto-toggle')?.addEventListener('change', (e) => {
+    trackState.pantographRaised = Boolean(e.target.checked);
+    state.railPantographHeight = trackState.pantographRaised ? 0.88 : 0.0;
+    if (studioMode === 'trainset') {
+      for (const u of consistState.units) {
+        u.config.railPantographHeight = state.railPantographHeight;
+      }
+      positionConsistOnRoute(
+        vehicleRoot,
+        trackState.activeRoute,
+        trackState.leadS,
+        trackState.wheelSpinRad,
+        trackState.doorsOpenPreview ? 1 : 0,
+        { pantographHeight: state.railPantographHeight }
+      );
+    } else {
+      vehAppRefreshLivePose();
+    }
+    if (activeTab === 'details') {
+      renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+    }
   });
 
   $('#lighting-select')?.addEventListener('change', (e) => {
@@ -10259,10 +20087,19 @@ function initUI() {
     toast(`Saved "${customLabel}"`);
   });
 
-  const doBlueprint = () => exportVehicleBlueprint(state, activeBlueprintName, toast);
+  const doBlueprint = () => {
+    if (studioMode === 'trainset') exportConsistBlueprint(consistState, trackState.activeRoute, toast);
+    else exportVehicleBlueprint(state, activeBlueprintName, toast);
+  };
   const doFleet = () => exportTrafficFleetPack(state, 8, toast);
   const doJSON = () => exportVehicleJSON(state, activeBlueprintName, toast);
-  const doGLB = () => exportVehicleGLB(state, ready, activeBlueprintName, vehAppLoadGLTFExporter, toast, setStatus);
+  const doGLB = () => {
+    if (studioMode === 'trainset') {
+      exportConsistGLB(consistState, trackState.activeRoute, trackState.leadS, ready, vehAppLoadGLTFExporter, toast, setStatus);
+    } else {
+      exportVehicleGLB(state, ready, activeBlueprintName, vehAppLoadGLTFExporter, toast, setStatus);
+    }
+  };
 
   $('#btn-export-blueprint')?.addEventListener('click', doBlueprint);
   $('#btn-export-blueprint-top')?.addEventListener('click', doBlueprint);
@@ -10275,22 +20112,35 @@ function initUI() {
   $('#file-import')?.addEventListener('change', (e) => {
     const file = e.target?.files?.[0];
     if (file) {
-      handleVehicleFileImport(file, vehAppApplyImported, toast);
+      handleVehicleFileImport(file, vehAppApplyImported, toast, vehAppApplyImportedConsist);
       e.target.value = '';
     }
   });
 }
 
 window.BCityVehicleBlueprint = {
-  version: '1.0.0',
+  version: '1.1.0',
   schemaVersion: 'b.vehicle.v1',
+  trainsetSchemaVersion: 'b.trainset.v1',
   archetypes: STYLES,
   presets: PRESETS,
+  consistPresets: RAIL_DEFAULT_CONSISTS,
   getConfig: () => sanitiseConfig(state),
+  getConsist: () => sanitiseConsist(consistState),
   generateBlueprint: (cfg) => generateVehicleBlueprint(cfg || state),
   validateBlueprint: (input) => validateVehicleBlueprint(input),
   createVehicleMesh: (cfg) => createCityVehicle(cfg || state),
+  generateConsistBlueprint: (c, opts) => generateConsistBlueprint(c || consistState, opts),
+  validateConsist: (c, route) => validateConsist(c || consistState, route),
+  createConsistMesh: (c, opts) => createConsistMeshGroup(c || consistState, opts),
   loadPreset,
+  loadConsistPreset: (id) => {
+    consistState = createConsistFromPreset(id);
+    selectedUnitIndex = 0;
+    state = copy(consistState.units[0].config);
+    vehAppSwitchStudioMode('trainset', 'consist');
+  },
+  setStudioMode: (mode) => vehAppSwitchStudioMode(mode),
   applyImported: vehAppApplyImported
 };
 

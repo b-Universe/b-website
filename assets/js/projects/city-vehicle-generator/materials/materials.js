@@ -223,6 +223,23 @@ export function getSolidVehicleMaterial(hexColor, shininess = 22, emissiveHex = 
   return mat;
 }
 
+export function getTranslucentRailGlassMaterial(hexColor, windowTint = 0.35) {
+  const clean = colorHex(hexColor, '#26445d');
+  const op = clamp(0.28 + (Number(windowTint) ?? 0.35) * 0.52, 0.32, 0.74);
+  const key = `railglass|${clean}|${op.toFixed(2)}`;
+  if (matCache.has(key)) return matCache.get(key);
+  const mat = new THREE.MeshPhongMaterial({
+    color: clean,
+    shininess: 120,
+    specular: '#95c2e6',
+    transparent: true,
+    opacity: op,
+    depthWrite: false
+  });
+  matCache.set(key, mat);
+  return mat;
+}
+
 export function getSilhouetteClayMaterial() {
   const key = 'veh_silhouette_clay_mat';
   if (!matCache.has(key)) {
@@ -283,6 +300,7 @@ export function resolveVehicleMaterialBundle(cfg, options = {}) {
       windowTint: cfg.windowTint,
       seed: cfg.seed + 79
     }),
+    railGlass: getTranslucentRailGlassMaterial(cfg.glassColor, cfg.windowTint),
     utility: getVehicleMaterial(cfg.utilityMaterial, cfg.utilityColor, {
       role: 'utility',
       colorVariation: cfg.colorVariation * 0.5,
@@ -327,4 +345,15 @@ export function reapplyVehicleMaterials(root, cfg, view = {}) {
       obj.material.wireframe = Boolean(view.wireframe);
     }
   });
+}
+
+export function reapplyConsistMaterials(consistRoot, view = {}) {
+  if (!consistRoot) return;
+  const units = consistRoot.userData?.unitGroups;
+  if (!Array.isArray(units)) return;
+  for (const uGrp of units) {
+    if (uGrp?.userData?.unitConfig) {
+      reapplyVehicleMaterials(uGrp, uGrp.userData.unitConfig, view);
+    }
+  }
 }

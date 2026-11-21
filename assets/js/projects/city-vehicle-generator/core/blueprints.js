@@ -19,6 +19,79 @@ function bpVecToBUnits(x, y, z) {
 
 export function computeVehicleBounds(cfg, layout) {
   const d = layout.dimensions;
+  if (layout.rail) {
+    const rail = layout.rail;
+    const maxHalfW = roundNum(Math.max(d.halfWidth + (cfg.railHandrails ? 0.08 : 0.02), rail.gauge.railCenterHalfX + 0.25), 4);
+    const topY = roundNum(rail.maxHeightWithEquipment, 4);
+    const minZ = roundNum(rail.couplers.rearPullFaceZ, 4);
+    const maxZ = roundNum(rail.couplers.frontPullFaceZ, 4);
+    const totalWidth = roundNum(maxHalfW * 2, 4);
+    const totalLength = roundNum(maxZ - minZ, 4);
+    const padW = roundNum(Math.max(rail.gauge.sleeperWidth, totalWidth + 0.4), 3);
+    const padL = roundNum(totalLength + 0.5, 3);
+
+    return {
+      meters: {
+        minX: -maxHalfW,
+        maxX: maxHalfW,
+        minY: 0,
+        maxY: topY,
+        minZ,
+        maxZ,
+        width: totalWidth,
+        length: totalLength,
+        height: topY
+      },
+      bGameUnits: {
+        unitsPerMeter: B_UNITS_PER_METER,
+        width: roundNum(totalWidth * B_UNITS_PER_METER, 1),
+        length: roundNum(totalLength * B_UNITS_PER_METER, 1),
+        height: roundNum(topY * B_UNITS_PER_METER, 1),
+        min: bpVecToBUnits(-maxHalfW, 0, maxZ),
+        max: bpVecToBUnits(maxHalfW, topY, minZ)
+      },
+      parkingFootprint: {
+        meters: { width: padW, length: padL },
+        bGameUnits: {
+          width: roundNum(padW * B_UNITS_PER_METER, 1),
+          length: roundNum(padL * B_UNITS_PER_METER, 1)
+        }
+      },
+      collisionBounds: {
+        compositeBox: {
+          center: { x: 0, y: roundNum(topY * 0.5, 4), z: roundNum((minZ + maxZ) * 0.5, 4) },
+          size: { x: totalWidth, y: topY, z: totalLength }
+        },
+        lowerHullBox: {
+          center: { x: 0, y: roundNum(rail.zones.deckY * 0.5, 4), z: 0 },
+          size: { x: d.width, y: roundNum(rail.zones.deckY, 4), z: d.length }
+        },
+        upperCabinBox: {
+          center: { x: 0, y: roundNum((rail.zones.deckY + d.height) * 0.5, 4), z: 0 },
+          size: { x: d.width, y: roundNum(d.height - rail.zones.deckY, 4), z: d.length }
+        },
+        cargoBox: {
+          center: { x: 0, y: roundNum((rail.zones.deckY + d.height) * 0.5, 4), z: 0 },
+          size: { x: d.width, y: roundNum(d.height - rail.zones.deckY, 4), z: d.length }
+        },
+        wheels: layout.axles.flatMap((axle) => ([
+          {
+            id: `${axle.id}_left`,
+            center: { x: -axle.wheelCenterX, y: d.wheelRadius, z: axle.z },
+            radius: d.wheelRadius,
+            width: d.wheelThickness
+          },
+          {
+            id: `${axle.id}_right`,
+            center: { x: axle.wheelCenterX, y: d.wheelRadius, z: axle.z },
+            radius: d.wheelRadius,
+            width: d.wheelThickness
+          }
+        ]))
+      }
+    };
+  }
+
   const maxHalfW = roundNum(
     Math.max(
       d.halfWidth + cfg.fenderFlare,
@@ -168,6 +241,7 @@ export function generateVehicleBlueprint(rawCfg, options = {}) {
     style: cfg.style,
     archetype: cfg.style,
     archetypeLabel: arch.label,
+    vehicleDomain: layout.rail ? 'rail' : 'road',
     usageVariant: cfg.roleVariant,
     dimensions: layout.dimensions,
     wheelbase: layout.dimensions.wheelbase,
@@ -212,6 +286,8 @@ export function generateVehicleBlueprint(rawCfg, options = {}) {
       bGameUnits: bounds.bGameUnits
     },
     validation: layout.validation,
+    transitCompatibility: layout.rail ? layout.rail.compatibility : null,
+    pivots: layout.rail ? layout.rail.pivots : null,
     config: cfg,
     geometryStats: options.geometryStats || null
   };

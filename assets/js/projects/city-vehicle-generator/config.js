@@ -1,5 +1,15 @@
 import { clamp, copy, colorHex } from './utils.js';
 import { ARCHETYPES, SILHOUETTE_PROFILES, PRESET_DEFINITIONS } from './core/archetypes.js';
+import {
+  VEHICLE_CATEGORY_GROUPS,
+  RAIL_SUBGROUPS,
+  RAIL_ARCHETYPES,
+  RAIL_SILHOUETTE_PROFILES,
+  RAIL_BASE_DEFAULTS,
+  RAIL_PRESET_DEFINITIONS,
+  RAIL_OPTIONS,
+  RAIL_SCHEMA
+} from './transit/rail-archetypes.js';
 
 export const STORAGE_KEY = 'b-remastered-city-vehicle-presets-v1';
 export const BLUEPRINT_SCHEMA_VERSION = 'b.vehicle.v1';
@@ -88,15 +98,38 @@ export const PALETTE_FAMILIES = {
     primaries: ['#eef2f6', '#e4eaef', '#d9e2ea', '#f5ece0'],
     secondaries: ['#28568f', '#3d7463', '#c82e28', '#e87a90'],
     stripes: ['#c93c34', '#28568f', '#f0a629']
+  },
+  freight_rail: {
+    label: 'Freight Railroad Liveries',
+    primaries: ['#24426b', '#8c3b2e', '#2f5a44', '#b87624', '#38424d', '#6e3230'],
+    secondaries: ['#1f2731', '#3b434d', '#252a32', '#dfd5c2'],
+    stripes: ['#eab02e', '#dfd5c2', '#d95434', '#e6edf5']
+  },
+  passenger_rail: {
+    label: 'Passenger Transit Liveries',
+    primaries: ['#c8d2dc', '#254a78', '#236b5e', '#d6dde5', '#8f3038'],
+    secondaries: ['#253c59', '#1d242e', '#344960', '#d8e0e8'],
+    stripes: ['#25a58d', '#eab02e', '#d6453a', '#4de2ff']
   }
 };
 
-export const STYLES = ARCHETYPES;
-export { ARCHETYPES, SILHOUETTE_PROFILES };
-export const PRESETS = PRESET_DEFINITIONS;
+export const STYLES = [...ARCHETYPES, ...RAIL_ARCHETYPES];
+Object.assign(SILHOUETTE_PROFILES, RAIL_SILHOUETTE_PROFILES);
+export const PRESETS = { ...PRESET_DEFINITIONS, ...RAIL_PRESET_DEFINITIONS };
+export {
+  ARCHETYPES,
+  SILHOUETTE_PROFILES,
+  VEHICLE_CATEGORY_GROUPS,
+  RAIL_SUBGROUPS,
+  RAIL_ARCHETYPES,
+  RAIL_BASE_DEFAULTS,
+  RAIL_SCHEMA,
+  RAIL_OPTIONS
+};
 
 export const BASE = {
   ...copy(PRESET_DEFINITIONS.sedan),
+  vehicleDomain: 'road',
   lightingTime: 'day',
   headlightsLit: true,
   emergencyLightsLit: true,
@@ -122,8 +155,34 @@ export const OPTIONS = {
     ['cement_mixer', 'Concrete Mixer Truck'],
     ['wheel_loader', 'Construction Wheel Loader'],
     ['flatbed_truck', 'Flatbed / Crane Truck'],
-    ['double_decker', 'Double-Decker Bus']
+    ['double_decker', 'Double-Decker Bus'],
+    ['rail_diesel_road_switcher', 'Rail Diesel Road-Switcher'],
+    ['rail_diesel_switcher', 'Rail Yard Switcher'],
+    ['rail_electric_loco', 'Dual-Cab Electric Loco'],
+    ['rail_streamlined_diesel', 'Streamlined Bulldog Diesel'],
+    ['rail_steam_loco', 'Pacific Steam Locomotive'],
+    ['rail_maintenance', 'Track Maintenance Crane'],
+    ['rail_highspeed_lead', 'High-Speed Bullet Lead'],
+    ['rail_highspeed_coach', 'High-Speed Bullet Coach'],
+    ['rail_passenger_coach', 'Rail Passenger Coach'],
+    ['rail_bilevel_coach', 'Double-Decker Commuter'],
+    ['rail_dome_coach', 'Vista-Dome Observation'],
+    ['rail_subway_classic', 'Classic Stainless Subway'],
+    ['rail_metro_modern', 'Modern Rounded Metro'],
+    ['rail_people_mover', 'Automated People Mover'],
+    ['rail_historic_streetcar', 'Historic Clerestory Streetcar'],
+    ['rail_articulated_tram', '3-Section Articulated Tram'],
+    ['rail_open_tram', 'Open-Sided Tourist Tram'],
+    ['rail_freight_boxcar', 'Rail Freight Boxcar'],
+    ['rail_freight_flatcar', 'Rail Container Flatcar'],
+    ['rail_freight_tank', 'Rail Tank Wagon'],
+    ['rail_freight_hopper', 'Open Bulk Hopper Car'],
+    ['rail_freight_caboose', 'Cupola Freight Caboose'],
+    ['rail_straddle_monorail', 'Straddle-Beam Monorail'],
+    ['rail_suspended_monorail', 'Suspended Skytrain Monorail'],
+    ['rail_aerial_gondola', 'Panoramic Aerial Gondola']
   ],
+  ...RAIL_OPTIONS,
   silhouetteFamily: Object.entries(SILHOUETTE_PROFILES).map(([id, def]) => [id, def.label]),
   rooflineStyle: [
     ['flat', 'Flat Utility Roof'],
@@ -446,6 +505,74 @@ export const CATEGORIES = {
   scene: SCHEMA.scene.filter((x) => x.key && x.key !== 'lightingTime').map((x) => x.key)
 };
 
+const ROAD_BUS_STYLES = new Set([
+  'minibus',
+  'city_bus',
+  'articulated_bus',
+  'double_decker_bus',
+  'school_bus'
+]);
+
+const ROAD_CAR_STYLES = new Set([
+  'compact_car',
+  'sedan',
+  'hatchback',
+  'coupe',
+  'wagon',
+  'taxi',
+  'suv',
+  'retro_futuristic',
+  'convertible',
+  'micro_city_car',
+  'police_car'
+]);
+
+const RAIL_BODY_FAMILIES = new Set([
+  'rail_diesel_road_switcher',
+  'rail_diesel_switcher',
+  'rail_electric_loco',
+  'rail_streamlined_diesel',
+  'rail_steam_loco',
+  'rail_maintenance',
+  'rail_highspeed_lead',
+  'rail_highspeed_coach',
+  'rail_passenger_coach',
+  'rail_bilevel_coach',
+  'rail_dome_coach',
+  'rail_subway_classic',
+  'rail_metro_modern',
+  'rail_people_mover',
+  'rail_historic_streetcar',
+  'rail_articulated_tram',
+  'rail_open_tram',
+  'rail_freight_boxcar',
+  'rail_freight_flatcar',
+  'rail_freight_tank',
+  'rail_freight_hopper',
+  'rail_freight_caboose',
+  'rail_straddle_monorail',
+  'rail_suspended_monorail',
+  'rail_aerial_gondola'
+]);
+
+export function isRailConfig(cfg) {
+  if (!cfg || typeof cfg !== 'object') return false;
+  if (cfg.vehicleDomain === 'rail') return true;
+  if (RAIL_BODY_FAMILIES.has(cfg.bodyFamily)) return true;
+  return RAIL_ARCHETYPES.some((a) => a.id === cfg.style);
+}
+
+export function getArchetypeCategoryGroup(archOrId) {
+  const arch = typeof archOrId === 'string' ? getStyle(archOrId) : archOrId;
+  if (!arch) return 'cars';
+  if (arch.vehicleDomain === 'rail' || RAIL_ARCHETYPES.some((a) => a.id === arch.id)) {
+    return 'transit_rail';
+  }
+  if (ROAD_BUS_STYLES.has(arch.id)) return 'buses';
+  if (ROAD_CAR_STYLES.has(arch.id)) return 'cars';
+  return 'commercial';
+}
+
 export function getStyle(styleId) {
   return STYLES.find((x) => x.id === styleId) || STYLES[1];
 }
@@ -460,37 +587,114 @@ export function baseForStyle(styleId) {
   return sanitiseConfig({ ...copy(BASE), ...copy(preset) });
 }
 
+function sanitiseFieldWithDef(merged, def, fallback) {
+  const key = def.key;
+  if (def.type === 'color') {
+    merged[key] = colorHex(merged[key], fallback);
+  } else if (def.type === 'boolean') {
+    merged[key] = typeof merged[key] === 'boolean' ? merged[key] : Boolean(fallback);
+  } else if (def.type === 'select') {
+    const list = def.optionsKey === 'materialFamily'
+      ? OPTIONS.materialFamily
+      : (OPTIONS[key] || []);
+    merged[key] = list.some(([v]) => v === merged[key]) ? merged[key] : fallback;
+  } else if (def.type === 'text') {
+    merged[key] = String(merged[key] ?? fallback).slice(0, 40);
+  } else {
+    const num = Number(merged[key]);
+    merged[key] = Number.isFinite(num)
+      ? clamp(num, def.min ?? -Infinity, def.max ?? Infinity)
+      : fallback;
+  }
+}
+
 export function sanitiseConfig(data) {
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
     return sanitiseConfig(copy(BASE));
   }
   const style = STYLES.some((x) => x.id === data.style) ? data.style : BASE.style;
-  const presetRaw = PRESETS[getStyle(style).preset] || {};
-  const merged = { ...copy(BASE), ...copy(presetRaw), ...copy(data), style };
+  const arch = getStyle(style);
+  const presetRaw = PRESETS[arch.preset] || {};
+  const isRail = arch.vehicleDomain === 'rail' || isRailConfig({ ...presetRaw, ...data, style });
+
+  if (isRail) {
+    const merged = {
+      ...copy(BASE),
+      ...copy(RAIL_BASE_DEFAULTS),
+      ...copy(presetRaw),
+      ...copy(data),
+      style,
+      vehicleDomain: 'rail'
+    };
+
+    if (!RAIL_BODY_FAMILIES.has(merged.bodyFamily)) {
+      merged.bodyFamily = presetRaw.bodyFamily || arch.bodyFamily || 'rail_diesel_road_switcher';
+    }
+    if (!SILHOUETTE_PROFILES[merged.silhouetteFamily]) {
+      merged.silhouetteFamily = presetRaw.silhouetteFamily || 'diesel_road_switcher';
+    }
+
+    const railSharedTabs = ['materials', 'scene'];
+    for (const tabKey of railSharedTabs) {
+      for (const def of SCHEMA[tabKey] || []) {
+        if (!def.key) continue;
+        const fallback = presetRaw[def.key] !== undefined ? presetRaw[def.key] : BASE[def.key];
+        sanitiseFieldWithDef(merged, def, fallback);
+      }
+    }
+
+    const extraRoadMetaKeys = ['roleVariant', 'lightBar', 'doorsOpen', 'interiorDetail', 'signText'];
+    for (const key of extraRoadMetaKeys) {
+      for (const rows of Object.values(SCHEMA)) {
+        const def = rows.find((d) => d.key === key);
+        if (def) {
+          const fallback = presetRaw[key] !== undefined ? presetRaw[key] : BASE[key];
+          sanitiseFieldWithDef(merged, def, fallback);
+          break;
+        }
+      }
+    }
+
+    for (const rows of Object.values(RAIL_SCHEMA)) {
+      for (const def of rows) {
+        if (!def.key || def.key === 'style') continue;
+        const fallback = presetRaw[def.key] !== undefined
+          ? presetRaw[def.key]
+          : (RAIL_BASE_DEFAULTS[def.key] !== undefined ? RAIL_BASE_DEFAULTS[def.key] : BASE[def.key]);
+        sanitiseFieldWithDef(merged, def, fallback);
+      }
+    }
+
+    merged.seed = clamp(Math.floor(Number(merged.seed) || 1024), 1, 99999999);
+    merged.railBogieAxles = clamp(Math.round(merged.railBogieAxles), 2, 3);
+    merged.railExhaustCount = clamp(Math.round(merged.railExhaustCount), 0, 3);
+    merged.railWindowCount = clamp(Math.round(merged.railWindowCount), 0, 12);
+    merged.railWheelSpinDeg = ((Number(merged.railWheelSpinDeg) || 0) % 360 + 360) % 360;
+    if (data.doorsOpen === true && Number(data.railDoorsOpen) !== 0 && merged.railDoorsOpen < 0.05) {
+      merged.railDoorsOpen = 1;
+    }
+    merged.doorsOpen = merged.railDoorsOpen > 0.05;
+    merged.interiorDetail = Boolean(merged.railInteriorEnabled);
+    merged.railUnitNumber = String(merged.railUnitNumber || presetRaw.railUnitNumber || 'B-4012').slice(0, 18);
+    merged.railRouteBullet = String(merged.railRouteBullet || presetRaw.railRouteBullet || 'A').slice(0, 6);
+    merged.railPantographHeight = clamp(Number(merged.railPantographHeight ?? 0.85), 0, 1);
+    merged.railCabinSwingDeg = clamp(Number(merged.railCabinSwingDeg ?? 0), -12, 12);
+
+    delete merged.label;
+    return merged;
+  }
+
+  const merged = { ...copy(BASE), ...copy(presetRaw), ...copy(data), style, vehicleDomain: 'road' };
+  if (RAIL_BODY_FAMILIES.has(merged.bodyFamily)) {
+    merged.bodyFamily = presetRaw.bodyFamily || arch.bodyFamily || 'three_box';
+  }
 
   for (const rows of Object.values(SCHEMA)) {
     for (const def of rows) {
       if (!def.key || def.key === 'style') continue;
       const key = def.key;
       const fallback = presetRaw[key] !== undefined ? presetRaw[key] : BASE[key];
-
-      if (def.type === 'color') {
-        merged[key] = colorHex(merged[key], fallback);
-      } else if (def.type === 'boolean') {
-        merged[key] = typeof merged[key] === 'boolean' ? merged[key] : Boolean(fallback);
-      } else if (def.type === 'select') {
-        const list = def.optionsKey === 'materialFamily'
-          ? OPTIONS.materialFamily
-          : (OPTIONS[key] || []);
-        merged[key] = list.some(([v]) => v === merged[key]) ? merged[key] : fallback;
-      } else if (def.type === 'text') {
-        merged[key] = String(merged[key] ?? fallback).slice(0, 40);
-      } else {
-        const num = Number(merged[key]);
-        merged[key] = Number.isFinite(num)
-          ? clamp(num, def.min ?? -Infinity, def.max ?? Infinity)
-          : fallback;
-      }
+      sanitiseFieldWithDef(merged, def, fallback);
     }
   }
 

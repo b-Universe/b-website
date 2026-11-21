@@ -1,8 +1,12 @@
 import { clamp, degToRad, roundNum } from '../utils.js';
-import { sanitiseConfig, SILHOUETTE_PROFILES } from '../config.js';
+import { sanitiseConfig, SILHOUETTE_PROFILES, isRailConfig } from '../config.js';
+import { resolveRailVehicleLayout } from '../transit/rail-layout.js';
 
 export function resolveVehicleLayout(rawCfg) {
   const cfg = sanitiseConfig(rawCfg);
+  if (isRailConfig(cfg)) {
+    return resolveRailVehicleLayout(cfg);
+  }
   const warnings = [];
   const profile = SILHOUETTE_PROFILES[cfg.silhouetteFamily] || SILHOUETTE_PROFILES.executive_sedan;
 

@@ -7,12 +7,16 @@ import {
   SILHOUETTE_PROFILES,
   OPTIONS,
   SCHEMA,
+  RAIL_SCHEMA,
   CATEGORIES,
   PALETTE_FAMILIES,
   getStyle,
+  getArchetypeCategoryGroup,
+  isRailConfig,
   sanitiseConfig
 } from '../config.js';
 import { generateCoherentPalette } from '../materials/palettes.js';
+import { renderConsistPanel } from './consist-ui.js';
 
 function ctrlFormatVal(val, step = 0.01, unit = '') {
   const num = Number(val);
@@ -50,7 +54,14 @@ function ctrlBuildLockedToggle(key, locks, onToggle) {
   return btn;
 }
 
-function ctrlSchemaDefForKey(key) {
+function ctrlSchemaDefForKey(key, state = null) {
+  if (state && isRailConfig(state)) {
+    for (const rows of Object.values(RAIL_SCHEMA)) {
+      for (const def of rows) {
+        if (def.key === key) return def;
+      }
+    }
+  }
   for (const rows of Object.values(SCHEMA)) {
     for (const def of rows) {
       if (def.key === key) return def;
@@ -68,11 +79,19 @@ function ctrlSnapValue(num, def) {
   return clamp(roundNum(snapped, 4), min, max);
 }
 
-export function renderStylePicker(container, activeStyle, onSelect) {
+export function renderStylePicker(container, activeStyle, onSelect, categoryFilter = 'all', transitSubgroup = 'all_transit') {
   if (!container) return;
   container.innerHTML = '';
 
-  for (const arch of STYLES) {
+  const filtered = STYLES.filter((arch) => {
+    if (categoryFilter !== 'all' && getArchetypeCategoryGroup(arch) !== categoryFilter) return false;
+    if (categoryFilter === 'transit_rail' && transitSubgroup && transitSubgroup !== 'all_transit') {
+      return arch.categoryGroup === transitSubgroup;
+    }
+    return true;
+  });
+
+  for (const arch of filtered) {
     const preset = PRESETS[arch.preset] || {};
     const swatch = preset.bodyPrimaryColor || '#4c7ca8';
     const card = document.createElement('button');
@@ -80,12 +99,15 @@ export function renderStylePicker(container, activeStyle, onSelect) {
     card.className = 'style-card' + (arch.id === activeStyle ? ' active' : '');
     card.dataset.style = arch.id;
     card.title = arch.description || arch.label;
+    const metaLabel = arch.vehicleDomain === 'rail'
+      ? `${arch.shortClass || 'Rail'} · ${SILHOUETTE_PROFILES[preset.silhouetteFamily]?.label || ''}`
+      : (SILHOUETTE_PROFILES[preset.silhouetteFamily]?.label || arch.shortClass || arch.silhouette || '');
     card.innerHTML = `
       <span class="style-card-top">
         <span class="style-swatch" style="background:${swatch}"></span>
         <span class="style-name">${arch.label}</span>
       </span>
-      <span class="style-meta">${SILHOUETTE_PROFILES[preset.silhouetteFamily]?.label || arch.shortClass || arch.silhouette || ''}</span>
+      <span class="style-meta">${metaLabel}</span>
     `;
     card.addEventListener('click', () => {
       if (onSelect) onSelect(arch.id);
@@ -101,12 +123,18 @@ export function updateStylePicker(activeStyle) {
   }
 }
 
-export function renderPresetList(container, activePresetId, onSelect) {
+export function renderPresetList(container, activePresetId, onSelect, categoryFilter = 'all', transitSubgroup = 'all_transit') {
   if (!container) return;
   container.innerHTML = '';
 
   for (const [id, preset] of Object.entries(PRESETS)) {
     const arch = STYLES.find((s) => s.preset === id || s.id === id);
+    if (categoryFilter !== 'all' && arch && getArchetypeCategoryGroup(arch) !== categoryFilter) {
+      continue;
+    }
+    if (categoryFilter === 'transit_rail' && transitSubgroup && transitSubgroup !== 'all_transit' && arch?.categoryGroup !== transitSubgroup) {
+      continue;
+    }
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'preset-btn' + (id === activePresetId ? ' active' : '');
@@ -182,7 +210,7 @@ export function renderCustomPresets(container, onLoad, toast) {
 }
 
 function ctrlApplyJitteredNumeric(next, key, baseVal, r, spanRatio = 0.14) {
-  const def = ctrlSchemaDefForKey(key);
+  const def = ctrlSchemaDefForKey(key, next);
   if (!def || def.type) return;
   const spread = Math.max((def.step || 0.01) * 2, Math.abs(baseVal) * spanRatio);
   const candidate = baseVal + (r() * 2 - 1) * spread;
@@ -194,6 +222,7 @@ export function applySeedVariation(state, locks = new Set()) {
   const r = rng32(seedInt);
   const arch = getStyle(state.style);
   const presetBase = PRESETS[arch.preset] || PRESETS.sedan;
+  const railMode = isRailConfig(state);
 
   const setIfUnlocked = (key, val) => {
     if (!locks.has(key) && val !== undefined) {
@@ -203,7 +232,22 @@ export function applySeedVariation(state, locks = new Set()) {
 
   let chosenFamily = state.paletteFamily || presetBase.paletteFamily || 'civilian_neutrals';
   if (!locks.has('paletteFamily')) {
-    if (!state.roleVariant || state.roleVariant === 'civilian') {
+    if (railMode) {
+      const freightOrHeavy = new Set([
+        'rail_diesel_road_switcher',
+        'rail_diesel_switcher',
+        'rail_steam_loco',
+        'rail_maintenance',
+        'rail_freight_boxcar',
+        'rail_freight_flatcar',
+        'rail_freight_tank',
+        'rail_freight_hopper',
+        'rail_freight_caboose'
+      ]);
+      chosenFamily = !freightOrHeavy.has(state.bodyFamily)
+        ? pick(r, ['passenger_rail', 'bright_city', 'retro_city'])
+        : pick(r, ['freight_rail', 'muted_industrial', 'construction_yellow']);
+    } else if (!state.roleVariant || state.roleVariant === 'civilian') {
       chosenFamily = pick(r, ['civilian_neutrals', 'bright_city', 'muted_industrial']);
     } else {
       chosenFamily = presetBase.paletteFamily || chosenFamily;
@@ -214,7 +258,27 @@ export function applySeedVariation(state, locks = new Set()) {
   for (const [k, v] of Object.entries(pal)) {
     setIfUnlocked(k, v);
   }
-  setIfUnlocked('colorVariation', ctrlSnapValue(0.04 + r() * 0.12, ctrlSchemaDefForKey('colorVariation')));
+  setIfUnlocked('colorVariation', ctrlSnapValue(0.04 + r() * 0.12, ctrlSchemaDefForKey('colorVariation', state)));
+
+  if (railMode) {
+    const railJitters = ['overallLength', 'overallWidth', 'overallHeight', 'railDeckHeight', 'railWheelRadius'];
+    for (const key of railJitters) {
+      if (!locks.has(key)) {
+        const anchor = presetBase[key] !== undefined ? presetBase[key] : state[key];
+        ctrlApplyJitteredNumeric(state, key, anchor, r, 0.05);
+      }
+    }
+    if (!locks.has('railCargoType') && state.bodyFamily === 'rail_freight_flatcar') {
+      state.railCargoType = ctrlPickOption(r, OPTIONS.railCargoType);
+    }
+    if (!locks.has('railHopperCargo') && state.bodyFamily === 'rail_freight_hopper' && OPTIONS.railHopperCargo) {
+      state.railHopperCargo = ctrlPickOption(r, OPTIONS.railHopperCargo);
+    }
+    const clean = sanitiseConfig(state);
+    Object.assign(state, clean);
+    return state;
+  }
+
   setIfUnlocked('hubcapStyle', ctrlPickOption(r, OPTIONS.hubcapStyle));
 
   // Subtle +/- 6% deterministic proportion variation anchored to archetype preset defaults
@@ -250,6 +314,39 @@ export function randomizeSettings(cat, state, locks = new Set(), rngFn = null) {
       next[key] = value;
     }
   };
+
+  if (isRailConfig(next)) {
+    for (const activeCat of targetCats) {
+      if (activeCat === 'materials') {
+        const famKeys = Object.keys(PALETTE_FAMILIES);
+        const chosenFamily = locks.has('paletteFamily') && next.paletteFamily ? next.paletteFamily : pick(r, famKeys);
+        const pal = generateCoherentPalette(chosenFamily, Math.floor(r() * 999999) + 1, next.roleVariant);
+        for (const [k, v] of Object.entries(pal)) {
+          writeIfUnlocked(k, v);
+        }
+        writeIfUnlocked('wearLevel', ctrlPickOption(r, OPTIONS.wearLevel));
+        writeIfUnlocked('colorVariation', ctrlSnapValue(r() * 0.22, ctrlSchemaDefForKey('colorVariation', next)));
+        continue;
+      }
+
+      const defs = (RAIL_SCHEMA[activeCat] || []).filter((d) => d.key && (!d.visibleFor || d.visibleFor.includes(next.bodyFamily)));
+      for (const def of defs) {
+        const k = def.key;
+        if (locks.has(k) || k === 'railUnitNumber' || k === 'signText' || k === 'railBogieYawDeg' || k === 'railWheelSpinDeg') continue;
+        if (def.type === 'boolean') {
+          next[k] = r() > 0.4;
+        } else if (def.type === 'select') {
+          next[k] = ctrlPickOption(r, OPTIONS[k]);
+        } else if (!def.type || def.type === 'number') {
+          const anchor = presetBase[k] !== undefined ? presetBase[k] : next[k];
+          ctrlApplyJitteredNumeric(next, k, anchor, r, 0.12);
+        }
+      }
+    }
+    const cleanRail = sanitiseConfig(next);
+    Object.assign(state, cleanRail);
+    return cleanRail;
+  }
 
   for (const activeCat of targetCats) {
     if (activeCat === 'materials') {
@@ -505,9 +602,34 @@ function ctrlBuildExportTab(container, ctx) {
   wrap.querySelector('#tab-snapshot')?.addEventListener('click', () => ctx.onSnapshot && ctx.onSnapshot());
 }
 
+function ctrlFilterRailRows(rows, bodyFamily) {
+  const filtered = [];
+  let pendingGroup = null;
+  for (const row of rows) {
+    if (row.group) {
+      pendingGroup = row;
+      continue;
+    }
+    if (row.visibleFor && !row.visibleFor.includes(bodyFamily)) {
+      continue;
+    }
+    if (pendingGroup) {
+      filtered.push(pendingGroup);
+      pendingGroup = null;
+    }
+    filtered.push(row);
+  }
+  return filtered;
+}
+
 export function renderControls(tabId, container, state, locks, ctx) {
   if (!container) return;
   container.innerHTML = '';
+
+  if (tabId === 'consist') {
+    renderConsistPanel(container, ctx);
+    return;
+  }
 
   if (tabId === 'presets') {
     ctrlBuildPresetsTab(container, state, ctx);
@@ -519,12 +641,37 @@ export function renderControls(tabId, container, state, locks, ctx) {
     return;
   }
 
-  const rows = SCHEMA[tabId] || [];
+  const railMode = isRailConfig(state);
+  if (railMode && ctx.studioMode === 'trainset') {
+    const unitBanner = document.createElement('div');
+    unitBanner.className = 'studio-control-group studio-field consist-editing-banner';
+    const arch = getStyle(state.style);
+    unitBanner.innerHTML = `
+      <div class="studio-row-head">
+        <strong>Editing Unit #${(ctx.selectedUnitIndex || 0) + 1}: ${state.railUnitNumber || arch.label}</strong>
+        <button type="button" class="studio-mini-btn" id="btn-back-consist">Consist</button>
+      </div>
+    `;
+    unitBanner.querySelector('#btn-back-consist')?.addEventListener('click', () => {
+      ctx.onSwitchTab?.('consist');
+    });
+    container.appendChild(unitBanner);
+  }
+
+  const rawRows = railMode && RAIL_SCHEMA[tabId] ? RAIL_SCHEMA[tabId] : (SCHEMA[tabId] || []);
+  const rows = railMode ? ctrlFilterRailRows(rawRows, state.bodyFamily) : rawRows;
   const materialOnlyKeys = new Set([
     ...CATEGORIES.materials,
     'windowTint',
     'headlightsLit',
     'emergencyLightsLit'
+  ]);
+  const poseOnlyKeys = new Set([
+    'railBogieYawDeg',
+    'railWheelSpinDeg',
+    'railDoorsOpen',
+    'railPantographHeight',
+    'railCabinSwingDeg'
   ]);
 
   for (const item of rows) {
@@ -666,14 +813,18 @@ export function renderControls(tabId, container, state, locks, ctx) {
         const num = Number(slider.value);
         state[key] = num;
         if (valBadge) valBadge.textContent = ctrlFormatVal(num, item.step, item.unit);
-        if (materialOnlyKeys.has(key)) {
+        if (poseOnlyKeys.has(key) && ctx.onPoseChanged) {
+          ctx.onPoseChanged(true);
+        } else if (materialOnlyKeys.has(key)) {
           if (ctx.onMaterialChanged) ctx.onMaterialChanged(true);
         } else if (ctx.onStructureChanged) {
           ctx.onStructureChanged(true);
         }
       });
       slider.addEventListener('change', () => {
-        if (materialOnlyKeys.has(key)) {
+        if (poseOnlyKeys.has(key) && ctx.onPoseChanged) {
+          ctx.onPoseChanged(false);
+        } else if (materialOnlyKeys.has(key)) {
           if (ctx.onMaterialChanged) ctx.onMaterialChanged(false);
         } else if (ctx.onStructureChanged) {
           ctx.onStructureChanged(false);
@@ -684,5 +835,25 @@ export function renderControls(tabId, container, state, locks, ctx) {
     }
 
     container.appendChild(field);
+  }
+
+  if (railMode && tabId === 'structure' && ctx.activeBlueprint?.transitCompatibility) {
+    const compat = ctx.activeBlueprint.transitCompatibility;
+    const grp = document.createElement('div');
+    grp.className = 'studio-group-label';
+    grp.textContent = 'Transit Compatibility Profile';
+    container.appendChild(grp);
+    const card = document.createElement('div');
+    card.className = 'studio-control-group studio-field consist-diag-box';
+    card.innerHTML = `
+      <div class="consist-diag-grid">
+        <span>Total Length: <strong>${compat.geometry.totalLengthOverCouplers}m</strong></span>
+        <span>Min Curve: <strong>${compat.railway.minimumCurveRadius}m</strong></span>
+        <span>Swept Width: <strong>${compat.geometry.dynamicSweptWidthAtMinRadius}m</strong></span>
+        <span>Max Grade: <strong>${compat.railway.maximumGradePercent}%</strong></span>
+      </div>
+      <div class="studio-hint">${compat.profileRevision} · ${compat.identity.infrastructureFamily} · ${compat.coupling.frontCouplerType}</div>
+    `;
+    container.appendChild(card);
   }
 }

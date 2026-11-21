@@ -3,6 +3,13 @@ import { BASE, PRESETS, STYLES, sanitiseConfig, getStyle } from '../config.js';
 import { generateCoherentPalette } from '../materials/palettes.js';
 import { generateVehicleBlueprint, validateVehicleBlueprint } from '../core/blueprints.js';
 import { createCityVehicle } from '../geometry/vehicle.js';
+import { TRAINSET_SCHEMA_VERSION } from '../transit/compatibility.js';
+import {
+  createConsistMeshGroup,
+  generateConsistBlueprint,
+  sanitiseConsist,
+  validateConsistBlueprint
+} from '../transit/consist.js';
 
 export function fileDownload(filename, blob) {
   const url = URL.createObjectURL(blob);
@@ -178,7 +185,23 @@ export async function exportVehicleGLB(state, ready, activeBlueprintName, loadEx
   }
 }
 
-export function applyImportedVehicleData(parsed, sourceLabel = 'Imported Vehicle', applyFn = null, toast = null) {
+export function applyImportedVehicleData(parsed, sourceLabel = 'Imported Vehicle', applyFn = null, toast = null, applyConsistFn = null) {
+  if (parsed && (parsed.schemaVersion === TRAINSET_SCHEMA_VERSION || (Array.isArray(parsed.units) && parsed.units.length > 0))) {
+    const tRes = validateConsistBlueprint(parsed);
+    if (!tRes.ok && !tRes.consist) {
+      if (toast) toast(`Trainset Import Rejected: ${tRes.errors.join('; ')}`);
+      return tRes;
+    }
+    if (applyConsistFn) {
+      applyConsistFn(tRes.consist, sourceLabel);
+    }
+    if (toast) {
+      const warnMsg = tRes.warnings.length ? ` (${tRes.warnings.length} Warnings)` : '';
+      toast(`Loaded Trainset: ${tRes.consist.name || sourceLabel}${warnMsg}`);
+    }
+    return tRes;
+  }
+
   const res = validateVehicleBlueprint(parsed);
   if (!res.ok) {
     if (toast) toast(`Import Rejected: ${res.errors.join('; ')}`);
@@ -196,17 +219,70 @@ export function applyImportedVehicleData(parsed, sourceLabel = 'Imported Vehicle
   return res;
 }
 
-export function handleVehicleFileImport(file, onApply, toast) {
+export function handleVehicleFileImport(file, onApply, toast, onApplyConsist = null) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = () => {
     try {
       const parsed = JSON.parse(String(reader.result || '{}'));
-      const cleanName = file.name.replace(/\.(vehicle\.)?json$/i, '');
-      applyImportedVehicleData(parsed, cleanName, onApply, toast);
+      const cleanName = file.name.replace(/\.(vehicle|trainset)?\.json$/i, '').replace(/\.json$/i, '');
+      applyImportedVehicleData(parsed, cleanName, onApply, toast, onApplyConsist);
     } catch (err) {
       if (toast) toast(`Invalid Json File: ${err.message}`);
     }
   };
   reader.readAsText(file);
+}
+
+export function exportConsistBlueprint(consist, route = null, toast = null) {
+  const clean = sanitiseConsist(consist);
+  const bp = generateConsistBlueprint(clean, { route });
+  const name = safeVehicleName({ style: clean.presetId }, clean.name || 'rail-trainset');
+  const blob = new Blob([JSON.stringify(bp, null, 2)], { type: 'application/json' });
+  fileDownload(`${name}.trainset.json`, blob);
+  if (toast) toast(`Exported Trainset Blueprint: ${name}.trainset.json`);
+  return bp;
+}
+
+export async function exportConsistGLB(consist, route, leadS, ready, loadExporterFn, toast, setStatus) {
+  if (!ready) {
+    if (toast) toast('Wait For 3d Preview Before Exporting Trainset');
+    return;
+  }
+  try {
+    if (setStatus) setStatus('Preparing Trainset Glb...');
+    await loadExporterFn();
+    const clean = sanitiseConsist(consist);
+    const exportGroup = createConsistMeshGroup(clean, { route, leadS });
+    exportGroup.updateMatrixWorld(true);
+
+    const exporter = new THREE.GLTFExporter();
+    const name = safeVehicleName({ style: clean.presetId }, clean.name || 'rail-trainset');
+    if (setStatus) setStatus('Generating Trainset Glb...');
+
+    await new Promise((resolve, reject) => {
+      try {
+        exporter.parse(
+          exportGroup,
+          (result) => {
+            const blob = result instanceof ArrayBuffer
+              ? new Blob([result], { type: 'model/gltf-binary' })
+              : new Blob([JSON.stringify(result, null, 2)], { type: 'model/gltf+json' });
+            fileDownload(`${name}.glb`, blob);
+            if (toast) toast(`Exported 3d Trainset: ${name}.glb`);
+            resolve();
+          },
+          { binary: true, onlyVisible: false }
+        );
+      } catch (err) {
+        reject(err);
+      }
+    });
+    expDisposeTempGroup(exportGroup);
+    if (setStatus) setStatus('Trainset Export Complete');
+  } catch (err) {
+    console.error('Trainset Glb Export Error:', err);
+    if (toast) toast(`Trainset Export Error: ${err.message}`);
+    if (setStatus) setStatus('Export Failed');
+  }
 }

@@ -93,9 +93,15 @@
         </div>
       <div class="studio-style-bar">
         <div class="studio-style-bar-head">
-          <div>
-            <strong>Vehicle Archetypes</strong>
-            <span class="studio-hint" id="active-style-name">Family Sedan</span>
+          <div class="studio-style-title-wrap">
+            <div>
+              <strong>Vehicle Archetypes</strong>
+              <span class="studio-hint" id="active-style-name">Family Sedan</span>
+            </div>
+            <div class="studio-mode-switch" role="group" aria-label="Editor Mode">
+              <button type="button" class="studio-mini-btn active" id="btn-mode-vehicle" data-studio-mode="vehicle"><i class="fa-solid fa-car-side"></i> Vehicle Mode</button>
+              <button type="button" class="studio-mini-btn" id="btn-mode-trainset" data-studio-mode="trainset"><i class="fa-solid fa-train"></i> Trainset Composer</button>
+            </div>
           </div>
 
           <div class="studio-seed-controls">
@@ -108,6 +114,25 @@
           </div>
         </div>
 
+        <div class="studio-cat-filters" id="category-filters" role="group" aria-label="Vehicle Categories">
+          <button type="button" class="studio-cat-pill active" data-cat-filter="all">All Vehicles</button>
+          <button type="button" class="studio-cat-pill" data-cat-filter="cars">Cars &amp; Road</button>
+          <button type="button" class="studio-cat-pill" data-cat-filter="commercial">Commercial &amp; Service</button>
+          <button type="button" class="studio-cat-pill" data-cat-filter="buses">Buses</button>
+          <button type="button" class="studio-cat-pill" data-cat-filter="transit_rail"><i class="fa-solid fa-train"></i> Transit &amp; Railway</button>
+        </div>
+
+        <div class="studio-sub-filters" id="transit-subfilters" role="group" aria-label="Transit Subcategories" hidden>
+          <button type="button" class="studio-sub-pill active" data-transit-subgroup="all_transit">All Transit (25)</button>
+          <button type="button" class="studio-sub-pill" data-transit-subgroup="locomotives">Locomotives</button>
+          <button type="button" class="studio-sub-pill" data-transit-subgroup="passenger_rail">High-Speed &amp; Coaches</button>
+          <button type="button" class="studio-sub-pill" data-transit-subgroup="subway_metro">Subway &amp; Metro</button>
+          <button type="button" class="studio-sub-pill" data-transit-subgroup="trams_light_rail">Trams &amp; Streetcars</button>
+          <button type="button" class="studio-sub-pill" data-transit-subgroup="freight_rail">Freight Cars</button>
+          <button type="button" class="studio-sub-pill" data-transit-subgroup="monorails_aerial">Monorails &amp; Aerial</button>
+          <button type="button" class="studio-sub-pill" data-transit-subgroup="maintenance_rail">Maintenance</button>
+        </div>
+
         <div class="style-picker" id="style-picker" role="group" aria-label="Vehicle Archetypes"></div>
       </div>
 
@@ -115,6 +140,7 @@
         <aside class="studio-controls-panel" aria-label="Vehicle Design Controls">
           <div class="studio-tabs" role="tablist">
             <button type="button" class="studio-tab" data-tab="presets" role="tab">Presets</button>
+            <button type="button" class="studio-tab" data-tab="consist" role="tab">Consist</button>
             <button type="button" class="studio-tab active" data-tab="structure" role="tab">Structure</button>
             <button type="button" class="studio-tab" data-tab="body" role="tab">Body</button>
             <button type="button" class="studio-tab" data-tab="doors" role="tab">Doors &amp; Glass</button>
@@ -136,6 +162,10 @@
                 <button type="button" class="studio-mini-btn active" data-focus="hero">Hero 3/4</button>
                 <button type="button" class="studio-mini-btn" data-focus="profile">Side Profile</button>
                 <button type="button" class="studio-mini-btn" data-focus="street">Street Angle</button>
+                <button type="button" class="studio-mini-btn" data-focus="fit_train">Fit Train</button>
+                <button type="button" class="studio-mini-btn" data-focus="top">Top</button>
+                <button type="button" class="studio-mini-btn" data-focus="cab">Cab</button>
+                <button type="button" class="studio-mini-btn" data-focus="bogie">Bogie</button>
                 <button type="button" class="studio-mini-btn" id="btn-reset-camera" title="Reset Camera"><i class="fa-solid fa-crosshairs"></i></button>
               </div>
 
@@ -161,6 +191,32 @@
               </div>
             </div>
 
+            <div class="studio-rail-bar" id="rail-preview-bar" hidden>
+              <div class="studio-toolbar-group" aria-label="Track Fixture">
+                <span class="rail-bar-label">Track</span>
+                <button type="button" class="studio-mini-btn active" data-track-mode="rail_straight">Straight</button>
+                <button type="button" class="studio-mini-btn" data-track-mode="rail_curved">Curved</button>
+                <button type="button" class="studio-mini-btn" data-track-mode="rail_incline">Incline</button>
+                <label class="rail-inline-slider" title="Track Curve Radius">
+                  <span>R</span>
+                  <input type="range" id="track-curve-radius" min="25" max="150" step="1" value="48" />
+                  <span id="track-curve-val">48m</span>
+                </label>
+              </div>
+              <div class="studio-toolbar-group" aria-label="Train Motion Controls">
+                <button type="button" class="studio-mini-btn" id="btn-track-play"><i class="fa-solid fa-play"></i> Play</button>
+                <button type="button" class="studio-mini-btn" id="btn-track-reverse"><i class="fa-solid fa-backward"></i> Rev</button>
+                <button type="button" class="studio-mini-btn" id="btn-track-reset"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+                <label class="rail-inline-slider" title="Track Speed (m/s)">
+                  <span>Spd</span>
+                  <input type="range" id="track-speed" min="1" max="18" step="0.5" value="6" />
+                </label>
+                <label class="studio-check-row"><input type="checkbox" id="track-follow" /> Follow</label>
+                <label class="studio-check-row"><input type="checkbox" id="rail-doors-toggle" /> Open Doors</label>
+                <label class="studio-check-row"><input type="checkbox" id="rail-panto-toggle" checked /> Pantograph Up</label>
+              </div>
+            </div>
+
             <div class="studio-viewport-footer">
               <div class="studio-hint" id="scene-label">Family Sedan (three_box)</div>
 
@@ -171,6 +227,13 @@
                     <option value="street" selected>City Street Lane</option>
                     <option value="parking_lot">Urban Parking Bay</option>
                     <option value="city_curb">Curb &amp; Sidewalk</option>
+                    <option value="rail_straight">Straight Railway Track</option>
+                    <option value="rail_curved">Curved Railway Track</option>
+                    <option value="rail_incline">Inclined Railway Grade</option>
+                    <option value="tram_street">City Street Tramway</option>
+                    <option value="monorail_straddle">Straddle Monorail Beam</option>
+                    <option value="monorail_suspended">Suspended Skytrain Girder</option>
+                    <option value="cableway_aerial">Aerial Cableway &amp; Pylons</option>
                     <option value="studio">Clean Turntable Pad</option>
                     <option value="none">Void + Grid</option>
                   </select>

@@ -1,4 +1,5 @@
 import { $ } from '../utils.js';
+import { createTrackRoute, buildTrackFixtureGroup } from '../transit/track-preview.js';
 
 export function disposeObject(obj) {
   if (!obj) return;
@@ -44,22 +45,19 @@ function previewMakeLabelSprite(text, bgColor = '#0c2334', borderColor = '#4de2f
   return sprite;
 }
 
-export function buildVehicleDebugGizmos(vehicleGroup) {
-  const root = new THREE.Group();
-  root.name = 'VehicleDebugGizmos';
-  if (!vehicleGroup?.userData?.blueprint) return root;
-
-  const bp = vehicleGroup.userData.blueprint;
+function previewBuildSingleGizmo(vehicleGroup, targetRoot, showFrontArrow = true) {
+  const bp = vehicleGroup?.userData?.blueprint;
+  if (!bp) return;
   const park = bp.parkingFootprint?.meters || { width: 2.5, length: 5.0 };
   const colBox = bp.collisionBounds?.compositeBox;
 
-  // Parking Footprint Wireframe Box on ground
+  // Parking / Track Footprint Wireframe Box on ground
   const padGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(park.width, 0.04, park.length));
   const padMat = new THREE.LineBasicMaterial({ color: '#3af0b8' });
   const padWire = new THREE.LineSegments(padGeo, padMat);
   padWire.position.y = 0.025;
   padWire.userData = { _ownedMat: true };
-  root.add(padWire);
+  targetRoot.add(padWire);
 
   // Composite Collision Bounds Wireframe
   if (colBox) {
@@ -68,20 +66,37 @@ export function buildVehicleDebugGizmos(vehicleGroup) {
     const colWire = new THREE.LineSegments(colGeo, colMat);
     colWire.position.set(colBox.center.x, colBox.center.y, colBox.center.z);
     colWire.userData = { _ownedMat: true };
-    root.add(colWire);
+    targetRoot.add(colWire);
   }
 
   // Forward (+Z) Direction Arrow
-  const frontZ = (bp.bounds?.meters?.maxZ || 2.2) + 0.15;
-  const arrow = new THREE.ArrowHelper(
-    new THREE.Vector3(0, 0, 1),
-    new THREE.Vector3(0, 0.12, frontZ),
-    0.9,
-    0x4de2ff,
-    0.26,
-    0.16
-  );
-  root.add(arrow);
+  if (showFrontArrow) {
+    const frontZ = (bp.bounds?.meters?.maxZ || 2.2) + 0.15;
+    const arrow = new THREE.ArrowHelper(
+      new THREE.Vector3(0, 0, 1),
+      new THREE.Vector3(0, 0.12, frontZ),
+      0.9,
+      0x4de2ff,
+      0.26,
+      0.16
+    );
+    targetRoot.add(arrow);
+  }
+
+  // Rail Coupler & Bogie Anchors when rail blueprint
+  if (bp.pivots?.couplers) {
+    const cMat = new THREE.MeshBasicMaterial({ color: '#4de2ff' });
+    const sGeo = new THREE.SphereGeometry(0.11, 8, 8);
+    for (const endKey of ['front', 'rear']) {
+      const anc = bp.pivots.couplers[endKey];
+      if (!anc) continue;
+      const sp = new THREE.Mesh(sGeo.clone(), cMat);
+      sp.position.set(anc.x, anc.y, anc.pullFaceZ ?? anc.z);
+      sp.userData = { _ownedMat: true };
+      targetRoot.add(sp);
+    }
+    sGeo.dispose();
+  }
 
   // Axle Line & Wheel Center Markers
   for (const axle of bp.axles || []) {
@@ -90,13 +105,60 @@ export function buildVehicleDebugGizmos(vehicleGroup) {
     const bar = new THREE.Mesh(barGeo, axMat);
     bar.position.set(0, 0.03, axle.z);
     bar.userData = { _ownedMat: true };
-    root.add(bar);
+    targetRoot.add(bar);
 
     const lbl = previewMakeLabelSprite(`${axle.id} (${axle.z}m)`, '#1b0f26', '#ff6ec7');
     lbl.position.set(axle.wheelCenterX + 0.65, 0.35, axle.z);
-    root.add(lbl);
+    targetRoot.add(lbl);
+  }
+}
+
+export function buildVehicleDebugGizmos(vehicleGroup) {
+  const root = new THREE.Group();
+  root.name = 'VehicleDebugGizmos';
+  if (!vehicleGroup) return root;
+  vehicleGroup.updateMatrixWorld(true);
+
+  if (Array.isArray(vehicleGroup.userData?.unitGroups)) {
+    const unitGroups = vehicleGroup.userData.unitGroups;
+    unitGroups.forEach((uGrp, idx) => {
+      const unitFrame = new THREE.Group();
+      unitFrame.rotation.order = 'YXZ';
+      unitFrame.position.copy(uGrp.position);
+      unitFrame.rotation.copy(uGrp.rotation);
+      previewBuildSingleGizmo(uGrp, unitFrame, idx === 0);
+      root.add(unitFrame);
+    });
+
+    // Coupling link status lines between adjacent units
+    const couplings = vehicleGroup.userData?.lastSolved?.couplings || [];
+    for (let i = 0; i < couplings.length; i++) {
+      const link = couplings[i];
+      const uA = unitGroups[i];
+      const uB = unitGroups[i + 1];
+      if (!uA || !uB) continue;
+      const bpA = uA.userData?.blueprint;
+      const bpB = uB.userData?.blueprint;
+      if (!bpA?.pivots?.couplers || !bpB?.pivots?.couplers) continue;
+      const revA = Boolean(uA.userData?.reversed);
+      const revB = Boolean(uB.userData?.reversed);
+      const localA = revA ? bpA.pivots.couplers.front : bpA.pivots.couplers.rear;
+      const localB = revB ? bpB.pivots.couplers.rear : bpB.pivots.couplers.front;
+      const pA = new THREE.Vector3(localA.x, localA.y, localA.pullFaceZ ?? localA.z).applyMatrix4(uA.matrixWorld);
+      const pB = new THREE.Vector3(localB.x, localB.y, localB.pullFaceZ ?? localB.z).applyMatrix4(uB.matrixWorld);
+      const lineGeo = new THREE.BufferGeometry().setFromPoints([pA, pB]);
+      const lineMat = new THREE.LineBasicMaterial({
+        color: link.compatible && !link.yawExceeded ? '#3af0b8' : '#ff4d5a'
+      });
+      const line = new THREE.Line(lineGeo, lineMat);
+      line.userData = { _ownedMat: true };
+      root.add(line);
+    }
+    return root;
   }
 
+  if (!vehicleGroup.userData?.blueprint) return root;
+  previewBuildSingleGizmo(vehicleGroup, root, true);
   return root;
 }
 
@@ -116,13 +178,49 @@ function addEnvBox(parent, x, y, z, w, h, d, colorHex, receiveShadow = true) {
   return mesh;
 }
 
-export function rebuildVehicleEnvironment(environmentGroup, mode, showGrid, boundsMeters = null, lightingTime = 'day') {
+export function rebuildVehicleEnvironment(environmentGroup, mode, showGrid, boundsMeters = null, lightingTime = 'day', trackOptions = null) {
   disposeObject(environmentGroup);
-  if (mode === 'none' && !showGrid) return;
+  if (mode === 'none' && !showGrid) return null;
 
   const isNight = lightingTime === 'night';
-  const span = boundsMeters ? Math.max(boundsMeters.length * 2.6, boundsMeters.width * 4, 14) : 14;
-  const gridSpan = Math.max(18, span * 1.4);
+  const span = boundsMeters ? Math.max(boundsMeters.length * 2.2, boundsMeters.width * 4, 14) : 14;
+  const gridSpan = Math.max(18, Math.min(220, span * 1.4));
+
+  const railEnvModes = new Set([
+    'rail_straight',
+    'rail_curved',
+    'rail_incline',
+    'tram_street',
+    'monorail_straddle',
+    'monorail_suspended',
+    'cableway_aerial'
+  ]);
+  if (railEnvModes.has(mode)) {
+    const route = createTrackRoute({
+      mode,
+      curved: Boolean(trackOptions?.curved),
+      electrified: Boolean(trackOptions?.electrified),
+      curveRadius: trackOptions?.curveRadius || 48,
+      gradePercent: trackOptions?.gradePercent || 3.0,
+      trackGaugeId: trackOptions?.trackGaugeId || undefined,
+      totalLength: Math.max(96, (boundsMeters?.length || 18) * 2.6)
+    });
+    const trackGrp = buildTrackFixtureGroup(route, lightingTime);
+    environmentGroup.add(trackGrp);
+    if (showGrid) {
+      const gridColor = isNight ? 0x1e4b68 : 0x2a6988;
+      const subColor = isNight ? 0x0e2334 : 0x163246;
+      const grid = new THREE.GridHelper(Math.max(60, gridSpan), 36, gridColor, subColor);
+      const gridY = mode === 'monorail_straddle'
+        ? -3.75
+        : (mode === 'monorail_suspended' || mode === 'cableway_aerial')
+          ? -0.95
+          : -0.55;
+      grid.position.set(0, gridY, 0);
+      environmentGroup.add(grid);
+    }
+    return route;
+  }
 
   if (showGrid) {
     const gridColor = isNight ? 0x1e4b68 : 0x2a6988;
@@ -140,7 +238,7 @@ export function rebuildVehicleEnvironment(environmentGroup, mode, showGrid, boun
     disc.receiveShadow = true;
     disc.userData = { _ownedMat: true };
     environmentGroup.add(disc);
-    return;
+    return null;
   }
 
   const asphaltColor = isNight ? '#111820' : '#252c34';
@@ -199,6 +297,7 @@ export function rebuildVehicleEnvironment(environmentGroup, mode, showGrid, boun
 
 export function resetCameraForFocus(camera, orbit, vehicleGroup, focusMode = 'hero', scene = null) {
   if (!camera || !orbit || !vehicleGroup) return;
+  vehicleGroup.updateMatrixWorld(true);
 
   const box = new THREE.Box3().setFromObject(vehicleGroup);
   const size = new THREE.Vector3();
@@ -210,31 +309,67 @@ export function resetCameraForFocus(camera, orbit, vehicleGroup, focusMode = 'he
   const safeW = Math.max(1.6, size.x || 1.9);
   const safeH = Math.max(1.2, size.y || 1.6);
   const maxDim = Math.max(safeLen, safeW, safeH);
+  const aspect = Math.max(0.45, Number(camera.aspect) || 1.3);
+  const aspectPad = aspect < 1.05 ? Math.min(2.1, 1.08 / aspect) : 1.0;
 
-  camera.far = Math.max(400, maxDim * 35);
+  camera.far = Math.max(600, maxDim * 35);
   camera.near = 0.08;
   camera.updateProjectionMatrix();
-  orbit.minDistance = Math.max(1.8, maxDim * 0.45);
-  orbit.maxDistance = Math.max(36, maxDim * 6.5);
+  orbit.minDistance = Math.max(1.8, Math.min(8, maxDim * 0.18));
+  orbit.maxDistance = Math.max(48, maxDim * 5.8 * aspectPad);
 
   if (scene?.fog) {
-    scene.fog.near = Math.max(25, maxDim * 4);
-    scene.fog.far = Math.max(120, maxDim * 18);
+    scene.fog.near = Math.max(45, maxDim * 4.2 * aspectPad);
+    scene.fog.far = Math.max(180, maxDim * 15 * aspectPad);
   }
 
+  const leadUnit = Array.isArray(vehicleGroup.userData?.unitGroups)
+    ? vehicleGroup.userData.unitGroups[0]
+    : vehicleGroup;
+
   if (focusMode === 'profile') {
-    orbit.target.set(center.x, safeH * 0.48, center.z);
-    const dist = Math.max(4.8, safeLen * 1.42, safeH * 2.1);
-    camera.position.set(center.x + dist, safeH * 0.58, center.z);
+    orbit.target.set(center.x, center.y, center.z);
+    const dist = Math.max(5.0, maxDim * 1.18 * aspectPad, safeH * 2.2);
+    camera.position.set(center.x + dist, center.y + safeH * 0.28, center.z);
   } else if (focusMode === 'street') {
-    orbit.target.set(center.x, safeH * 0.45, center.z + safeLen * 0.08);
-    const dist = Math.max(4.2, maxDim * 1.25);
-    camera.position.set(center.x + dist * 0.62, Math.max(1.15, safeH * 0.56), center.z + dist * 0.85);
+    orbit.target.set(center.x, center.y, center.z + safeLen * 0.08);
+    const dist = Math.max(4.4, maxDim * 1.18 * aspectPad);
+    camera.position.set(center.x + dist * 0.58, Math.max(1.25, center.y + safeH * 0.24), center.z + dist * 0.82);
+  } else if (focusMode === 'top') {
+    orbit.target.set(center.x, center.y * 0.5, center.z);
+    const dist = Math.max(6.5, maxDim * 1.28 * aspectPad);
+    camera.position.set(center.x + 0.01, center.y + dist, center.z);
+  } else if (focusMode === 'fit_train') {
+    orbit.target.set(center.x, center.y * 0.72, center.z);
+    const dist = Math.max(9.0, maxDim * 1.22 * aspectPad);
+    camera.position.set(center.x + dist * 0.72, center.y + dist * 0.42, center.z + dist * 0.68);
+  } else if (focusMode === 'cab' && leadUnit) {
+    const uBox = new THREE.Box3().setFromObject(leadUnit);
+    const uCenter = new THREE.Vector3();
+    const uSize = new THREE.Vector3();
+    uBox.getCenter(uCenter);
+    uBox.getSize(uSize);
+    const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(leadUnit.quaternion);
+    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(leadUnit.quaternion);
+    const frontPt = uCenter.clone().addScaledVector(fwd, uSize.z * 0.34);
+    orbit.target.copy(frontPt).setY(uCenter.y + 0.4);
+    camera.position.copy(frontPt).addScaledVector(fwd, 5.2 * aspectPad).addScaledVector(right, 4.4 * aspectPad);
+    camera.position.y = uCenter.y + 2.0;
+  } else if (focusMode === 'bogie' && leadUnit) {
+    const bPivot = leadUnit.userData?.railParts?.bogieMap?.front;
+    const targetWorld = new THREE.Vector3();
+    if (bPivot) bPivot.getWorldPosition(targetWorld);
+    else leadUnit.getWorldPosition(targetWorld);
+    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(leadUnit.quaternion);
+    const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(leadUnit.quaternion);
+    orbit.target.set(targetWorld.x, targetWorld.y + 0.52, targetWorld.z);
+    camera.position.copy(orbit.target).addScaledVector(right, 3.6).addScaledVector(fwd, 1.4);
+    camera.position.y = targetWorld.y + 1.05;
   } else {
     // Hero 3/4 view
-    orbit.target.set(center.x, safeH * 0.44, center.z);
-    const dist = Math.max(4.8, maxDim * 1.32);
-    camera.position.set(center.x + dist * 0.76, safeH * 0.65 + dist * 0.3, center.z + dist * 0.78);
+    orbit.target.set(center.x, center.y * 0.86, center.z);
+    const dist = Math.max(4.8, maxDim * 1.24 * aspectPad);
+    camera.position.set(center.x + dist * 0.72, center.y + safeH * 0.3 + dist * 0.28, center.z + dist * 0.74);
   }
 
   orbit.update();

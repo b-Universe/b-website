@@ -1,16 +1,40 @@
-import { $, $$, clamp, copy } from './utils.js';
+import { $, $$, clamp, copy, degToRad } from './utils.js';
 import {
   STORAGE_KEY,
   BASE,
   PRESETS,
   STYLES,
   getStyle,
+  isRailConfig,
   sanitiseConfig,
   applyPresetWithLocks
 } from './config.js';
 import { generateVehicleBlueprint, validateVehicleBlueprint } from './core/blueprints.js';
-import { setVehicleMaxAnisotropy, reapplyVehicleMaterials } from './materials/materials.js';
+import {
+  setVehicleMaxAnisotropy,
+  reapplyVehicleMaterials,
+  reapplyConsistMaterials
+} from './materials/materials.js';
 import { createCityVehicle } from './geometry/vehicle.js';
+import { RAIL_DEFAULT_CONSISTS } from './transit/rail-archetypes.js';
+import { applyRailVehiclePose } from './transit/rail-vehicle.js';
+import { solveRailUnitOnRoute } from './transit/track-preview.js';
+import {
+  addConsistUnit,
+  applySharedLiveryToConsist,
+  createConsistFromPreset,
+  createConsistMeshGroup,
+  duplicateConsistUnit,
+  generateConsistBlueprint,
+  positionConsistOnRoute,
+  randomizeConsistUnit,
+  randomizeWholeConsist,
+  removeConsistUnit,
+  reorderConsistUnit,
+  reverseConsistUnit,
+  sanitiseConsist,
+  validateConsist
+} from './transit/consist.js';
 import {
   disposeObject,
   rebuildVehicleDebugOverlay,
@@ -29,6 +53,8 @@ import {
   exportVehicleJSON,
   exportVehicleGLB,
   exportTrafficFleetPack,
+  exportConsistBlueprint,
+  exportConsistGLB,
   handleVehicleFileImport
 } from './studio/export.js';
 import {
@@ -43,10 +69,33 @@ import {
 } from './studio/controls.js';
 
 let state = sanitiseConfig({ ...copy(BASE), ...copy(PRESETS.sedan) });
+let consistState = createConsistFromPreset('freight_manifest');
+let consistValidation = validateConsist(consistState, null);
+let studioMode = 'vehicle';
+let selectedUnitIndex = 0;
+let categoryFilter = 'all';
+let transitSubgroup = 'all_transit';
 let activePreset = 'sedan';
 let activeBlueprintName = null;
 let activeTab = 'structure';
 const locks = new Set();
+
+const trackState = {
+  mode: 'rail_straight',
+  curved: false,
+  curveRadius: 48,
+  gradePercent: 3.0,
+  playing: false,
+  reverse: false,
+  speed: 6.0,
+  leadS: 0,
+  wheelSpinRad: 0,
+  followCamera: false,
+  doorsOpenPreview: false,
+  pantographRaised: true,
+  activeRoute: null,
+  lastTickMs: 0
+};
 
 const view = {
   focus: 'hero',
@@ -108,7 +157,11 @@ function vehAppCountTriangles(root) {
 
 function vehAppApplyViewFlags() {
   if (!vehicleRoot) return;
-  reapplyVehicleMaterials(vehicleRoot, state, view);
+  if (studioMode === 'trainset' || Array.isArray(vehicleRoot.userData?.unitGroups)) {
+    reapplyConsistMaterials(vehicleRoot, { ...view, lightingTime: state.lightingTime });
+  } else {
+    reapplyVehicleMaterials(vehicleRoot, state, view);
+  }
   const redSet = new Set();
   const blueSet = new Set();
   const amberSet = new Set();
@@ -127,15 +180,110 @@ function vehAppApplyViewFlags() {
   strobeWasActive = false;
 }
 
-function vehAppRebuildEnvironment() {
-  if (!envRoot) return;
-  const boundsMeters = vehicleRoot?.userData?.blueprint?.bounds?.meters || null;
-  rebuildVehicleEnvironment(envRoot, view.environment, view.grid, boundsMeters, state.lightingTime);
+const RAIL_ENV_MODES = new Set([
+  'rail_straight',
+  'rail_curved',
+  'rail_incline',
+  'tram_street',
+  'monorail_straddle',
+  'monorail_suspended',
+  'cableway_aerial'
+]);
+
+function vehAppIsRailEnv(mode) {
+  return RAIL_ENV_MODES.has(mode);
+}
+
+function vehAppIsFixedGuidewayMode(mode) {
+  return mode === 'tram_street' || mode === 'monorail_straddle' || mode === 'monorail_suspended' || mode === 'cableway_aerial';
+}
+
+function vehAppPreferredStageForConfig(cfg) {
+  const bf = cfg?.bodyFamily || '';
+  if (bf === 'rail_historic_streetcar' || bf === 'rail_articulated_tram' || bf === 'rail_open_tram') return 'tram_street';
+  if (bf === 'rail_straddle_monorail') return 'monorail_straddle';
+  if (bf === 'rail_suspended_monorail') return 'monorail_suspended';
+  if (bf === 'rail_aerial_gondola') return 'cableway_aerial';
+  return 'rail_straight';
+}
+
+function vehAppIsElectrifiedConfig(cfg) {
+  const elecSet = new Set([
+    'rail_electric_loco',
+    'rail_highspeed_lead',
+    'rail_highspeed_coach',
+    'rail_historic_streetcar',
+    'rail_articulated_tram',
+    'rail_open_tram'
+  ]);
+  if (studioMode === 'trainset') {
+    return (consistState?.units || []).some((u) => elecSet.has(u?.config?.bodyFamily));
+  }
+  return elecSet.has(cfg?.bodyFamily);
+}
+
+function vehAppSyncRailUI() {
+  const inRail = studioMode === 'trainset' || isRailConfig(state);
+  const railBar = $('#rail-preview-bar');
+  if (railBar) railBar.hidden = !inRail;
+
+  const subBar = $('#transit-subfilters');
+  if (subBar) subBar.hidden = categoryFilter !== 'transit_rail';
+
+  if (inRail && !vehAppIsRailEnv(view.environment) && view.environment !== 'studio' && view.environment !== 'none') {
+    view.environment = vehAppPreferredStageForConfig(state);
+    if (view.environment === 'rail_straight' && vehAppIsRailEnv(trackState.mode)) {
+      view.environment = trackState.mode;
+    }
+    const envSel = $('#environment-select');
+    if (envSel) envSel.value = view.environment;
+  } else if (!inRail && vehAppIsRailEnv(view.environment)) {
+    view.environment = 'street';
+    const envSel = $('#environment-select');
+    if (envSel) envSel.value = 'street';
+    trackState.playing = false;
+  }
+
+  for (const btn of $$('[data-track-mode]')) {
+    btn.classList.toggle('active', btn.dataset.trackMode === trackState.mode);
+  }
+  for (const btn of $$('[data-studio-mode]')) {
+    btn.classList.toggle('active', btn.dataset.studioMode === studioMode);
+  }
+  const pantoToggle = $('#rail-panto-toggle');
+  if (pantoToggle) pantoToggle.checked = Boolean(trackState.pantographRaised);
+  const playBtn = $('#btn-track-play');
+  if (playBtn) {
+    playBtn.classList.toggle('active', trackState.playing);
+    playBtn.innerHTML = trackState.playing
+      ? '<i class="fa-solid fa-pause"></i> Pause'
+      : '<i class="fa-solid fa-play"></i> Play';
+  }
+  $('#btn-track-reverse')?.classList.toggle('active', trackState.reverse);
+}
+
+function vehAppRebuildEnvironment(boundsOverride = null) {
+  if (!envRoot) return null;
+  const boundsMeters = boundsOverride || vehicleRoot?.userData?.blueprint?.bounds?.meters || null;
+  const route = rebuildVehicleEnvironment(
+    envRoot,
+    view.environment,
+    view.grid,
+    boundsMeters,
+    state.lightingTime,
+    {
+      curved: view.environment === 'rail_curved' || Boolean(trackState.curved),
+      electrified: vehAppIsElectrifiedConfig(state),
+      curveRadius: trackState.curveRadius,
+      gradePercent: trackState.gradePercent,
+      trackGaugeId: state.railTrackGauge || 'standard_1435'
+    }
+  );
+  trackState.activeRoute = route;
+  return route;
 }
 
 function updateStats(bp) {
-  if (!bp) return;
-  const dims = bp.dimensions || {};
   const lenEl = $('#stat-length');
   const wbEl = $('#stat-wheelbase');
   const axEl = $('#stat-axles');
@@ -143,6 +291,20 @@ function updateStats(bp) {
   const lblEl = $('#scene-label');
   const styleEl = $('#active-style-name');
 
+  if (studioMode === 'trainset' && vehicleRoot?.userData?.consistBlueprint) {
+    const tbp = vehicleRoot.userData.consistBlueprint;
+    const sum = tbp.summary || {};
+    if (lenEl) lenEl.textContent = `${Number(sum.totalLengthMeters || 0).toFixed(1)}m (${sum.unitCount} Cars)`;
+    if (wbEl) wbEl.textContent = `Min R ${Number(sum.minimumCurveRadiusMeters || 24).toFixed(0)}m`;
+    if (axEl) axEl.textContent = `${sum.totalAxles || 0} Axles`;
+    if (triEl) triEl.textContent = `${vehAppCountTriangles(vehicleRoot).toLocaleString()} Tris`;
+    if (styleEl) styleEl.textContent = tbp.name || 'Trainset Consist';
+    if (lblEl) lblEl.textContent = `${tbp.name} · ${sum.unitCount} Units (${sum.trackGaugeLabel || 'Standard Gauge'})`;
+    return;
+  }
+
+  if (!bp) return;
+  const dims = bp.dimensions || {};
   if (lenEl) lenEl.textContent = `${Number(dims.length ?? state.overallLength ?? 0).toFixed(2)}m`;
   if (wbEl) wbEl.textContent = `${Number(dims.wheelbase || 0).toFixed(2)}m`;
   if (axEl) {
@@ -217,8 +379,109 @@ function updateLighting() {
   vehAppApplyViewFlags();
 }
 
+function vehAppUpdateShadowBounds() {
+  if (!keyLight || !vehicleRoot) return;
+  const box = new THREE.Box3().setFromObject(vehicleRoot);
+  const center = new THREE.Vector3();
+  const size = new THREE.Vector3();
+  box.getCenter(center);
+  box.getSize(size);
+  const halfSpan = Math.max(12, Math.max(size.x, size.z) * 0.72);
+  keyLight.target.position.copy(center);
+  keyLight.target.updateMatrixWorld();
+  keyLight.position.set(center.x + halfSpan * 1.1, Math.max(18, halfSpan * 1.2), center.z + halfSpan * 1.1);
+  keyLight.shadow.camera.left = -halfSpan;
+  keyLight.shadow.camera.right = halfSpan;
+  keyLight.shadow.camera.top = halfSpan;
+  keyLight.shadow.camera.bottom = -halfSpan;
+  keyLight.shadow.camera.far = Math.max(70, halfSpan * 4.5);
+  keyLight.shadow.camera.updateProjectionMatrix();
+}
+
+function vehAppApplyPreferredStage(cfg) {
+  if (!isRailConfig(cfg) || view.environment === 'studio' || view.environment === 'none') return;
+  const pref = vehAppPreferredStageForConfig(cfg);
+  if (pref !== 'rail_straight' || vehAppIsFixedGuidewayMode(view.environment) || !vehAppIsRailEnv(view.environment)) {
+    view.environment = pref === 'rail_straight' && trackState.curved ? 'rail_curved' : pref;
+    trackState.mode = view.environment;
+    const envSel = $('#environment-select');
+    if (envSel) envSel.value = view.environment;
+  }
+}
+
+function vehAppPlaceSingleRailOnRoute() {
+  if (!vehicleRoot || !isRailConfig(state) || studioMode !== 'vehicle') return;
+  const route = trackState.activeRoute;
+  const pantoFactor = trackState.pantographRaised ? (state.railPantographHeight ?? 0.85) : 0;
+  const manualCabinRad = degToRad(clamp(state.railCabinSwingDeg || 0, -12, 12));
+  if (route) {
+    const pose = solveRailUnitOnRoute(vehicleRoot.userData.layout, route, trackState.leadS, false);
+    vehicleRoot.rotation.order = 'YXZ';
+    vehicleRoot.position.set(pose.position[0], pose.position[1], pose.position[2]);
+    vehicleRoot.rotation.set(pose.pitchRotX, pose.yaw, 0);
+    const doorFactor = trackState.doorsOpenPreview ? 1 : clamp(state.railDoorsOpen ?? 0, 0, 1);
+    const yawManual = degToRad(clamp(state.railBogieYawDeg || 0, -15, 15));
+    const spinManual = trackState.playing
+      ? trackState.wheelSpinRad
+      : degToRad(state.railWheelSpinDeg || 0);
+    applyRailVehiclePose(vehicleRoot, {
+      frontBogieYawRad: route.curved ? pose.frontBogieLocalYaw : yawManual,
+      rearBogieYawRad: route.curved ? pose.rearBogieLocalYaw : -yawManual,
+      wheelSpinRad: spinManual,
+      doorOpenFactor: doorFactor,
+      pantographHeight: pantoFactor,
+      tramArticulationRad: route.curved ? (pose.tramArticulationRad || 0) : degToRad(clamp(yawManual * 25, -18, 18)),
+      cabinSwingRad: manualCabinRad + (pose.cabinSwingRad || 0)
+    });
+  } else {
+    vehicleRoot.position.set(0, 0, 0);
+    vehicleRoot.rotation.set(0, 0, 0);
+    vehAppRefreshLivePose();
+  }
+}
+
+function vehAppRefreshLivePose() {
+  if (!vehicleRoot) return;
+  const pantoFactor = trackState.pantographRaised ? (state.railPantographHeight ?? 0.85) : 0;
+  const cabinRad = degToRad(clamp(state.railCabinSwingDeg || 0, -12, 12));
+  if (studioMode === 'trainset') {
+    const unitGrp = vehicleRoot.userData?.unitGroups?.[selectedUnitIndex];
+    if (unitGrp) {
+      unitGrp.userData.unitConfig = sanitiseConfig(state);
+      const yawRad = degToRad(clamp(state.railBogieYawDeg || 0, -15, 15));
+      applyRailVehiclePose(unitGrp, {
+        frontBogieYawRad: yawRad,
+        rearBogieYawRad: -yawRad,
+        wheelSpinRad: degToRad(state.railWheelSpinDeg || 0),
+        doorOpenFactor: trackState.doorsOpenPreview ? 1 : clamp(state.railDoorsOpen ?? 0, 0, 1),
+        pantographHeight: pantoFactor,
+        cabinSwingRad: cabinRad
+      });
+    }
+    return;
+  }
+  if (isRailConfig(state)) {
+    const yawRad = degToRad(clamp(state.railBogieYawDeg || 0, -15, 15));
+    applyRailVehiclePose(vehicleRoot, {
+      frontBogieYawRad: yawRad,
+      rearBogieYawRad: -yawRad,
+      wheelSpinRad: degToRad(state.railWheelSpinDeg || 0),
+      doorOpenFactor: trackState.doorsOpenPreview ? 1 : clamp(state.railDoorsOpen ?? 0, 0, 1),
+      pantographHeight: pantoFactor,
+      tramArticulationRad: degToRad(clamp(yawRad * 25, -18, 18)),
+      cabinSwingRad: cabinRad
+    });
+  }
+}
+
 function refreshMaterialsInPlace() {
   state = sanitiseConfig(state);
+  if (studioMode === 'trainset' && consistState.units[selectedUnitIndex]) {
+    consistState.units[selectedUnitIndex].config = copy(state);
+    if (vehicleRoot?.userData?.unitGroups?.[selectedUnitIndex]) {
+      vehicleRoot.userData.unitGroups[selectedUnitIndex].userData.unitConfig = copy(state);
+    }
+  }
   if (!ready || !vehicleRoot) return;
   vehAppApplyViewFlags();
   setStatus('Updated Materials');
@@ -226,6 +489,14 @@ function refreshMaterialsInPlace() {
 
 function rebuild(resetCam = false) {
   state = sanitiseConfig(state);
+  if (studioMode === 'trainset' && consistState.units[selectedUnitIndex]) {
+    consistState.units[selectedUnitIndex].config = copy(state);
+    if (consistState.sharedLivery) {
+      applySharedLiveryToConsist(consistState, consistState.sharedPalette, locks);
+      state = copy(consistState.units[selectedUnitIndex].config);
+    }
+  }
+  vehAppSyncRailUI();
   if (!ready || !scene) return;
 
   if (vehicleRoot) {
@@ -235,19 +506,49 @@ function rebuild(resetCam = false) {
   }
 
   const start = performance.now();
-  vehicleRoot = createCityVehicle(state);
-  scene.add(vehicleRoot);
+
+  if (studioMode === 'trainset') {
+    consistState = sanitiseConsist(consistState);
+    const preVal = validateConsist(consistState, null);
+    const route = vehAppRebuildEnvironment({
+      length: Math.max(44, (preVal.summary.totalLengthMeters || 50) + 12),
+      width: 4,
+      height: 5
+    });
+    if (route && (resetCam || trackState.leadS > route.sMax - 4 || trackState.leadS < route.sMin + preVal.summary.totalLengthMeters)) {
+      trackState.leadS = Math.min(route.sMax - 6, preVal.summary.totalLengthMeters * 0.45);
+    }
+    vehicleRoot = createConsistMeshGroup(consistState, {
+      route,
+      leadS: trackState.leadS,
+      wheelSpinRad: trackState.wheelSpinRad,
+      doorOpenFactor: trackState.doorsOpenPreview ? 1 : null,
+      pantographHeight: trackState.pantographRaised ? (state.railPantographHeight ?? 0.85) : 0,
+      lightingTime: state.lightingTime
+    });
+    scene.add(vehicleRoot);
+    consistValidation = validateConsist(consistState, route);
+  } else {
+    vehicleRoot = createCityVehicle(state);
+    scene.add(vehicleRoot);
+    vehAppRebuildEnvironment();
+    vehAppPlaceSingleRailOnRoute();
+  }
 
   vehAppApplyViewFlags();
-  vehAppRebuildEnvironment();
+  vehAppUpdateShadowBounds();
   rebuildVehicleDebugOverlay(debugRoot, vehicleRoot, view.debugOverlay);
 
   if (resetCam) {
-    resetCameraForFocus(camera, orbit, vehicleRoot, view.focus, scene);
+    const camMode = studioMode === 'trainset' && view.focus === 'hero' ? 'fit_train' : view.focus;
+    resetCameraForFocus(camera, orbit, vehicleRoot, camMode, scene);
   }
 
   const elapsed = (performance.now() - start).toFixed(1);
   updateStats(vehicleRoot.userData.blueprint);
+  if (activeTab === 'consist') {
+    renderControls('consist', $('#studio-controls'), state, locks, vehAppBuildControlContext());
+  }
   setStatus(`Ready (${elapsed}ms)`);
 }
 
@@ -269,11 +570,45 @@ function scheduleMaterialRefresh(immediate = false) {
   matTimer = setTimeout(refreshMaterialsInPlace, 30);
 }
 
+function vehAppSwitchStudioMode(nextMode, targetTab = null) {
+  if (nextMode !== 'vehicle' && nextMode !== 'trainset') return;
+  studioMode = nextMode;
+  if (studioMode === 'trainset') {
+    consistState = sanitiseConsist(consistState);
+    selectedUnitIndex = clamp(selectedUnitIndex, 0, consistState.units.length - 1);
+    state = copy(consistState.units[selectedUnitIndex].config);
+    activeTab = targetTab || 'consist';
+    if (!vehAppIsRailEnv(view.environment)) {
+      view.environment = trackState.mode || 'rail_straight';
+      const envSel = $('#environment-select');
+      if (envSel) envSel.value = view.environment;
+    }
+  } else {
+    trackState.playing = false;
+    if (activeTab === 'consist') activeTab = 'structure';
+    if (targetTab) activeTab = targetTab;
+  }
+  for (const t of $$('.studio-tab')) {
+    t.classList.toggle('active', t.dataset.tab === activeTab);
+  }
+  updateStylePicker(state.style);
+  renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+  rebuild(true);
+}
+
 function vehAppBuildControlContext() {
   return {
+    studioMode,
+    selectedUnitIndex,
+    consist: consistState,
+    consistValidation,
+    activeBlueprint: vehicleRoot?.userData?.blueprint || null,
     onStructureChanged(isLive) {
       activeBlueprintName = null;
       scheduleRebuild(!isLive ? true : false, false);
+    },
+    onPoseChanged() {
+      vehAppRefreshLivePose();
     },
     onMaterialChanged(isLive) {
       scheduleMaterialRefresh(isLive);
@@ -287,6 +622,102 @@ function vehAppBuildControlContext() {
       const desc = getStyle(styleId);
       loadPreset(desc.preset, styleId);
     },
+    onSwitchTab(tabId) {
+      activeTab = tabId;
+      for (const t of $$('.studio-tab')) t.classList.toggle('active', t.dataset.tab === activeTab);
+      renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+    },
+    onEnterTrainsetMode() {
+      vehAppSwitchStudioMode('trainset', 'consist');
+    },
+    onLoadConsistPreset(presetId) {
+      consistState = createConsistFromPreset(presetId, consistState.seed);
+      selectedUnitIndex = 0;
+      state = copy(consistState.units[0].config);
+      trackState.leadS = 0;
+      studioMode = 'trainset';
+      vehAppApplyPreferredStage(state);
+      rebuild(true);
+      renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+      toast(`Loaded Consist: ${RAIL_DEFAULT_CONSISTS[presetId]?.name || presetId}`);
+    },
+    onSelectConsistUnit(idx) {
+      selectedUnitIndex = clamp(idx, 0, consistState.units.length - 1);
+      state = copy(consistState.units[selectedUnitIndex].config);
+      activePreset = getStyle(state.style).preset;
+      updateStylePicker(state.style);
+      updatePresetList(activePreset);
+      renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+    },
+    onAddConsistUnit(presetId) {
+      consistState = addConsistUnit(consistState, presetId);
+      selectedUnitIndex = consistState.units.length - 1;
+      state = copy(consistState.units[selectedUnitIndex].config);
+      studioMode = 'trainset';
+      rebuild(true);
+      toast(`Added ${getStyle(state.style).label}`);
+    },
+    onRemoveConsistUnit(idx) {
+      consistState = removeConsistUnit(consistState, idx);
+      selectedUnitIndex = clamp(selectedUnitIndex, 0, consistState.units.length - 1);
+      state = copy(consistState.units[selectedUnitIndex].config);
+      rebuild(true);
+    },
+    onDuplicateConsistUnit(idx) {
+      consistState = duplicateConsistUnit(consistState, idx);
+      selectedUnitIndex = clamp(idx + 1, 0, consistState.units.length - 1);
+      state = copy(consistState.units[selectedUnitIndex].config);
+      rebuild(false);
+    },
+    onReorderConsistUnit(fromIdx, toIdx) {
+      consistState = reorderConsistUnit(consistState, fromIdx, toIdx);
+      selectedUnitIndex = clamp(toIdx, 0, consistState.units.length - 1);
+      state = copy(consistState.units[selectedUnitIndex].config);
+      rebuild(false);
+    },
+    onReverseConsistUnit(idx) {
+      consistState = reverseConsistUnit(consistState, idx);
+      rebuild(false);
+    },
+    onRandomizeConsistUnit(idx) {
+      consistState = randomizeConsistUnit(consistState, idx, locks);
+      if (idx === selectedUnitIndex) state = copy(consistState.units[idx].config);
+      rebuild(false);
+    },
+    onConsistGapChanged(gapVal) {
+      consistState.couplingGap = gapVal;
+      rebuild(false);
+    },
+    onToggleSharedLivery(enabled, palette) {
+      consistState.sharedLivery = enabled;
+      consistState.sharedPalette = palette;
+      if (enabled) applySharedLiveryToConsist(consistState, palette, locks);
+      state = copy(consistState.units[selectedUnitIndex].config);
+      rebuild(false);
+    },
+    onApplySharedLivery(palette) {
+      consistState.sharedPalette = palette;
+      applySharedLiveryToConsist(consistState, palette, locks);
+      state = copy(consistState.units[selectedUnitIndex].config);
+      rebuild(false);
+      toast('Applied Shared Livery To Consist');
+    },
+    onRandomizeWholeConsist() {
+      consistState = randomizeWholeConsist(consistState, locks);
+      selectedUnitIndex = 0;
+      state = copy(consistState.units[0].config);
+      rebuild(true);
+      toast('Randomized Rail Consist');
+    },
+    onLoadSavedConsist(loadedConsist, label) {
+      consistState = sanitiseConsist(loadedConsist);
+      selectedUnitIndex = 0;
+      state = copy(consistState.units[0].config);
+      studioMode = 'trainset';
+      rebuild(true);
+      toast(`Loaded "${label}"`);
+    },
+    onToast: toast,
     onNewSeed() {
       state.seed = Math.floor(Math.random() * 8999999) + 1000;
       applySeedVariation(state, locks);
@@ -298,7 +729,8 @@ function vehAppBuildControlContext() {
       toast(`Generated Seed #${state.seed}`);
     },
     onExportBlueprint() {
-      exportVehicleBlueprint(state, activeBlueprintName, toast);
+      if (studioMode === 'trainset') exportConsistBlueprint(consistState, trackState.activeRoute, toast);
+      else exportVehicleBlueprint(state, activeBlueprintName, toast);
     },
     onExportFleet() {
       exportTrafficFleetPack(state, 8, toast);
@@ -307,7 +739,11 @@ function vehAppBuildControlContext() {
       exportVehicleJSON(state, activeBlueprintName, toast);
     },
     onExportGLB() {
-      exportVehicleGLB(state, ready, activeBlueprintName, vehAppLoadGLTFExporter, toast, setStatus);
+      if (studioMode === 'trainset') {
+        exportConsistGLB(consistState, trackState.activeRoute, trackState.leadS, ready, vehAppLoadGLTFExporter, toast, setStatus);
+      } else {
+        exportVehicleGLB(state, ready, activeBlueprintName, vehAppLoadGLTFExporter, toast, setStatus);
+      }
     },
     onImportTrigger() {
       $('#file-import')?.click();
@@ -326,11 +762,23 @@ function loadPreset(presetId, explicitStyleId = null) {
   activePreset = presetId;
   activeBlueprintName = null;
 
+  if (studioMode === 'trainset' && !isRailConfig(state)) {
+    studioMode = 'vehicle';
+    trackState.playing = false;
+    if (activeTab === 'consist') activeTab = 'structure';
+  }
+  if (studioMode === 'trainset' && consistState.units[selectedUnitIndex]) {
+    consistState.units[selectedUnitIndex].preset = presetId;
+    consistState.units[selectedUnitIndex].config = copy(state);
+  }
+
   const seedEl = $('#seed-input');
   if (seedEl) seedEl.value = String(state.seed);
+  vehAppApplyPreferredStage(state);
 
   updateStylePicker(state.style);
   updatePresetList(activePreset);
+  for (const t of $$('.studio-tab')) t.classList.toggle('active', t.dataset.tab === activeTab);
   renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
   rebuild(true);
   toast(`Loaded Preset: ${preset.label || presetId}`);
@@ -409,13 +857,14 @@ async function initScene() {
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.set(1024, 1024);
     keyLight.shadow.camera.near = 1;
-    keyLight.shadow.camera.far = 55;
-    keyLight.shadow.camera.left = -10;
-    keyLight.shadow.camera.right = 10;
-    keyLight.shadow.camera.top = 10;
-    keyLight.shadow.camera.bottom = -10;
+    keyLight.shadow.camera.far = 90;
+    keyLight.shadow.camera.left = -14;
+    keyLight.shadow.camera.right = 14;
+    keyLight.shadow.camera.top = 14;
+    keyLight.shadow.camera.bottom = -14;
     keyLight.shadow.bias = -0.0005;
     scene.add(keyLight);
+    scene.add(keyLight.target);
 
     rimLight = new THREE.DirectionalLight('#7db0e3', 0.42);
     rimLight.position.set(-10, 8, -12);
@@ -443,6 +892,49 @@ async function initScene() {
 
     const animate = () => {
       requestAnimationFrame(animate);
+      const nowMs = performance.now();
+      const dt = trackState.lastTickMs ? clamp((nowMs - trackState.lastTickMs) / 1000, 0, 0.05) : 0;
+      trackState.lastTickMs = nowMs;
+
+      if ((studioMode === 'trainset' || isRailConfig(state)) && trackState.playing && vehicleRoot && trackState.activeRoute && dt > 0) {
+        const route = trackState.activeRoute;
+        const dir = trackState.reverse ? -1 : 1;
+        const ds = dir * trackState.speed * dt;
+        const trainLen = studioMode === 'trainset'
+          ? (vehicleRoot.userData?.consistBlueprint?.summary?.totalLengthMeters || 35)
+          : (state.overallLength || 16);
+        const minLead = route.sMin + trainLen + 4;
+        const maxLead = route.sMax - 4;
+        trackState.leadS += ds;
+        if (trackState.leadS > maxLead) trackState.leadS = minLead;
+        else if (trackState.leadS < minLead) trackState.leadS = maxLead;
+        trackState.wheelSpinRad += ds / 0.48;
+
+        const leadGrp = studioMode === 'trainset' ? vehicleRoot.userData?.unitGroups?.[0] : vehicleRoot;
+        const prevPos = leadGrp ? leadGrp.position.clone() : null;
+
+        if (studioMode === 'trainset') {
+          positionConsistOnRoute(
+            vehicleRoot,
+            route,
+            trackState.leadS,
+            trackState.wheelSpinRad,
+            trackState.doorsOpenPreview ? 1 : null,
+            {
+              pantographHeight: trackState.pantographRaised ? (state.railPantographHeight ?? 0.85) : 0
+            }
+          );
+        } else {
+          vehAppPlaceSingleRailOnRoute();
+        }
+
+        if (trackState.followCamera && leadGrp && prevPos && orbit && camera) {
+          const delta = leadGrp.position.clone().sub(prevPos);
+          orbit.target.add(delta);
+          camera.position.add(delta);
+        }
+      }
+
       if (orbit) {
         orbit.autoRotate = Boolean(view.autoRotate);
         orbit.autoRotateSpeed = 1.45;
@@ -478,6 +970,9 @@ function vehAppApplyImported(cfg, labelName, styleId, sourceLabel) {
   state = sanitiseConfig(cfg);
   activePreset = getStyle(styleId || state.style).preset;
   activeBlueprintName = labelName || null;
+  if (studioMode === 'trainset' && !isRailConfig(state)) {
+    studioMode = 'vehicle';
+  }
   const seedEl = $('#seed-input');
   if (seedEl) seedEl.value = String(state.seed);
   updateStylePicker(state.style);
@@ -487,15 +982,53 @@ function vehAppApplyImported(cfg, labelName, styleId, sourceLabel) {
   setStatus(`Loaded: ${sourceLabel}`);
 }
 
-function initUI() {
-  renderStylePicker($('#style-picker'), state.style, (styleId) => {
-    const arch = getStyle(styleId);
-    loadPreset(arch.preset, styleId);
-  });
+function vehAppApplyImportedConsist(consistData, sourceLabel) {
+  consistState = sanitiseConsist(consistData);
+  selectedUnitIndex = 0;
+  state = copy(consistState.units[0].config);
+  studioMode = 'trainset';
+  activeTab = 'consist';
+  for (const t of $$('.studio-tab')) t.classList.toggle('active', t.dataset.tab === activeTab);
+  updateStylePicker(state.style);
+  renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+  rebuild(true);
+  setStatus(`Loaded Consist: ${sourceLabel}`);
+}
 
-  renderPresetList($('#preset-list'), activePreset, (presetId) => {
-    loadPreset(presetId);
-  });
+function initUI() {
+  const refreshListsForCategory = () => {
+    renderStylePicker($('#style-picker'), state.style, (styleId) => {
+      const arch = getStyle(styleId);
+      loadPreset(arch.preset, styleId);
+    }, categoryFilter, transitSubgroup);
+    renderPresetList($('#preset-list'), activePreset, (presetId) => {
+      loadPreset(presetId);
+    }, categoryFilter, transitSubgroup);
+  };
+  refreshListsForCategory();
+
+  for (const pill of $$('[data-cat-filter]')) {
+    pill.addEventListener('click', () => {
+      categoryFilter = pill.dataset.catFilter || 'all';
+      for (const p of $$('[data-cat-filter]')) p.classList.toggle('active', p === pill);
+      vehAppSyncRailUI();
+      refreshListsForCategory();
+    });
+  }
+
+  for (const subPill of $$('[data-transit-subgroup]')) {
+    subPill.addEventListener('click', () => {
+      transitSubgroup = subPill.dataset.transitSubgroup || 'all_transit';
+      for (const p of $$('[data-transit-subgroup]')) p.classList.toggle('active', p === subPill);
+      refreshListsForCategory();
+    });
+  }
+
+  for (const modeBtn of $$('[data-studio-mode]')) {
+    modeBtn.addEventListener('click', () => {
+      vehAppSwitchStudioMode(modeBtn.dataset.studioMode || 'vehicle');
+    });
+  }
 
   renderCustomPresets($('#custom-presets'), (cfg, name) => {
     vehAppApplyImported(cfg, name, cfg?.style, name);
@@ -620,7 +1153,114 @@ function initUI() {
 
   $('#environment-select')?.addEventListener('change', (e) => {
     view.environment = e.target.value || 'street';
-    vehAppRebuildEnvironment();
+    if (vehAppIsRailEnv(view.environment)) {
+      trackState.mode = view.environment;
+      trackState.curved = view.environment === 'rail_curved';
+    }
+    vehAppSyncRailUI();
+    if (studioMode === 'trainset' || isRailConfig(state)) rebuild(false);
+    else vehAppRebuildEnvironment();
+  });
+
+  for (const tBtn of $$('[data-track-mode]')) {
+    tBtn.addEventListener('click', () => {
+      const m = tBtn.dataset.trackMode || 'rail_straight';
+      trackState.mode = m;
+      trackState.curved = m === 'rail_curved';
+      if (m !== 'rail_incline' && vehAppIsFixedGuidewayMode(view.environment)) {
+        // Keep active street tram / monorail / cableway guideway and toggle straight vs curved
+      } else {
+        view.environment = m;
+        const envSel = $('#environment-select');
+        if (envSel) envSel.value = m;
+      }
+      vehAppSyncRailUI();
+      rebuild(false);
+    });
+  }
+
+  $('#track-curve-radius')?.addEventListener('input', (e) => {
+    trackState.curveRadius = clamp(Number(e.target.value) || 48, 25, 150);
+    const valEl = $('#track-curve-val');
+    if (valEl) valEl.textContent = `${Math.round(trackState.curveRadius)}m`;
+    if (view.environment === 'rail_curved' || trackState.curved) rebuild(false);
+  });
+
+  $('#btn-track-play')?.addEventListener('click', () => {
+    trackState.playing = !trackState.playing;
+    trackState.lastTickMs = performance.now();
+    vehAppSyncRailUI();
+  });
+
+  $('#btn-track-reverse')?.addEventListener('click', () => {
+    trackState.reverse = !trackState.reverse;
+    vehAppSyncRailUI();
+  });
+
+  $('#btn-track-reset')?.addEventListener('click', () => {
+    trackState.playing = false;
+    trackState.leadS = 0;
+    trackState.wheelSpinRad = 0;
+    vehAppSyncRailUI();
+    rebuild(true);
+  });
+
+  $('#track-speed')?.addEventListener('input', (e) => {
+    trackState.speed = clamp(Number(e.target.value) || 6, 1, 18);
+  });
+
+  $('#track-follow')?.addEventListener('change', (e) => {
+    trackState.followCamera = Boolean(e.target.checked);
+  });
+
+  $('#rail-doors-toggle')?.addEventListener('change', (e) => {
+    trackState.doorsOpenPreview = Boolean(e.target.checked);
+    state.railDoorsOpen = trackState.doorsOpenPreview ? 1 : 0;
+    state.doorsOpen = trackState.doorsOpenPreview;
+    if (studioMode === 'trainset') {
+      for (const u of consistState.units) {
+        u.config.railDoorsOpen = state.railDoorsOpen;
+        u.config.doorsOpen = state.doorsOpen;
+      }
+      positionConsistOnRoute(
+        vehicleRoot,
+        trackState.activeRoute,
+        trackState.leadS,
+        trackState.wheelSpinRad,
+        trackState.doorsOpenPreview ? 1 : 0,
+        {
+          pantographHeight: trackState.pantographRaised ? (state.railPantographHeight ?? 0.85) : 0
+        }
+      );
+    } else {
+      vehAppRefreshLivePose();
+    }
+    if (activeTab === 'doors') {
+      renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+    }
+  });
+
+  $('#rail-panto-toggle')?.addEventListener('change', (e) => {
+    trackState.pantographRaised = Boolean(e.target.checked);
+    state.railPantographHeight = trackState.pantographRaised ? 0.88 : 0.0;
+    if (studioMode === 'trainset') {
+      for (const u of consistState.units) {
+        u.config.railPantographHeight = state.railPantographHeight;
+      }
+      positionConsistOnRoute(
+        vehicleRoot,
+        trackState.activeRoute,
+        trackState.leadS,
+        trackState.wheelSpinRad,
+        trackState.doorsOpenPreview ? 1 : 0,
+        { pantographHeight: state.railPantographHeight }
+      );
+    } else {
+      vehAppRefreshLivePose();
+    }
+    if (activeTab === 'details') {
+      renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+    }
   });
 
   $('#lighting-select')?.addEventListener('change', (e) => {
@@ -683,10 +1323,19 @@ function initUI() {
     toast(`Saved "${customLabel}"`);
   });
 
-  const doBlueprint = () => exportVehicleBlueprint(state, activeBlueprintName, toast);
+  const doBlueprint = () => {
+    if (studioMode === 'trainset') exportConsistBlueprint(consistState, trackState.activeRoute, toast);
+    else exportVehicleBlueprint(state, activeBlueprintName, toast);
+  };
   const doFleet = () => exportTrafficFleetPack(state, 8, toast);
   const doJSON = () => exportVehicleJSON(state, activeBlueprintName, toast);
-  const doGLB = () => exportVehicleGLB(state, ready, activeBlueprintName, vehAppLoadGLTFExporter, toast, setStatus);
+  const doGLB = () => {
+    if (studioMode === 'trainset') {
+      exportConsistGLB(consistState, trackState.activeRoute, trackState.leadS, ready, vehAppLoadGLTFExporter, toast, setStatus);
+    } else {
+      exportVehicleGLB(state, ready, activeBlueprintName, vehAppLoadGLTFExporter, toast, setStatus);
+    }
+  };
 
   $('#btn-export-blueprint')?.addEventListener('click', doBlueprint);
   $('#btn-export-blueprint-top')?.addEventListener('click', doBlueprint);
@@ -699,22 +1348,35 @@ function initUI() {
   $('#file-import')?.addEventListener('change', (e) => {
     const file = e.target?.files?.[0];
     if (file) {
-      handleVehicleFileImport(file, vehAppApplyImported, toast);
+      handleVehicleFileImport(file, vehAppApplyImported, toast, vehAppApplyImportedConsist);
       e.target.value = '';
     }
   });
 }
 
 window.BCityVehicleBlueprint = {
-  version: '1.0.0',
+  version: '1.1.0',
   schemaVersion: 'b.vehicle.v1',
+  trainsetSchemaVersion: 'b.trainset.v1',
   archetypes: STYLES,
   presets: PRESETS,
+  consistPresets: RAIL_DEFAULT_CONSISTS,
   getConfig: () => sanitiseConfig(state),
+  getConsist: () => sanitiseConsist(consistState),
   generateBlueprint: (cfg) => generateVehicleBlueprint(cfg || state),
   validateBlueprint: (input) => validateVehicleBlueprint(input),
   createVehicleMesh: (cfg) => createCityVehicle(cfg || state),
+  generateConsistBlueprint: (c, opts) => generateConsistBlueprint(c || consistState, opts),
+  validateConsist: (c, route) => validateConsist(c || consistState, route),
+  createConsistMesh: (c, opts) => createConsistMeshGroup(c || consistState, opts),
   loadPreset,
+  loadConsistPreset: (id) => {
+    consistState = createConsistFromPreset(id);
+    selectedUnitIndex = 0;
+    state = copy(consistState.units[0].config);
+    vehAppSwitchStudioMode('trainset', 'consist');
+  },
+  setStudioMode: (mode) => vehAppSwitchStudioMode(mode),
   applyImported: vehAppApplyImported
 };
 

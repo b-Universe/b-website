@@ -2259,6 +2259,26 @@ function addCylinder(parent, x, y, z, rTop, rBottom, h, material, sides = 10, op
   if (options.rotZ) mesh.rotation.z = options.rotZ;
   mesh.castShadow = options.cast !== false;
   mesh.receiveShadow = options.receive !== false;
+  if (options.name) mesh.name = options.name;
+  parent.add(mesh);
+  return mesh;
+}
+
+function addSemicircleArch(parent, x, y, z, radius, depth, material, options = {}) {
+  if (radius <= 0.001 || depth <= 0.001) return null;
+  const shape = new THREE.Shape();
+  shape.absarc(0, 0, radius, 0, Math.PI, false);
+  shape.closePath();
+  const geo = new THREE.ExtrudeGeometry(shape, {
+    depth,
+    bevelEnabled: false,
+    curveSegments: options.segments || 8
+  });
+  const mesh = new THREE.Mesh(geo, material);
+  mesh.position.set(x, y, z);
+  mesh.castShadow = options.cast !== false;
+  mesh.receiveShadow = options.receive !== false;
+  if (options.name) mesh.name = options.name;
   parent.add(mesh);
   return mesh;
 }
@@ -2533,23 +2553,42 @@ function addFacadeWindows(parent, side, wallCenterX, wallCenterZ, wallLen, cfg, 
       const outZ = Math.cos(rotY) * 0.04;
 
       const g = new THREE.Group();
+      g.name = 'WindowUnit';
       g.position.set(wx + outX, winY, wz + outZ);
       g.rotation.y = rotY;
 
-      // Frame + sill + glass
-      addBox(g, 0, 0, 0.01, winW + 0.14, winH + 0.14, 0.08, frameMat);
-      addBox(g, 0, -winH * 0.5 - 0.06, 0.05, winW + 0.22, 0.08, 0.12, frameMat);
-      addBox(g, 0, 0, 0.04, winW, winH, 0.04, glassMat, { cast: false });
+      if (cfg.windowStyle === 'arched') {
+        const archR = winW * 0.5;
+        const rectH = Math.max(0.45, winH - archR * 0.72);
+        const rectOffsetY = -archR * 0.36;
+        const archBaseY = rectOffsetY + rectH * 0.5;
 
-      if (cfg.windowStyle === 'barred') {
-        for (let b = -2; b <= 2; b++) {
-          addBox(g, (b / 2.5) * (winW * 0.45), 0, 0.08, 0.028, winH, 0.028, frameMat);
+        // Lower rectangular frame & sill stopping flush at springline archBaseY (z in [-0.03, +0.05])
+        addBox(g, 0, rectOffsetY - 0.035, 0.01, winW + 0.14, rectH + 0.07, 0.08, frameMat);
+        addBox(g, 0, rectOffsetY - rectH * 0.5 - 0.06, 0.05, winW + 0.22, 0.08, 0.12, frameMat);
+        // Lower rectangular glass stopping flush at springline (z in [+0.02, +0.06])
+        addBox(g, 0, rectOffsetY, 0.04, winW, rectH, 0.04, glassMat, { cast: false });
+
+        // Upper semicircular arch frame (y >= archBaseY, z in [-0.03, +0.05]) & fanlight glass (z in [+0.02, +0.06])
+        addSemicircleArch(g, 0, archBaseY, -0.03, archR + 0.07, 0.08, frameMat, { name: 'archFrame' });
+        addSemicircleArch(g, 0, archBaseY, 0.02, archR, 0.04, glassMat, { cast: false, name: 'archGlass' });
+
+        // Horizontal transom bar proud of glass (z in [+0.062, +0.082])
+        addBox(g, 0, archBaseY, 0.072, winW + 0.14, 0.065, 0.02, frameMat);
+      } else {
+        // Frame + sill + glass
+        addBox(g, 0, 0, 0.01, winW + 0.14, winH + 0.14, 0.08, frameMat);
+        addBox(g, 0, -winH * 0.5 - 0.06, 0.05, winW + 0.22, 0.08, 0.12, frameMat);
+        addBox(g, 0, 0, 0.04, winW, winH, 0.04, glassMat, { cast: false });
+
+        if (cfg.windowStyle === 'barred') {
+          for (let b = -2; b <= 2; b++) {
+            addBox(g, (b / 2.5) * (winW * 0.45), 0, 0.08, 0.028, winH, 0.028, frameMat);
+          }
+        } else if (cfg.windowStyle === 'industrial') {
+          addBox(g, 0, 0, 0.06, winW, 0.04, 0.03, frameMat);
+          addBox(g, 0, 0, 0.062, 0.04, winH, 0.03, frameMat);
         }
-      } else if (cfg.windowStyle === 'industrial') {
-        addBox(g, 0, 0, 0.06, winW, 0.04, 0.03, frameMat);
-        addBox(g, 0, 0, 0.06, 0.04, winH, 0.03, frameMat);
-      } else if (cfg.windowStyle === 'arched') {
-        addCylinder(g, 0, winH * 0.5, 0.03, winW * 0.45, winW * 0.45, 0.06, frameMat, 10, { rotX: Math.PI / 2 });
       }
 
       parent.add(g);
