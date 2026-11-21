@@ -24,11 +24,20 @@ export function addBalcony(parent, side, x, y, z, w, cfg) {
   group.rotation.y = rotMap[side] || 0;
 
   const steel = solid(cfg.windowFrameColor);
-  const deck = solid('#525452');
   const depth = 1.15;
   const baseY = -cfg.floorHeight * 0.36;
+  const rim = 0.05;
+  const grateWidth = w - 2 * rim;
+  const grateDepth = depth - 2 * rim;
+  const grate = gratingMaterial('#3a4347', grateWidth, grateDepth);
 
-  box(group, 0, baseY, depth * 0.5, w, 0.12, depth, deck);
+  box(group, 0, baseY + 0.035, depth * 0.5, grateWidth, 0.05, grateDepth, grate);
+  for (const edge of [rim * 0.5, depth - rim * 0.5]) {
+    box(group, 0, baseY, edge, w, 0.12, rim, steel);
+  }
+  for (const edge of [-1, 1]) {
+    box(group, edge * (w - rim) * 0.5, baseY, depth * 0.5, rim, 0.12, grateDepth, steel);
+  }
   box(group, 0, baseY + 0.86, depth - 0.04, w + 0.04, 0.06, 0.06, steel);
   box(group, -w * 0.5 + 0.03, baseY + 0.86, depth * 0.5, 0.06, 0.06, depth, steel);
   box(group, w * 0.5 - 0.03, baseY + 0.86, depth * 0.5, 0.06, 0.06, depth, steel);

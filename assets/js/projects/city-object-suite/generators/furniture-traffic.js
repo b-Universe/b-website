@@ -233,6 +233,59 @@ function ftBuildParkingMeter(group, cfg, b, mats, meta) {
   meta.interaction = { interactable: true, actionType: 'feed_parking_meter' };
 }
 
+// The word is mesh geometry so the standalone GLB needs no fonts or canvas text support.
+function ftAddStopSignFace(group, height) {
+  const radius = 0.38;
+  const vertices = Array.from({ length: 8 }, (_, i) => {
+    const a = Math.PI / 8 + Math.PI * i / 4;
+    return new THREE.Vector2(Math.cos(a), Math.sin(a));
+  });
+  const outline = (scale) => new THREE.Shape(vertices.map((p) => p.clone().multiplyScalar(scale)));
+  const white = new THREE.MeshStandardMaterial({ color: '#f6f4e8', roughness: 0.64 });
+  const red = new THREE.MeshStandardMaterial({ color: '#be261e', roughness: 0.68 });
+  const back = new THREE.MeshStandardMaterial({ color: '#81898e', roughness: 0.84 });
+
+  const plate = new THREE.Mesh(new THREE.ExtrudeGeometry(outline(radius), {
+    depth: 0.024, bevelEnabled: false
+  }), back);
+  plate.position.set(0, height, 0.04);
+  group.add(plate);
+  const borderOutline = outline(radius - 0.004);
+  borderOutline.holes.push(new THREE.Path(vertices.map((p) => p.clone().multiplyScalar(radius - 0.025)).reverse()));
+  const border = new THREE.Mesh(new THREE.ShapeGeometry(borderOutline), white);
+  border.position.set(0, height, 0.066);
+  group.add(border);
+  const face = new THREE.Mesh(new THREE.ShapeGeometry(outline(radius - 0.025)), red);
+  face.position.set(0, height, 0.068);
+  group.add(face);
+
+  const glyphs = [
+    ['01111','11000','11000','01110','00011','00011','11110'],
+    ['11111','00100','00100','00100','00100','00100','00100'],
+    ['01110','11011','10001','10001','10001','11011','01110'],
+    ['11110','11011','11011','11110','11000','11000','11000']
+  ];
+  const vertexPositions = [];
+  const dx = 0.0226;
+  const dy = 0.034;
+  for (const [letter, rows] of glyphs.entries()) {
+    for (const [row, pixels] of rows.entries()) {
+      for (let col = 0; col < 5; col++) {
+        if (pixels[col] !== '1') continue;
+        const x = (letter * 6 + col - 11.5) * dx;
+        const y = height + (2.5 - row) * dy;
+        const z = 0.070;
+        vertexPositions.push(x, y, z, x + dx, y, z, x + dx, y + dy, z,
+          x, y, z, x + dx, y + dy, z, x, y + dy, z);
+      }
+    }
+  }
+  const text = new THREE.BufferGeometry();
+  text.setAttribute('position', new THREE.Float32BufferAttribute(vertexPositions, 3));
+  text.computeVertexNormals();
+  group.add(new THREE.Mesh(text, white));
+}
+
 function ftBuildTrafficSignSignal(group, cfg, b, mats, meta) {
   const style = cfg.deviceStyle || 'traffic_signal_mast';
   const poleH = clamp(cfg.poleHeight || 4.6, 2.1, 6.2);
@@ -263,12 +316,7 @@ function ftBuildTrafficSignSignal(group, cfg, b, mats, meta) {
   if (style === 'octagon_stop_sign') {
     const sh = Math.min(3.0, poleH);
     b.addCylinder(0, sh * 0.5, 0, 0.035, 0.038, sh, 8, 'y', 'secondary', 'body');
-    b.addCylinder(0, sh - 0.34, 0.05, 0.38, 0.38, 0.03, 8, 'z', 'safetyRed', 'body');
-    objCreateSignPlane(group, cfg.signText || 'Stop', 0.48, 0.2, '#cf342b', '#ffffff', {
-      x: 0,
-      y: sh - 0.34,
-      z: 0.07
-    });
+    ftAddStopSignFace(group, sh - 0.34);
     return;
   }
 
