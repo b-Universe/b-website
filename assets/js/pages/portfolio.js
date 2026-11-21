@@ -42,6 +42,7 @@
       '/projects/city-vehicle-generator.html',
       '/projects/city-object-suite.html',
       '/projects/specialty-building-suite.html',
+      '/projects/infrastructure-generator.html',
       '/projects/b-remastered-3d-model-generation-tools.html'
     ];
 
