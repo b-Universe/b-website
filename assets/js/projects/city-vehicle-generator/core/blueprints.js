@@ -19,6 +19,64 @@ function bpVecToBUnits(x, y, z) {
 
 export function computeVehicleBounds(cfg, layout) {
   const d = layout.dimensions;
+  if (layout.air) {
+    const air = layout.air;
+    const discR = air.rotorRadius;
+    const maxHalfW = roundNum(Math.max(d.halfWidth, discR), 4);
+    const minZ = roundNum(Math.min(air.tailEndZ, air.rotorHubZ - discR), 4);
+    const maxZ = roundNum(Math.max(air.noseZ, air.rotorHubZ + discR), 4);
+    const topY = roundNum(air.mastTopY + 0.16, 4);
+    const totalW = roundNum(maxHalfW * 2, 4);
+    const totalL = roundNum(maxZ - minZ, 4);
+    const padDiam = air.compatibility.helipadMinDiameterMeters;
+    return {
+      meters: {
+        minX: -maxHalfW,
+        maxX: maxHalfW,
+        minY: 0,
+        maxY: topY,
+        minZ,
+        maxZ,
+        width: totalW,
+        length: totalL,
+        height: topY
+      },
+      bGameUnits: {
+        unitsPerMeter: B_UNITS_PER_METER,
+        width: roundNum(totalW * B_UNITS_PER_METER, 1),
+        length: roundNum(totalL * B_UNITS_PER_METER, 1),
+        height: roundNum(topY * B_UNITS_PER_METER, 1),
+        min: bpVecToBUnits(-maxHalfW, 0, maxZ),
+        max: bpVecToBUnits(maxHalfW, topY, minZ)
+      },
+      parkingFootprint: {
+        meters: { width: padDiam, length: padDiam },
+        bGameUnits: {
+          width: roundNum(padDiam * B_UNITS_PER_METER, 1),
+          length: roundNum(padDiam * B_UNITS_PER_METER, 1)
+        }
+      },
+      collisionBounds: {
+        compositeBox: {
+          center: { x: 0, y: roundNum(topY * 0.5, 4), z: roundNum((minZ + maxZ) * 0.5, 4) },
+          size: { x: totalW, y: topY, z: totalL }
+        },
+        lowerHullBox: {
+          center: { x: 0, y: roundNum(air.bellyY * 0.5, 4), z: 0 },
+          size: { x: d.width, y: roundNum(air.bellyY, 4), z: d.length }
+        },
+        upperCabinBox: {
+          center: { x: 0, y: roundNum((air.bellyY + air.mastTopY) * 0.5, 4), z: 0 },
+          size: { x: d.width, y: roundNum(air.mastTopY - air.bellyY, 4), z: d.length }
+        },
+        cargoBox: {
+          center: { x: 0, y: roundNum((air.bellyY + air.cabinRoofY) * 0.5, 4), z: 0 },
+          size: { x: d.width, y: roundNum(air.cabinRoofY - air.bellyY, 4), z: roundNum(air.cabinFrontZ - air.cabinRearZ, 4) }
+        },
+        wheels: []
+      }
+    };
+  }
   if (layout.rail) {
     const rail = layout.rail;
     const maxHalfW = roundNum(Math.max(d.halfWidth + (cfg.railHandrails ? 0.08 : 0.02), rail.gauge.railCenterHalfX + 0.25), 4);
@@ -241,7 +299,7 @@ export function generateVehicleBlueprint(rawCfg, options = {}) {
     style: cfg.style,
     archetype: cfg.style,
     archetypeLabel: arch.label,
-    vehicleDomain: layout.rail ? 'rail' : 'road',
+    vehicleDomain: layout.rail ? 'rail' : (layout.air ? 'air' : 'road'),
     usageVariant: cfg.roleVariant,
     dimensions: layout.dimensions,
     wheelbase: layout.dimensions.wheelbase,
@@ -287,6 +345,7 @@ export function generateVehicleBlueprint(rawCfg, options = {}) {
     },
     validation: layout.validation,
     transitCompatibility: layout.rail ? layout.rail.compatibility : null,
+    aviationCompatibility: layout.air ? layout.air.compatibility : null,
     pivots: layout.rail ? layout.rail.pivots : null,
     config: cfg,
     geometryStats: options.geometryStats || null

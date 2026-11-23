@@ -608,3 +608,187 @@ export function trPaxExtBuildCaboose(batcher, layout, cfg) {
 
   return { doors: [] };
 }
+
+export function trPaxExtBuildDiningCoach(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const pax = rz.zones.passenger;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+
+  batcher.addBox(0, deckY - 0.1, 0, d.width, 0.2, d.length - 0.16, { materialRole: 'chassisDark', layer: 'chassis' });
+  batcher.addBox(0, deckY - 0.42, 0, d.width * 0.66, 0.46, Math.max(2.6, d.wheelbase - 3.4), { materialRole: 'utility', layer: 'chassis' });
+
+  trPartAddPassengerShellWithDoors(batcher, -halfL + 0.14, halfL - 0.14, deckY, pax.eavesY, bodyTopY, halfW, rz.doors, cfg, {
+    winSillY: pax.windowSillY - 0.06,
+    winTopY: pax.windowTopY + 0.08,
+    roofRole: 'secondary',
+    interiorStyle: 'none'
+  });
+
+  // Visible warm-lit interior dining tables with white tablecloths & brass table lamps!
+  if (cfg.railInteriorEnabled) {
+    batcher.addBox(0, deckY + 0.05, 0, d.width - 0.28, 0.08, d.length - 1.2, { materialRole: 'interiorDark', layer: 'interior' });
+    for (let i = 0; i < 6; i++) {
+      const tz = lerp(-halfL + 3.2, halfL - 3.2, i / 5);
+      for (const side of [-1, 1]) {
+        batcher.addBox(side * (halfW - 0.54), deckY + 0.72, tz, 0.68, 0.08, 0.74, { materialRole: 'secondary', layer: 'interior' });
+        batcher.addBox(side * (halfW - 0.54), deckY + 0.36, tz, 0.14, 0.64, 0.14, { materialRole: 'utility', layer: 'interior' });
+        batcher.addCylinder(side * (halfW - 0.42), deckY + 0.86, tz, 0.07, 0.09, 0.18, 8, 'y', 'amberLight', 'interior');
+      }
+    }
+  }
+
+  // Kitchen exhaust stack vents & twin HVAC pods on roof
+  for (const hz of [-4.4, 4.4]) {
+    batcher.addBox(0, bodyTopY + 0.11, hz, 1.56, 0.22, 2.2, { materialRole: 'utility', layer: 'detail' });
+  }
+  for (const vz of [-6.4, -5.6]) {
+    batcher.addCylinder(0.45, bodyTopY + 0.18, vz, 0.12, 0.12, 0.32, 8, 'y', 'chrome', 'detail');
+  }
+  if (cfg.railGangways) {
+    for (const endSign of [-1, 1]) buildRailEndGangway(batcher, endSign, d.length, deckY, bodyTopY);
+  }
+  const doors = trPartBuildSlidingDoorGroups(rootGroup, rz.doors, halfW, deckY, pax.windowSillY, cfg, materialBundle, { doorRole: 'secondary' });
+  return { doors };
+}
+
+export function trPaxExtBuildSleeperCoach(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const pax = rz.zones.passenger;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+
+  batcher.addBox(0, deckY - 0.1, 0, d.width, 0.2, d.length - 0.16, { materialRole: 'chassisDark', layer: 'chassis' });
+  batcher.addBox(0, deckY - 0.42, 0, d.width * 0.66, 0.46, Math.max(2.6, d.wheelbase - 3.4), { materialRole: 'utility', layer: 'chassis' });
+
+  trPartAddPassengerShellWithDoors(batcher, -halfL + 0.14, halfL - 0.14, deckY, pax.eavesY, bodyTopY, halfW, rz.doors, cfg, {
+    winSillY: pax.windowSillY,
+    winTopY: pax.windowTopY,
+    roofRole: 'secondary',
+    interiorStyle: 'none'
+  });
+
+  // Interior private compartment partitions & upper/lower sleeper bunks
+  if (cfg.railInteriorEnabled) {
+    batcher.addBox(0, deckY + 0.05, 0, d.width - 0.28, 0.08, d.length - 1.2, { materialRole: 'interiorDark', layer: 'interior' });
+    for (let i = 0; i < 6; i++) {
+      const bz = lerp(-halfL + 3.0, halfL - 3.0, i / 5);
+      batcher.addBox(-0.22, deckY + 1.15, bz - 0.95, d.width * 0.68, 2.05, 0.08, { materialRole: 'secondary', layer: 'interior' });
+      batcher.addBox(-0.35, deckY + 0.54, bz, d.width * 0.52, 0.18, 0.85, { materialRole: 'livery', layer: 'interior' });
+      batcher.addBox(-0.35, deckY + 1.48, bz, d.width * 0.52, 0.16, 0.82, { materialRole: 'secondary', layer: 'interior' });
+    }
+  }
+
+  for (const hz of [-4.2, 4.2]) {
+    batcher.addBox(0, bodyTopY + 0.11, hz, 1.56, 0.22, 2.3, { materialRole: 'utility', layer: 'detail' });
+  }
+  if (cfg.railGangways) {
+    for (const endSign of [-1, 1]) buildRailEndGangway(batcher, endSign, d.length, deckY, bodyTopY);
+  }
+  const doors = trPartBuildSlidingDoorGroups(rootGroup, rz.doors, halfW, deckY, pax.windowSillY, cfg, materialBundle, { doorRole: 'secondary' });
+  return { doors };
+}
+
+export function trPaxExtBuildAutoRack(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const deckY = layout.rail.zones.deckY;
+  const bodyTopY = layout.rail.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const bodyLen = d.length - 0.45;
+  const bodyH = bodyTopY - deckY;
+  const midDeckY = deckY + bodyH * 0.48;
+
+  // Heavy flatcar base sill, upper auto deck, solid roof & clamshell end doors
+  batcher.addBox(0, deckY - 0.12, 0, d.width, 0.24, d.length, { materialRole: 'chassisDark', layer: 'chassis' });
+  batcher.addBox(0, midDeckY, 0, d.width - 0.2, 0.14, bodyLen - 0.2, { materialRole: 'secondary', layer: 'body' });
+  batcher.addBox(0, bodyTopY - 0.08, 0, d.width, 0.18, bodyLen, { materialRole: 'secondary', layer: 'body' });
+  for (const endSign of [-1, 1]) {
+    batcher.addBox(0, deckY + bodyH * 0.5, endSign * (bodyLen * 0.5), d.width * 0.96, bodyH, 0.14, { materialRole: 'primary', layer: 'body' });
+  }
+
+  // Slatted perforated side screen panels & heavy vertical frame posts so carried cars peek through!
+  for (const side of [-1, 1]) {
+    const wx = side * (halfW - 0.06);
+    for (let p = 0; p < 12; p++) {
+      const pz = lerp(-bodyLen * 0.48, bodyLen * 0.48, p / 11);
+      batcher.addBox(wx, deckY + bodyH * 0.5, pz, 0.09, bodyH, 0.11, { materialRole: 'primary', layer: 'body' });
+    }
+    for (const bandY of [deckY + 0.38, midDeckY - 0.12, midDeckY + 0.42, bodyTopY - 0.34]) {
+      batcher.addBox(wx, bandY, 0, 0.055, 0.28, bodyLen, { materialRole: 'primary', layer: 'body' });
+    }
+  }
+
+  // Two visible decks of stylized low-poly mini automobiles loaded inside!
+  if (cfg.railInteriorEnabled) {
+    const carColors = ['livery', 'secondary', 'utility', 'headlight'];
+    for (const deckBaseY of [deckY + 0.08, midDeckY + 0.1]) {
+      for (let c = 0; c < 4; c++) {
+        const cz = lerp(-bodyLen * 0.36, bodyLen * 0.36, c / 3);
+        const role = carColors[(c + (deckBaseY > midDeckY ? 1 : 0)) % carColors.length];
+        batcher.addBox(0, deckBaseY + 0.42, cz, 1.68, 0.54, 3.65, { materialRole: role, layer: 'detail' });
+        batcher.addBox(0, deckBaseY + 0.86, cz - 0.15, 1.46, 0.42, 1.95, { materialRole: 'glass', layer: 'glass' });
+      }
+    }
+  }
+
+  return { doors: [] };
+}
+
+export function trPaxExtBuildWellCar(batcher, layout) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const deckY = rz.zones.deckY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+
+  // End bogie bolster platforms + depressed low-slung center well between bogies!
+  const wellStartZ = rz.bogies[1].pivotZ + rz.bogies[1].wheelbase * 0.5 + 0.5;
+  const wellEndZ = rz.bogies[0].pivotZ - rz.bogies[0].wheelbase * 0.5 - 0.5;
+  const wellLen = Math.max(8.0, wellEndZ - wellStartZ);
+  const wellFloorY = 0.44;
+  const sideWallH = 0.92;
+
+  for (const endSign of [-1, 1]) {
+    const endStart = endSign > 0 ? wellEndZ : -halfL;
+    const endEnd = endSign > 0 ? halfL : wellStartZ;
+    const eLen = Math.max(1.4, endEnd - endStart);
+    batcher.addBox(0, deckY - 0.1, (endStart + endEnd) * 0.5, d.width, 0.24, eLen, { materialRole: 'primary', layer: 'chassis' });
+  }
+  // Depressed well side girders & bottom cross-ties
+  batcher.addBox(0, wellFloorY, 0, d.width * 0.88, 0.14, wellLen, { materialRole: 'chassisDark', layer: 'chassis' });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW - 0.12), wellFloorY + sideWallH * 0.5, 0, 0.22, sideWallH, wellLen + 0.5, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+  }
+
+  // Double-stacked 40ft corrugated ISO containers (lower sits inside well, upper stacked high!)
+  const contLen = Math.min(12.2, wellLen - 0.28);
+  const contW = Math.min(2.44, d.width - 0.48);
+  const contH = 2.08;
+  const lowerY = wellFloorY + 0.08 + contH * 0.5;
+  const upperY = lowerY + contH + 0.04;
+
+  for (const [cy, role] of [[lowerY, 'secondary'], [upperY, 'livery']]) {
+    batcher.addBox(0, cy, 0, contW, contH, contLen, { materialRole: role, layer: 'detail' });
+    for (let r = 0; r < 11; r++) {
+      const rzPos = lerp(-contLen * 0.44, contLen * 0.44, r / 10);
+      for (const side of [-1, 1]) {
+        batcher.addBox(side * (contW * 0.5 + 0.016), cy, rzPos, 0.032, contH * 0.88, 0.08, {
+          materialRole: role,
+          layer: 'detail'
+        });
+      }
+    }
+  }
+
+  return { doors: [] };
+}

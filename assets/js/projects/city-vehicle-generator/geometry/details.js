@@ -302,6 +302,30 @@ export function buildVehicleDetails(batcher, rootGroup, layout, cfg, materialBun
         layer: 'detail'
       });
     }
+  } else if (cfg.sideUtility === 'news_branding') {
+    const pLen = Math.max(1.2, d.length - 0.56);
+    const sideX = d.halfWidth + (cfg.bodyFamily === 'cab_over_box' ? 0.045 : 0.014);
+    const panelZ = cfg.bodyFamily === 'cab_over_box'
+      ? (s.rear.startZ + s.rear.endZ) * 0.5
+      : lerp(s.rear.startZ, s.cabin.startZ, 0.45);
+    const panelW = Math.min(2.6, Math.max(1.25, s.rear.length * 0.62));
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * sideX, trimY + 0.14, 0, 0.02, 0.09, pLen, { materialRole: 'livery', layer: 'detail' });
+      batcher.addBox(side * sideX, trimY + 0.02, 0, 0.02, 0.06, pLen, { materialRole: 'secondary', layer: 'detail' });
+      if (rootGroup) {
+        vehSignboard(rootGroup, cfg.signText || 'CHANNEL 4 NEWS', panelW, 0.34, '#132645', '#f8fafc', {
+          x: side * (sideX + 0.022),
+          y: Math.max(trimY + 0.54, d.beltY + 0.08),
+          z: panelZ,
+          rotY: side * Math.PI * 0.5,
+          depth: 0.026,
+          lit: Boolean(cfg.emergencyLightsLit),
+          frameMaterial: materialBundle.livery,
+          frameRole: 'livery',
+          layer: 'detail'
+        });
+      }
+    }
   } else if (cfg.sideUtility === 'fire_pump_panel') {
     const bayZ = cfg.bodyFamily === 'cab_over_box'
       ? lerp(s.rear.startZ, s.rear.endZ, 0.72)
@@ -920,6 +944,47 @@ export function buildVehicleDetails(batcher, rootGroup, layout, cfg, materialBun
       for (const side of [-0.14, 0.14]) {
         batcher.addCylinder(side, (topPy + botPy) * 0.5, (topPz + botPz) * 0.5, 0.045, 0.055, pLen, 8, 'y', 'chrome', 'detail', 0, pRx);
       }
+    }
+  } else if (!isOpenTop && (cfg.roofRack === 'satellite_dish' || cfg.roofRack === 'broadcast_array')) {
+    const isLarge = cfg.roofRack === 'broadcast_array';
+    const deployed = Boolean(cfg.doorsOpen);
+    const dishZ = lerp(s.roofMount.minZ, s.roofMount.maxZ, isLarge ? 0.54 : 0.48);
+    const mastZ = s.roofMount.minZ + 0.36;
+    const dishR = isLarge ? 0.72 : 0.52;
+    const dishTilt = deployed ? degToRad(44) : degToRad(8);
+
+    // Rooftop equipment rails & rotary satellite pedestal
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (roofW * 0.44), rackSurfaceY + 0.05, rackMidZ, 0.055, 0.07, Math.max(1.2, s.roofMount.maxZ - s.roofMount.minZ), {
+        materialRole: 'trim',
+        layer: 'detail'
+      });
+    }
+    batcher.addCylinder(0, rackSurfaceY + 0.08, dishZ, 0.24, 0.28, 0.14, 10, 'y', 'trim', 'detail');
+    const pivotY = rackSurfaceY + (deployed ? 0.42 : 0.24);
+    batcher.addBox(0, (rackSurfaceY + pivotY) * 0.5, dishZ, 0.12, pivotY - rackSurfaceY + 0.04, 0.14, { materialRole: 'utility', layer: 'detail' });
+
+    // Faceted parabolic satellite uplink dish + central LNB feedhorn tripod
+    batcher.addCylinder(0, pivotY + 0.08, dishZ, dishR, dishR * 0.34, 0.18, 12, 'y', 'secondary', 'detail', 0, dishTilt);
+    batcher.addCylinder(0, pivotY + 0.12, dishZ, dishR * 0.94, dishR * 0.28, 0.08, 12, 'y', 'chrome', 'detail', 0, dishTilt);
+    const hornDist = dishR * 0.78;
+    const hornY = pivotY + 0.1 + Math.cos(dishTilt) * hornDist;
+    const hornZ = dishZ + Math.sin(dishTilt) * hornDist;
+    batcher.addCylinder(0, (pivotY + hornY) * 0.5, (dishZ + hornZ) * 0.5, 0.024, 0.028, hornDist, 6, 'y', 'trim', 'detail', 0, dishTilt);
+    batcher.addCylinder(0, hornY, hornZ, 0.06, 0.09, 0.14, 8, 'y', 'livery', 'detail', 0, dishTilt);
+
+    // Rear telescoping pneumatic microwave broadcast mast (extends tall when doorsOpen!)
+    const mastH = deployed ? (isLarge ? 2.45 : 1.85) : 0.46;
+    batcher.addCylinder(0, rackSurfaceY + mastH * 0.5, mastZ, 0.055, 0.085, mastH, 8, 'y', 'chrome', 'detail');
+    batcher.addBox(0, rackSurfaceY + mastH + 0.09, mastZ, 0.22, 0.18, 0.3, { materialRole: 'secondary', layer: 'detail' });
+    batcher.addCylinder(0, rackSurfaceY + mastH + 0.09, mastZ + 0.18, 0.095, 0.095, 0.06, 10, 'z', 'livery', 'detail');
+    batcher.addCylinder(0, rackSurfaceY + mastH + 0.24, mastZ, 0.045, 0.045, 0.08, 8, 'y', 'redLight', 'detail');
+
+    // Broadcast production truck dual generator / HVAC pods & front UHF array
+    if (isLarge) {
+      const podZ = lerp(s.roofMount.minZ, s.roofMount.maxZ, 0.84);
+      batcher.addBox(0, rackSurfaceY + 0.16, podZ, roofW * 0.76, 0.28, 1.05, { materialRole: 'utility', layer: 'detail' });
+      batcher.addBox(0, rackSurfaceY + 0.31, podZ, roofW * 0.64, 0.04, 0.88, { materialRole: 'trim', layer: 'detail' });
     }
   }
 

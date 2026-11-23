@@ -5,7 +5,11 @@ import {
   trLocoExtBuildElectric,
   trLocoExtBuildStreamlinedDiesel,
   trLocoExtBuildSteam,
-  trLocoExtBuildMaintenance
+  trLocoExtBuildMaintenance,
+  trLocoExtBuildTankSteam,
+  trLocoExtBuildArticulatedSteam,
+  trLocoExtBuildHeavyDiesel,
+  trLocoExtBuildBoxElectric
 } from './rail-locos-ext.js';
 import {
   trPaxExtBuildBulletLead,
@@ -16,7 +20,11 @@ import {
   trPaxExtBuildMetroModern,
   trPaxExtBuildPeopleMover,
   trPaxExtBuildHopper,
-  trPaxExtBuildCaboose
+  trPaxExtBuildCaboose,
+  trPaxExtBuildDiningCoach,
+  trPaxExtBuildSleeperCoach,
+  trPaxExtBuildAutoRack,
+  trPaxExtBuildWellCar
 } from './rail-passenger-ext.js';
 import {
   trSpecBuildHistoricStreetcar,
@@ -1165,6 +1173,14 @@ export function buildRailCarbody(batcher, rootGroup, layout, cfg, materialBundle
       return trLocoExtBuildStreamlinedDiesel(batcher, layout, cfg);
     case 'rail_steam_loco':
       return trLocoExtBuildSteam(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_tank_steam':
+      return trLocoExtBuildTankSteam(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_articulated_steam':
+      return trLocoExtBuildArticulatedSteam(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_heavy_diesel':
+      return trLocoExtBuildHeavyDiesel(batcher, layout, cfg);
+    case 'rail_box_electric':
+      return trLocoExtBuildBoxElectric(batcher, rootGroup, layout, cfg, materialBundle);
     case 'rail_maintenance':
       return trLocoExtBuildMaintenance(batcher, layout, cfg);
     case 'rail_highspeed_lead':
@@ -1175,6 +1191,10 @@ export function buildRailCarbody(batcher, rootGroup, layout, cfg, materialBundle
       return trPaxExtBuildBilevel(batcher, rootGroup, layout, cfg, materialBundle);
     case 'rail_dome_coach':
       return trPaxExtBuildDomeCoach(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_dining_coach':
+      return trPaxExtBuildDiningCoach(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_sleeper_coach':
+      return trPaxExtBuildSleeperCoach(batcher, rootGroup, layout, cfg, materialBundle);
     case 'rail_subway_classic':
       return trPaxExtBuildSubwayClassic(batcher, rootGroup, layout, cfg, materialBundle);
     case 'rail_metro_modern':
@@ -1191,6 +1211,10 @@ export function buildRailCarbody(batcher, rootGroup, layout, cfg, materialBundle
       return trPaxExtBuildHopper(batcher, layout, cfg);
     case 'rail_freight_caboose':
       return trPaxExtBuildCaboose(batcher, layout, cfg);
+    case 'rail_freight_autorack':
+      return trPaxExtBuildAutoRack(batcher, layout, cfg);
+    case 'rail_freight_wellcar':
+      return trPaxExtBuildWellCar(batcher, layout);
     case 'rail_passenger_coach':
       return trBodyBuildPassengerCoach(batcher, rootGroup, layout, cfg, materialBundle);
     case 'rail_historic_streetcar':

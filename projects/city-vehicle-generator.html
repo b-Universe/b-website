@@ -120,10 +120,11 @@
           <button type="button" class="studio-cat-pill" data-cat-filter="commercial">Commercial &amp; Service</button>
           <button type="button" class="studio-cat-pill" data-cat-filter="buses">Buses</button>
           <button type="button" class="studio-cat-pill" data-cat-filter="transit_rail"><i class="fa-solid fa-train"></i> Transit &amp; Railway</button>
+          <button type="button" class="studio-cat-pill" data-cat-filter="aviation"><i class="fa-solid fa-helicopter"></i> Aviation &amp; Helicopters</button>
         </div>
 
         <div class="studio-sub-filters" id="transit-subfilters" role="group" aria-label="Transit Subcategories" hidden>
-          <button type="button" class="studio-sub-pill active" data-transit-subgroup="all_transit">All Transit (25)</button>
+          <button type="button" class="studio-sub-pill active" data-transit-subgroup="all_transit">All Transit (33)</button>
           <button type="button" class="studio-sub-pill" data-transit-subgroup="locomotives">Locomotives</button>
           <button type="button" class="studio-sub-pill" data-transit-subgroup="passenger_rail">High-Speed &amp; Coaches</button>
           <button type="button" class="studio-sub-pill" data-transit-subgroup="subway_metro">Subway &amp; Metro</button>
@@ -217,6 +218,15 @@
               </div>
             </div>
 
+            <div class="studio-rail-bar" id="air-preview-bar" hidden>
+              <div class="studio-toolbar-group" aria-label="Helicopter Controls">
+                <span class="rail-bar-label">Aviation</span>
+                <button type="button" class="studio-mini-btn active" id="btn-air-spin"><i class="fa-solid fa-fan"></i> Spin Rotors</button>
+                <label class="studio-check-row"><input type="checkbox" id="air-hover-toggle" /> Hover (1.8m)</label>
+                <label class="studio-check-row"><input type="checkbox" id="air-doors-toggle" /> Open Camera Bay</label>
+              </div>
+            </div>
+
             <div class="studio-viewport-footer">
               <div class="studio-hint" id="scene-label">Family Sedan (three_box)</div>
 
@@ -227,6 +237,7 @@
                     <option value="street" selected>City Street Lane</option>
                     <option value="parking_lot">Urban Parking Bay</option>
                     <option value="city_curb">Curb &amp; Sidewalk</option>
+                    <option value="helipad">Rooftop Helipad</option>
                     <option value="rail_straight">Straight Railway Track</option>
                     <option value="rail_curved">Curved Railway Track</option>
                     <option value="rail_incline">Inclined Railway Grade</option>

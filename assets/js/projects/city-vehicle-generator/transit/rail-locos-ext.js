@@ -443,3 +443,359 @@ export function trLocoExtBuildMaintenance(batcher, layout, cfg) {
 
   return { doors: [] };
 }
+
+function trLocoExtAddSteamDriversAndRods(rootGroup, layout, materialBundle, driverZs, driverR, prefix = 'Steam') {
+  const driverX = layout.rail.gauge.railCenterHalfX;
+  const customWheelsets = [];
+  for (let i = 0; i < driverZs.length; i++) {
+    const dz = driverZs[i];
+    const ws = new THREE.Group();
+    ws.name = `${prefix}Driver_${i}`;
+    ws.position.set(0, driverR, dz);
+    const wBatch = new VehicleBatcher();
+    wBatch.addCylinder(0, 0, 0, 0.072, 0.072, driverX * 2 + 0.22, 10, 'x', 'chassisDark', 'wheel');
+    for (const side of [-1, 1]) {
+      wBatch.addCylinder(side * driverX, 0, 0, driverR, driverR, 0.12, 16, 'x', 'tire', 'wheel');
+      wBatch.addCylinder(side * (driverX - 0.056), 0, 0, driverR + 0.028, driverR + 0.028, 0.024, 16, 'x', 'chrome', 'wheel');
+      wBatch.addCylinder(side * (driverX + 0.03), 0, 0, driverR * 0.78, driverR * 0.78, 0.06, 12, 'x', 'rim', 'wheel');
+      for (let sp = 0; sp < 4; sp++) {
+        wBatch.addBox(side * (driverX + 0.044), 0, 0, 0.024, driverR * 1.44, 0.05, {
+          rotX: (sp / 4) * Math.PI,
+          materialRole: 'rim',
+          layer: 'wheel'
+        });
+      }
+      wBatch.addBox(side * (driverX + 0.046), -driverR * 0.34, 0, 0.03, driverR * 0.32, driverR * 0.68, {
+        materialRole: 'livery',
+        layer: 'wheel'
+      });
+    }
+    wBatch.finalize(ws, materialBundle);
+    rootGroup.add(ws);
+    customWheelsets.push(ws);
+  }
+
+  const steamRods = [];
+  const rodSpan = driverZs[driverZs.length - 1] - driverZs[0] + 0.32;
+  const rodCenterZ = (driverZs[0] + driverZs[driverZs.length - 1]) * 0.5;
+  const crankR = Math.min(0.22, driverR * 0.34);
+  for (const side of [-1, 1]) {
+    const rodGrp = new THREE.Group();
+    rodGrp.name = `${prefix}Rod_${side < 0 ? 'left' : 'right'}`;
+    const rx = side * (driverX + 0.11);
+    const ry = driverR - crankR;
+    rodGrp.position.set(rx, ry, rodCenterZ);
+    const rBatch = new VehicleBatcher();
+    rBatch.addBox(0, 0, 0, 0.044, 0.095, rodSpan, { materialRole: 'chrome', layer: 'detail' });
+    rBatch.addBox(0.02 * side, 0.035, rodSpan * 0.44 + 0.68, 0.046, 0.08, 1.45, {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+    rBatch.finalize(rodGrp, materialBundle);
+    rodGrp.userData = {
+      isSteamRod: true,
+      baseX: rx,
+      baseY: ry,
+      baseZ: rodCenterZ,
+      crankRadius: crankR,
+      phaseOffset: side < 0 ? 0 : Math.PI * 0.5
+    };
+    rootGroup.add(rodGrp);
+    steamRods.push(rodGrp);
+  }
+  return { customWheelsets, steamRods };
+}
+
+export function trLocoExtBuildTankSteam(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const deckY = layout.rail.zones.deckY;
+  const bodyTopY = layout.rail.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  const bunkerStartZ = -halfL + 0.38;
+  const bunkerEndZ = bunkerStartZ + 1.55;
+  const cabStartZ = bunkerEndZ;
+  const cabEndZ = cabStartZ + 2.25;
+  const smokeboxEndZ = halfL - 0.65;
+  const boilerLen = smokeboxEndZ - cabEndZ;
+  const boilerMidZ = (cabEndZ + smokeboxEndZ) * 0.5;
+  const boilerR = clamp(halfW * 0.54, 0.68, 0.86);
+  const boilerCenterY = deckY + boilerR + 0.24;
+
+  // Heavy plate frame, crimson buffer beams & side running boards
+  batcher.addBox(0, deckY - 0.14, 0, 1.08, 0.36, d.length - 0.4, { materialRole: 'chassisDark', layer: 'chassis' });
+  batcher.addBox(0, deckY + 0.06, 0, d.width * 0.94, 0.14, d.length - 0.2, { materialRole: 'secondary', layer: 'body' });
+  for (const endSign of [-1, 1]) {
+    batcher.addBox(0, deckY - 0.18, endSign * (halfL - 0.12), d.width * 0.96, 0.34, 0.2, { materialRole: 'bumper', layer: 'chassis' });
+  }
+
+  // Boiler barrel, smokebox & iconic tall flanking side water tanks!
+  batcher.addCylinder(0, boilerCenterY, boilerMidZ, boilerR, boilerR, boilerLen, 16, 'z', 'primary', 'body');
+  const sbLen = 1.3;
+  const sbZ = smokeboxEndZ - sbLen * 0.5;
+  batcher.addCylinder(0, boilerCenterY, sbZ, boilerR + 0.025, boilerR + 0.025, sbLen, 16, 'z', 'secondary', 'body');
+  batcher.addCylinder(0, boilerCenterY, smokeboxEndZ + 0.09, boilerR * 0.42, boilerR * 0.92, 0.2, 12, 'z', 'secondary', 'body');
+
+  const tankLen = boilerLen - sbLen - 0.1;
+  const tankMidZ = cabEndZ + tankLen * 0.5;
+  const tankH = boilerR * 1.62;
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW - 0.34), deckY + 0.12 + tankH * 0.5, tankMidZ, 0.58, tankH, tankLen, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+    batcher.addBox(side * (halfW - 0.04), deckY + 0.12 + tankH * 0.5, tankMidZ, 0.03, 0.12, tankLen * 0.9, {
+      materialRole: 'livery',
+      layer: 'body'
+    });
+    batcher.addCylinder(side * 1.05, 0.56, smokeboxEndZ - 0.6, 0.3, 0.3, 1.0, 10, 'z', 'secondary', 'detail');
+  }
+
+  // Copper-rimmed smokestack & brass steam dome
+  const topY = boilerCenterY + boilerR;
+  batcher.addCylinder(0, topY + 0.36, sbZ + 0.06, 0.21, 0.16, 0.72, 12, 'y', 'secondary', 'detail');
+  batcher.addCylinder(0, topY + 0.74, sbZ + 0.06, 0.25, 0.21, 0.09, 12, 'y', 'livery', 'detail');
+  batcher.addCylinder(0, topY + 0.26, tankMidZ + 0.15, 0.38, 0.44, 0.52, 12, 'y', 'livery', 'detail');
+
+  // Cab & rear integral coal bunker
+  const cabMidZ = (cabStartZ + cabEndZ) * 0.5;
+  const cabH = bodyTopY - deckY;
+  batcher.addBox(0, deckY + cabH * 0.44, cabMidZ, d.width * 0.92, cabH * 0.88, cabEndZ - cabStartZ, { materialRole: 'primary', layer: 'body' });
+  batcher.addBox(0, bodyTopY - 0.05, cabMidZ, d.width * 0.98, 0.14, cabEndZ - cabStartZ + 0.35, { materialRole: 'secondary', layer: 'body' });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW * 0.92 + 0.01), bodyTopY - 0.54, cabMidZ, 0.05, 0.58, 1.25, { materialRole: glassRole, layer: 'glass' });
+  }
+  const bunkMidZ = (bunkerStartZ + bunkerEndZ) * 0.5;
+  batcher.addBox(0, deckY + 0.86, bunkMidZ, d.width * 0.88, 1.48, bunkerEndZ - bunkerStartZ, { materialRole: 'primary', layer: 'body' });
+  batcher.addBox(0, deckY + 1.66, bunkMidZ, d.width * 0.72, 0.32, (bunkerEndZ - bunkerStartZ) * 0.78, { materialRole: 'chassisDark', layer: 'detail' });
+
+  // 0-6-0 Rigid Coupled Drivers (3 big spoked wheels + coupling rods; empty dummy bogie pivots so no diesel truck spawns)
+  const driverR = clamp(cfg.railWheelRadius || 0.56, 0.48, 0.64);
+  const { customWheelsets, steamRods } = trLocoExtAddSteamDriversAndRods(
+    rootGroup,
+    layout,
+    materialBundle,
+    [-2.05, 0.0, 2.05],
+    driverR,
+    'TankSteam'
+  );
+  const customBogies = ['front', 'rear'].map((id) => {
+    const g = new THREE.Group();
+    g.name = `Bogie_${id}`;
+    g.userData = { pivotType: 'bogie', bogieId: id, wheelsets: [] };
+    rootGroup.add(g);
+    return g;
+  });
+
+  return { doors: [], steamRods, customBogies, customWheelsets };
+}
+
+export function trLocoExtBuildArticulatedSteam(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const deckY = layout.rail.zones.deckY;
+  const bodyTopY = layout.rail.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Split 23.2m Big Boy into oversized 12-wheel coal tender + cab + huge articulated boiler!
+  const tenderStartZ = -halfL + 0.25;
+  const tenderEndZ = tenderStartZ + 7.4;
+  const cabStartZ = tenderEndZ + 0.36;
+  const cabEndZ = cabStartZ + 2.45;
+  const smokeboxEndZ = halfL - 0.82;
+  const boilerLen = smokeboxEndZ - cabEndZ;
+  const boilerMidZ = (cabEndZ + smokeboxEndZ) * 0.5;
+  const boilerR = clamp(halfW * 0.66, 0.86, 1.08);
+  const boilerCenterY = deckY + boilerR + 0.42;
+
+  batcher.addBox(0, deckY - 0.14, (cabStartZ + halfL) * 0.5, 1.16, 0.38, halfL - cabStartZ - 0.25, { materialRole: 'chassisDark', layer: 'chassis' });
+  // Cowcatcher pilot & twin air-compressor shields on smokebox front
+  batcher.addBox(0, deckY - 0.18, halfL - 0.35, d.width * 0.92, 0.22, 0.56, { materialRole: 'chassisDark', layer: 'chassis' });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * 0.66, 0.52, halfL - 0.2, 1.32, 0.58, 0.08, { rotY: -side * 0.44, rotX: 0.22, materialRole: 'chassisDark', layer: 'chassis' });
+    batcher.addBox(side * (boilerR + 0.3), deckY + 0.16, boilerMidZ, 0.42, 0.09, boilerLen + 0.35, { materialRole: 'secondary', layer: 'body' });
+    // Front & rear articulated pairs of outside steam cylinders!
+    for (const cz of [smokeboxEndZ - 0.85, boilerMidZ - 0.65]) {
+      batcher.addCylinder(side * 1.18, 0.64, cz, 0.38, 0.38, 1.35, 12, 'z', 'secondary', 'detail');
+      batcher.addCylinder(side * 1.12, 1.04, cz, 0.25, 0.25, 1.2, 10, 'z', 'chassisDark', 'detail');
+    }
+  }
+
+  // Massive boiler, wide firebox, twin exhaust stacks & triple sand/steam domes
+  batcher.addCylinder(0, boilerCenterY, boilerMidZ, boilerR, boilerR, boilerLen, 18, 'z', 'primary', 'body');
+  batcher.addBox(0, boilerCenterY - 0.1, cabEndZ + 1.25, boilerR * 2.08, boilerR * 1.82, 2.5, { materialRole: 'primary', layer: 'body' });
+  const sbLen = 2.05;
+  const sbZ = smokeboxEndZ - sbLen * 0.5;
+  batcher.addCylinder(0, boilerCenterY, sbZ, boilerR + 0.03, boilerR + 0.03, sbLen, 18, 'z', 'secondary', 'body');
+  batcher.addCylinder(0, boilerCenterY, smokeboxEndZ + 0.12, boilerR * 0.48, boilerR * 0.95, 0.24, 14, 'z', 'secondary', 'body');
+
+  const topY = boilerCenterY + boilerR;
+  for (const sz of [sbZ + 0.32, sbZ - 0.32]) {
+    batcher.addCylinder(0, topY + 0.28, sz, 0.22, 0.19, 0.56, 10, 'y', 'secondary', 'detail');
+  }
+  for (const dz of [boilerMidZ + 2.1, boilerMidZ + 0.2, boilerMidZ - 1.9]) {
+    batcher.addCylinder(0, topY + 0.24, dz, 0.46, 0.54, 0.48, 12, 'y', 'primary', 'detail');
+  }
+
+  // Engineer Cab + Giant Centipede Coal Tender
+  const cabMidZ = (cabStartZ + cabEndZ) * 0.5;
+  const cabH = bodyTopY - deckY;
+  batcher.addBox(0, deckY + cabH * 0.42, cabMidZ, d.width * 0.96, cabH * 0.84, cabEndZ - cabStartZ, { materialRole: 'primary', layer: 'body' });
+  batcher.addBox(0, bodyTopY - 0.05, cabMidZ - 0.06, d.width * 1.0, 0.16, cabEndZ - cabStartZ + 0.4, { materialRole: 'secondary', layer: 'body' });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW * 0.96 + 0.01), bodyTopY - 0.58, cabMidZ, 0.05, 0.64, 1.45, { materialRole: glassRole, layer: 'glass' });
+  }
+  const tMidZ = (tenderStartZ + tenderEndZ) * 0.5;
+  const tLen = tenderEndZ - tenderStartZ;
+  const tH = Math.max(1.9, bodyTopY - deckY - 0.48);
+  batcher.addBox(0, deckY - 0.1, tMidZ, d.width * 0.96, 0.22, tLen, { materialRole: 'chassisDark', layer: 'chassis' });
+  batcher.addBox(0, deckY + tH * 0.5, tMidZ, d.width * 0.94, tH, tLen - 0.1, { materialRole: 'primary', layer: 'body' });
+  batcher.addBox(0, deckY + tH + 0.16, tMidZ + 0.3, d.width * 0.74, 0.45, tLen * 0.65, { materialRole: 'chassisDark', layer: 'detail' });
+
+  // Twin articulated driver sets (front 3 drivers + rear 3 drivers) + dual orbiting coupling rods!
+  const driverR = 0.62;
+  const frontSet = trLocoExtAddSteamDriversAndRods(rootGroup, layout, materialBundle, [boilerMidZ + 1.35, boilerMidZ + 2.75, boilerMidZ + 4.15], driverR, 'BigBoyFront');
+  const rearSet = trLocoExtAddSteamDriversAndRods(rootGroup, layout, materialBundle, [boilerMidZ - 3.65, boilerMidZ - 2.25, boilerMidZ - 0.85], driverR, 'BigBoyRear');
+
+  return {
+    doors: [],
+    steamRods: [...frontSet.steamRods, ...rearSet.steamRods],
+    customWheelsets: [...frontSet.customWheelsets, ...rearSet.customWheelsets]
+  };
+}
+
+export function trLocoExtBuildHeavyDiesel(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const deckY = layout.rail.zones.deckY;
+  const bodyTopY = layout.rail.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Heavy underframe sill, end anticlimber decks, giant central fuel tank & snowplow
+  batcher.addBox(0, deckY - 0.13, 0, d.width, 0.26, d.length, { materialRole: 'secondary', layer: 'chassis' });
+  batcher.addBox(0, deckY - 0.54, -0.35, d.width * 0.68, 0.66, clamp(cfg.railFuelTankLength || 5.6, 3.0, 6.8), {
+    materialRole: 'chassisDark',
+    layer: 'chassis'
+  });
+  batcher.addBox(0, deckY - 0.44, halfL - 0.22, d.width * 0.92, 0.44, 0.22, { materialRole: 'chassisDark', layer: 'chassis' });
+
+  // Modern North American Wide-Nose Safety Cab (full width!)
+  const noseEndZ = halfL - 0.82;
+  const cabEndZ = noseEndZ - 1.95;
+  const cabStartZ = cabEndZ - 2.65;
+  const cabH = bodyTopY - deckY;
+  const noseTopY = deckY + cabH * 0.56;
+
+  batcher.addLoftedSlices([
+    { z: cabEndZ, bottomY: deckY, beltY: noseTopY - 0.24, topY: noseTopY, hwBottom: halfW * 0.96, hwBelt: halfW * 0.94, hwTop: halfW * 0.86 },
+    { z: noseEndZ, bottomY: deckY, beltY: noseTopY - 0.34, topY: noseTopY - 0.14, hwBottom: halfW * 0.92, hwBelt: halfW * 0.84, hwTop: halfW * 0.64 }
+  ], 'primary', 'body');
+  batcher.addBox(0, deckY + cabH * 0.5, (cabStartZ + cabEndZ) * 0.5, d.width * 0.96, cabH, cabEndZ - cabStartZ, {
+    materialRole: 'primary',
+    layer: 'body'
+  });
+  batcher.addBox(0, bodyTopY - 0.06, (cabStartZ + cabEndZ) * 0.5, d.width * 0.92, 0.16, cabEndZ - cabStartZ + 0.12, {
+    materialRole: 'secondary',
+    layer: 'body'
+  });
+  for (const sx of [-0.62, 0.62]) {
+    batcher.addBox(sx, bodyTopY - 0.56, cabEndZ + 0.02, 1.02, 0.62, 0.08, { rotX: -0.14, materialRole: glassRole, layer: 'glass' });
+  }
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW * 0.96 + 0.01), bodyTopY - 0.56, (cabStartZ + cabEndZ) * 0.5, 0.05, 0.58, 1.68, { materialRole: glassRole, layer: 'glass' });
+  }
+
+  // Long engine hood + iconic GE/EMD Flared Rear Radiator Wings!
+  const hoodStartZ = -halfL + 0.85;
+  const hoodLen = cabStartZ - hoodStartZ;
+  const hoodMidZ = (hoodStartZ + cabStartZ) * 0.5;
+  const hoodW = d.width * 0.64;
+  const hoodH = cabH - 0.12;
+  batcher.addBox(0, deckY + hoodH * 0.5, hoodMidZ, hoodW, hoodH, hoodLen, { materialRole: 'primary', layer: 'body' });
+  // Flared radiator wings at rear third of hood
+  const radLen = Math.min(4.8, hoodLen * 0.42);
+  const radZ = hoodStartZ + radLen * 0.5 + 0.25;
+  batcher.addBox(0, deckY + hoodH - 0.42, radZ, d.width * 0.94, 0.72, radLen, { materialRole: 'secondary', layer: 'body' });
+  for (const fz of [radZ - 1.35, radZ, radZ + 1.35]) {
+    batcher.addCylinder(0, deckY + hoodH + 0.05, fz, 0.56, 0.58, 0.14, 12, 'y', 'utility', 'detail');
+  }
+  // Exhaust stack & side stripe along walkways
+  batcher.addBox(0, deckY + hoodH + 0.14, cabStartZ - 2.4, 0.46, 0.28, 0.92, { materialRole: 'chassisDark', layer: 'detail' });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW + 0.014), deckY - 0.02, 0, 0.024, 0.16, d.length * 0.96, { materialRole: 'livery', layer: 'body' });
+    if (cfg.railHandrails) {
+      batcher.addBox(side * (halfW - 0.06), deckY + 0.94, hoodMidZ, 0.03, 0.032, hoodLen + 0.4, { materialRole: 'livery', layer: 'detail' });
+      for (let p = 0; p < 7; p++) {
+        const pz = lerp(hoodStartZ, cabStartZ, p / 6);
+        batcher.addBox(side * (halfW - 0.06), deckY + 0.48, pz, 0.026, 0.94, 0.026, { materialRole: 'utility', layer: 'detail' });
+      }
+    }
+  }
+
+  return { doors: [] };
+}
+
+export function trLocoExtBuildBoxElectric(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const deckY = layout.rail.zones.deckY;
+  const bodyTopY = layout.rail.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Heavy riveted underframe & twin stepped GG1-inspired end noses
+  batcher.addBox(0, deckY - 0.13, 0, d.width, 0.26, d.length, { materialRole: 'secondary', layer: 'chassis' });
+  const bodyHalfL = halfL - 2.25;
+  const roofEaveY = bodyTopY - 0.26;
+  const bodyH = roofEaveY - deckY;
+  batcher.addBox(0, deckY + bodyH * 0.5, 0, d.width * 0.96, bodyH, bodyHalfL * 2, { materialRole: 'primary', layer: 'body' });
+
+  // Rounded streamlined roof arch
+  batcher.addLoftedSlices([
+    { z: -bodyHalfL, bottomY: roofEaveY - 0.02, beltY: lerp(roofEaveY, bodyTopY, 0.5), topY: bodyTopY, hwBottom: halfW * 0.96, hwBelt: halfW * 0.78, hwTop: halfW * 0.5 },
+    { z: bodyHalfL, bottomY: roofEaveY - 0.02, beltY: lerp(roofEaveY, bodyTopY, 0.5), topY: bodyTopY, hwBottom: halfW * 0.96, hwBelt: halfW * 0.78, hwTop: halfW * 0.5 }
+  ], 'secondary', 'body');
+
+  // Twin sloped classic end hoods & recessed cab windshields
+  const hoodH = bodyH * 0.64;
+  for (const endSign of [-1, 1]) {
+    const zIn = endSign * bodyHalfL;
+    const zOut = endSign * (halfL - 0.22);
+    const sIn = { z: zIn, bottomY: deckY, beltY: deckY + hoodH * 0.72, topY: deckY + hoodH, hwBottom: halfW * 0.92, hwBelt: halfW * 0.88, hwTop: halfW * 0.7 };
+    const sOut = { z: zOut, bottomY: deckY, beltY: deckY + hoodH * 0.56, topY: deckY + hoodH * 0.82, hwBottom: halfW * 0.82, hwBelt: halfW * 0.76, hwTop: halfW * 0.54 };
+    batcher.addLoftedSlices(endSign > 0 ? [sIn, sOut] : [sOut, sIn], 'primary', 'body');
+    for (const sx of [-0.54, 0.54]) {
+      batcher.addBox(sx, roofEaveY - 0.44, zIn + endSign * 0.02, 0.86, 0.58, 0.08, { materialRole: glassRole, layer: 'glass' });
+    }
+  }
+
+  // Classic gold cat-whisker pinstripes & porthole louver windows along sides
+  for (const side of [-1, 1]) {
+    for (const sy of [deckY + 0.34, deckY + 0.56]) {
+      batcher.addBox(side * (halfW * 0.96 + 0.015), sy, 0, 0.024, 0.08, bodyHalfL * 1.94, { materialRole: 'livery', layer: 'body' });
+    }
+    for (let i = 0; i < 5; i++) {
+      const wz = lerp(-bodyHalfL * 0.72, bodyHalfL * 0.72, i / 4);
+      batcher.addCylinder(side * (halfW * 0.96 + 0.01), deckY + bodyH * 0.62, wz, 0.28, 0.28, 0.06, 12, 'x', glassRole, 'glass');
+    }
+  }
+
+  // Twin articulated roof pantographs + ceramic busbar
+  batcher.addBox(0, bodyTopY + 0.07, 0, 0.08, 0.06, bodyHalfL * 1.6, { materialRole: 'livery', layer: 'detail' });
+  const pantographs = [];
+  for (const [idx, pz, dir] of [[0, bodyHalfL * 0.55, 1], [1, -bodyHalfL * 0.55, -1]]) {
+    const pGrp = trPartBuildPantographGroup(`box_${idx}`, 0, bodyTopY, pz, materialBundle, {
+      dir,
+      armLen: 0.94,
+      heightFactor: cfg.railPantographHeight ?? 0.88
+    });
+    rootGroup.add(pGrp);
+    pantographs.push(pGrp);
+  }
+
+  return { doors: [], pantographs };
+}

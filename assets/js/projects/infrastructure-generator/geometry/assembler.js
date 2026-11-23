@@ -12,6 +12,7 @@ import { geoBuildLevelCrossing, geoBuildRailEdge, geoBuildRailSwitch } from './r
 import { geoSweepEdge } from './sweeper.js';
 import { geoBuildSupport } from './support-mesh.js';
 import { geoBuildElevatedTransitEdge } from './suspended-mesh.js';
+import { geoBuildStationPreviewSigns } from './station-mesh.js';
 import { geoBuildTunnelEdge } from './tunnel-mesh.js';
 import { geoBuildUtilityEdge } from './utility-mesh.js';
 import { geoBuildWaterwayEdge } from './waterway-mesh.js';
@@ -21,7 +22,7 @@ export function infraBuildScene(doc, options = {}) {
 
   const solved = infraSolveNetwork(doc);
   const batcher = new InfraBatcher(128);
-  const collectors = { platforms: [], stairs: [], signals: [] };
+  const collectors = { platforms: [], stairs: [], signals: [], frameBoxes: [], supportBoxes: [] };
 
   // 1. Sweep all trimmed edges by domain/family
   for (const edge of doc?.edges || []) {
@@ -84,12 +85,14 @@ export function infraBuildScene(doc, options = {}) {
 
   // 3. Build grounded structural supports
   for (const supp of solved.supports || []) {
-    geoBuildSupport(batcher, supp);
+    geoBuildSupport(batcher, supp, collectors);
   }
 
   solved.platforms = collectors.platforms;
   solved.stairs = collectors.stairs;
   solved.signals = collectors.signals;
+  solved.frameBoxes = collectors.frameBoxes;
+  solved.supportBoxes = collectors.supportBoxes;
 
   const wearAvg = (doc?.edges || []).length
     ? doc.edges.reduce((acc, e) => acc + (Number(e.params?.wear) || 0.15), 0) / doc.edges.length
@@ -137,6 +140,10 @@ export function infraBuildScene(doc, options = {}) {
   }
 
   const blueprint = infraGenerateBlueprint(doc, solved, stats);
+  if (options.stationPreviewSigns !== false) {
+    const signs = geoBuildStationPreviewSigns([...collectors.platforms, ...collectors.stairs].flatMap((part) => part.signs || []));
+    if (signs) root.add(signs);
+  }
   root.userData = {
     blueprint,
     solved,

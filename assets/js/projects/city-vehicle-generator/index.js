@@ -6,6 +6,7 @@ import {
   STYLES,
   getStyle,
   isRailConfig,
+  isAirConfig,
   sanitiseConfig,
   applyPresetWithLocks
 } from './config.js';
@@ -18,6 +19,7 @@ import {
 import { createCityVehicle } from './geometry/vehicle.js';
 import { RAIL_DEFAULT_CONSISTS } from './transit/rail-archetypes.js';
 import { applyRailVehiclePose } from './transit/rail-vehicle.js';
+import { applyAirVehiclePose } from './air/air-vehicle.js';
 import { solveRailUnitOnRoute } from './transit/track-preview.js';
 import {
   addConsistUnit,
@@ -95,6 +97,13 @@ const trackState = {
   pantographRaised: true,
   activeRoute: null,
   lastTickMs: 0
+};
+
+const airState = {
+  rotorSpinning: true,
+  rotorSpinRad: 0,
+  hoverPreview: false,
+  doorsOpenPreview: false
 };
 
 const view = {
@@ -210,6 +219,7 @@ function vehAppPreferredStageForConfig(cfg) {
 function vehAppIsElectrifiedConfig(cfg) {
   const elecSet = new Set([
     'rail_electric_loco',
+    'rail_box_electric',
     'rail_highspeed_lead',
     'rail_highspeed_coach',
     'rail_historic_streetcar',
@@ -224,20 +234,27 @@ function vehAppIsElectrifiedConfig(cfg) {
 
 function vehAppSyncRailUI() {
   const inRail = studioMode === 'trainset' || isRailConfig(state);
+  const inAir = !inRail && isAirConfig(state);
   const railBar = $('#rail-preview-bar');
   if (railBar) railBar.hidden = !inRail;
+  const airBar = $('#air-preview-bar');
+  if (airBar) airBar.hidden = !inAir;
 
   const subBar = $('#transit-subfilters');
   if (subBar) subBar.hidden = categoryFilter !== 'transit_rail';
 
-  if (inRail && !vehAppIsRailEnv(view.environment) && view.environment !== 'studio' && view.environment !== 'none') {
+  if (inAir && view.environment !== 'helipad' && view.environment !== 'studio' && view.environment !== 'none') {
+    view.environment = 'helipad';
+    const envSel = $('#environment-select');
+    if (envSel) envSel.value = 'helipad';
+  } else if (inRail && !vehAppIsRailEnv(view.environment) && view.environment !== 'studio' && view.environment !== 'none') {
     view.environment = vehAppPreferredStageForConfig(state);
     if (view.environment === 'rail_straight' && vehAppIsRailEnv(trackState.mode)) {
       view.environment = trackState.mode;
     }
     const envSel = $('#environment-select');
     if (envSel) envSel.value = view.environment;
-  } else if (!inRail && vehAppIsRailEnv(view.environment)) {
+  } else if (!inRail && !inAir && (vehAppIsRailEnv(view.environment) || view.environment === 'helipad')) {
     view.environment = 'street';
     const envSel = $('#environment-select');
     if (envSel) envSel.value = 'street';
@@ -252,6 +269,11 @@ function vehAppSyncRailUI() {
   }
   const pantoToggle = $('#rail-panto-toggle');
   if (pantoToggle) pantoToggle.checked = Boolean(trackState.pantographRaised);
+  $('#btn-air-spin')?.classList.toggle('active', airState.rotorSpinning);
+  const airHoverEl = $('#air-hover-toggle');
+  if (airHoverEl) airHoverEl.checked = Boolean(airState.hoverPreview);
+  const airDoorsEl = $('#air-doors-toggle');
+  if (airDoorsEl) airDoorsEl.checked = Boolean(airState.doorsOpenPreview);
   const playBtn = $('#btn-track-play');
   if (playBtn) {
     playBtn.classList.toggle('active', trackState.playing);
@@ -458,6 +480,14 @@ function vehAppRefreshLivePose() {
         cabinSwingRad: cabinRad
       });
     }
+    return;
+  }
+  if (isAirConfig(state)) {
+    applyAirVehiclePose(vehicleRoot, {
+      rotorSpinRad: airState.rotorSpinning ? airState.rotorSpinRad : degToRad(state.airRotorSpinDeg || 0),
+      hoverHeight: airState.hoverPreview ? Math.max(1.8, state.airHoverHeight || 0) : clamp(state.airHoverHeight || 0, 0, 3.5),
+      doorOpenFactor: airState.doorsOpenPreview ? 1 : clamp(state.airDoorsOpen ?? 0, 0, 1)
+    });
     return;
   }
   if (isRailConfig(state)) {
@@ -935,6 +965,13 @@ async function initScene() {
         }
       }
 
+      if (studioMode === 'vehicle' && isAirConfig(state) && airState.rotorSpinning && vehicleRoot && dt > 0) {
+        airState.rotorSpinRad = (airState.rotorSpinRad + dt * 7.5) % (Math.PI * 2);
+        applyAirVehiclePose(vehicleRoot, {
+          rotorSpinRad: airState.rotorSpinRad
+        });
+      }
+
       if (orbit) {
         orbit.autoRotate = Boolean(view.autoRotate);
         orbit.autoRotateSpeed = 1.45;
@@ -1259,6 +1296,31 @@ function initUI() {
       vehAppRefreshLivePose();
     }
     if (activeTab === 'details') {
+      renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+    }
+  });
+
+  $('#btn-air-spin')?.addEventListener('click', () => {
+    airState.rotorSpinning = !airState.rotorSpinning;
+    vehAppSyncRailUI();
+    vehAppRefreshLivePose();
+  });
+
+  $('#air-hover-toggle')?.addEventListener('change', (e) => {
+    airState.hoverPreview = Boolean(e.target.checked);
+    state.airHoverHeight = airState.hoverPreview ? 1.8 : 0;
+    vehAppRefreshLivePose();
+    if (activeTab === 'wheels') {
+      renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+    }
+  });
+
+  $('#air-doors-toggle')?.addEventListener('change', (e) => {
+    airState.doorsOpenPreview = Boolean(e.target.checked);
+    state.airDoorsOpen = airState.doorsOpenPreview ? 1 : 0;
+    state.doorsOpen = airState.doorsOpenPreview;
+    vehAppRefreshLivePose();
+    if (activeTab === 'doors') {
       renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
     }
   });

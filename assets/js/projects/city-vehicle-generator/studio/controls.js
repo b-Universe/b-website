@@ -8,11 +8,13 @@ import {
   OPTIONS,
   SCHEMA,
   RAIL_SCHEMA,
+  AIR_SCHEMA,
   CATEGORIES,
   PALETTE_FAMILIES,
   getStyle,
   getArchetypeCategoryGroup,
   isRailConfig,
+  isAirConfig,
   sanitiseConfig
 } from '../config.js';
 import { generateCoherentPalette } from '../materials/palettes.js';
@@ -55,6 +57,13 @@ function ctrlBuildLockedToggle(key, locks, onToggle) {
 }
 
 function ctrlSchemaDefForKey(key, state = null) {
+  if (state && isAirConfig(state)) {
+    for (const rows of Object.values(AIR_SCHEMA)) {
+      for (const def of rows) {
+        if (def.key === key) return def;
+      }
+    }
+  }
   if (state && isRailConfig(state)) {
     for (const rows of Object.values(RAIL_SCHEMA)) {
       for (const def of rows) {
@@ -223,6 +232,7 @@ export function applySeedVariation(state, locks = new Set()) {
   const arch = getStyle(state.style);
   const presetBase = PRESETS[arch.preset] || PRESETS.sedan;
   const railMode = isRailConfig(state);
+  const airMode = isAirConfig(state);
 
   const setIfUnlocked = (key, val) => {
     if (!locks.has(key) && val !== undefined) {
@@ -232,7 +242,9 @@ export function applySeedVariation(state, locks = new Set()) {
 
   let chosenFamily = state.paletteFamily || presetBase.paletteFamily || 'civilian_neutrals';
   if (!locks.has('paletteFamily')) {
-    if (railMode) {
+    if (airMode) {
+      chosenFamily = pick(r, ['broadcast_news', 'bright_city', 'emergency_palette']);
+    } else if (railMode) {
       const freightOrHeavy = new Set([
         'rail_diesel_road_switcher',
         'rail_diesel_switcher',
@@ -259,6 +271,19 @@ export function applySeedVariation(state, locks = new Set()) {
     setIfUnlocked(k, v);
   }
   setIfUnlocked('colorVariation', ctrlSnapValue(0.04 + r() * 0.12, ctrlSchemaDefForKey('colorVariation', state)));
+
+  if (airMode) {
+    const airJitters = ['overallLength', 'overallWidth', 'overallHeight', 'airRotorDiameter'];
+    for (const key of airJitters) {
+      if (!locks.has(key)) {
+        const anchor = presetBase[key] !== undefined ? presetBase[key] : state[key];
+        ctrlApplyJitteredNumeric(state, key, anchor, r, 0.05);
+      }
+    }
+    const clean = sanitiseConfig(state);
+    Object.assign(state, clean);
+    return state;
+  }
 
   if (railMode) {
     const railJitters = ['overallLength', 'overallWidth', 'overallHeight', 'railDeckHeight', 'railWheelRadius'];
@@ -642,6 +667,7 @@ export function renderControls(tabId, container, state, locks, ctx) {
   }
 
   const railMode = isRailConfig(state);
+  const airMode = isAirConfig(state);
   if (railMode && ctx.studioMode === 'trainset') {
     const unitBanner = document.createElement('div');
     unitBanner.className = 'studio-control-group studio-field consist-editing-banner';
@@ -658,7 +684,9 @@ export function renderControls(tabId, container, state, locks, ctx) {
     container.appendChild(unitBanner);
   }
 
-  const rawRows = railMode && RAIL_SCHEMA[tabId] ? RAIL_SCHEMA[tabId] : (SCHEMA[tabId] || []);
+  const rawRows = airMode && AIR_SCHEMA[tabId]
+    ? AIR_SCHEMA[tabId]
+    : (railMode && RAIL_SCHEMA[tabId] ? RAIL_SCHEMA[tabId] : (SCHEMA[tabId] || []));
   const rows = railMode ? ctrlFilterRailRows(rawRows, state.bodyFamily) : rawRows;
   const materialOnlyKeys = new Set([
     ...CATEGORIES.materials,
@@ -671,7 +699,10 @@ export function renderControls(tabId, container, state, locks, ctx) {
     'railWheelSpinDeg',
     'railDoorsOpen',
     'railPantographHeight',
-    'railCabinSwingDeg'
+    'railCabinSwingDeg',
+    'airRotorSpinDeg',
+    'airHoverHeight',
+    'airDoorsOpen'
   ]);
 
   for (const item of rows) {

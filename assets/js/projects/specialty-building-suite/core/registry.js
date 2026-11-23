@@ -18,6 +18,7 @@ import {
 const FAMILY_MAP = new Map();
 const PRESET_MAP = new Map();
 const CATEGORY_MAP = new Map(BUILDING_CATEGORIES.map((c) => [c.id, c]));
+const parkingCountField = SHARED_SCHEMA_FIELDS.find((field) => field.key === 'parkingCount');
 
 function validId(list, value, fallback) {
   return list.some((item) => item.id === value) ? value : fallback;
@@ -121,7 +122,10 @@ export function getSchemaForFamily(familyId) {
     tab: f.tab || 'features',
     isFamilySpecific: true
   }));
-  return [...SHARED_SCHEMA_FIELDS, ...familyFields];
+  const sharedFields = fam?.maxParkingCount
+    ? SHARED_SCHEMA_FIELDS.map((field) => field === parkingCountField ? { ...field, max: fam.maxParkingCount } : field)
+    : SHARED_SCHEMA_FIELDS;
+  return [...sharedFields, ...familyFields];
 }
 
 export function buildDefaultSpecialtyConfig(familyId = 'gas_station', presetId = null) {
@@ -181,7 +185,7 @@ export function sanitiseSpecialtyConfig(rawCfg = {}) {
   merged.lotDepth = clamp(Math.max(merged.lotDepth, merged.depth + 2), 8, 88);
   merged.frontSetback = clamp(merged.frontSetback, 1.5, 24);
   merged.sideSetback = clamp(merged.sideSetback, 1.0, 18);
-  merged.parkingCount = clamp(Math.round(Number(merged.parkingCount) || 0), 0, 28);
+  merged.parkingCount = clamp(Math.round(Number(merged.parkingCount) || 0), 0, fam?.maxParkingCount ?? parkingCountField.max);
 
   merged.primaryColor = colorHex(merged.primaryColor, '#d9dfe6');
   merged.secondaryColor = colorHex(merged.secondaryColor, '#2c4a6e');

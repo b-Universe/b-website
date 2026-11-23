@@ -103,7 +103,9 @@ const ARCHETYPES = [
   { id: 'street_sweeper', label: 'Street Sweeper', icon: 'fa-broom', preset: 'street_sweeper', bodyFamily: 'van_monobox' },
   { id: 'double_decker_bus', label: 'Double-Decker Bus', icon: 'fa-bus', preset: 'double_decker_bus', bodyFamily: 'double_decker' },
   { id: 'armored_truck', label: 'Armored Bank Truck', icon: 'fa-shield-alt', preset: 'armored_truck', bodyFamily: 'van_monobox' },
-  { id: 'school_bus', label: 'City School Bus', icon: 'fa-bus-alt', preset: 'school_bus', bodyFamily: 'transit_bus' }
+  { id: 'school_bus', label: 'City School Bus', icon: 'fa-bus-alt', preset: 'school_bus', bodyFamily: 'transit_bus' },
+  { id: 'news_van', label: 'News Satellite Van', icon: 'fa-satellite-dish', preset: 'news_van', bodyFamily: 'van_monobox' },
+  { id: 'news_broadcast_truck', label: 'TV Broadcast Truck', icon: 'fa-tower-broadcast', preset: 'news_broadcast_truck', bodyFamily: 'cab_over_box' }
 ];
 
 const SILHOUETTE_PROFILES = {
@@ -3613,6 +3615,202 @@ const PRESET_DEFINITIONS = {
     busRouteSign: true,
     interiorDetail: true,
     signText: 'B District 12'
+  },
+  news_van: {
+    label: 'Live News Satellite Van',
+    style: 'news_van',
+    seed: 4401,
+    bodyFamily: 'van_monobox',
+    silhouetteFamily: 'tall_van',
+    overallLength: 5.45,
+    overallWidth: 2.02,
+    overallHeight: 2.38,
+    wheelbase: 3.38,
+    frontOverhang: 0.92,
+    rearOverhang: 1.15,
+    groundClearance: 0.22,
+    hoodLength: 0.88,
+    cabinLength: 2.25,
+    cargoLength: 2.32,
+    roofHeight: 0.96,
+    cabCargoSeparation: 0,
+    rooflineStyle: 'flat',
+    hoodSlope: 0.36,
+    windshieldAngle: 34,
+    rearWindowAngle: 8,
+    trunkLength: 0.14,
+    bodyTaper: 0.04,
+    cabinCurvature: 0.22,
+    fenderFlare: 0.05,
+    wheelArchSize: 0.09,
+    bodyBoxiness: 0.86,
+    frontFaceWidth: 0.92,
+    bodySideInset: 0.04,
+    roofRounding: 0.12,
+    cornerChamfer: 0.08,
+    wedgeProfile: 0.04,
+    doorLayout: '2_door',
+    slidingDoor: true,
+    busDoorPlacement: 'none',
+    rearCargoDoor: 'double_barn',
+    windshieldScale: 0.92,
+    sideWindowSegmentation: 1,
+    rearWindowScale: 0.65,
+    busWindowBays: 4,
+    vanPartialWindows: true,
+    windowTint: 0.45,
+    framelessWindows: false,
+    wraparoundGlass: false,
+    axleCount: 2,
+    dualRearWheels: false,
+    wheelRadius: 0.36,
+    wheelThickness: 0.23,
+    trackWidth: 1.76,
+    rimInset: 0.05,
+    hubcapStyle: 'steelie',
+    spokeCount: 5,
+    wheelArchHeight: 0.44,
+    frontAxleOffset: 0,
+    rearAxleOffset: 0,
+    bumperStyle: 'utility',
+    grilleStyle: 'slatted',
+    headlightStyle: 'square',
+    taillightStyle: 'vertical',
+    mirrorStyle: 'wide_truck',
+    sideTrim: 'rub_strip',
+    mudguards: true,
+    sideSteps: true,
+    exhaustStyle: 'single',
+    licensePlates: true,
+    antennaCount: 2,
+    paletteFamily: 'broadcast_news',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#edf2f7',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#1a3a6c',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1f252e',
+    bumperMaterial: 'plastic_trim',
+    bumperColor: '#222831',
+    wheelRimMaterial: 'chrome_metal',
+    wheelRimColor: '#b7c2cc',
+    tireMaterial: 'dark_rubber',
+    tireColor: '#171b20',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#20364c',
+    utilityMaterial: 'chrome_metal',
+    utilityColor: '#cdd6df',
+    liveryStripeColor: '#e0362e',
+    colorVariation: 0.04,
+    wearLevel: 'clean',
+    roleVariant: 'news_media',
+    taxiSign: false,
+    lightBar: 'amber_work_bar',
+    roofRack: 'satellite_dish',
+    frontAttachment: 'none',
+    rearAttachment: 'rear_ladder',
+    sideUtility: 'news_branding',
+    busRouteSign: false,
+    interiorDetail: true,
+    signText: 'CHANNEL 4 NEWS'
+  },
+  news_broadcast_truck: {
+    label: 'Mobile TV Broadcast Truck',
+    style: 'news_broadcast_truck',
+    seed: 4408,
+    bodyFamily: 'cab_over_box',
+    silhouetteFamily: 'rigid_utility_truck',
+    overallLength: 7.65,
+    overallWidth: 2.38,
+    overallHeight: 3.18,
+    wheelbase: 4.55,
+    frontOverhang: 1.25,
+    rearOverhang: 1.85,
+    groundClearance: 0.32,
+    hoodLength: 0.56,
+    cabinLength: 1.78,
+    cargoLength: 5.2,
+    roofHeight: 1.12,
+    cabCargoSeparation: 0.11,
+    rooflineStyle: 'flat',
+    hoodSlope: 0.16,
+    windshieldAngle: 14,
+    rearWindowAngle: 4,
+    trunkLength: 0.12,
+    bodyTaper: 0.03,
+    cabinCurvature: 0.14,
+    fenderFlare: 0.06,
+    wheelArchSize: 0.1,
+    bodyBoxiness: 0.94,
+    frontFaceWidth: 0.94,
+    bodySideInset: 0.03,
+    roofRounding: 0.08,
+    cornerChamfer: 0.06,
+    wedgeProfile: 0.02,
+    doorLayout: '2_door',
+    slidingDoor: false,
+    busDoorPlacement: 'none',
+    rearCargoDoor: 'roll_up',
+    windshieldScale: 0.92,
+    sideWindowSegmentation: 1,
+    rearWindowScale: 0.4,
+    busWindowBays: 4,
+    vanPartialWindows: false,
+    windowTint: 0.42,
+    framelessWindows: false,
+    wraparoundGlass: false,
+    axleCount: 2,
+    dualRearWheels: true,
+    wheelRadius: 0.44,
+    wheelThickness: 0.25,
+    trackWidth: 1.98,
+    rimInset: 0.06,
+    hubcapStyle: 'heavy_lug',
+    spokeCount: 6,
+    wheelArchHeight: 0.52,
+    frontAxleOffset: 0,
+    rearAxleOffset: 0,
+    bumperStyle: 'heavy_duty',
+    grilleStyle: 'heavy_mesh',
+    headlightStyle: 'square',
+    taillightStyle: 'vertical',
+    mirrorStyle: 'wide_truck',
+    sideTrim: 'rub_strip',
+    mudguards: true,
+    sideSteps: true,
+    exhaustStyle: 'single',
+    licensePlates: true,
+    antennaCount: 2,
+    paletteFamily: 'broadcast_news',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#1b3158',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#eef3f8',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1d232b',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#363d46',
+    wheelRimMaterial: 'chrome_metal',
+    wheelRimColor: '#bcc6d0',
+    tireMaterial: 'dark_rubber',
+    tireColor: '#171b20',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#1e344a',
+    utilityMaterial: 'chrome_metal',
+    utilityColor: '#cdd6df',
+    liveryStripeColor: '#e6392e',
+    colorVariation: 0.04,
+    wearLevel: 'clean',
+    roleVariant: 'news_media',
+    taxiSign: false,
+    lightBar: 'amber_work_bar',
+    roofRack: 'broadcast_array',
+    frontAttachment: 'bumper_guards',
+    rearAttachment: 'rear_ladder',
+    sideUtility: 'news_branding',
+    busRouteSign: false,
+    interiorDetail: true,
+    signText: 'LIVE NEWS HQ'
   }
 };
 
@@ -4304,6 +4502,94 @@ const RAIL_ARCHETYPES = [
     categoryGroup: 'monorails_aerial',
     shortClass: 'Gondola',
     description: 'Glass alpine & urban cableway cabin with swept steel suspension arm and detachable overhead haul-rope grip.'
+  },
+  {
+    id: 'tank_steam_locomotive',
+    label: 'Branchline Tank Engine',
+    icon: 'fa-fire',
+    preset: 'tank_steam_locomotive',
+    bodyFamily: 'rail_tank_steam',
+    vehicleDomain: 'rail',
+    categoryGroup: 'locomotives',
+    shortClass: 'Tank Steam',
+    description: 'Compact 0-6-0 side-tank steam locomotive with flanking water tanks, brass steam dome, rear coal bunker, and coupling rods.'
+  },
+  {
+    id: 'articulated_steam_loco',
+    label: 'Articulated Heavy Steam',
+    icon: 'fa-fire-flame-curved',
+    preset: 'articulated_steam_loco',
+    bodyFamily: 'rail_articulated_steam',
+    vehicleDomain: 'rail',
+    categoryGroup: 'locomotives',
+    shortClass: 'Heavy Steam',
+    description: 'Massive Big Boy / Mallet articulated mountain freight steam locomotive with twin driver sets, dual rods, and long coal tender.'
+  },
+  {
+    id: 'heavy_freight_diesel',
+    label: 'Wide-Cab Heavy Diesel',
+    icon: 'fa-train',
+    preset: 'heavy_freight_diesel',
+    bodyFamily: 'rail_heavy_diesel',
+    vehicleDomain: 'rail',
+    categoryGroup: 'locomotives',
+    shortClass: 'Heavy Diesel',
+    description: 'Modern wide-nose North American heavy-haul freight locomotive with flared radiator wings, C-C trucks, and safety stripes.'
+  },
+  {
+    id: 'historic_box_electric',
+    label: 'Historic Box-Cab Electric',
+    icon: 'fa-bolt',
+    preset: 'historic_box_electric',
+    bodyFamily: 'rail_box_electric',
+    vehicleDomain: 'rail',
+    categoryGroup: 'locomotives',
+    shortClass: 'Box Electric',
+    description: 'Classic riveted steel box-cab electric locomotive with end porches, porthole windows, and twin diamond pantographs.'
+  },
+  {
+    id: 'rail_dining_car',
+    label: 'Luxury Dining Car',
+    icon: 'fa-utensils',
+    preset: 'rail_dining_car',
+    bodyFamily: 'rail_dining_coach',
+    vehicleDomain: 'rail',
+    categoryGroup: 'passenger_rail',
+    shortClass: 'Dining Car',
+    description: 'Heritage intercity dining coach with wide panoramic windows, warm interior dining tables, kitchen vents, and gold pinstripes.'
+  },
+  {
+    id: 'rail_sleeper_car',
+    label: 'Overnight Sleeper Coach',
+    icon: 'fa-bed',
+    preset: 'rail_sleeper_car',
+    bodyFamily: 'rail_sleeper_coach',
+    vehicleDomain: 'rail',
+    categoryGroup: 'passenger_rail',
+    shortClass: 'Sleeper Car',
+    description: 'Long-distance overnight sleeper car with private compartment window bays, upper/lower bunk interiors, and vestibule doors.'
+  },
+  {
+    id: 'freight_auto_rack',
+    label: 'Bi-Level Auto-Rack Car',
+    icon: 'fa-car-side',
+    preset: 'freight_auto_rack',
+    bodyFamily: 'rail_freight_autorack',
+    vehicleDomain: 'rail',
+    categoryGroup: 'freight_rail',
+    shortClass: 'Auto-Rack',
+    description: 'Tall enclosed bi-level automobile carrier with slatted steel side screens revealing two decks of stacked vehicles inside.'
+  },
+  {
+    id: 'freight_double_stack',
+    label: 'Double-Stack Well Car',
+    icon: 'fa-cubes-stacked',
+    preset: 'freight_double_stack',
+    bodyFamily: 'rail_freight_wellcar',
+    vehicleDomain: 'rail',
+    categoryGroup: 'freight_rail',
+    shortClass: 'Well Car',
+    description: 'Deep depressed-center intermodal well car carrying two stacked 40ft corrugated ISO shipping containers.'
   }
 ];
 
@@ -4313,9 +4599,15 @@ const RAIL_SILHOUETTE_PROFILES = {
   electric_loco: { label: 'Dual-Cab Electric', boxiness: 0.82, taper: 0.06, curvature: 0.18 },
   streamlined_diesel: { label: 'Streamlined Bulldog', boxiness: 0.54, taper: 0.14, curvature: 0.42 },
   steam_locomotive: { label: 'Pacific Steam Loco', boxiness: 0.46, taper: 0.08, curvature: 0.5 },
+  tank_steam: { label: '0-6-0 Tank Engine', boxiness: 0.52, taper: 0.06, curvature: 0.44 },
+  articulated_steam: { label: 'Articulated Big Steam', boxiness: 0.44, taper: 0.08, curvature: 0.52 },
+  heavy_freight_diesel: { label: 'Wide-Cab Heavy Diesel', boxiness: 0.84, taper: 0.06, curvature: 0.16 },
+  box_electric: { label: 'Historic Box-Cab Electric', boxiness: 0.88, taper: 0.04, curvature: 0.16 },
   maintenance_work: { label: 'Work & Crane Railcar', boxiness: 0.9, taper: 0.03, curvature: 0.1 },
   bullet_highspeed: { label: 'Aerodynamic Bullet', boxiness: 0.28, taper: 0.28, curvature: 0.58 },
   passenger_coach: { label: 'Regional Passenger Coach', boxiness: 0.72, taper: 0.03, curvature: 0.24 },
+  dining_coach: { label: 'Luxury Dining Coach', boxiness: 0.7, taper: 0.03, curvature: 0.26 },
+  sleeper_coach: { label: 'Overnight Sleeper Car', boxiness: 0.74, taper: 0.03, curvature: 0.22 },
   bilevel_commuter: { label: 'Double-Decker Commuter', boxiness: 0.78, taper: 0.04, curvature: 0.2 },
   dome_observation: { label: 'Vista-Dome Observation', boxiness: 0.68, taper: 0.03, curvature: 0.3 },
   subway_classic: { label: 'Classic Stainless Subway', boxiness: 0.86, taper: 0.02, curvature: 0.16 },
@@ -4329,6 +4621,8 @@ const RAIL_SILHOUETTE_PROFILES = {
   freight_tank_car: { label: 'Cylindrical Tank Wagon', boxiness: 0.45, taper: 0.02, curvature: 0.55 },
   freight_hopper: { label: 'Ribbed Open Hopper', boxiness: 0.88, taper: 0.08, curvature: 0.12 },
   freight_caboose: { label: 'Cupola Caboose', boxiness: 0.9, taper: 0.02, curvature: 0.12 },
+  freight_autorack: { label: 'Bi-Level Auto-Rack', boxiness: 0.95, taper: 0.01, curvature: 0.06 },
+  freight_wellcar: { label: 'Double-Stack Well Car', boxiness: 0.96, taper: 0.01, curvature: 0.05 },
   straddle_monorail: { label: 'Straddle-Beam Monorail', boxiness: 0.56, taper: 0.12, curvature: 0.4 },
   suspended_monorail: { label: 'Suspended Skytrain', boxiness: 0.62, taper: 0.1, curvature: 0.35 },
   aerial_gondola: { label: 'Panoramic Gondola Cabin', boxiness: 0.48, taper: 0.14, curvature: 0.46 }
@@ -6011,6 +6305,526 @@ const RAIL_PRESET_DEFINITIONS = {
     emergencyLightsLit: true,
     beaconFlash: false,
     signText: 'SKYLINE GOND-12'
+  },
+  tank_steam_locomotive: {
+    label: 'Branchline 0-6-0 Tank Engine',
+    style: 'tank_steam_locomotive',
+    seed: 1924,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_tank_steam',
+    silhouetteFamily: 'tank_steam',
+    overallLength: 10.6,
+    overallWidth: 2.86,
+    overallHeight: 4.18,
+    railDeckHeight: 1.32,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'loco_heavy',
+    railBogieAxles: 2,
+    railBogieSpacing: 5.4,
+    railBogieWheelbase: 1.7,
+    railWheelRadius: 0.56,
+    railCouplerType: 'aar_knuckle',
+    railGangways: false,
+    railCabPosition: 'rear',
+    railNoseLength: 1.2,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.62,
+    railFuelTankLength: 2.0,
+    railTankDiameter: 2.0,
+    railCargoType: 'none',
+    railDoorStyle: 'cab_hinged',
+    railDoorsOpen: 0,
+    railWindowCount: 2,
+    railRoofEquipment: 'none',
+    railLiveryPattern: 'two_tone_stripe',
+    railHandrails: true,
+    railUnitNumber: 'TANK-57',
+    railRouteBullet: '',
+    railPantographHeight: 0,
+    railCabinSwingDeg: 0,
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'retro_city',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#1e649c',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#1c2026',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1b1f25',
+    bumperMaterial: 'painted_metal',
+    bumperColor: '#b52b28',
+    wheelRimMaterial: 'painted_metal',
+    wheelRimColor: '#b52b28',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#b4bec8',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#25394a',
+    utilityMaterial: 'chrome_metal',
+    utilityColor: '#d9a93a',
+    liveryStripeColor: '#e5b83b',
+    colorVariation: 0.04,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: false,
+    beaconFlash: false,
+    signText: 'NO. 57'
+  },
+  articulated_steam_loco: {
+    label: 'Articulated Heavy Steam (Big Boy)',
+    style: 'articulated_steam_loco',
+    seed: 4014,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_articulated_steam',
+    silhouetteFamily: 'articulated_steam',
+    overallLength: 23.2,
+    overallWidth: 3.16,
+    overallHeight: 4.72,
+    railDeckHeight: 1.46,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'loco_heavy',
+    railBogieAxles: 3,
+    railBogieSpacing: 15.8,
+    railBogieWheelbase: 2.8,
+    railWheelRadius: 0.62,
+    railCouplerType: 'aar_knuckle',
+    railGangways: false,
+    railCabPosition: 'rear',
+    railNoseLength: 1.5,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.66,
+    railFuelTankLength: 3.0,
+    railTankDiameter: 2.4,
+    railCargoType: 'none',
+    railDoorStyle: 'cab_hinged',
+    railDoorsOpen: 0,
+    railWindowCount: 2,
+    railRoofEquipment: 'none',
+    railLiveryPattern: 'solid',
+    railHandrails: true,
+    railUnitNumber: '4014',
+    railRouteBullet: '',
+    railPantographHeight: 0,
+    railCabinSwingDeg: 0,
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'muted_industrial',
+    bodyPrimaryMaterial: 'matte_body',
+    bodyPrimaryColor: '#20242a',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#2c3138',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#171a1f',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#363c44',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#484f59',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#b5bfc9',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#223344',
+    utilityMaterial: 'chrome_metal',
+    utilityColor: '#c2cbd4',
+    liveryStripeColor: '#e0b648',
+    colorVariation: 0.04,
+    wearLevel: 'worn',
+    roleVariant: 'delivery',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: false,
+    beaconFlash: false,
+    signText: 'BIG BOY 4014'
+  },
+  heavy_freight_diesel: {
+    label: 'Wide-Cab Heavy-Haul Diesel',
+    style: 'heavy_freight_diesel',
+    seed: 7090,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_heavy_diesel',
+    silhouetteFamily: 'heavy_freight_diesel',
+    overallLength: 20.6,
+    overallWidth: 3.12,
+    overallHeight: 4.58,
+    railDeckHeight: 1.38,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'loco_heavy',
+    railBogieAxles: 3,
+    railBogieSpacing: 12.2,
+    railBogieWheelbase: 3.85,
+    railWheelRadius: 0.52,
+    railCouplerType: 'aar_knuckle',
+    railGangways: false,
+    railCabPosition: 'forward',
+    railNoseLength: 2.35,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.68,
+    railFuelTankLength: 5.6,
+    railTankDiameter: 2.2,
+    railCargoType: 'none',
+    railDoorStyle: 'cab_hinged',
+    railDoorsOpen: 0,
+    railWindowCount: 2,
+    railRoofEquipment: 'diesel_radiator',
+    railLiveryPattern: 'two_tone_stripe',
+    railHandrails: true,
+    railUnitNumber: 'UP-8842',
+    railRouteBullet: '',
+    railPantographHeight: 0,
+    railCabinSwingDeg: 0,
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'construction_yellow',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#e2a824',
+    bodySecondaryMaterial: 'matte_body',
+    bodySecondaryColor: '#3b424c',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1e232a',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#2c3138',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#56606b',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#9da7b2',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#1e3244',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#6f7883',
+    liveryStripeColor: '#c9332b',
+    colorVariation: 0.04,
+    wearLevel: 'clean',
+    roleVariant: 'delivery',
+    lightBar: 'amber_work_bar',
+    headlightsLit: true,
+    emergencyLightsLit: false,
+    beaconFlash: false,
+    signText: 'UP-8842'
+  },
+  historic_box_electric: {
+    label: 'Historic Box-Cab Electric Loco',
+    style: 'historic_box_electric',
+    seed: 1936,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_box_electric',
+    silhouetteFamily: 'box_electric',
+    overallLength: 18.4,
+    overallWidth: 3.04,
+    overallHeight: 4.24,
+    railDeckHeight: 1.34,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'loco_heavy',
+    railBogieAxles: 3,
+    railBogieSpacing: 10.6,
+    railBogieWheelbase: 3.5,
+    railWheelRadius: 0.52,
+    railCouplerType: 'aar_knuckle',
+    railGangways: false,
+    railCabPosition: 'center',
+    railNoseLength: 2.2,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.72,
+    railFuelTankLength: 3.6,
+    railTankDiameter: 2.2,
+    railCargoType: 'none',
+    railDoorStyle: 'cab_hinged',
+    railDoorsOpen: 0,
+    railWindowCount: 4,
+    railRoofEquipment: 'none',
+    railLiveryPattern: 'two_tone_stripe',
+    railHandrails: true,
+    railUnitNumber: 'GG-4876',
+    railRouteBullet: '',
+    railPantographHeight: 0.88,
+    railCabinSwingDeg: 0,
+    railPowered: true,
+    railInteriorEnabled: true,
+    paletteFamily: 'retro_city',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#254236',
+    bodySecondaryMaterial: 'matte_body',
+    bodySecondaryColor: '#1e252c',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1a1f24',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#363d46',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#58626e',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#a4aeb8',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#233647',
+    utilityMaterial: 'chrome_metal',
+    utilityColor: '#b9c4cf',
+    liveryStripeColor: '#e2b542',
+    colorVariation: 0.03,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: true,
+    emergencyLightsLit: false,
+    beaconFlash: false,
+    signText: 'GG-4876'
+  },
+  rail_dining_car: {
+    label: 'Luxury Heritage Dining Car',
+    style: 'rail_dining_car',
+    seed: 5510,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_dining_coach',
+    silhouetteFamily: 'dining_coach',
+    overallLength: 19.6,
+    overallWidth: 3.04,
+    overallHeight: 4.18,
+    railDeckHeight: 1.22,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'passenger_coil',
+    railBogieAxles: 2,
+    railBogieSpacing: 13.4,
+    railBogieWheelbase: 2.55,
+    railWheelRadius: 0.45,
+    railCouplerType: 'aar_knuckle',
+    railGangways: true,
+    railCabPosition: 'forward',
+    railNoseLength: 1.4,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.65,
+    railFuelTankLength: 3.2,
+    railTankDiameter: 2.2,
+    railCargoType: 'none',
+    railDoorStyle: 'sliding_plug',
+    railDoorsOpen: 0,
+    railWindowCount: 7,
+    railRoofEquipment: 'hvac_twin',
+    railLiveryPattern: 'window_band',
+    railHandrails: true,
+    railUnitNumber: 'DINER-88',
+    railRouteBullet: '',
+    railPantographHeight: 0,
+    railCabinSwingDeg: 0,
+    railPowered: false,
+    railInteriorEnabled: true,
+    paletteFamily: 'passenger_rail',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#7a2530',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#e8dfcd',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#252a32',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#363d46',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#66717d',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#a8b3be',
+    glassMaterial: 'reflective_glass',
+    glassColor: '#3a576d',
+    utilityMaterial: 'chrome_metal',
+    utilityColor: '#c8d1da',
+    liveryStripeColor: '#e2b542',
+    colorVariation: 0.03,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: false,
+    emergencyLightsLit: false,
+    beaconFlash: false,
+    signText: 'GRAND DINING CAR'
+  },
+  rail_sleeper_car: {
+    label: 'Overnight Express Sleeper Car',
+    style: 'rail_sleeper_car',
+    seed: 5520,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_sleeper_coach',
+    silhouetteFamily: 'sleeper_coach',
+    overallLength: 19.6,
+    overallWidth: 3.04,
+    overallHeight: 4.18,
+    railDeckHeight: 1.22,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'passenger_coil',
+    railBogieAxles: 2,
+    railBogieSpacing: 13.4,
+    railBogieWheelbase: 2.55,
+    railWheelRadius: 0.45,
+    railCouplerType: 'aar_knuckle',
+    railGangways: true,
+    railCabPosition: 'forward',
+    railNoseLength: 1.4,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.65,
+    railFuelTankLength: 3.2,
+    railTankDiameter: 2.2,
+    railCargoType: 'none',
+    railDoorStyle: 'sliding_plug',
+    railDoorsOpen: 0,
+    railWindowCount: 8,
+    railRoofEquipment: 'hvac_twin',
+    railLiveryPattern: 'window_band',
+    railHandrails: true,
+    railUnitNumber: 'SLEEP-42',
+    railRouteBullet: '',
+    railPantographHeight: 0,
+    railCabinSwingDeg: 0,
+    railPowered: false,
+    railInteriorEnabled: true,
+    paletteFamily: 'passenger_rail',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#1f365c',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#d9e0e8',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#1b222c',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#323a44',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#64707c',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#a6b1bc',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#233b52',
+    utilityMaterial: 'chrome_metal',
+    utilityColor: '#c3ccd6',
+    liveryStripeColor: '#d8b24c',
+    colorVariation: 0.03,
+    wearLevel: 'clean',
+    roleVariant: 'transit',
+    lightBar: 'none',
+    headlightsLit: false,
+    emergencyLightsLit: false,
+    beaconFlash: false,
+    signText: 'NIGHT EXPRESS'
+  },
+  freight_auto_rack: {
+    label: 'Bi-Level Auto-Rack Carrier',
+    style: 'freight_auto_rack',
+    seed: 6410,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_freight_autorack',
+    silhouetteFamily: 'freight_autorack',
+    overallLength: 20.4,
+    overallWidth: 3.12,
+    overallHeight: 4.88,
+    railDeckHeight: 1.08,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'freight_2axle',
+    railBogieAxles: 2,
+    railBogieSpacing: 14.4,
+    railBogieWheelbase: 2.15,
+    railWheelRadius: 0.44,
+    railCouplerType: 'aar_knuckle',
+    railGangways: false,
+    railCabPosition: 'forward',
+    railNoseLength: 1.2,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.6,
+    railFuelTankLength: 2.4,
+    railTankDiameter: 2.0,
+    railCargoType: 'none',
+    railDoorStyle: 'none',
+    railDoorsOpen: 0,
+    railWindowCount: 4,
+    railRoofEquipment: 'none',
+    railLiveryPattern: 'solid',
+    railHandrails: true,
+    railUnitNumber: 'TTX-9420',
+    railRouteBullet: '',
+    railPantographHeight: 0,
+    railCabinSwingDeg: 0,
+    railPowered: false,
+    railInteriorEnabled: true,
+    paletteFamily: 'construction_yellow',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#d9a426',
+    bodySecondaryMaterial: 'matte_body',
+    bodySecondaryColor: '#48505a',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#252a32',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#363d46',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#56606b',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#98a3ae',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#233647',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#76808a',
+    liveryStripeColor: '#1f252c',
+    colorVariation: 0.04,
+    wearLevel: 'worn',
+    roleVariant: 'delivery',
+    lightBar: 'none',
+    headlightsLit: false,
+    emergencyLightsLit: false,
+    beaconFlash: false,
+    signText: 'TTX-9420'
+  },
+  freight_double_stack: {
+    label: 'Double-Stack Intermodal Well Car',
+    style: 'freight_double_stack',
+    seed: 6420,
+    vehicleDomain: 'rail',
+    bodyFamily: 'rail_freight_wellcar',
+    silhouetteFamily: 'freight_wellcar',
+    overallLength: 17.8,
+    overallWidth: 3.04,
+    overallHeight: 4.92,
+    railDeckHeight: 1.06,
+    railTrackGauge: 'standard_1435',
+    railBogieStyle: 'freight_2axle',
+    railBogieAxles: 2,
+    railBogieSpacing: 13.6,
+    railBogieWheelbase: 2.15,
+    railWheelRadius: 0.44,
+    railCouplerType: 'aar_knuckle',
+    railGangways: false,
+    railCabPosition: 'forward',
+    railNoseLength: 1.2,
+    railNoseSlope: 'low_sloped',
+    railHoodWidthRatio: 0.6,
+    railFuelTankLength: 2.4,
+    railTankDiameter: 2.0,
+    railCargoType: 'containers_double_20',
+    railDoorStyle: 'none',
+    railDoorsOpen: 0,
+    railWindowCount: 4,
+    railRoofEquipment: 'none',
+    railLiveryPattern: 'solid',
+    railHandrails: true,
+    railUnitNumber: 'DTTX-720',
+    railRouteBullet: '',
+    railPantographHeight: 0,
+    railCabinSwingDeg: 0,
+    railPowered: false,
+    railInteriorEnabled: false,
+    paletteFamily: 'freight_rail',
+    bodyPrimaryMaterial: 'painted_metal',
+    bodyPrimaryColor: '#c48625',
+    bodySecondaryMaterial: 'painted_metal',
+    bodySecondaryColor: '#22598c',
+    trimMaterial: 'plastic_trim',
+    trimColor: '#252a32',
+    bumperMaterial: 'utility_metal',
+    bumperColor: '#363d46',
+    wheelRimMaterial: 'utility_metal',
+    wheelRimColor: '#56606b',
+    tireMaterial: 'chrome_metal',
+    tireColor: '#98a3ae',
+    glassMaterial: 'tinted_glass',
+    glassColor: '#233647',
+    utilityMaterial: 'utility_metal',
+    utilityColor: '#6f7883',
+    liveryStripeColor: '#c43b30',
+    colorVariation: 0.04,
+    wearLevel: 'worn',
+    roleVariant: 'delivery',
+    lightBar: 'none',
+    headlightsLit: false,
+    emergencyLightsLit: false,
+    beaconFlash: false,
+    signText: 'DTTX-720'
   }
 };
 
@@ -6084,10 +6898,23 @@ const RAIL_OPTIONS = {
   ]
 };
 
-const trArchLocos = ['rail_diesel_road_switcher', 'rail_diesel_switcher', 'rail_electric_loco', 'rail_streamlined_diesel', 'rail_steam_loco', 'rail_maintenance'];
+const trArchLocos = [
+  'rail_diesel_road_switcher',
+  'rail_diesel_switcher',
+  'rail_electric_loco',
+  'rail_streamlined_diesel',
+  'rail_steam_loco',
+  'rail_tank_steam',
+  'rail_articulated_steam',
+  'rail_heavy_diesel',
+  'rail_box_electric',
+  'rail_maintenance'
+];
 const trArchDieselHoods = ['rail_diesel_road_switcher', 'rail_diesel_switcher'];
 const trArchPassengers = [
   'rail_passenger_coach',
+  'rail_dining_coach',
+  'rail_sleeper_coach',
   'rail_highspeed_lead',
   'rail_highspeed_coach',
   'rail_bilevel_coach',
@@ -6102,7 +6929,7 @@ const trArchPassengers = [
   'rail_suspended_monorail',
   'rail_aerial_gondola'
 ];
-const trArchPantographs = ['rail_electric_loco', 'rail_highspeed_lead', 'rail_highspeed_coach', 'rail_articulated_tram'];
+const trArchPantographs = ['rail_electric_loco', 'rail_box_electric', 'rail_highspeed_lead', 'rail_highspeed_coach', 'rail_articulated_tram'];
 const trArchRouteBullets = ['rail_subway_classic', 'rail_metro_modern', 'rail_people_mover', 'rail_highspeed_lead', 'rail_historic_streetcar', 'rail_articulated_tram', 'rail_straddle_monorail', 'rail_suspended_monorail', 'rail_aerial_gondola'];
 const trArchSuspended = ['rail_suspended_monorail', 'rail_aerial_gondola'];
 const trArchFreightDoor = ['rail_freight_boxcar'];
@@ -6370,6 +7197,60 @@ const RAIL_DEFAULT_CONSISTS = {
       { preset: 'suspended_monorail', reversed: false, overrides: { railUnitNumber: 'SKY-07' } },
       { preset: 'suspended_monorail', reversed: true, overrides: { railUnitNumber: 'SKY-08' } }
     ]
+  },
+  big_boy_heavy_steam: {
+    id: 'big_boy_heavy_steam',
+    name: 'Big Boy Mountain Steam Freight',
+    description: 'Articulated heavy steam locomotive hauling coal hopper, boxcar, tank car, and cupola caboose.',
+    sharedLivery: false,
+    couplingGap: 0.18,
+    units: [
+      { preset: 'articulated_steam_loco', reversed: false, overrides: { railUnitNumber: '4014' } },
+      { preset: 'freight_hopper_car', reversed: false, overrides: { railHopperCargo: 'coal_heap', railUnitNumber: 'UP-6102' } },
+      { preset: 'freight_boxcar', reversed: false, overrides: { railUnitNumber: 'UP-4410' } },
+      { preset: 'freight_tank_car', reversed: false, overrides: { railUnitNumber: 'UTLX-804' } },
+      { preset: 'freight_caboose', reversed: false, overrides: { railUnitNumber: 'UP-2504' } }
+    ]
+  },
+  luxury_overnight_express: {
+    id: 'luxury_overnight_express',
+    name: 'Luxury Overnight Electric Express',
+    description: 'Historic box-cab electric locomotive pulling Grand Dining, Vista-Dome, and overnight Sleeper cars.',
+    sharedLivery: false,
+    couplingGap: 0.14,
+    units: [
+      { preset: 'historic_box_electric', reversed: false, overrides: { railUnitNumber: 'GG-4876' } },
+      { preset: 'rail_dining_car', reversed: false, overrides: { railUnitNumber: 'DINER-88' } },
+      { preset: 'observation_dome_coach', reversed: false, overrides: { bodySecondaryColor: '#1f365c', liveryStripeColor: '#d8b24c', railUnitNumber: 'VISTA-44' } },
+      { preset: 'rail_sleeper_car', reversed: false, overrides: { railUnitNumber: 'SLEEP-41' } },
+      { preset: 'rail_sleeper_car', reversed: false, overrides: { railUnitNumber: 'SLEEP-42' } }
+    ]
+  },
+  intermodal_stack_train: {
+    id: 'intermodal_stack_train',
+    name: 'Intermodal Double-Stack & Auto Train',
+    description: 'Wide-cab heavy freight diesel hauling double-stack container well cars and bi-level auto-racks.',
+    sharedLivery: false,
+    couplingGap: 0.18,
+    units: [
+      { preset: 'heavy_freight_diesel', reversed: false, overrides: { railUnitNumber: 'UP-8842' } },
+      { preset: 'freight_double_stack', reversed: false, overrides: { railUnitNumber: 'DTTX-720' } },
+      { preset: 'freight_double_stack', reversed: false, overrides: { bodySecondaryColor: '#8c3329', liveryStripeColor: '#256c54', railUnitNumber: 'DTTX-721' } },
+      { preset: 'freight_auto_rack', reversed: false, overrides: { railUnitNumber: 'TTX-9420' } },
+      { preset: 'freight_caboose', reversed: false, overrides: { railUnitNumber: 'UP-990' } }
+    ]
+  },
+  branchline_tank_local: {
+    id: 'branchline_tank_local',
+    name: 'Branchline Tank Engine Local',
+    description: 'Compact 0-6-0 tank steam engine pulling two heritage commuter coaches.',
+    sharedLivery: false,
+    couplingGap: 0.14,
+    units: [
+      { preset: 'tank_steam_locomotive', reversed: false, overrides: { railUnitNumber: 'NO. 57' } },
+      { preset: 'passenger_coach', reversed: false, overrides: { bodyPrimaryColor: '#a6342e', bodySecondaryColor: '#e8dec6', liveryStripeColor: '#d9a938', railUnitNumber: 'BRANCH-1' } },
+      { preset: 'passenger_coach', reversed: false, overrides: { bodyPrimaryColor: '#a6342e', bodySecondaryColor: '#e8dec6', liveryStripeColor: '#d9a938', railUnitNumber: 'BRANCH-2' } }
+    ]
   }
 };
 
@@ -6377,6 +7258,191 @@ function trArchClonePreset(id) {
   const def = RAIL_PRESET_DEFINITIONS[id];
   return def ? copy(def) : null;
 }
+
+  // --- Module: air/air-archetypes.js ---
+const AIR_ARCHETYPES = [
+  {
+    id: 'news_helicopter',
+    label: 'News Chopper (SkyCam)',
+    icon: 'fa-helicopter',
+    preset: 'news_helicopter',
+    bodyFamily: 'air_news_chopper',
+    vehicleDomain: 'air',
+    categoryGroup: 'aviation',
+    shortClass: 'News Heli',
+    description: 'Agile ENG television news helicopter with panoramic bubble cockpit, nose gyro-camera gimbal, landing skids, and spinning rotors.'
+  },
+  {
+    id: 'heavy_news_helicopter',
+    label: 'Twin-Turbine News Heli',
+    icon: 'fa-helicopter',
+    preset: 'heavy_news_helicopter',
+    bodyFamily: 'air_twin_chopper',
+    vehicleDomain: 'air',
+    categoryGroup: 'aviation',
+    shortClass: 'Twin Broadcast',
+    description: 'Twin-engine TV broadcast & traffic helicopter with 4-blade main rotor, shrouded fenestron tail, searchlight, and sliding camera bay.'
+  }
+];
+
+const AIR_SILHOUETTE_PROFILES = {
+  news_chopper: { label: 'ENG Broadcast Helicopter', boxiness: 0.42, taper: 0.24, curvature: 0.56 },
+  twin_broadcast_heli: { label: 'Twin-Turbine News Helicopter', boxiness: 0.48, taper: 0.2, curvature: 0.5 }
+};
+
+const AIR_BASE_DEFAULTS = {
+  vehicleDomain: 'air',
+  bodyFamily: 'air_news_chopper',
+  silhouetteFamily: 'news_chopper',
+  overallLength: 10.4,
+  overallWidth: 2.35,
+  overallHeight: 3.15,
+  airRotorDiameter: 9.8,
+  airRotorBlades: 2,
+  airTailStyle: 'classic_rotor',
+  airLandingGear: 'skids',
+  airNoseGimbal: 'broadcast_camera',
+  airRotorSpinDeg: 0,
+  airHoverHeight: 0,
+  airDoorsOpen: 0,
+  airInteriorEnabled: true,
+  airCallsign: 'CH4-SKY',
+  paletteFamily: 'broadcast_news',
+  bodyPrimaryMaterial: 'painted_metal',
+  bodyPrimaryColor: '#eef3f8',
+  bodySecondaryMaterial: 'painted_metal',
+  bodySecondaryColor: '#1b3868',
+  trimMaterial: 'plastic_trim',
+  trimColor: '#1d242e',
+  bumperMaterial: 'utility_metal',
+  bumperColor: '#363d46',
+  wheelRimMaterial: 'chrome_metal',
+  wheelRimColor: '#b9c4cf',
+  tireMaterial: 'dark_rubber',
+  tireColor: '#181c22',
+  glassMaterial: 'reflective_glass',
+  glassColor: '#26445e',
+  utilityMaterial: 'chrome_metal',
+  utilityColor: '#c9d2dc',
+  liveryStripeColor: '#e2352c',
+  colorVariation: 0.03,
+  wearLevel: 'clean',
+  roleVariant: 'news_media',
+  headlightsLit: true,
+  emergencyLightsLit: true,
+  beaconFlash: true,
+  windowTint: 0.36,
+  signText: 'SKYCAM 4 NEWS'
+};
+
+const AIR_PRESET_DEFINITIONS = {
+  news_helicopter: {
+    ...AIR_BASE_DEFAULTS,
+    label: 'News Chopper (SkyCam)',
+    style: 'news_helicopter',
+    seed: 9104
+  },
+  heavy_news_helicopter: {
+    ...AIR_BASE_DEFAULTS,
+    label: 'Twin-Turbine Broadcast Helicopter',
+    style: 'heavy_news_helicopter',
+    seed: 9112,
+    bodyFamily: 'air_twin_chopper',
+    silhouetteFamily: 'twin_broadcast_heli',
+    overallLength: 12.2,
+    overallWidth: 2.68,
+    overallHeight: 3.48,
+    airRotorDiameter: 11.4,
+    airRotorBlades: 4,
+    airTailStyle: 'fenestron_shroud',
+    airLandingGear: 'skids',
+    airNoseGimbal: 'dual_flir_light',
+    airCallsign: 'LIVE-TV7',
+    bodyPrimaryColor: '#1a2f56',
+    bodySecondaryColor: '#eef3f8',
+    liveryStripeColor: '#e6a825',
+    signText: 'CHANNEL 7 AIR'
+  }
+};
+
+const AIR_OPTIONS = {
+  airTailStyle: [
+    ['classic_rotor', 'Exposed Tail Rotor'],
+    ['fenestron_shroud', 'Shrouded Fenestron Tail']
+  ],
+  airLandingGear: [
+    ['skids', 'Tubular Landing Skids'],
+    ['wheeled_gear', 'Fixed Wheeled Gear']
+  ],
+  airNoseGimbal: [
+    ['broadcast_camera', 'Gyro Broadcast Camera Ball'],
+    ['dual_flir_light', 'Camera Ball + Searchlight'],
+    ['none', 'Clean Nose']
+  ]
+};
+
+const AIR_SCHEMA = {
+  presets: [
+    { group: 'Helicopter Archetype' },
+    { key: 'style', name: 'Aircraft Archetype', type: 'select', optionsKey: 'styleList' },
+    { key: 'seed', name: 'Generation Seed', type: 'number', min: 1, max: 99999999, step: 1 }
+  ],
+  structure: [
+    { group: 'Airframe Dimensions' },
+    { key: 'overallLength', name: 'Fuselage + Tail Length', min: 8.2, max: 14.5, step: 0.1, unit: 'm' },
+    { key: 'overallWidth', name: 'Cabin / Skid Width', min: 1.9, max: 3.1, step: 0.02, unit: 'm' },
+    { key: 'overallHeight', name: 'Mast Top Height', min: 2.6, max: 4.1, step: 0.02, unit: 'm' },
+    { key: 'airLandingGear', name: 'Landing Gear Style', type: 'select' }
+  ],
+  body: [
+    { group: 'Rotors & Tail Boom' },
+    { key: 'airRotorDiameter', name: 'Main Rotor Diameter', min: 7.4, max: 13.5, step: 0.1, unit: 'm' },
+    { key: 'airRotorBlades', name: 'Main Rotor Blades', min: 2, max: 5, step: 1 },
+    { key: 'airTailStyle', name: 'Tail Rotor Configuration', type: 'select' }
+  ],
+  doors: [
+    { group: 'Cabin Doors & Glass' },
+    { key: 'airDoorsOpen', name: 'Camera Bay Door Open', min: 0, max: 1, step: 0.05 },
+    { key: 'airInteriorEnabled', name: 'Cockpit & Operator Interior', type: 'boolean' },
+    { key: 'windowTint', name: 'Canopy Glass Tint', min: 0.1, max: 0.85, step: 0.05 }
+  ],
+  wheels: [
+    { group: 'Flight & Rotor Preview' },
+    { key: 'airRotorSpinDeg', name: 'Rotor Angle Preview', min: 0, max: 360, step: 5, unit: '°' },
+    { key: 'airHoverHeight', name: 'Hover Altitude Preview', min: 0, max: 3.5, step: 0.1, unit: 'm' }
+  ],
+  details: [
+    { group: 'Broadcast & Aviation Gear' },
+    { key: 'airNoseGimbal', name: 'Under-Nose Broadcast Turret', type: 'select' },
+    { key: 'airCallsign', name: 'Tail Boom Callsign', type: 'text' },
+    { key: 'signText', name: 'Station Livery Banner', type: 'text' },
+    { key: 'headlightsLit', name: 'Landing & Search Light', type: 'boolean' },
+    { key: 'emergencyLightsLit', name: 'Anti-Collision Strobes', type: 'boolean' },
+    { key: 'beaconFlash', name: 'Live Strobe Flash', type: 'boolean' }
+  ],
+  materials: [
+    { group: 'Livery & Finishes' },
+    { key: 'paletteFamily', name: 'Color Palette Family', type: 'select' },
+    { key: 'bodyPrimaryMaterial', name: 'Primary Fuselage Material', type: 'select', optionsKey: 'materialFamily' },
+    { key: 'bodyPrimaryColor', name: 'Primary Fuselage Color', type: 'color' },
+    { key: 'bodySecondaryMaterial', name: 'Secondary Trim Material', type: 'select', optionsKey: 'materialFamily' },
+    { key: 'bodySecondaryColor', name: 'Secondary Accent Color', type: 'color' },
+    { key: 'liveryStripeColor', name: 'Broadcast Stripe Color', type: 'color' },
+    { key: 'glassMaterial', name: 'Canopy Glass Material', type: 'select', optionsKey: 'materialFamily' },
+    { key: 'glassColor', name: 'Canopy Tint Color', type: 'color' }
+  ],
+  variants: [
+    { group: 'Seed & Variation' },
+    { key: 'seed', name: 'Generation Seed', type: 'number', min: 1, max: 99999999, step: 1 },
+    { key: 'colorVariation', name: 'Paint Variation', min: 0, max: 0.35, step: 0.01 },
+    { key: 'wearLevel', name: 'Weathering Level', type: 'select' }
+  ],
+  scene: [
+    { group: 'Viewport Lighting' },
+    { key: 'lightingTime', name: 'Time of Day', type: 'select' }
+  ],
+  export: []
+};
 
   // --- Module: config.js ---
 const STORAGE_KEY = 'b-remastered-city-vehicle-presets-v1';
@@ -6478,12 +7544,18 @@ const PALETTE_FAMILIES = {
     primaries: ['#c8d2dc', '#254a78', '#236b5e', '#d6dde5', '#8f3038'],
     secondaries: ['#253c59', '#1d242e', '#344960', '#d8e0e8'],
     stripes: ['#25a58d', '#eab02e', '#d6453a', '#4de2ff']
+  },
+  broadcast_news: {
+    label: 'News Broadcast & Media',
+    primaries: ['#edf2f7', '#1b3158', '#d9382e', '#243c64', '#f2f5f8'],
+    secondaries: ['#1a3a6c', '#eef3f8', '#1d242e', '#c9332b'],
+    stripes: ['#e0362e', '#f0b429', '#38bdf8', '#f8fafc']
   }
 };
 
-const STYLES = [...ARCHETYPES, ...RAIL_ARCHETYPES];
-Object.assign(SILHOUETTE_PROFILES, RAIL_SILHOUETTE_PROFILES);
-const PRESETS = { ...PRESET_DEFINITIONS, ...RAIL_PRESET_DEFINITIONS };
+const STYLES = [...ARCHETYPES, ...RAIL_ARCHETYPES, ...AIR_ARCHETYPES];
+Object.assign(SILHOUETTE_PROFILES, RAIL_SILHOUETTE_PROFILES, AIR_SILHOUETTE_PROFILES);
+const PRESETS = { ...PRESET_DEFINITIONS, ...RAIL_PRESET_DEFINITIONS, ...AIR_PRESET_DEFINITIONS };
 const BASE = {
   ...copy(PRESET_DEFINITIONS.sedan),
   vehicleDomain: 'road',
@@ -6537,9 +7609,20 @@ const OPTIONS = {
     ['rail_freight_caboose', 'Cupola Freight Caboose'],
     ['rail_straddle_monorail', 'Straddle-Beam Monorail'],
     ['rail_suspended_monorail', 'Suspended Skytrain Monorail'],
-    ['rail_aerial_gondola', 'Panoramic Aerial Gondola']
+    ['rail_aerial_gondola', 'Panoramic Aerial Gondola'],
+    ['rail_tank_steam', 'Branchline 0-6-0 Tank Steam'],
+    ['rail_articulated_steam', 'Articulated Heavy Steam'],
+    ['rail_heavy_diesel', 'Wide-Cab Heavy Diesel'],
+    ['rail_box_electric', 'Historic Box-Cab Electric'],
+    ['rail_dining_coach', 'Luxury Heritage Dining Car'],
+    ['rail_sleeper_coach', 'Overnight Sleeper Coach'],
+    ['rail_freight_autorack', 'Bi-Level Auto-Rack Car'],
+    ['rail_freight_wellcar', 'Double-Stack Intermodal Well Car'],
+    ['air_news_chopper', 'ENG News Helicopter'],
+    ['air_twin_chopper', 'Twin-Turbine News Helicopter']
   ],
   ...RAIL_OPTIONS,
+  ...AIR_OPTIONS,
   silhouetteFamily: Object.entries(SILHOUETTE_PROFILES).map(([id, def]) => [id, def.label]),
   rooflineStyle: [
     ['flat', 'Flat Utility Roof'],
@@ -6649,7 +7732,8 @@ const OPTIONS = {
     ['ambulance', 'Ambulance / Medical'],
     ['fire', 'Fire & Rescue'],
     ['armored', 'Armored Security'],
-    ['transit', 'Public Transit']
+    ['transit', 'Public Transit'],
+    ['news_media', 'News & TV Broadcast']
   ],
   lightBar: [
     ['none', 'None'],
@@ -6666,7 +7750,9 @@ const OPTIONS = {
     ['delivery_pod', 'Aerodynamic Roof Pod'],
     ['bus_ac_unit', 'Rooftop Ac Unit'],
     ['ice_cream_cone', 'Rooftop Ice Cream Cone'],
-    ['fire_ladder', 'Fire Turntable Ladder']
+    ['fire_ladder', 'Fire Turntable Ladder'],
+    ['satellite_dish', 'News Satellite Dish & Mast'],
+    ['broadcast_array', 'TV Broadcast Dish & Array']
   ],
   frontAttachment: [
     ['none', 'None'],
@@ -6698,7 +7784,8 @@ const OPTIONS = {
     ['serving_window', 'Food Truck Window & Awning'],
     ['postal_stripe', 'Postal Dual Stripe & Crest'],
     ['fire_pump_panel', 'Fire Pump & Equipment Bays'],
-    ['hazard_stripes', 'Construction Hazard Chevrons']
+    ['hazard_stripes', 'Construction Hazard Chevrons'],
+    ['news_branding', 'TV News Broadcast Livery']
   ],
   lightingTime: [
     ['day', 'Daytime'],
@@ -6909,7 +7996,20 @@ const RAIL_BODY_FAMILIES = new Set([
   'rail_freight_caboose',
   'rail_straddle_monorail',
   'rail_suspended_monorail',
-  'rail_aerial_gondola'
+  'rail_aerial_gondola',
+  'rail_tank_steam',
+  'rail_articulated_steam',
+  'rail_heavy_diesel',
+  'rail_box_electric',
+  'rail_dining_coach',
+  'rail_sleeper_coach',
+  'rail_freight_autorack',
+  'rail_freight_wellcar'
+]);
+
+const AIR_BODY_FAMILIES = new Set([
+  'air_news_chopper',
+  'air_twin_chopper'
 ]);
 
 function isRailConfig(cfg) {
@@ -6919,9 +8019,19 @@ function isRailConfig(cfg) {
   return RAIL_ARCHETYPES.some((a) => a.id === cfg.style);
 }
 
+function isAirConfig(cfg) {
+  if (!cfg || typeof cfg !== 'object') return false;
+  if (cfg.vehicleDomain === 'air') return true;
+  if (AIR_BODY_FAMILIES.has(cfg.bodyFamily)) return true;
+  return AIR_ARCHETYPES.some((a) => a.id === cfg.style);
+}
+
 function getArchetypeCategoryGroup(archOrId) {
   const arch = typeof archOrId === 'string' ? getStyle(archOrId) : archOrId;
   if (!arch) return 'cars';
+  if (arch.vehicleDomain === 'air' || AIR_ARCHETYPES.some((a) => a.id === arch.id)) {
+    return 'aviation';
+  }
   if (arch.vehicleDomain === 'rail' || RAIL_ARCHETYPES.some((a) => a.id === arch.id)) {
     return 'transit_rail';
   }
@@ -6972,7 +8082,52 @@ function sanitiseConfig(data) {
   const style = STYLES.some((x) => x.id === data.style) ? data.style : BASE.style;
   const arch = getStyle(style);
   const presetRaw = PRESETS[arch.preset] || {};
-  const isRail = arch.vehicleDomain === 'rail' || isRailConfig({ ...presetRaw, ...data, style });
+  const isAir = arch.vehicleDomain === 'air' || isAirConfig({ ...presetRaw, ...data, style });
+  const isRail = !isAir && (arch.vehicleDomain === 'rail' || isRailConfig({ ...presetRaw, ...data, style }));
+
+  if (isAir) {
+    const merged = {
+      ...copy(BASE),
+      ...copy(AIR_BASE_DEFAULTS),
+      ...copy(presetRaw),
+      ...copy(data),
+      style,
+      vehicleDomain: 'air'
+    };
+    if (!AIR_BODY_FAMILIES.has(merged.bodyFamily)) {
+      merged.bodyFamily = presetRaw.bodyFamily || arch.bodyFamily || 'air_news_chopper';
+    }
+    if (!SILHOUETTE_PROFILES[merged.silhouetteFamily]) {
+      merged.silhouetteFamily = presetRaw.silhouetteFamily || 'news_chopper';
+    }
+    for (const tabKey of ['materials', 'scene']) {
+      for (const def of SCHEMA[tabKey] || []) {
+        if (!def.key) continue;
+        const fallback = presetRaw[def.key] !== undefined ? presetRaw[def.key] : BASE[def.key];
+        sanitiseFieldWithDef(merged, def, fallback);
+      }
+    }
+    for (const rows of Object.values(AIR_SCHEMA)) {
+      for (const def of rows) {
+        if (!def.key || def.key === 'style') continue;
+        const fallback = presetRaw[def.key] !== undefined
+          ? presetRaw[def.key]
+          : (AIR_BASE_DEFAULTS[def.key] !== undefined ? AIR_BASE_DEFAULTS[def.key] : BASE[def.key]);
+        sanitiseFieldWithDef(merged, def, fallback);
+      }
+    }
+    merged.seed = clamp(Math.floor(Number(merged.seed) || 9104), 1, 99999999);
+    merged.airRotorBlades = clamp(Math.round(merged.airRotorBlades), 2, 5);
+    merged.airRotorSpinDeg = ((Number(merged.airRotorSpinDeg) || 0) % 360 + 360) % 360;
+    merged.airHoverHeight = clamp(Number(merged.airHoverHeight || 0), 0, 3.5);
+    merged.airDoorsOpen = clamp(Number(merged.airDoorsOpen ?? (data.doorsOpen ? 1 : 0)), 0, 1);
+    merged.doorsOpen = merged.airDoorsOpen > 0.05;
+    merged.interiorDetail = Boolean(merged.airInteriorEnabled);
+    merged.airCallsign = String(merged.airCallsign || presetRaw.airCallsign || 'CH4-SKY').slice(0, 16);
+    merged.signText = String(merged.signText || presetRaw.signText || 'SKYCAM 4 NEWS').slice(0, 36);
+    delete merged.label;
+    return merged;
+  }
 
   if (isRail) {
     const merged = {
@@ -7042,7 +8197,7 @@ function sanitiseConfig(data) {
   }
 
   const merged = { ...copy(BASE), ...copy(presetRaw), ...copy(data), style, vehicleDomain: 'road' };
-  if (RAIL_BODY_FAMILIES.has(merged.bodyFamily)) {
+  if (RAIL_BODY_FAMILIES.has(merged.bodyFamily) || AIR_BODY_FAMILIES.has(merged.bodyFamily)) {
     merged.bodyFamily = presetRaw.bodyFamily || arch.bodyFamily || 'three_box';
   }
 
@@ -7219,6 +8374,10 @@ function resolveRailVehicleLayout(rawCfg) {
     'rail_electric_loco',
     'rail_streamlined_diesel',
     'rail_steam_loco',
+    'rail_tank_steam',
+    'rail_articulated_steam',
+    'rail_heavy_diesel',
+    'rail_box_electric',
     'rail_maintenance'
   ].includes(bf);
   const isFreight = [
@@ -7226,19 +8385,24 @@ function resolveRailVehicleLayout(rawCfg) {
     'rail_freight_flatcar',
     'rail_freight_tank',
     'rail_freight_hopper',
-    'rail_freight_caboose'
+    'rail_freight_caboose',
+    'rail_freight_autorack',
+    'rail_freight_wellcar'
   ].includes(bf);
 
   const unitType = isLoco ? 'locomotive' : (isFreight ? 'freight_wagon' : 'passenger_coach');
   const isHoodDiesel = bf === 'rail_diesel_road_switcher' || bf === 'rail_diesel_switcher';
 
   const hasPantograph = bf === 'rail_electric_loco' ||
+    bf === 'rail_box_electric' ||
     bf === 'rail_highspeed_lead' ||
     bf === 'rail_articulated_tram' ||
     (bf === 'rail_highspeed_coach' && (cfg.railPantographHeight || 0) > 0.05);
   const hasTrolleyPole = bf === 'rail_historic_streetcar' || bf === 'rail_open_tram';
   const customRunningGear = [
     'rail_steam_loco',
+    'rail_tank_steam',
+    'rail_articulated_steam',
     'rail_articulated_tram',
     'rail_straddle_monorail',
     'rail_suspended_monorail',
@@ -7557,11 +8721,120 @@ function resolveRailVehicleLayout(rawCfg) {
   };
 }
 
+  // --- Module: air/air-layout.js ---
+const AVIATION_COMPAT_REVISION = 'b.aviation-compat.v1';
+
+function resolveAirVehicleLayout(cfg) {
+  const isTwin = cfg.bodyFamily === 'air_twin_chopper';
+  const length = clamp(Number(cfg.overallLength) || (isTwin ? 12.2 : 10.4), 8.2, 14.5);
+  const width = clamp(Number(cfg.overallWidth) || (isTwin ? 2.68 : 2.35), 1.9, 3.1);
+  const height = clamp(Number(cfg.overallHeight) || (isTwin ? 3.48 : 3.15), 2.6, 4.1);
+  const rotorDiameter = clamp(Number(cfg.airRotorDiameter) || (isTwin ? 11.4 : 9.8), 7.4, 13.5);
+  const rotorRadius = rotorDiameter * 0.5;
+  const blades = clamp(Math.round(Number(cfg.airRotorBlades) || (isTwin ? 4 : 2)), 2, 5);
+
+  const halfW = width * 0.5;
+  const skidTrackHalfX = clamp(halfW * 0.86, 0.78, 1.25);
+  const bellyY = isTwin ? 0.74 : 0.66;
+  const cabinRoofY = clamp(height - 0.76, bellyY + 1.25, height - 0.58);
+  const cowlingTopY = cabinRoofY + (isTwin ? 0.42 : 0.34);
+  const mastTopY = height;
+
+  // Longitudinal layout (+Z nose forward, -Z tail boom aft)
+  const noseZ = length * 0.34;
+  const cabinFrontZ = noseZ - (isTwin ? 1.15 : 1.05);
+  const cabinRearZ = -length * 0.12;
+  const tailEndZ = -length * 0.66;
+  const rotorHubZ = (cabinFrontZ + cabinRearZ) * 0.45 + 0.15;
+  const tailRotorZ = tailEndZ + 0.45;
+  const tailRotorY = cabinRoofY + 0.12;
+
+  const cabinHalfW = halfW * 0.84;
+  const skidMinZ = cabinRearZ - 0.15;
+  const skidMaxZ = noseZ - 0.55;
+
+  const aviationCompatibility = {
+    profileRevision: AVIATION_COMPAT_REVISION,
+    vehicleDomain: 'air',
+    aircraftClass: isTwin ? 'twin_turbine_utility' : 'light_utility_rotorcraft',
+    role: cfg.roleVariant || 'news_media',
+    rotorDiscRadiusMeters: roundNum(rotorRadius, 3),
+    rotorBladeCount: blades,
+    helipadMinDiameterMeters: roundNum(Math.max(rotorDiameter + 2.5, length + 2.0), 2),
+    skidTrackWidthMeters: roundNum(skidTrackHalfX * 2, 3),
+    landingGearType: cfg.airLandingGear || 'skids',
+    tailStyle: cfg.airTailStyle || 'classic_rotor',
+    tailBoomReachMeters: roundNum(Math.abs(tailEndZ), 3),
+    hoverDatumY: 0
+  };
+
+  return {
+    dimensions: {
+      length: roundNum(length, 4),
+      width: roundNum(width, 4),
+      halfWidth: roundNum(halfW, 4),
+      height: roundNum(height, 4),
+      wheelbase: roundNum(skidMaxZ - skidMinZ, 4),
+      frontOverhang: roundNum(noseZ - skidMaxZ, 4),
+      rearOverhang: roundNum(skidMinZ - tailEndZ, 4),
+      wheelRadius: 0.22,
+      wheelThickness: 0.16,
+      groundClearance: roundNum(bellyY, 4),
+      beltY: roundNum(bellyY + (cabinRoofY - bellyY) * 0.48, 4),
+      roofTopY: roundNum(cabinRoofY, 4),
+      cargoRoofTopY: roundNum(cowlingTopY, 4),
+      lowerBodyH: roundNum((cabinRoofY - bellyY) * 0.48, 4),
+      greenhouseH: roundNum((cabinRoofY - bellyY) * 0.52, 4)
+    },
+    sections: {
+      rear: { startZ: roundNum(tailEndZ, 4), endZ: roundNum(cabinRearZ, 4), length: roundNum(cabinRearZ - tailEndZ, 4) },
+      gap: { startZ: roundNum(cabinRearZ, 4), endZ: roundNum(cabinRearZ, 4), length: 0 },
+      cabin: { startZ: roundNum(cabinRearZ, 4), endZ: roundNum(cabinFrontZ, 4), length: roundNum(cabinFrontZ - cabinRearZ, 4) },
+      hood: { startZ: roundNum(cabinFrontZ, 4), endZ: roundNum(noseZ, 4), length: roundNum(noseZ - cabinFrontZ, 4) },
+      roofMount: { minZ: roundNum(cabinRearZ, 4), maxZ: roundNum(cabinFrontZ, 4), cabRoofMinZ: roundNum(cabinRearZ, 4), cabRoofMaxZ: roundNum(cabinFrontZ, 4) }
+    },
+    axles: [
+      { id: 'skid_front', z: roundNum(skidMaxZ - 0.35, 4), wheelCenterX: roundNum(skidTrackHalfX, 4), isFront: true },
+      { id: 'skid_rear', z: roundNum(skidMinZ + 0.35, 4), wheelCenterX: roundNum(skidTrackHalfX, 4), isFront: false }
+    ],
+    busDoors: [],
+    air: {
+      isTwin,
+      noseZ: roundNum(noseZ, 4),
+      cabinFrontZ: roundNum(cabinFrontZ, 4),
+      cabinRearZ: roundNum(cabinRearZ, 4),
+      tailEndZ: roundNum(tailEndZ, 4),
+      cabinHalfW: roundNum(cabinHalfW, 4),
+      bellyY: roundNum(bellyY, 4),
+      cabinRoofY: roundNum(cabinRoofY, 4),
+      cowlingTopY: roundNum(cowlingTopY, 4),
+      mastTopY: roundNum(mastTopY, 4),
+      rotorHubZ: roundNum(rotorHubZ, 4),
+      rotorRadius: roundNum(rotorRadius, 4),
+      rotorDiameter: roundNum(rotorDiameter, 4),
+      blades,
+      tailRotorZ: roundNum(tailRotorZ, 4),
+      tailRotorY: roundNum(tailRotorY, 4),
+      skidTrackHalfX: roundNum(skidTrackHalfX, 4),
+      skidMinZ: roundNum(skidMinZ, 4),
+      skidMaxZ: roundNum(skidMaxZ, 4),
+      compatibility: aviationCompatibility
+    },
+    validation: {
+      ok: true,
+      warnings: []
+    }
+  };
+}
+
   // --- Module: core/layout.js ---
 function resolveVehicleLayout(rawCfg) {
   const cfg = sanitiseConfig(rawCfg);
   if (isRailConfig(cfg)) {
     return resolveRailVehicleLayout(cfg);
+  }
+  if (isAirConfig(cfg)) {
+    return resolveAirVehicleLayout(cfg);
   }
   const warnings = [];
   const profile = SILHOUETTE_PROFILES[cfg.silhouetteFamily] || SILHOUETTE_PROFILES.executive_sedan;
@@ -7920,6 +9193,64 @@ function bpVecToBUnits(x, y, z) {
 
 function computeVehicleBounds(cfg, layout) {
   const d = layout.dimensions;
+  if (layout.air) {
+    const air = layout.air;
+    const discR = air.rotorRadius;
+    const maxHalfW = roundNum(Math.max(d.halfWidth, discR), 4);
+    const minZ = roundNum(Math.min(air.tailEndZ, air.rotorHubZ - discR), 4);
+    const maxZ = roundNum(Math.max(air.noseZ, air.rotorHubZ + discR), 4);
+    const topY = roundNum(air.mastTopY + 0.16, 4);
+    const totalW = roundNum(maxHalfW * 2, 4);
+    const totalL = roundNum(maxZ - minZ, 4);
+    const padDiam = air.compatibility.helipadMinDiameterMeters;
+    return {
+      meters: {
+        minX: -maxHalfW,
+        maxX: maxHalfW,
+        minY: 0,
+        maxY: topY,
+        minZ,
+        maxZ,
+        width: totalW,
+        length: totalL,
+        height: topY
+      },
+      bGameUnits: {
+        unitsPerMeter: B_UNITS_PER_METER,
+        width: roundNum(totalW * B_UNITS_PER_METER, 1),
+        length: roundNum(totalL * B_UNITS_PER_METER, 1),
+        height: roundNum(topY * B_UNITS_PER_METER, 1),
+        min: bpVecToBUnits(-maxHalfW, 0, maxZ),
+        max: bpVecToBUnits(maxHalfW, topY, minZ)
+      },
+      parkingFootprint: {
+        meters: { width: padDiam, length: padDiam },
+        bGameUnits: {
+          width: roundNum(padDiam * B_UNITS_PER_METER, 1),
+          length: roundNum(padDiam * B_UNITS_PER_METER, 1)
+        }
+      },
+      collisionBounds: {
+        compositeBox: {
+          center: { x: 0, y: roundNum(topY * 0.5, 4), z: roundNum((minZ + maxZ) * 0.5, 4) },
+          size: { x: totalW, y: topY, z: totalL }
+        },
+        lowerHullBox: {
+          center: { x: 0, y: roundNum(air.bellyY * 0.5, 4), z: 0 },
+          size: { x: d.width, y: roundNum(air.bellyY, 4), z: d.length }
+        },
+        upperCabinBox: {
+          center: { x: 0, y: roundNum((air.bellyY + air.mastTopY) * 0.5, 4), z: 0 },
+          size: { x: d.width, y: roundNum(air.mastTopY - air.bellyY, 4), z: d.length }
+        },
+        cargoBox: {
+          center: { x: 0, y: roundNum((air.bellyY + air.cabinRoofY) * 0.5, 4), z: 0 },
+          size: { x: d.width, y: roundNum(air.cabinRoofY - air.bellyY, 4), z: roundNum(air.cabinFrontZ - air.cabinRearZ, 4) }
+        },
+        wheels: []
+      }
+    };
+  }
   if (layout.rail) {
     const rail = layout.rail;
     const maxHalfW = roundNum(Math.max(d.halfWidth + (cfg.railHandrails ? 0.08 : 0.02), rail.gauge.railCenterHalfX + 0.25), 4);
@@ -8142,7 +9473,7 @@ function generateVehicleBlueprint(rawCfg, options = {}) {
     style: cfg.style,
     archetype: cfg.style,
     archetypeLabel: arch.label,
-    vehicleDomain: layout.rail ? 'rail' : 'road',
+    vehicleDomain: layout.rail ? 'rail' : (layout.air ? 'air' : 'road'),
     usageVariant: cfg.roleVariant,
     dimensions: layout.dimensions,
     wheelbase: layout.dimensions.wheelbase,
@@ -8188,6 +9519,7 @@ function generateVehicleBlueprint(rawCfg, options = {}) {
     },
     validation: layout.validation,
     transitCompatibility: layout.rail ? layout.rail.compatibility : null,
+    aviationCompatibility: layout.air ? layout.air.compatibility : null,
     pivots: layout.rail ? layout.rail.pivots : null,
     config: cfg,
     geometryStats: options.geometryStats || null
@@ -11216,6 +12548,30 @@ function buildVehicleDetails(batcher, rootGroup, layout, cfg, materialBundle) {
         layer: 'detail'
       });
     }
+  } else if (cfg.sideUtility === 'news_branding') {
+    const pLen = Math.max(1.2, d.length - 0.56);
+    const sideX = d.halfWidth + (cfg.bodyFamily === 'cab_over_box' ? 0.045 : 0.014);
+    const panelZ = cfg.bodyFamily === 'cab_over_box'
+      ? (s.rear.startZ + s.rear.endZ) * 0.5
+      : lerp(s.rear.startZ, s.cabin.startZ, 0.45);
+    const panelW = Math.min(2.6, Math.max(1.25, s.rear.length * 0.62));
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * sideX, trimY + 0.14, 0, 0.02, 0.09, pLen, { materialRole: 'livery', layer: 'detail' });
+      batcher.addBox(side * sideX, trimY + 0.02, 0, 0.02, 0.06, pLen, { materialRole: 'secondary', layer: 'detail' });
+      if (rootGroup) {
+        vehSignboard(rootGroup, cfg.signText || 'CHANNEL 4 NEWS', panelW, 0.34, '#132645', '#f8fafc', {
+          x: side * (sideX + 0.022),
+          y: Math.max(trimY + 0.54, d.beltY + 0.08),
+          z: panelZ,
+          rotY: side * Math.PI * 0.5,
+          depth: 0.026,
+          lit: Boolean(cfg.emergencyLightsLit),
+          frameMaterial: materialBundle.livery,
+          frameRole: 'livery',
+          layer: 'detail'
+        });
+      }
+    }
   } else if (cfg.sideUtility === 'fire_pump_panel') {
     const bayZ = cfg.bodyFamily === 'cab_over_box'
       ? lerp(s.rear.startZ, s.rear.endZ, 0.72)
@@ -11834,6 +13190,47 @@ function buildVehicleDetails(batcher, rootGroup, layout, cfg, materialBundle) {
       for (const side of [-0.14, 0.14]) {
         batcher.addCylinder(side, (topPy + botPy) * 0.5, (topPz + botPz) * 0.5, 0.045, 0.055, pLen, 8, 'y', 'chrome', 'detail', 0, pRx);
       }
+    }
+  } else if (!isOpenTop && (cfg.roofRack === 'satellite_dish' || cfg.roofRack === 'broadcast_array')) {
+    const isLarge = cfg.roofRack === 'broadcast_array';
+    const deployed = Boolean(cfg.doorsOpen);
+    const dishZ = lerp(s.roofMount.minZ, s.roofMount.maxZ, isLarge ? 0.54 : 0.48);
+    const mastZ = s.roofMount.minZ + 0.36;
+    const dishR = isLarge ? 0.72 : 0.52;
+    const dishTilt = deployed ? degToRad(44) : degToRad(8);
+
+    // Rooftop equipment rails & rotary satellite pedestal
+    for (const side of [-1, 1]) {
+      batcher.addBox(side * (roofW * 0.44), rackSurfaceY + 0.05, rackMidZ, 0.055, 0.07, Math.max(1.2, s.roofMount.maxZ - s.roofMount.minZ), {
+        materialRole: 'trim',
+        layer: 'detail'
+      });
+    }
+    batcher.addCylinder(0, rackSurfaceY + 0.08, dishZ, 0.24, 0.28, 0.14, 10, 'y', 'trim', 'detail');
+    const pivotY = rackSurfaceY + (deployed ? 0.42 : 0.24);
+    batcher.addBox(0, (rackSurfaceY + pivotY) * 0.5, dishZ, 0.12, pivotY - rackSurfaceY + 0.04, 0.14, { materialRole: 'utility', layer: 'detail' });
+
+    // Faceted parabolic satellite uplink dish + central LNB feedhorn tripod
+    batcher.addCylinder(0, pivotY + 0.08, dishZ, dishR, dishR * 0.34, 0.18, 12, 'y', 'secondary', 'detail', 0, dishTilt);
+    batcher.addCylinder(0, pivotY + 0.12, dishZ, dishR * 0.94, dishR * 0.28, 0.08, 12, 'y', 'chrome', 'detail', 0, dishTilt);
+    const hornDist = dishR * 0.78;
+    const hornY = pivotY + 0.1 + Math.cos(dishTilt) * hornDist;
+    const hornZ = dishZ + Math.sin(dishTilt) * hornDist;
+    batcher.addCylinder(0, (pivotY + hornY) * 0.5, (dishZ + hornZ) * 0.5, 0.024, 0.028, hornDist, 6, 'y', 'trim', 'detail', 0, dishTilt);
+    batcher.addCylinder(0, hornY, hornZ, 0.06, 0.09, 0.14, 8, 'y', 'livery', 'detail', 0, dishTilt);
+
+    // Rear telescoping pneumatic microwave broadcast mast (extends tall when doorsOpen!)
+    const mastH = deployed ? (isLarge ? 2.45 : 1.85) : 0.46;
+    batcher.addCylinder(0, rackSurfaceY + mastH * 0.5, mastZ, 0.055, 0.085, mastH, 8, 'y', 'chrome', 'detail');
+    batcher.addBox(0, rackSurfaceY + mastH + 0.09, mastZ, 0.22, 0.18, 0.3, { materialRole: 'secondary', layer: 'detail' });
+    batcher.addCylinder(0, rackSurfaceY + mastH + 0.09, mastZ + 0.18, 0.095, 0.095, 0.06, 10, 'z', 'livery', 'detail');
+    batcher.addCylinder(0, rackSurfaceY + mastH + 0.24, mastZ, 0.045, 0.045, 0.08, 8, 'y', 'redLight', 'detail');
+
+    // Broadcast production truck dual generator / HVAC pods & front UHF array
+    if (isLarge) {
+      const podZ = lerp(s.roofMount.minZ, s.roofMount.maxZ, 0.84);
+      batcher.addBox(0, rackSurfaceY + 0.16, podZ, roofW * 0.76, 0.28, 1.05, { materialRole: 'utility', layer: 'detail' });
+      batcher.addBox(0, rackSurfaceY + 0.31, podZ, roofW * 0.64, 0.04, 0.88, { materialRole: 'trim', layer: 'detail' });
     }
   }
 
@@ -12913,6 +14310,362 @@ function trLocoExtBuildMaintenance(batcher, layout, cfg) {
   return { doors: [] };
 }
 
+function trLocoExtAddSteamDriversAndRods(rootGroup, layout, materialBundle, driverZs, driverR, prefix = 'Steam') {
+  const driverX = layout.rail.gauge.railCenterHalfX;
+  const customWheelsets = [];
+  for (let i = 0; i < driverZs.length; i++) {
+    const dz = driverZs[i];
+    const ws = new THREE.Group();
+    ws.name = `${prefix}Driver_${i}`;
+    ws.position.set(0, driverR, dz);
+    const wBatch = new VehicleBatcher();
+    wBatch.addCylinder(0, 0, 0, 0.072, 0.072, driverX * 2 + 0.22, 10, 'x', 'chassisDark', 'wheel');
+    for (const side of [-1, 1]) {
+      wBatch.addCylinder(side * driverX, 0, 0, driverR, driverR, 0.12, 16, 'x', 'tire', 'wheel');
+      wBatch.addCylinder(side * (driverX - 0.056), 0, 0, driverR + 0.028, driverR + 0.028, 0.024, 16, 'x', 'chrome', 'wheel');
+      wBatch.addCylinder(side * (driverX + 0.03), 0, 0, driverR * 0.78, driverR * 0.78, 0.06, 12, 'x', 'rim', 'wheel');
+      for (let sp = 0; sp < 4; sp++) {
+        wBatch.addBox(side * (driverX + 0.044), 0, 0, 0.024, driverR * 1.44, 0.05, {
+          rotX: (sp / 4) * Math.PI,
+          materialRole: 'rim',
+          layer: 'wheel'
+        });
+      }
+      wBatch.addBox(side * (driverX + 0.046), -driverR * 0.34, 0, 0.03, driverR * 0.32, driverR * 0.68, {
+        materialRole: 'livery',
+        layer: 'wheel'
+      });
+    }
+    wBatch.finalize(ws, materialBundle);
+    rootGroup.add(ws);
+    customWheelsets.push(ws);
+  }
+
+  const steamRods = [];
+  const rodSpan = driverZs[driverZs.length - 1] - driverZs[0] + 0.32;
+  const rodCenterZ = (driverZs[0] + driverZs[driverZs.length - 1]) * 0.5;
+  const crankR = Math.min(0.22, driverR * 0.34);
+  for (const side of [-1, 1]) {
+    const rodGrp = new THREE.Group();
+    rodGrp.name = `${prefix}Rod_${side < 0 ? 'left' : 'right'}`;
+    const rx = side * (driverX + 0.11);
+    const ry = driverR - crankR;
+    rodGrp.position.set(rx, ry, rodCenterZ);
+    const rBatch = new VehicleBatcher();
+    rBatch.addBox(0, 0, 0, 0.044, 0.095, rodSpan, { materialRole: 'chrome', layer: 'detail' });
+    rBatch.addBox(0.02 * side, 0.035, rodSpan * 0.44 + 0.68, 0.046, 0.08, 1.45, {
+      materialRole: 'utility',
+      layer: 'detail'
+    });
+    rBatch.finalize(rodGrp, materialBundle);
+    rodGrp.userData = {
+      isSteamRod: true,
+      baseX: rx,
+      baseY: ry,
+      baseZ: rodCenterZ,
+      crankRadius: crankR,
+      phaseOffset: side < 0 ? 0 : Math.PI * 0.5
+    };
+    rootGroup.add(rodGrp);
+    steamRods.push(rodGrp);
+  }
+  return { customWheelsets, steamRods };
+}
+
+function trLocoExtBuildTankSteam(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const deckY = layout.rail.zones.deckY;
+  const bodyTopY = layout.rail.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  const bunkerStartZ = -halfL + 0.38;
+  const bunkerEndZ = bunkerStartZ + 1.55;
+  const cabStartZ = bunkerEndZ;
+  const cabEndZ = cabStartZ + 2.25;
+  const smokeboxEndZ = halfL - 0.65;
+  const boilerLen = smokeboxEndZ - cabEndZ;
+  const boilerMidZ = (cabEndZ + smokeboxEndZ) * 0.5;
+  const boilerR = clamp(halfW * 0.54, 0.68, 0.86);
+  const boilerCenterY = deckY + boilerR + 0.24;
+
+  // Heavy plate frame, crimson buffer beams & side running boards
+  batcher.addBox(0, deckY - 0.14, 0, 1.08, 0.36, d.length - 0.4, { materialRole: 'chassisDark', layer: 'chassis' });
+  batcher.addBox(0, deckY + 0.06, 0, d.width * 0.94, 0.14, d.length - 0.2, { materialRole: 'secondary', layer: 'body' });
+  for (const endSign of [-1, 1]) {
+    batcher.addBox(0, deckY - 0.18, endSign * (halfL - 0.12), d.width * 0.96, 0.34, 0.2, { materialRole: 'bumper', layer: 'chassis' });
+  }
+
+  // Boiler barrel, smokebox & iconic tall flanking side water tanks!
+  batcher.addCylinder(0, boilerCenterY, boilerMidZ, boilerR, boilerR, boilerLen, 16, 'z', 'primary', 'body');
+  const sbLen = 1.3;
+  const sbZ = smokeboxEndZ - sbLen * 0.5;
+  batcher.addCylinder(0, boilerCenterY, sbZ, boilerR + 0.025, boilerR + 0.025, sbLen, 16, 'z', 'secondary', 'body');
+  batcher.addCylinder(0, boilerCenterY, smokeboxEndZ + 0.09, boilerR * 0.42, boilerR * 0.92, 0.2, 12, 'z', 'secondary', 'body');
+
+  const tankLen = boilerLen - sbLen - 0.1;
+  const tankMidZ = cabEndZ + tankLen * 0.5;
+  const tankH = boilerR * 1.62;
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW - 0.34), deckY + 0.12 + tankH * 0.5, tankMidZ, 0.58, tankH, tankLen, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+    batcher.addBox(side * (halfW - 0.04), deckY + 0.12 + tankH * 0.5, tankMidZ, 0.03, 0.12, tankLen * 0.9, {
+      materialRole: 'livery',
+      layer: 'body'
+    });
+    batcher.addCylinder(side * 1.05, 0.56, smokeboxEndZ - 0.6, 0.3, 0.3, 1.0, 10, 'z', 'secondary', 'detail');
+  }
+
+  // Copper-rimmed smokestack & brass steam dome
+  const topY = boilerCenterY + boilerR;
+  batcher.addCylinder(0, topY + 0.36, sbZ + 0.06, 0.21, 0.16, 0.72, 12, 'y', 'secondary', 'detail');
+  batcher.addCylinder(0, topY + 0.74, sbZ + 0.06, 0.25, 0.21, 0.09, 12, 'y', 'livery', 'detail');
+  batcher.addCylinder(0, topY + 0.26, tankMidZ + 0.15, 0.38, 0.44, 0.52, 12, 'y', 'livery', 'detail');
+
+  // Cab & rear integral coal bunker
+  const cabMidZ = (cabStartZ + cabEndZ) * 0.5;
+  const cabH = bodyTopY - deckY;
+  batcher.addBox(0, deckY + cabH * 0.44, cabMidZ, d.width * 0.92, cabH * 0.88, cabEndZ - cabStartZ, { materialRole: 'primary', layer: 'body' });
+  batcher.addBox(0, bodyTopY - 0.05, cabMidZ, d.width * 0.98, 0.14, cabEndZ - cabStartZ + 0.35, { materialRole: 'secondary', layer: 'body' });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW * 0.92 + 0.01), bodyTopY - 0.54, cabMidZ, 0.05, 0.58, 1.25, { materialRole: glassRole, layer: 'glass' });
+  }
+  const bunkMidZ = (bunkerStartZ + bunkerEndZ) * 0.5;
+  batcher.addBox(0, deckY + 0.86, bunkMidZ, d.width * 0.88, 1.48, bunkerEndZ - bunkerStartZ, { materialRole: 'primary', layer: 'body' });
+  batcher.addBox(0, deckY + 1.66, bunkMidZ, d.width * 0.72, 0.32, (bunkerEndZ - bunkerStartZ) * 0.78, { materialRole: 'chassisDark', layer: 'detail' });
+
+  // 0-6-0 Rigid Coupled Drivers (3 big spoked wheels + coupling rods; empty dummy bogie pivots so no diesel truck spawns)
+  const driverR = clamp(cfg.railWheelRadius || 0.56, 0.48, 0.64);
+  const { customWheelsets, steamRods } = trLocoExtAddSteamDriversAndRods(
+    rootGroup,
+    layout,
+    materialBundle,
+    [-2.05, 0.0, 2.05],
+    driverR,
+    'TankSteam'
+  );
+  const customBogies = ['front', 'rear'].map((id) => {
+    const g = new THREE.Group();
+    g.name = `Bogie_${id}`;
+    g.userData = { pivotType: 'bogie', bogieId: id, wheelsets: [] };
+    rootGroup.add(g);
+    return g;
+  });
+
+  return { doors: [], steamRods, customBogies, customWheelsets };
+}
+
+function trLocoExtBuildArticulatedSteam(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const deckY = layout.rail.zones.deckY;
+  const bodyTopY = layout.rail.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Split 23.2m Big Boy into oversized 12-wheel coal tender + cab + huge articulated boiler!
+  const tenderStartZ = -halfL + 0.25;
+  const tenderEndZ = tenderStartZ + 7.4;
+  const cabStartZ = tenderEndZ + 0.36;
+  const cabEndZ = cabStartZ + 2.45;
+  const smokeboxEndZ = halfL - 0.82;
+  const boilerLen = smokeboxEndZ - cabEndZ;
+  const boilerMidZ = (cabEndZ + smokeboxEndZ) * 0.5;
+  const boilerR = clamp(halfW * 0.66, 0.86, 1.08);
+  const boilerCenterY = deckY + boilerR + 0.42;
+
+  batcher.addBox(0, deckY - 0.14, (cabStartZ + halfL) * 0.5, 1.16, 0.38, halfL - cabStartZ - 0.25, { materialRole: 'chassisDark', layer: 'chassis' });
+  // Cowcatcher pilot & twin air-compressor shields on smokebox front
+  batcher.addBox(0, deckY - 0.18, halfL - 0.35, d.width * 0.92, 0.22, 0.56, { materialRole: 'chassisDark', layer: 'chassis' });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * 0.66, 0.52, halfL - 0.2, 1.32, 0.58, 0.08, { rotY: -side * 0.44, rotX: 0.22, materialRole: 'chassisDark', layer: 'chassis' });
+    batcher.addBox(side * (boilerR + 0.3), deckY + 0.16, boilerMidZ, 0.42, 0.09, boilerLen + 0.35, { materialRole: 'secondary', layer: 'body' });
+    // Front & rear articulated pairs of outside steam cylinders!
+    for (const cz of [smokeboxEndZ - 0.85, boilerMidZ - 0.65]) {
+      batcher.addCylinder(side * 1.18, 0.64, cz, 0.38, 0.38, 1.35, 12, 'z', 'secondary', 'detail');
+      batcher.addCylinder(side * 1.12, 1.04, cz, 0.25, 0.25, 1.2, 10, 'z', 'chassisDark', 'detail');
+    }
+  }
+
+  // Massive boiler, wide firebox, twin exhaust stacks & triple sand/steam domes
+  batcher.addCylinder(0, boilerCenterY, boilerMidZ, boilerR, boilerR, boilerLen, 18, 'z', 'primary', 'body');
+  batcher.addBox(0, boilerCenterY - 0.1, cabEndZ + 1.25, boilerR * 2.08, boilerR * 1.82, 2.5, { materialRole: 'primary', layer: 'body' });
+  const sbLen = 2.05;
+  const sbZ = smokeboxEndZ - sbLen * 0.5;
+  batcher.addCylinder(0, boilerCenterY, sbZ, boilerR + 0.03, boilerR + 0.03, sbLen, 18, 'z', 'secondary', 'body');
+  batcher.addCylinder(0, boilerCenterY, smokeboxEndZ + 0.12, boilerR * 0.48, boilerR * 0.95, 0.24, 14, 'z', 'secondary', 'body');
+
+  const topY = boilerCenterY + boilerR;
+  for (const sz of [sbZ + 0.32, sbZ - 0.32]) {
+    batcher.addCylinder(0, topY + 0.28, sz, 0.22, 0.19, 0.56, 10, 'y', 'secondary', 'detail');
+  }
+  for (const dz of [boilerMidZ + 2.1, boilerMidZ + 0.2, boilerMidZ - 1.9]) {
+    batcher.addCylinder(0, topY + 0.24, dz, 0.46, 0.54, 0.48, 12, 'y', 'primary', 'detail');
+  }
+
+  // Engineer Cab + Giant Centipede Coal Tender
+  const cabMidZ = (cabStartZ + cabEndZ) * 0.5;
+  const cabH = bodyTopY - deckY;
+  batcher.addBox(0, deckY + cabH * 0.42, cabMidZ, d.width * 0.96, cabH * 0.84, cabEndZ - cabStartZ, { materialRole: 'primary', layer: 'body' });
+  batcher.addBox(0, bodyTopY - 0.05, cabMidZ - 0.06, d.width * 1.0, 0.16, cabEndZ - cabStartZ + 0.4, { materialRole: 'secondary', layer: 'body' });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW * 0.96 + 0.01), bodyTopY - 0.58, cabMidZ, 0.05, 0.64, 1.45, { materialRole: glassRole, layer: 'glass' });
+  }
+  const tMidZ = (tenderStartZ + tenderEndZ) * 0.5;
+  const tLen = tenderEndZ - tenderStartZ;
+  const tH = Math.max(1.9, bodyTopY - deckY - 0.48);
+  batcher.addBox(0, deckY - 0.1, tMidZ, d.width * 0.96, 0.22, tLen, { materialRole: 'chassisDark', layer: 'chassis' });
+  batcher.addBox(0, deckY + tH * 0.5, tMidZ, d.width * 0.94, tH, tLen - 0.1, { materialRole: 'primary', layer: 'body' });
+  batcher.addBox(0, deckY + tH + 0.16, tMidZ + 0.3, d.width * 0.74, 0.45, tLen * 0.65, { materialRole: 'chassisDark', layer: 'detail' });
+
+  // Twin articulated driver sets (front 3 drivers + rear 3 drivers) + dual orbiting coupling rods!
+  const driverR = 0.62;
+  const frontSet = trLocoExtAddSteamDriversAndRods(rootGroup, layout, materialBundle, [boilerMidZ + 1.35, boilerMidZ + 2.75, boilerMidZ + 4.15], driverR, 'BigBoyFront');
+  const rearSet = trLocoExtAddSteamDriversAndRods(rootGroup, layout, materialBundle, [boilerMidZ - 3.65, boilerMidZ - 2.25, boilerMidZ - 0.85], driverR, 'BigBoyRear');
+
+  return {
+    doors: [],
+    steamRods: [...frontSet.steamRods, ...rearSet.steamRods],
+    customWheelsets: [...frontSet.customWheelsets, ...rearSet.customWheelsets]
+  };
+}
+
+function trLocoExtBuildHeavyDiesel(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const deckY = layout.rail.zones.deckY;
+  const bodyTopY = layout.rail.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Heavy underframe sill, end anticlimber decks, giant central fuel tank & snowplow
+  batcher.addBox(0, deckY - 0.13, 0, d.width, 0.26, d.length, { materialRole: 'secondary', layer: 'chassis' });
+  batcher.addBox(0, deckY - 0.54, -0.35, d.width * 0.68, 0.66, clamp(cfg.railFuelTankLength || 5.6, 3.0, 6.8), {
+    materialRole: 'chassisDark',
+    layer: 'chassis'
+  });
+  batcher.addBox(0, deckY - 0.44, halfL - 0.22, d.width * 0.92, 0.44, 0.22, { materialRole: 'chassisDark', layer: 'chassis' });
+
+  // Modern North American Wide-Nose Safety Cab (full width!)
+  const noseEndZ = halfL - 0.82;
+  const cabEndZ = noseEndZ - 1.95;
+  const cabStartZ = cabEndZ - 2.65;
+  const cabH = bodyTopY - deckY;
+  const noseTopY = deckY + cabH * 0.56;
+
+  batcher.addLoftedSlices([
+    { z: cabEndZ, bottomY: deckY, beltY: noseTopY - 0.24, topY: noseTopY, hwBottom: halfW * 0.96, hwBelt: halfW * 0.94, hwTop: halfW * 0.86 },
+    { z: noseEndZ, bottomY: deckY, beltY: noseTopY - 0.34, topY: noseTopY - 0.14, hwBottom: halfW * 0.92, hwBelt: halfW * 0.84, hwTop: halfW * 0.64 }
+  ], 'primary', 'body');
+  batcher.addBox(0, deckY + cabH * 0.5, (cabStartZ + cabEndZ) * 0.5, d.width * 0.96, cabH, cabEndZ - cabStartZ, {
+    materialRole: 'primary',
+    layer: 'body'
+  });
+  batcher.addBox(0, bodyTopY - 0.06, (cabStartZ + cabEndZ) * 0.5, d.width * 0.92, 0.16, cabEndZ - cabStartZ + 0.12, {
+    materialRole: 'secondary',
+    layer: 'body'
+  });
+  for (const sx of [-0.62, 0.62]) {
+    batcher.addBox(sx, bodyTopY - 0.56, cabEndZ + 0.02, 1.02, 0.62, 0.08, { rotX: -0.14, materialRole: glassRole, layer: 'glass' });
+  }
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW * 0.96 + 0.01), bodyTopY - 0.56, (cabStartZ + cabEndZ) * 0.5, 0.05, 0.58, 1.68, { materialRole: glassRole, layer: 'glass' });
+  }
+
+  // Long engine hood + iconic GE/EMD Flared Rear Radiator Wings!
+  const hoodStartZ = -halfL + 0.85;
+  const hoodLen = cabStartZ - hoodStartZ;
+  const hoodMidZ = (hoodStartZ + cabStartZ) * 0.5;
+  const hoodW = d.width * 0.64;
+  const hoodH = cabH - 0.12;
+  batcher.addBox(0, deckY + hoodH * 0.5, hoodMidZ, hoodW, hoodH, hoodLen, { materialRole: 'primary', layer: 'body' });
+  // Flared radiator wings at rear third of hood
+  const radLen = Math.min(4.8, hoodLen * 0.42);
+  const radZ = hoodStartZ + radLen * 0.5 + 0.25;
+  batcher.addBox(0, deckY + hoodH - 0.42, radZ, d.width * 0.94, 0.72, radLen, { materialRole: 'secondary', layer: 'body' });
+  for (const fz of [radZ - 1.35, radZ, radZ + 1.35]) {
+    batcher.addCylinder(0, deckY + hoodH + 0.05, fz, 0.56, 0.58, 0.14, 12, 'y', 'utility', 'detail');
+  }
+  // Exhaust stack & side stripe along walkways
+  batcher.addBox(0, deckY + hoodH + 0.14, cabStartZ - 2.4, 0.46, 0.28, 0.92, { materialRole: 'chassisDark', layer: 'detail' });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW + 0.014), deckY - 0.02, 0, 0.024, 0.16, d.length * 0.96, { materialRole: 'livery', layer: 'body' });
+    if (cfg.railHandrails) {
+      batcher.addBox(side * (halfW - 0.06), deckY + 0.94, hoodMidZ, 0.03, 0.032, hoodLen + 0.4, { materialRole: 'livery', layer: 'detail' });
+      for (let p = 0; p < 7; p++) {
+        const pz = lerp(hoodStartZ, cabStartZ, p / 6);
+        batcher.addBox(side * (halfW - 0.06), deckY + 0.48, pz, 0.026, 0.94, 0.026, { materialRole: 'utility', layer: 'detail' });
+      }
+    }
+  }
+
+  return { doors: [] };
+}
+
+function trLocoExtBuildBoxElectric(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const deckY = layout.rail.zones.deckY;
+  const bodyTopY = layout.rail.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const glassRole = cfg.railInteriorEnabled ? 'railGlass' : 'glass';
+
+  // Heavy riveted underframe & twin stepped GG1-inspired end noses
+  batcher.addBox(0, deckY - 0.13, 0, d.width, 0.26, d.length, { materialRole: 'secondary', layer: 'chassis' });
+  const bodyHalfL = halfL - 2.25;
+  const roofEaveY = bodyTopY - 0.26;
+  const bodyH = roofEaveY - deckY;
+  batcher.addBox(0, deckY + bodyH * 0.5, 0, d.width * 0.96, bodyH, bodyHalfL * 2, { materialRole: 'primary', layer: 'body' });
+
+  // Rounded streamlined roof arch
+  batcher.addLoftedSlices([
+    { z: -bodyHalfL, bottomY: roofEaveY - 0.02, beltY: lerp(roofEaveY, bodyTopY, 0.5), topY: bodyTopY, hwBottom: halfW * 0.96, hwBelt: halfW * 0.78, hwTop: halfW * 0.5 },
+    { z: bodyHalfL, bottomY: roofEaveY - 0.02, beltY: lerp(roofEaveY, bodyTopY, 0.5), topY: bodyTopY, hwBottom: halfW * 0.96, hwBelt: halfW * 0.78, hwTop: halfW * 0.5 }
+  ], 'secondary', 'body');
+
+  // Twin sloped classic end hoods & recessed cab windshields
+  const hoodH = bodyH * 0.64;
+  for (const endSign of [-1, 1]) {
+    const zIn = endSign * bodyHalfL;
+    const zOut = endSign * (halfL - 0.22);
+    const sIn = { z: zIn, bottomY: deckY, beltY: deckY + hoodH * 0.72, topY: deckY + hoodH, hwBottom: halfW * 0.92, hwBelt: halfW * 0.88, hwTop: halfW * 0.7 };
+    const sOut = { z: zOut, bottomY: deckY, beltY: deckY + hoodH * 0.56, topY: deckY + hoodH * 0.82, hwBottom: halfW * 0.82, hwBelt: halfW * 0.76, hwTop: halfW * 0.54 };
+    batcher.addLoftedSlices(endSign > 0 ? [sIn, sOut] : [sOut, sIn], 'primary', 'body');
+    for (const sx of [-0.54, 0.54]) {
+      batcher.addBox(sx, roofEaveY - 0.44, zIn + endSign * 0.02, 0.86, 0.58, 0.08, { materialRole: glassRole, layer: 'glass' });
+    }
+  }
+
+  // Classic gold cat-whisker pinstripes & porthole louver windows along sides
+  for (const side of [-1, 1]) {
+    for (const sy of [deckY + 0.34, deckY + 0.56]) {
+      batcher.addBox(side * (halfW * 0.96 + 0.015), sy, 0, 0.024, 0.08, bodyHalfL * 1.94, { materialRole: 'livery', layer: 'body' });
+    }
+    for (let i = 0; i < 5; i++) {
+      const wz = lerp(-bodyHalfL * 0.72, bodyHalfL * 0.72, i / 4);
+      batcher.addCylinder(side * (halfW * 0.96 + 0.01), deckY + bodyH * 0.62, wz, 0.28, 0.28, 0.06, 12, 'x', glassRole, 'glass');
+    }
+  }
+
+  // Twin articulated roof pantographs + ceramic busbar
+  batcher.addBox(0, bodyTopY + 0.07, 0, 0.08, 0.06, bodyHalfL * 1.6, { materialRole: 'livery', layer: 'detail' });
+  const pantographs = [];
+  for (const [idx, pz, dir] of [[0, bodyHalfL * 0.55, 1], [1, -bodyHalfL * 0.55, -1]]) {
+    const pGrp = trPartBuildPantographGroup(`box_${idx}`, 0, bodyTopY, pz, materialBundle, {
+      dir,
+      armLen: 0.94,
+      heightFactor: cfg.railPantographHeight ?? 0.88
+    });
+    rootGroup.add(pGrp);
+    pantographs.push(pGrp);
+  }
+
+  return { doors: [], pantographs };
+}
+
   // --- Module: transit/rail-passenger-ext.js ---
 function trPaxExtBuildEndWalls(batcher, bodyEndZ, deckY, eavesY, bodyTopY, width, halfW, gangways) {
   for (const endSign of [-1, 1]) {
@@ -13513,6 +15266,190 @@ function trPaxExtBuildCaboose(batcher, layout, cfg) {
     }
   }
   batcher.addCylinder(0.45, mainRoofY + 0.32, 2.2, 0.08, 0.09, 0.65, 8, 'y', 'chassisDark', 'detail');
+
+  return { doors: [] };
+}
+
+function trPaxExtBuildDiningCoach(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const pax = rz.zones.passenger;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+
+  batcher.addBox(0, deckY - 0.1, 0, d.width, 0.2, d.length - 0.16, { materialRole: 'chassisDark', layer: 'chassis' });
+  batcher.addBox(0, deckY - 0.42, 0, d.width * 0.66, 0.46, Math.max(2.6, d.wheelbase - 3.4), { materialRole: 'utility', layer: 'chassis' });
+
+  trPartAddPassengerShellWithDoors(batcher, -halfL + 0.14, halfL - 0.14, deckY, pax.eavesY, bodyTopY, halfW, rz.doors, cfg, {
+    winSillY: pax.windowSillY - 0.06,
+    winTopY: pax.windowTopY + 0.08,
+    roofRole: 'secondary',
+    interiorStyle: 'none'
+  });
+
+  // Visible warm-lit interior dining tables with white tablecloths & brass table lamps!
+  if (cfg.railInteriorEnabled) {
+    batcher.addBox(0, deckY + 0.05, 0, d.width - 0.28, 0.08, d.length - 1.2, { materialRole: 'interiorDark', layer: 'interior' });
+    for (let i = 0; i < 6; i++) {
+      const tz = lerp(-halfL + 3.2, halfL - 3.2, i / 5);
+      for (const side of [-1, 1]) {
+        batcher.addBox(side * (halfW - 0.54), deckY + 0.72, tz, 0.68, 0.08, 0.74, { materialRole: 'secondary', layer: 'interior' });
+        batcher.addBox(side * (halfW - 0.54), deckY + 0.36, tz, 0.14, 0.64, 0.14, { materialRole: 'utility', layer: 'interior' });
+        batcher.addCylinder(side * (halfW - 0.42), deckY + 0.86, tz, 0.07, 0.09, 0.18, 8, 'y', 'amberLight', 'interior');
+      }
+    }
+  }
+
+  // Kitchen exhaust stack vents & twin HVAC pods on roof
+  for (const hz of [-4.4, 4.4]) {
+    batcher.addBox(0, bodyTopY + 0.11, hz, 1.56, 0.22, 2.2, { materialRole: 'utility', layer: 'detail' });
+  }
+  for (const vz of [-6.4, -5.6]) {
+    batcher.addCylinder(0.45, bodyTopY + 0.18, vz, 0.12, 0.12, 0.32, 8, 'y', 'chrome', 'detail');
+  }
+  if (cfg.railGangways) {
+    for (const endSign of [-1, 1]) buildRailEndGangway(batcher, endSign, d.length, deckY, bodyTopY);
+  }
+  const doors = trPartBuildSlidingDoorGroups(rootGroup, rz.doors, halfW, deckY, pax.windowSillY, cfg, materialBundle, { doorRole: 'secondary' });
+  return { doors };
+}
+
+function trPaxExtBuildSleeperCoach(batcher, rootGroup, layout, cfg, materialBundle) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const pax = rz.zones.passenger;
+  const deckY = rz.zones.deckY;
+  const bodyTopY = rz.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+
+  batcher.addBox(0, deckY - 0.1, 0, d.width, 0.2, d.length - 0.16, { materialRole: 'chassisDark', layer: 'chassis' });
+  batcher.addBox(0, deckY - 0.42, 0, d.width * 0.66, 0.46, Math.max(2.6, d.wheelbase - 3.4), { materialRole: 'utility', layer: 'chassis' });
+
+  trPartAddPassengerShellWithDoors(batcher, -halfL + 0.14, halfL - 0.14, deckY, pax.eavesY, bodyTopY, halfW, rz.doors, cfg, {
+    winSillY: pax.windowSillY,
+    winTopY: pax.windowTopY,
+    roofRole: 'secondary',
+    interiorStyle: 'none'
+  });
+
+  // Interior private compartment partitions & upper/lower sleeper bunks
+  if (cfg.railInteriorEnabled) {
+    batcher.addBox(0, deckY + 0.05, 0, d.width - 0.28, 0.08, d.length - 1.2, { materialRole: 'interiorDark', layer: 'interior' });
+    for (let i = 0; i < 6; i++) {
+      const bz = lerp(-halfL + 3.0, halfL - 3.0, i / 5);
+      batcher.addBox(-0.22, deckY + 1.15, bz - 0.95, d.width * 0.68, 2.05, 0.08, { materialRole: 'secondary', layer: 'interior' });
+      batcher.addBox(-0.35, deckY + 0.54, bz, d.width * 0.52, 0.18, 0.85, { materialRole: 'livery', layer: 'interior' });
+      batcher.addBox(-0.35, deckY + 1.48, bz, d.width * 0.52, 0.16, 0.82, { materialRole: 'secondary', layer: 'interior' });
+    }
+  }
+
+  for (const hz of [-4.2, 4.2]) {
+    batcher.addBox(0, bodyTopY + 0.11, hz, 1.56, 0.22, 2.3, { materialRole: 'utility', layer: 'detail' });
+  }
+  if (cfg.railGangways) {
+    for (const endSign of [-1, 1]) buildRailEndGangway(batcher, endSign, d.length, deckY, bodyTopY);
+  }
+  const doors = trPartBuildSlidingDoorGroups(rootGroup, rz.doors, halfW, deckY, pax.windowSillY, cfg, materialBundle, { doorRole: 'secondary' });
+  return { doors };
+}
+
+function trPaxExtBuildAutoRack(batcher, layout, cfg) {
+  const d = layout.dimensions;
+  const deckY = layout.rail.zones.deckY;
+  const bodyTopY = layout.rail.zones.bodyTopY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+  const bodyLen = d.length - 0.45;
+  const bodyH = bodyTopY - deckY;
+  const midDeckY = deckY + bodyH * 0.48;
+
+  // Heavy flatcar base sill, upper auto deck, solid roof & clamshell end doors
+  batcher.addBox(0, deckY - 0.12, 0, d.width, 0.24, d.length, { materialRole: 'chassisDark', layer: 'chassis' });
+  batcher.addBox(0, midDeckY, 0, d.width - 0.2, 0.14, bodyLen - 0.2, { materialRole: 'secondary', layer: 'body' });
+  batcher.addBox(0, bodyTopY - 0.08, 0, d.width, 0.18, bodyLen, { materialRole: 'secondary', layer: 'body' });
+  for (const endSign of [-1, 1]) {
+    batcher.addBox(0, deckY + bodyH * 0.5, endSign * (bodyLen * 0.5), d.width * 0.96, bodyH, 0.14, { materialRole: 'primary', layer: 'body' });
+  }
+
+  // Slatted perforated side screen panels & heavy vertical frame posts so carried cars peek through!
+  for (const side of [-1, 1]) {
+    const wx = side * (halfW - 0.06);
+    for (let p = 0; p < 12; p++) {
+      const pz = lerp(-bodyLen * 0.48, bodyLen * 0.48, p / 11);
+      batcher.addBox(wx, deckY + bodyH * 0.5, pz, 0.09, bodyH, 0.11, { materialRole: 'primary', layer: 'body' });
+    }
+    for (const bandY of [deckY + 0.38, midDeckY - 0.12, midDeckY + 0.42, bodyTopY - 0.34]) {
+      batcher.addBox(wx, bandY, 0, 0.055, 0.28, bodyLen, { materialRole: 'primary', layer: 'body' });
+    }
+  }
+
+  // Two visible decks of stylized low-poly mini automobiles loaded inside!
+  if (cfg.railInteriorEnabled) {
+    const carColors = ['livery', 'secondary', 'utility', 'headlight'];
+    for (const deckBaseY of [deckY + 0.08, midDeckY + 0.1]) {
+      for (let c = 0; c < 4; c++) {
+        const cz = lerp(-bodyLen * 0.36, bodyLen * 0.36, c / 3);
+        const role = carColors[(c + (deckBaseY > midDeckY ? 1 : 0)) % carColors.length];
+        batcher.addBox(0, deckBaseY + 0.42, cz, 1.68, 0.54, 3.65, { materialRole: role, layer: 'detail' });
+        batcher.addBox(0, deckBaseY + 0.86, cz - 0.15, 1.46, 0.42, 1.95, { materialRole: 'glass', layer: 'glass' });
+      }
+    }
+  }
+
+  return { doors: [] };
+}
+
+function trPaxExtBuildWellCar(batcher, layout) {
+  const d = layout.dimensions;
+  const rz = layout.rail;
+  const deckY = rz.zones.deckY;
+  const halfW = d.halfWidth;
+  const halfL = d.length * 0.5;
+
+  // End bogie bolster platforms + depressed low-slung center well between bogies!
+  const wellStartZ = rz.bogies[1].pivotZ + rz.bogies[1].wheelbase * 0.5 + 0.5;
+  const wellEndZ = rz.bogies[0].pivotZ - rz.bogies[0].wheelbase * 0.5 - 0.5;
+  const wellLen = Math.max(8.0, wellEndZ - wellStartZ);
+  const wellFloorY = 0.44;
+  const sideWallH = 0.92;
+
+  for (const endSign of [-1, 1]) {
+    const endStart = endSign > 0 ? wellEndZ : -halfL;
+    const endEnd = endSign > 0 ? halfL : wellStartZ;
+    const eLen = Math.max(1.4, endEnd - endStart);
+    batcher.addBox(0, deckY - 0.1, (endStart + endEnd) * 0.5, d.width, 0.24, eLen, { materialRole: 'primary', layer: 'chassis' });
+  }
+  // Depressed well side girders & bottom cross-ties
+  batcher.addBox(0, wellFloorY, 0, d.width * 0.88, 0.14, wellLen, { materialRole: 'chassisDark', layer: 'chassis' });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (halfW - 0.12), wellFloorY + sideWallH * 0.5, 0, 0.22, sideWallH, wellLen + 0.5, {
+      materialRole: 'primary',
+      layer: 'body'
+    });
+  }
+
+  // Double-stacked 40ft corrugated ISO containers (lower sits inside well, upper stacked high!)
+  const contLen = Math.min(12.2, wellLen - 0.28);
+  const contW = Math.min(2.44, d.width - 0.48);
+  const contH = 2.08;
+  const lowerY = wellFloorY + 0.08 + contH * 0.5;
+  const upperY = lowerY + contH + 0.04;
+
+  for (const [cy, role] of [[lowerY, 'secondary'], [upperY, 'livery']]) {
+    batcher.addBox(0, cy, 0, contW, contH, contLen, { materialRole: role, layer: 'detail' });
+    for (let r = 0; r < 11; r++) {
+      const rzPos = lerp(-contLen * 0.44, contLen * 0.44, r / 10);
+      for (const side of [-1, 1]) {
+        batcher.addBox(side * (contW * 0.5 + 0.016), cy, rzPos, 0.032, contH * 0.88, 0.08, {
+          materialRole: role,
+          layer: 'detail'
+        });
+      }
+    }
+  }
 
   return { doors: [] };
 }
@@ -15208,6 +17145,14 @@ function buildRailCarbody(batcher, rootGroup, layout, cfg, materialBundle) {
       return trLocoExtBuildStreamlinedDiesel(batcher, layout, cfg);
     case 'rail_steam_loco':
       return trLocoExtBuildSteam(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_tank_steam':
+      return trLocoExtBuildTankSteam(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_articulated_steam':
+      return trLocoExtBuildArticulatedSteam(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_heavy_diesel':
+      return trLocoExtBuildHeavyDiesel(batcher, layout, cfg);
+    case 'rail_box_electric':
+      return trLocoExtBuildBoxElectric(batcher, rootGroup, layout, cfg, materialBundle);
     case 'rail_maintenance':
       return trLocoExtBuildMaintenance(batcher, layout, cfg);
     case 'rail_highspeed_lead':
@@ -15218,6 +17163,10 @@ function buildRailCarbody(batcher, rootGroup, layout, cfg, materialBundle) {
       return trPaxExtBuildBilevel(batcher, rootGroup, layout, cfg, materialBundle);
     case 'rail_dome_coach':
       return trPaxExtBuildDomeCoach(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_dining_coach':
+      return trPaxExtBuildDiningCoach(batcher, rootGroup, layout, cfg, materialBundle);
+    case 'rail_sleeper_coach':
+      return trPaxExtBuildSleeperCoach(batcher, rootGroup, layout, cfg, materialBundle);
     case 'rail_subway_classic':
       return trPaxExtBuildSubwayClassic(batcher, rootGroup, layout, cfg, materialBundle);
     case 'rail_metro_modern':
@@ -15234,6 +17183,10 @@ function buildRailCarbody(batcher, rootGroup, layout, cfg, materialBundle) {
       return trPaxExtBuildHopper(batcher, layout, cfg);
     case 'rail_freight_caboose':
       return trPaxExtBuildCaboose(batcher, layout, cfg);
+    case 'rail_freight_autorack':
+      return trPaxExtBuildAutoRack(batcher, layout, cfg);
+    case 'rail_freight_wellcar':
+      return trPaxExtBuildWellCar(batcher, layout);
     case 'rail_passenger_coach':
       return trBodyBuildPassengerCoach(batcher, rootGroup, layout, cfg, materialBundle);
     case 'rail_historic_streetcar':
@@ -15396,10 +17349,14 @@ function buildRailDetails(batcher, rootGroup, layout, cfg) {
           lit: false
         });
       }
-    } else if (bf === 'rail_steam_loco') {
-      const boilerR = clamp(halfW * 0.62, 0.78, 1.02);
-      const boilerCenterY = deckY + boilerR + 0.38;
-      const smokeboxEndZ = halfL - 0.85;
+    } else if (bf === 'rail_steam_loco' || bf === 'rail_tank_steam' || bf === 'rail_articulated_steam') {
+      const boilerR = bf === 'rail_tank_steam'
+        ? clamp(halfW * 0.54, 0.68, 0.86)
+        : bf === 'rail_articulated_steam'
+          ? clamp(halfW * 0.66, 0.86, 1.08)
+          : clamp(halfW * 0.62, 0.78, 1.02);
+      const boilerCenterY = deckY + boilerR + (bf === 'rail_tank_steam' ? 0.24 : bf === 'rail_articulated_steam' ? 0.42 : 0.38);
+      const smokeboxEndZ = halfL - (bf === 'rail_tank_steam' ? 0.65 : 0.85);
       // Classic brass smokebox headlamp & bracket + pilot marker lanterns
       batcher.addBox(0, boilerCenterY + 0.44, smokeboxEndZ - 0.04, 0.28, 0.08, 0.28, { materialRole: 'utility', layer: 'detail' });
       batcher.addCylinder(0, boilerCenterY + 0.6, smokeboxEndZ + 0.04, 0.16, 0.16, 0.22, 12, 'z', 'secondary', 'detail');
@@ -15408,11 +17365,36 @@ function buildRailDetails(batcher, rootGroup, layout, cfg) {
         batcher.addCylinder(sx, deckY + 0.28, frontEndZ - 0.22, 0.06, 0.06, 0.1, 8, 'z', 'headlight', 'detail');
       }
       batcher.addCylinder(0, deckY + 1.48, rearEndZ + 0.24, 0.075, 0.075, 0.04, 10, 'z', 'taillight', 'detail');
-      const cabZ = -halfL + 0.25 + 5.8 + 0.38 + 1.175;
+      const cabZ = bf === 'rail_tank_steam' ? -halfL + 3.05 : (bf === 'rail_articulated_steam' ? -halfL + 9.2 : -halfL + 7.6);
       for (const side of [-1, 1]) {
         trDetailMakeNumberPlate(rootGroup, unitNum, 0.88, 0.22, side * (halfW * 0.94 + 0.024), deckY + 0.92, cabZ, side * Math.PI * 0.5, {
           bgHex: '#181a1f',
           fgHex: cfg.liveryStripeColor || '#d4a644',
+          lit: false
+        });
+      }
+    } else if (bf === 'rail_heavy_diesel') {
+      const topY = rz.zones.bodyTopY;
+      batcher.addCylinder(0, topY - 0.28, frontEndZ - 2.75, 0.095, 0.095, 0.05, 10, 'z', 'headlight', 'detail');
+      for (const sx of [-0.72, 0.72]) {
+        batcher.addCylinder(sx, deckY + 0.28, frontEndZ - 0.35, 0.065, 0.065, 0.04, 8, 'z', 'headlight', 'detail');
+        batcher.addCylinder(sx, deckY + 0.26, rearEndZ + 0.12, 0.06, 0.06, 0.04, 8, 'z', 'taillight', 'detail');
+      }
+      for (const side of [-1, 1]) {
+        trDetailMakeNumberPlate(rootGroup, unitNum, 1.08, 0.24, side * (halfW * 0.96 + 0.025), deckY + 1.02, frontEndZ - 4.1, side * Math.PI * 0.5, {
+          bgHex: cfg.bodySecondaryColor || '#2c3138',
+          fgHex: cfg.bodyPrimaryColor || '#e2a824',
+          lit: false
+        });
+      }
+    } else if (bf === 'rail_box_electric') {
+      for (const endSign of [-1, 1]) {
+        batcher.addCylinder(0, deckY + 1.25, endSign * (halfL - 0.2), 0.11, 0.11, 0.05, 10, 'z', endSign > 0 ? 'headlight' : 'taillight', 'detail');
+      }
+      for (const side of [-1, 1]) {
+        trDetailMakeNumberPlate(rootGroup, unitNum, 1.05, 0.24, side * (halfW * 0.96 + 0.026), deckY + 0.98, 0, side * Math.PI * 0.5, {
+          bgHex: '#182420',
+          fgHex: cfg.liveryStripeColor || '#e2b542',
           lit: false
         });
       }
@@ -15731,11 +17713,380 @@ function createRailVehicle(rawCfg, options = {}) {
   return root;
 }
 
+  // --- Module: air/air-vehicle.js ---
+function airVehMakeBannerPlate(parent, text, w, h, x, y, z, rotY = 0, options = {}) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 72;
+  const ctx = canvas.getContext('2d');
+  const bg = colorHex(options.bgHex, '#132645');
+  const fg = colorHex(options.fgHex, '#f8fafc');
+  if (ctx) {
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, 256, 72);
+    ctx.strokeStyle = colorHex(options.borderHex, '#e2352c');
+    ctx.lineWidth = 4;
+    ctx.strokeRect(4, 4, 248, 64);
+    ctx.fillStyle = fg;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const label = String(text || 'SKYCAM 4').slice(0, 18);
+    let fontSize = 34;
+    ctx.font = `bold ${fontSize}px Arial`;
+    while (fontSize > 15 && ctx.measureText(label).width > 228) {
+      fontSize -= 2;
+      ctx.font = `bold ${fontSize}px Arial`;
+    }
+    ctx.fillText(label, 128, 37);
+  }
+  const tex = new THREE.CanvasTexture(canvas);
+  const mat = options.lit
+    ? new THREE.MeshLambertMaterial({ map: tex, color: '#ffffff', emissive: bg, emissiveIntensity: 0.4 })
+    : new THREE.MeshLambertMaterial({ map: tex, color: '#ffffff' });
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.016), mat);
+  mesh.position.set(x, y, z);
+  if (rotY) mesh.rotation.y = rotY;
+  mesh.castShadow = false;
+  mesh.receiveShadow = true;
+  mesh.userData = {
+    layer: 'detail',
+    materialRole: 'signFace',
+    _tex: tex,
+    _ownedMat: true
+  };
+  if (parent) parent.add(mesh);
+  return mesh;
+}
+
+function applyAirVehiclePose(airRoot, pose = {}) {
+  if (!airRoot || !airRoot.userData?.airParts) return;
+  const parts = airRoot.userData.airParts;
+  if (Number.isFinite(pose.rotorSpinRad)) {
+    if (parts.mainRotor) parts.mainRotor.rotation.y = pose.rotorSpinRad;
+    if (parts.tailRotor) parts.tailRotor.rotation.x = pose.rotorSpinRad * 4.2;
+  }
+  if (Number.isFinite(pose.hoverHeight) && parts.airframe) {
+    parts.airframe.position.y = clamp(pose.hoverHeight, 0, 3.5);
+  }
+  if (Number.isFinite(pose.doorOpenFactor)) {
+    const f = clamp(pose.doorOpenFactor, 0, 1);
+    for (const dr of parts.doors || []) {
+      const base = dr.userData?.basePos || [0, 0, 0];
+      const vec = dr.userData?.slideVector || [0, 0, 0];
+      dr.position.set(base[0] + vec[0] * f, base[1] + vec[1] * f, base[2] + vec[2] * f);
+    }
+  }
+}
+
+function createAirVehicle(rawCfg, options = {}) {
+  const cfg = sanitiseConfig(rawCfg);
+  const layout = resolveAirVehicleLayout(cfg);
+  const air = layout.air;
+  const root = vehRoot(null, 0, 0, 0);
+  root.name = `AirVehicle_${cfg.style}_${cfg.seed}`;
+
+  const materialBundle = resolveVehicleMaterialBundle(cfg, {
+    lightingTime: options.lightingTime || cfg.lightingTime
+  });
+
+  const airframe = new THREE.Group();
+  airframe.name = 'Airframe';
+  root.add(airframe);
+
+  const batcher = new VehicleBatcher();
+  const cHW = air.cabinHalfW;
+  const bellyY = air.bellyY;
+  const roofY = air.cabinRoofY;
+  const beltY = lerp(bellyY, roofY, 0.44);
+  const glassRole = cfg.airInteriorEnabled ? 'railGlass' : 'glass';
+
+  // 1. Sculpted Aerodynamic Fuselage Pod (nose -> cockpit -> passenger/camera cabin -> tail taper)
+  batcher.addLoftedSlices([
+    { z: air.cabinRearZ - 0.65, bottomY: bellyY + 0.42, beltY: lerp(bellyY, roofY, 0.62), topY: roofY - 0.14, hwBottom: cHW * 0.36, hwBelt: cHW * 0.46, hwTop: cHW * 0.34 },
+    { z: air.cabinRearZ, bottomY: bellyY + 0.06, beltY, topY: roofY, hwBottom: cHW * 0.78, hwBelt: cHW, hwTop: cHW * 0.72 },
+    { z: air.cabinFrontZ + 0.15, bottomY: bellyY, beltY, topY: roofY, hwBottom: cHW * 0.84, hwBelt: cHW, hwTop: cHW * 0.74 },
+    { z: air.noseZ - 0.45, bottomY: bellyY + 0.08, beltY: beltY - 0.06, topY: beltY + 0.34, hwBottom: cHW * 0.64, hwBelt: cHW * 0.74, hwTop: cHW * 0.56 },
+    { z: air.noseZ, bottomY: bellyY + 0.24, beltY: bellyY + 0.44, topY: bellyY + 0.58, hwBottom: cHW * 0.26, hwBelt: cHW * 0.32, hwTop: cHW * 0.22 }
+  ], 'primary', 'body');
+
+  // Secondary accent belly & broadcast livery stripes
+  batcher.addBox(0, bellyY + 0.12, (air.cabinRearZ + air.cabinFrontZ) * 0.5, cHW * 1.66, 0.24, air.cabinFrontZ - air.cabinRearZ + 0.2, {
+    materialRole: 'secondary',
+    layer: 'body'
+  });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (cHW + 0.014), beltY - 0.08, (air.cabinRearZ + air.cabinFrontZ) * 0.5, 0.024, 0.14, air.cabinFrontZ - air.cabinRearZ + 0.15, {
+      materialRole: 'livery',
+      layer: 'body'
+    });
+  }
+
+  // Wraparound panoramic bubble cockpit canopy + side cockpit windows
+  const wsMidZ = lerp(air.cabinFrontZ, air.noseZ, 0.46);
+  const wsMidY = lerp(beltY, roofY, 0.52);
+  batcher.addBox(0, wsMidY, wsMidZ, cHW * 1.44, (roofY - beltY) * 0.96, 0.98, {
+    rotX: 0.54,
+    materialRole: glassRole,
+    layer: 'glass'
+  });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * (cHW * 0.92), wsMidY + 0.02, air.cabinFrontZ - 0.35, 0.08, (roofY - beltY) * 0.76, 1.15, {
+      materialRole: glassRole,
+      layer: 'glass'
+    });
+  }
+
+  // Optional cockpit & camera-operator interior seats + instrument console
+  if (cfg.airInteriorEnabled) {
+    batcher.addBox(0, bellyY + 0.22, (air.cabinRearZ + air.cabinFrontZ) * 0.5, cHW * 1.35, 0.08, air.cabinFrontZ - air.cabinRearZ - 0.2, {
+      materialRole: 'interiorDark',
+      layer: 'interior'
+    });
+    batcher.addBox(0, beltY + 0.05, air.cabinFrontZ + 0.28, cHW * 0.92, 0.28, 0.38, { materialRole: 'trim', layer: 'interior' });
+    for (const sx of [-0.36, 0.36]) {
+      batcher.addBox(sx, bellyY + 0.54, air.cabinFrontZ - 0.35, 0.42, 0.56, 0.42, { materialRole: 'secondary', layer: 'interior' });
+    }
+  }
+
+  // 2. Top Turbine Engine Cowling & Exhaust Nozzles
+  const cowlLen = air.isTwin ? 2.55 : 2.1;
+  const cowlH = air.cowlingTopY - roofY;
+  batcher.addBox(0, roofY + cowlH * 0.5, air.rotorHubZ - 0.22, air.isTwin ? cHW * 1.18 : cHW * 0.88, cowlH, cowlLen, {
+    materialRole: 'secondary',
+    layer: 'body'
+  });
+  const exhaustXs = air.isTwin ? [-0.34, 0.34] : [0];
+  for (const ex of exhaustXs) {
+    batcher.addCylinder(ex, roofY + cowlH * 0.58, air.rotorHubZ - 0.22 - cowlLen * 0.52, 0.14, 0.11, 0.36, 10, 'z', 'chassisDark', 'detail');
+  }
+  // Main rotor mast shaft rising from cowling to mastTopY
+  const mastH = air.mastTopY - air.cowlingTopY;
+  batcher.addCylinder(0, air.cowlingTopY + mastH * 0.5, air.rotorHubZ, 0.095, 0.12, mastH + 0.08, 10, 'y', 'utility', 'detail');
+
+  // 3. Tapered Tail Boom, Horizontal Stabilizers & Vertical Tail Fin
+  const boomStartZ = air.cabinRearZ - 0.45;
+  const boomEndZ = air.tailEndZ + 0.32;
+  const boomLen = Math.max(2.6, boomStartZ - boomEndZ);
+  const boomMidZ = (boomStartZ + boomEndZ) * 0.5;
+  const boomY = lerp(bellyY, roofY, 0.64);
+  batcher.addCylinder(0, boomY, boomMidZ, 0.32, 0.14, boomLen, 10, 'z', 'primary', 'body');
+  // Horizontal tailplane stabilizers
+  batcher.addBox(0, boomY + 0.04, boomEndZ + 1.15, 1.85, 0.07, 0.44, { materialRole: 'secondary', layer: 'body' });
+  for (const side of [-1, 1]) {
+    batcher.addBox(side * 0.92, boomY + 0.04, boomEndZ + 1.15, 0.05, 0.36, 0.4, { materialRole: 'livery', layer: 'body' });
+  }
+  // Swept vertical tail fin (and optional fenestron shroud)
+  const finH = air.isTwin ? 1.38 : 1.15;
+  batcher.addBox(0, boomY + finH * 0.42, air.tailEndZ + 0.38, 0.12, finH, 0.72, {
+    rotX: 0.26,
+    materialRole: 'secondary',
+    layer: 'body'
+  });
+  batcher.addBox(0, boomY - 0.28, air.tailEndZ + 0.48, 0.09, 0.48, 0.42, {
+    rotX: -0.22,
+    materialRole: 'livery',
+    layer: 'body'
+  });
+  if (cfg.airTailStyle === 'fenestron_shroud') {
+    batcher.addCylinder(0, air.tailRotorY, air.tailRotorZ, 0.44, 0.44, 0.18, 14, 'x', 'livery', 'body');
+    batcher.addCylinder(0, air.tailRotorY, air.tailRotorZ, 0.34, 0.34, 0.2, 14, 'x', 'interiorDark', 'detail');
+  }
+  // Tail strobe beacon & tail boom callsign plates
+  batcher.addCylinder(0, boomY + finH * 0.92, air.tailEndZ + 0.22, 0.055, 0.055, 0.1, 8, 'y', 'redLight', 'detail');
+  for (const side of [-1, 1]) {
+    airVehMakeBannerPlate(airframe, cfg.airCallsign || 'CH4-SKY', 1.15, 0.22, side * 0.26, boomY, boomMidZ + 0.65, side * Math.PI * 0.5, {
+      bgHex: cfg.bodySecondaryColor || '#1b3868',
+      fgHex: '#f8fafc',
+      borderHex: cfg.liveryStripeColor || '#e2352c',
+      lit: false
+    });
+    airVehMakeBannerPlate(airframe, cfg.signText || 'SKYCAM 4 NEWS', 1.45, 0.26, side * (cHW + 0.022), bellyY + 0.38, (air.cabinRearZ + air.cabinFrontZ) * 0.5, side * Math.PI * 0.5, {
+      bgHex: cfg.bodySecondaryColor || '#1b3868',
+      fgHex: '#f8fafc',
+      borderHex: cfg.liveryStripeColor || '#e2352c',
+      lit: Boolean(cfg.emergencyLightsLit)
+    });
+  }
+
+  // 4. Landing Gear (Tubular Skids or Wheeled Gear sitting cleanly at y = 0!)
+  const skidX = air.skidTrackHalfX;
+  const skidLen = air.skidMaxZ - air.skidMinZ;
+  const skidMidZ = (air.skidMinZ + air.skidMaxZ) * 0.5;
+  if (cfg.airLandingGear === 'wheeled_gear') {
+    // Nose wheel + twin rear main landing gear wheels resting at y = 0
+    const wheelR = 0.22;
+    batcher.addCylinder(0, wheelR, air.noseZ - 0.72, wheelR, wheelR, 0.14, 12, 'x', 'tire', 'wheel');
+    batcher.addCylinder(0, (wheelR + bellyY) * 0.5, air.noseZ - 0.72, 0.045, 0.05, bellyY - wheelR + 0.12, 8, 'y', 'utility', 'chassis');
+    for (const side of [-1, 1]) {
+      batcher.addCylinder(side * skidX, wheelR, air.cabinRearZ + 0.35, wheelR, wheelR, 0.18, 12, 'x', 'tire', 'wheel');
+      batcher.addCylinder(side * skidX, wheelR, air.cabinRearZ + 0.35, wheelR * 0.52, wheelR * 0.52, 0.2, 10, 'x', 'rim', 'wheel');
+      batcher.addBox(side * (skidX * 0.62), (wheelR + bellyY) * 0.52, air.cabinRearZ + 0.35, skidX * 0.9, 0.09, 0.14, {
+        rotZ: side * 0.45,
+        materialRole: 'utility',
+        layer: 'chassis'
+      });
+    }
+  } else {
+    const tubeR = 0.045;
+    for (const side of [-1, 1]) {
+      // Main ground-contact skid rail (bottom at exact y = 0!)
+      batcher.addCylinder(side * skidX, tubeR, skidMidZ, tubeR, tubeR, skidLen, 10, 'z', 'utility', 'chassis');
+      // Upturned front skid toe tip
+      batcher.addCylinder(side * skidX, tubeR + 0.09, air.skidMaxZ + 0.18, tubeR * 0.9, tubeR, 0.42, 8, 'z', 'utility', 'chassis', 0, -0.45);
+      // Front & rear angled support struts connecting skid rail up into fuselage belly
+      for (const sz of [air.skidMinZ + 0.55, air.skidMaxZ - 0.48]) {
+        const dx = -side * (skidX - cHW * 0.56);
+        const dy = bellyY + 0.08 - tubeR;
+        const sLen = Math.hypot(dx, dy) + 0.06;
+        batcher.addBox(side * skidX + dx * 0.5, tubeR + dy * 0.5, sz, 0.068, sLen, 0.085, {
+          rotZ: -Math.atan2(dx, dy),
+          materialRole: 'chassisDark',
+          layer: 'chassis'
+        });
+      }
+    }
+  }
+
+  // 5. Under-Nose Stabilized Gyro-Camera Broadcast Gimbal & Searchlight!
+  if (cfg.airNoseGimbal && cfg.airNoseGimbal !== 'none') {
+    const gimZ = air.noseZ - 0.28;
+    const gimY = bellyY - 0.08;
+    batcher.addBox(0, gimY + 0.16, gimZ, 0.22, 0.24, 0.24, { materialRole: 'chassisDark', layer: 'detail' });
+    batcher.addCylinder(0, gimY - 0.04, gimZ, 0.21, 0.21, 0.28, 12, 'x', 'trim', 'detail');
+    batcher.addCylinder(0, gimY - 0.04, gimZ + 0.15, 0.11, 0.13, 0.08, 10, 'z', 'glass', 'detail');
+    batcher.addCylinder(0.06, gimY - 0.04, gimZ + 0.19, 0.045, 0.045, 0.04, 8, 'z', 'redLight', 'detail');
+    if (cfg.airNoseGimbal === 'dual_flir_light') {
+      batcher.addCylinder(-0.34, gimY + 0.02, gimZ - 0.12, 0.12, 0.13, 0.26, 10, 'z', 'chassisDark', 'detail');
+      batcher.addCylinder(-0.34, gimY + 0.02, gimZ + 0.02, 0.1, 0.1, 0.04, 10, 'z', 'headlight', 'detail');
+    }
+  }
+  // Landing headlamp & wingtip-style nav strobes
+  batcher.addCylinder(0, bellyY + 0.28, air.noseZ + 0.01, 0.08, 0.08, 0.04, 10, 'z', 'headlight', 'detail');
+  batcher.addCylinder(-cHW - 0.04, beltY, air.cabinFrontZ - 0.2, 0.045, 0.045, 0.08, 8, 'x', 'redLight', 'detail');
+  batcher.addCylinder(cHW + 0.04, beltY, air.cabinFrontZ - 0.2, 0.045, 0.045, 0.08, 8, 'x', 'blueLight', 'detail');
+
+  const bodyMeshes = batcher.finalize(airframe, materialBundle, {
+    castShadow: options.castShadow !== false,
+    receiveShadow: options.receiveShadow !== false
+  });
+
+  // 6. Articulated Sliding Camera-Bay Side Doors (open when airDoorsOpen > 0)
+  const doors = [];
+  const doorLen = 1.05;
+  const doorH = (roofY - bellyY) * 0.72;
+  const doorZ = lerp(air.cabinRearZ, air.cabinFrontZ, 0.34);
+  for (const side of [-1, 1]) {
+    const dGrp = new THREE.Group();
+    dGrp.name = `AirDoor_${side < 0 ? 'left' : 'right'}`;
+    const dBatch = new VehicleBatcher();
+    dBatch.addBox(side * (cHW + 0.02), bellyY + 0.2 + doorH * 0.5, doorZ, 0.06, doorH, doorLen, { materialRole: 'primary', layer: 'body' });
+    dBatch.addBox(side * (cHW + 0.032), lerp(beltY, roofY, 0.5), doorZ, 0.04, doorH * 0.45, doorLen * 0.72, { materialRole: glassRole, layer: 'glass' });
+    dBatch.finalize(dGrp, materialBundle);
+    dGrp.userData = {
+      pivotType: 'door',
+      basePos: [0, 0, 0],
+      slideVector: [side * 0.08, 0, -doorLen * 0.85]
+    };
+    airframe.add(dGrp);
+    doors.push(dGrp);
+  }
+
+  // 7. Spinning Main Rotor Assembly (`MainRotor`)
+  const mainRotor = new THREE.Group();
+  mainRotor.name = 'MainRotor';
+  mainRotor.position.set(0, air.mastTopY, air.rotorHubZ);
+  const mrBatch = new VehicleBatcher();
+  mrBatch.addCylinder(0, 0.04, 0, 0.22, 0.26, 0.16, 12, 'y', 'chassisDark', 'detail');
+  mrBatch.addCylinder(0, 0.13, 0, 0.14, 0.18, 0.08, 10, 'y', 'livery', 'detail');
+  const bladeLen = air.rotorRadius;
+  for (let b = 0; b < air.blades; b++) {
+    const ang = (b / air.blades) * Math.PI * 2;
+    const midR = bladeLen * 0.52;
+    const bx = Math.sin(ang) * midR;
+    const bz = Math.cos(ang) * midR;
+    mrBatch.addBox(bx, 0.05, bz, 0.22, 0.028, bladeLen - 0.16, {
+      rotY: ang,
+      materialRole: 'chassisDark',
+      layer: 'detail'
+    });
+    // High-visibility rotor blade warning tip
+    const tipR = bladeLen - 0.22;
+    mrBatch.addBox(Math.sin(ang) * tipR, 0.052, Math.cos(ang) * tipR, 0.23, 0.032, 0.34, {
+      rotY: ang,
+      materialRole: 'livery',
+      layer: 'detail'
+    });
+  }
+  mrBatch.finalize(mainRotor, materialBundle);
+  airframe.add(mainRotor);
+
+  // 8. Spinning Tail Rotor Assembly (`TailRotor`)
+  const tailRotor = new THREE.Group();
+  tailRotor.name = 'TailRotor';
+  const trX = cfg.airTailStyle === 'fenestron_shroud' ? 0 : 0.16;
+  tailRotor.position.set(trX, air.tailRotorY, air.tailRotorZ);
+  const trBatch = new VehicleBatcher();
+  const trSpan = cfg.airTailStyle === 'fenestron_shroud' ? 0.62 : 1.05;
+  trBatch.addCylinder(0, 0, 0, 0.07, 0.07, 0.14, 8, 'x', 'utility', 'detail');
+  const trCount = cfg.airTailStyle === 'fenestron_shroud' ? 4 : 2;
+  for (let i = 0; i < trCount; i++) {
+    trBatch.addBox(0, 0, 0, 0.024, trSpan, 0.09, {
+      rotX: (i / trCount) * Math.PI,
+      materialRole: i === 0 ? 'livery' : 'chassisDark',
+      layer: 'detail'
+    });
+  }
+  trBatch.finalize(tailRotor, materialBundle);
+  airframe.add(tailRotor);
+
+  let triangles = 0;
+  let vertices = 0;
+  let drawCalls = 0;
+  root.traverse((obj) => {
+    if (!obj.isMesh) return;
+    drawCalls++;
+    const geo = obj.geometry;
+    if (geo) {
+      if (geo.index) triangles += geo.index.count / 3;
+      else if (geo.attributes?.position) triangles += geo.attributes.position.count / 3;
+      if (geo.attributes?.position) vertices += geo.attributes.position.count;
+    }
+  });
+
+  const geometryStats = {
+    drawCalls,
+    batchedBuckets: bodyMeshes.length,
+    triangles: Math.round(triangles),
+    vertices: Math.round(vertices)
+  };
+
+  const blueprint = generateVehicleBlueprint(cfg, { layout, geometryStats });
+  root.userData.blueprint = blueprint;
+  root.userData.layout = layout;
+  root.userData.airParts = {
+    airframe,
+    mainRotor,
+    tailRotor,
+    doors
+  };
+
+  applyAirVehiclePose(root, {
+    rotorSpinRad: degToRad(cfg.airRotorSpinDeg || 0),
+    hoverHeight: clamp(cfg.airHoverHeight || 0, 0, 3.5),
+    doorOpenFactor: clamp(cfg.airDoorsOpen ?? (cfg.doorsOpen ? 1 : 0), 0, 1)
+  });
+
+  return root;
+}
+
   // --- Module: geometry/vehicle.js ---
 function createCityVehicle(rawCfg, options = {}) {
   const cfg = sanitiseConfig(rawCfg);
   if (isRailConfig(cfg)) {
     return createRailVehicle(cfg, options);
+  }
+  if (isAirConfig(cfg)) {
+    return createAirVehicle(cfg, options);
   }
   const layout = resolveVehicleLayout(cfg);
   const root = vehRoot(null, 0, 0, 0);
@@ -17130,6 +19481,39 @@ function rebuildVehicleEnvironment(environmentGroup, mode, showGrid, boundsMeter
   const lineWhite = isNight ? '#687480' : '#cdd5dd';
   const sidewalkColor = isNight ? '#26303a' : '#656e78';
 
+  if (mode === 'helipad') {
+    const padRadius = Math.max(7.8, (boundsMeters?.length || 11) * 0.72);
+    const padDeck = new THREE.Mesh(
+      new THREE.CylinderGeometry(padRadius, padRadius + 0.35, 0.32, 32),
+      new THREE.MeshLambertMaterial({ color: isNight ? '#1b222c' : '#3d4550' })
+    );
+    padDeck.position.y = -0.17;
+    padDeck.receiveShadow = true;
+    padDeck.userData = { _ownedMat: true };
+    environmentGroup.add(padDeck);
+
+    const ringOuter = new THREE.Mesh(
+      new THREE.RingGeometry(padRadius * 0.76, padRadius * 0.82, 36),
+      new THREE.MeshBasicMaterial({ color: lineYellow, side: THREE.DoubleSide })
+    );
+    ringOuter.rotation.x = -Math.PI * 0.5;
+    ringOuter.position.y = 0.004;
+    ringOuter.userData = { _ownedMat: true };
+    environmentGroup.add(ringOuter);
+
+    // Classic Helipad "H" center markings
+    addEnvBox(environmentGroup, -1.35, 0.003, 0, 0.42, 0.01, 3.6, lineWhite, false);
+    addEnvBox(environmentGroup, 1.35, 0.003, 0, 0.42, 0.01, 3.6, lineWhite, false);
+    addEnvBox(environmentGroup, 0, 0.003, 0, 2.7, 0.01, 0.42, lineWhite, false);
+
+    // Perimeter safety lights around helipad rim
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      addEnvBox(environmentGroup, Math.cos(a) * (padRadius - 0.38), 0.08, Math.sin(a) * (padRadius - 0.38), 0.18, 0.16, 0.18, '#f0b429', false);
+    }
+    return null;
+  }
+
   if (mode === 'street') {
     addEnvBox(environmentGroup, 0, -0.05, 0, 12, 0.08, gridSpan * 1.6, asphaltColor);
     for (let z = -gridSpan * 0.7; z <= gridSpan * 0.7; z += 3.2) {
@@ -18028,6 +20412,13 @@ function ctrlBuildLockedToggle(key, locks, onToggle) {
 }
 
 function ctrlSchemaDefForKey(key, state = null) {
+  if (state && isAirConfig(state)) {
+    for (const rows of Object.values(AIR_SCHEMA)) {
+      for (const def of rows) {
+        if (def.key === key) return def;
+      }
+    }
+  }
   if (state && isRailConfig(state)) {
     for (const rows of Object.values(RAIL_SCHEMA)) {
       for (const def of rows) {
@@ -18196,6 +20587,7 @@ function applySeedVariation(state, locks = new Set()) {
   const arch = getStyle(state.style);
   const presetBase = PRESETS[arch.preset] || PRESETS.sedan;
   const railMode = isRailConfig(state);
+  const airMode = isAirConfig(state);
 
   const setIfUnlocked = (key, val) => {
     if (!locks.has(key) && val !== undefined) {
@@ -18205,7 +20597,9 @@ function applySeedVariation(state, locks = new Set()) {
 
   let chosenFamily = state.paletteFamily || presetBase.paletteFamily || 'civilian_neutrals';
   if (!locks.has('paletteFamily')) {
-    if (railMode) {
+    if (airMode) {
+      chosenFamily = pick(r, ['broadcast_news', 'bright_city', 'emergency_palette']);
+    } else if (railMode) {
       const freightOrHeavy = new Set([
         'rail_diesel_road_switcher',
         'rail_diesel_switcher',
@@ -18232,6 +20626,19 @@ function applySeedVariation(state, locks = new Set()) {
     setIfUnlocked(k, v);
   }
   setIfUnlocked('colorVariation', ctrlSnapValue(0.04 + r() * 0.12, ctrlSchemaDefForKey('colorVariation', state)));
+
+  if (airMode) {
+    const airJitters = ['overallLength', 'overallWidth', 'overallHeight', 'airRotorDiameter'];
+    for (const key of airJitters) {
+      if (!locks.has(key)) {
+        const anchor = presetBase[key] !== undefined ? presetBase[key] : state[key];
+        ctrlApplyJitteredNumeric(state, key, anchor, r, 0.05);
+      }
+    }
+    const clean = sanitiseConfig(state);
+    Object.assign(state, clean);
+    return state;
+  }
 
   if (railMode) {
     const railJitters = ['overallLength', 'overallWidth', 'overallHeight', 'railDeckHeight', 'railWheelRadius'];
@@ -18615,6 +21022,7 @@ function renderControls(tabId, container, state, locks, ctx) {
   }
 
   const railMode = isRailConfig(state);
+  const airMode = isAirConfig(state);
   if (railMode && ctx.studioMode === 'trainset') {
     const unitBanner = document.createElement('div');
     unitBanner.className = 'studio-control-group studio-field consist-editing-banner';
@@ -18631,7 +21039,9 @@ function renderControls(tabId, container, state, locks, ctx) {
     container.appendChild(unitBanner);
   }
 
-  const rawRows = railMode && RAIL_SCHEMA[tabId] ? RAIL_SCHEMA[tabId] : (SCHEMA[tabId] || []);
+  const rawRows = airMode && AIR_SCHEMA[tabId]
+    ? AIR_SCHEMA[tabId]
+    : (railMode && RAIL_SCHEMA[tabId] ? RAIL_SCHEMA[tabId] : (SCHEMA[tabId] || []));
   const rows = railMode ? ctrlFilterRailRows(rawRows, state.bodyFamily) : rawRows;
   const materialOnlyKeys = new Set([
     ...CATEGORIES.materials,
@@ -18644,7 +21054,10 @@ function renderControls(tabId, container, state, locks, ctx) {
     'railWheelSpinDeg',
     'railDoorsOpen',
     'railPantographHeight',
-    'railCabinSwingDeg'
+    'railCabinSwingDeg',
+    'airRotorSpinDeg',
+    'airHoverHeight',
+    'airDoorsOpen'
   ]);
 
   for (const item of rows) {
@@ -18861,6 +21274,13 @@ const trackState = {
   lastTickMs: 0
 };
 
+const airState = {
+  rotorSpinning: true,
+  rotorSpinRad: 0,
+  hoverPreview: false,
+  doorsOpenPreview: false
+};
+
 const view = {
   focus: 'hero',
   autoRotate: false,
@@ -18974,6 +21394,7 @@ function vehAppPreferredStageForConfig(cfg) {
 function vehAppIsElectrifiedConfig(cfg) {
   const elecSet = new Set([
     'rail_electric_loco',
+    'rail_box_electric',
     'rail_highspeed_lead',
     'rail_highspeed_coach',
     'rail_historic_streetcar',
@@ -18988,20 +21409,27 @@ function vehAppIsElectrifiedConfig(cfg) {
 
 function vehAppSyncRailUI() {
   const inRail = studioMode === 'trainset' || isRailConfig(state);
+  const inAir = !inRail && isAirConfig(state);
   const railBar = $('#rail-preview-bar');
   if (railBar) railBar.hidden = !inRail;
+  const airBar = $('#air-preview-bar');
+  if (airBar) airBar.hidden = !inAir;
 
   const subBar = $('#transit-subfilters');
   if (subBar) subBar.hidden = categoryFilter !== 'transit_rail';
 
-  if (inRail && !vehAppIsRailEnv(view.environment) && view.environment !== 'studio' && view.environment !== 'none') {
+  if (inAir && view.environment !== 'helipad' && view.environment !== 'studio' && view.environment !== 'none') {
+    view.environment = 'helipad';
+    const envSel = $('#environment-select');
+    if (envSel) envSel.value = 'helipad';
+  } else if (inRail && !vehAppIsRailEnv(view.environment) && view.environment !== 'studio' && view.environment !== 'none') {
     view.environment = vehAppPreferredStageForConfig(state);
     if (view.environment === 'rail_straight' && vehAppIsRailEnv(trackState.mode)) {
       view.environment = trackState.mode;
     }
     const envSel = $('#environment-select');
     if (envSel) envSel.value = view.environment;
-  } else if (!inRail && vehAppIsRailEnv(view.environment)) {
+  } else if (!inRail && !inAir && (vehAppIsRailEnv(view.environment) || view.environment === 'helipad')) {
     view.environment = 'street';
     const envSel = $('#environment-select');
     if (envSel) envSel.value = 'street';
@@ -19016,6 +21444,11 @@ function vehAppSyncRailUI() {
   }
   const pantoToggle = $('#rail-panto-toggle');
   if (pantoToggle) pantoToggle.checked = Boolean(trackState.pantographRaised);
+  $('#btn-air-spin')?.classList.toggle('active', airState.rotorSpinning);
+  const airHoverEl = $('#air-hover-toggle');
+  if (airHoverEl) airHoverEl.checked = Boolean(airState.hoverPreview);
+  const airDoorsEl = $('#air-doors-toggle');
+  if (airDoorsEl) airDoorsEl.checked = Boolean(airState.doorsOpenPreview);
   const playBtn = $('#btn-track-play');
   if (playBtn) {
     playBtn.classList.toggle('active', trackState.playing);
@@ -19222,6 +21655,14 @@ function vehAppRefreshLivePose() {
         cabinSwingRad: cabinRad
       });
     }
+    return;
+  }
+  if (isAirConfig(state)) {
+    applyAirVehiclePose(vehicleRoot, {
+      rotorSpinRad: airState.rotorSpinning ? airState.rotorSpinRad : degToRad(state.airRotorSpinDeg || 0),
+      hoverHeight: airState.hoverPreview ? Math.max(1.8, state.airHoverHeight || 0) : clamp(state.airHoverHeight || 0, 0, 3.5),
+      doorOpenFactor: airState.doorsOpenPreview ? 1 : clamp(state.airDoorsOpen ?? 0, 0, 1)
+    });
     return;
   }
   if (isRailConfig(state)) {
@@ -19699,6 +22140,13 @@ async function initScene() {
         }
       }
 
+      if (studioMode === 'vehicle' && isAirConfig(state) && airState.rotorSpinning && vehicleRoot && dt > 0) {
+        airState.rotorSpinRad = (airState.rotorSpinRad + dt * 7.5) % (Math.PI * 2);
+        applyAirVehiclePose(vehicleRoot, {
+          rotorSpinRad: airState.rotorSpinRad
+        });
+      }
+
       if (orbit) {
         orbit.autoRotate = Boolean(view.autoRotate);
         orbit.autoRotateSpeed = 1.45;
@@ -20023,6 +22471,31 @@ function initUI() {
       vehAppRefreshLivePose();
     }
     if (activeTab === 'details') {
+      renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+    }
+  });
+
+  $('#btn-air-spin')?.addEventListener('click', () => {
+    airState.rotorSpinning = !airState.rotorSpinning;
+    vehAppSyncRailUI();
+    vehAppRefreshLivePose();
+  });
+
+  $('#air-hover-toggle')?.addEventListener('change', (e) => {
+    airState.hoverPreview = Boolean(e.target.checked);
+    state.airHoverHeight = airState.hoverPreview ? 1.8 : 0;
+    vehAppRefreshLivePose();
+    if (activeTab === 'wheels') {
+      renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
+    }
+  });
+
+  $('#air-doors-toggle')?.addEventListener('change', (e) => {
+    airState.doorsOpenPreview = Boolean(e.target.checked);
+    state.airDoorsOpen = airState.doorsOpenPreview ? 1 : 0;
+    state.doorsOpen = airState.doorsOpenPreview;
+    vehAppRefreshLivePose();
+    if (activeTab === 'doors') {
       renderControls(activeTab, $('#studio-controls'), state, locks, vehAppBuildControlContext());
     }
   });

@@ -1,6 +1,71 @@
 import { clamp, roundNum } from '../utils.js';
 import { registerAnchor, registerLaneClearance } from './placement-anchors.js';
 
+const STALL_WIDTH = 2.6;
+const STALL_DEPTH = 5.0;
+const PARKING_AISLE_WIDTH = 6.0;
+const PARKING_EDGE_GAP = 0.5;
+const PARKING_ROW_MARGIN = STALL_DEPTH + PARKING_AISLE_WIDTH + PARKING_EDGE_GAP;
+
+function planPerimeterParking(edges, driveways, count, placementCtx) {
+  const { left, right, rear, front } = edges;
+  const rowOffset = PARKING_EDGE_GAP + STALL_DEPTH * 0.5;
+  const leftAisle = left + PARKING_EDGE_GAP + STALL_DEPTH;
+  const rightAisle = right - PARKING_EDGE_GAP - STALL_DEPTH;
+  const rearAisle = rear + PARKING_EDGE_GAP + STALL_DEPTH;
+  const frontAisle = front - PARKING_EDGE_GAP - STALL_DEPTH;
+  const aisles = [
+    ['front', leftAisle, rightAisle, frontAisle - PARKING_AISLE_WIDTH, frontAisle],
+    ['rear', leftAisle, rightAisle, rearAisle, rearAisle + PARKING_AISLE_WIDTH],
+    ['left', leftAisle, leftAisle + PARKING_AISLE_WIDTH, rearAisle, frontAisle],
+    ['right', rightAisle - PARKING_AISLE_WIDTH, rightAisle, rearAisle, frontAisle]
+  ];
+  for (const [side, minX, maxX, minZ, maxZ] of aisles) {
+    registerLaneClearance(placementCtx, { id: `parking_aisle_${side}`, minX, maxX, minZ, maxZ });
+  }
+
+  const rows = [
+    ['front', leftAisle, rightAisle, front - rowOffset, Math.PI],
+    ['rear', leftAisle, rightAisle, rear + rowOffset, 0],
+    ['left', rearAisle, frontAisle, left + rowOffset, Math.PI / 2],
+    ['right', rearAisle, frontAisle, right - rowOffset, -Math.PI / 2]
+  ].map(([side, start, end, fixed, rotationY], rowIndex) => {
+    const alongX = rowIndex < 2;
+    const capacity = Math.max(0, Math.floor((end - start) / STALL_WIDTH));
+    const center = (start + end) * 0.5;
+    const row = [];
+    for (let i = 0; i < capacity; i++) {
+      const position = center + (i - (capacity - 1) * 0.5) * STALL_WIDTH;
+      const x = alongX ? position : fixed;
+      const z = alongX ? fixed : position;
+      if (side === 'front' && driveways.some((dw) => Math.abs(x - dw.x) < (dw.width + STALL_WIDTH) * 0.5 + 0.2)) continue;
+      row.push({ id: `stall_${side}_${i}`, x, z, width: STALL_WIDTH, depth: STALL_DEPTH, rotationY });
+    }
+    const axis = alongX ? 'x' : 'z';
+    return row.sort((a, b) => Math.abs(b[axis] - center) - Math.abs(a[axis] - center));
+  });
+
+  const stalls = [];
+  for (let remaining = Math.min(count, rows.reduce((total, row) => total + row.length, 0)); remaining > 0;) {
+    for (const row of rows) {
+      const stall = remaining > 0 && row.pop();
+      if (!stall) continue;
+      stalls.push(stall);
+      remaining--;
+      const isSide = Math.abs(stall.rotationY) === Math.PI / 2;
+      const halfX = (isSide ? stall.depth : stall.width) * 0.5;
+      const halfZ = (isSide ? stall.width : stall.depth) * 0.5;
+      registerLaneClearance(placementCtx, {
+        id: `stall_zone_${stall.id}`,
+        kind: 'parking_stall',
+        minX: stall.x - halfX, maxX: stall.x + halfX,
+        minZ: stall.z - halfZ, maxZ: stall.z + halfZ
+      });
+    }
+  }
+  return stalls;
+}
+
 export function computeLotLayout(cfg, buildingBox, placementCtx = null, options = {}) {
   const enabled = Boolean(cfg.includeLot && cfg.lotType !== 'none');
   const bw = buildingBox?.width || cfg.width;
@@ -33,40 +98,48 @@ export function computeLotLayout(cfg, buildingBox, placementCtx = null, options 
   const sidePad = clamp(cfg.sideSetback || 3.5, 1.2, 18.0);
   const rearPad = clamp(options.rearMargin ?? (cfg.serviceAccess ? 4.8 : 2.8), 1.5, 18.0);
 
-  const lotW = Math.max(cfg.lotWidth || (bw + sidePad * 2), bw + sidePad * 2);
-  const lotD = Math.max(cfg.lotDepth || (bd + frontPad + rearPad), bd + frontPad + rearPad);
-
-  const halfW = lotW * 0.5;
-  // Center building along X, offset along Z so frontSetback is in +Z
-  const bldgCenterZ = -lotD * 0.5 + rearPad + bd * 0.5;
-  const lotMinZ = bldgCenterZ - bd * 0.5 - rearPad;
-  const lotMaxZ = bldgCenterZ + bd * 0.5 + frontPad;
-  const actualLotD = lotMaxZ - lotMinZ;
-
-  // Keep building centered at origin and offset lot around it
-  const minX = -halfW;
-  const maxX = halfW;
-  const minZ = -bd * 0.5 - rearPad;
-  const maxZ = bd * 0.5 + frontPad;
-
   const isCivic = cfg.lotType === 'civic_plaza';
   const isIndustrial = cfg.lotType === 'industrial_service' || cfg.lotType === 'multi_building_facility';
   const isUrban = cfg.lotType === 'compact_urban';
   const surfaceKind = isCivic ? 'plaza_stone' : isUrban ? 'concrete' : 'asphalt';
+  const swW = isCivic ? 3.2 : 2.4;
+  const hasFrontWalk = cfg.sidewalkConfig !== 'none';
+  const hasLeftWalk = cfg.sidewalkConfig === 'full_perimeter';
+  const hasRightWalk = hasFrontWalk && (cfg.cornerLot || cfg.sidewalkConfig === 'corner_wrap' || hasLeftWalk);
+  const requestedStalls = cfg.includeParking && cfg.parkingConfig !== 'none' ? (cfg.parkingCount || 0) : 0;
+  const perimeterParking = options.perimeterParking && cfg.parkingConfig === 'wrap_around' && requestedStalls > 0;
+  const footprint = options.footprintBounds || { minX: -bw * 0.5, maxX: bw * 0.5, minZ: -bd * 0.5, maxZ: bd * 0.5 };
+  const leftPad = perimeterParking ? Math.max(sidePad, PARKING_ROW_MARGIN + (hasLeftWalk ? swW : 0)) : sidePad;
+  const rightPad = perimeterParking ? Math.max(sidePad, PARKING_ROW_MARGIN + (hasRightWalk ? swW : 0)) : sidePad;
+  const extraWidth = Math.max(0, cfg.lotWidth - (footprint.maxX - footprint.minX + leftPad + rightPad)) || 0;
+  const minX = footprint.minX - leftPad - extraWidth * 0.5;
+  const maxX = footprint.maxX + rightPad + extraWidth * 0.5;
+  const lotW = maxX - minX;
+  const halfW = lotW * 0.5;
+  const centerX = (minX + maxX) * 0.5;
+  const minZ = footprint.minZ - (perimeterParking ? Math.max(rearPad, PARKING_ROW_MARGIN) : rearPad);
+  const minimumFront = footprint.maxZ + (perimeterParking ? Math.max(frontPad, PARKING_ROW_MARGIN + (hasFrontWalk ? swW : 0)) : frontPad);
+  const maxZ = options.footprintBounds ? Math.max(minimumFront, minZ + cfg.lotDepth) : minimumFront;
+  const actualLotD = maxZ - minZ;
+  const parkingEdges = {
+    left: minX + (hasLeftWalk ? swW : 0),
+    right: maxX - (hasRightWalk ? swW : 0),
+    rear: minZ,
+    front: maxZ - (hasFrontWalk ? swW : 0)
+  };
 
   // Sidewalks
   const sidewalks = [];
-  const swW = isCivic ? 3.2 : 2.4;
-  if (cfg.sidewalkConfig !== 'none') {
+  if (hasFrontWalk) {
     sidewalks.push({
       id: 'sw_front',
-      x: 0,
+      x: centerX,
       z: maxZ - swW * 0.5,
       width: lotW,
       depth: swW,
       y: 0.08
     });
-    if (cfg.cornerLot || cfg.sidewalkConfig === 'corner_wrap' || cfg.sidewalkConfig === 'full_perimeter') {
+    if (hasRightWalk) {
       sidewalks.push({
         id: 'sw_right',
         x: maxX - swW * 0.5,
@@ -76,7 +149,7 @@ export function computeLotLayout(cfg, buildingBox, placementCtx = null, options 
         y: 0.08
       });
     }
-    if (cfg.sidewalkConfig === 'full_perimeter') {
+    if (hasLeftWalk) {
       sidewalks.push({
         id: 'sw_left',
         x: minX + swW * 0.5,
@@ -91,8 +164,9 @@ export function computeLotLayout(cfg, buildingBox, placementCtx = null, options 
   // Driveways & circulation lanes
   const driveways = [];
   const dw = isIndustrial ? 5.2 : 4.2;
+  const parkingEntryOffset = PARKING_EDGE_GAP + STALL_DEPTH + PARKING_AISLE_WIDTH * 0.5;
   if (cfg.drivewayPlacement === 'dual' || cfg.drivewayPlacement === 'left') {
-    const dx = minX + Math.min(sidePad * 0.75 + 2.2, lotW * 0.25);
+    const dx = perimeterParking ? parkingEdges.left + parkingEntryOffset : minX + Math.min(sidePad * 0.75 + 2.2, lotW * 0.25);
     driveways.push({
       id: 'driveway_left',
       x: dx,
@@ -106,13 +180,13 @@ export function computeLotLayout(cfg, buildingBox, placementCtx = null, options 
         kind: 'driveway',
         minX: dx - dw * 0.55,
         maxX: dx + dw * 0.55,
-        minZ: bd * 0.5 + 0.5,
+        minZ: footprint.maxZ + 0.5,
         maxZ: maxZ
       });
     }
   }
   if (cfg.drivewayPlacement === 'dual' || cfg.drivewayPlacement === 'right') {
-    const dx = maxX - Math.min(sidePad * 0.75 + 2.2, lotW * 0.25);
+    const dx = perimeterParking ? parkingEdges.right - parkingEntryOffset : maxX - Math.min(sidePad * 0.75 + 2.2, lotW * 0.25);
     driveways.push({
       id: 'driveway_right',
       x: dx,
@@ -126,19 +200,18 @@ export function computeLotLayout(cfg, buildingBox, placementCtx = null, options 
         kind: 'driveway',
         minX: dx - dw * 0.55,
         maxX: dx + dw * 0.55,
-        minZ: bd * 0.5 + 0.5,
+        minZ: footprint.maxZ + 0.5,
         maxZ: maxZ
       });
     }
   }
 
   // Parking stalls
-  const parkingStalls = [];
-  const requestedStalls = cfg.includeParking && cfg.parkingConfig !== 'none' ? (cfg.parkingCount || 0) : 0;
-  const stallW = 2.6;
-  const stallD = 5.0;
+  const parkingStalls = perimeterParking ? planPerimeterParking(parkingEdges, driveways, requestedStalls, placementCtx) : [];
+  const stallW = STALL_WIDTH;
+  const stallD = STALL_DEPTH;
 
-  if (requestedStalls > 0 && !isUrban) {
+  if (requestedStalls > 0 && !isUrban && !perimeterParking) {
     if (cfg.parkingConfig === 'side_lot' || (cfg.parkingConfig === 'wrap_around' && sidePad >= 5.2)) {
       const sideX = minX + 3.2;
       const maxFit = Math.max(1, Math.floor((actualLotD - swW - 4.0) / stallW));
@@ -170,7 +243,7 @@ export function computeLotLayout(cfg, buildingBox, placementCtx = null, options 
       const count = Math.min(requestedStalls, maxFit);
       const totalSpan = count * stallW;
       for (let i = 0; i < count; i++) {
-        const sx = -totalSpan * 0.5 + (i + 0.5) * stallW;
+        const sx = centerX - totalSpan * 0.5 + (i + 0.5) * stallW;
         parkingStalls.push({
           id: `stall_rear_${i}`,
           x: sx,
@@ -187,7 +260,7 @@ export function computeLotLayout(cfg, buildingBox, placementCtx = null, options 
       const count = Math.min(requestedStalls, maxFit);
       const totalSpan = count * stallW;
       for (let i = 0; i < count; i++) {
-        const sx = -totalSpan * 0.5 + (i + 0.5) * stallW;
+        const sx = centerX - totalSpan * 0.5 + (i + 0.5) * stallW;
         const hitsDriveway = driveways.some((d) => Math.abs(sx - d.x) < d.width * 0.62);
         if (hitsDriveway) continue;
         parkingStalls.push({
@@ -213,7 +286,7 @@ export function computeLotLayout(cfg, buildingBox, placementCtx = null, options 
   }
 
   // Service yard / fenced rear zone
-  const serviceYard = cfg.serviceAccess && rearPad >= 3.2 ? {
+  const serviceYard = cfg.serviceAccess && rearPad >= 3.2 && !perimeterParking ? {
     id: 'service_yard',
     x: -bw * 0.25,
     z: minZ + Math.min(rearPad * 0.45, 2.2),

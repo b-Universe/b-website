@@ -354,13 +354,24 @@ export function buildFireEscapeDebugGizmos(parent, blueprint, view = {}) {
         rampMesh.renderOrder = 992;
         root.add(rampMesh);
       }
-    } else if (comp.traversal === 'railing_barrier' && showRailings) {
-      const dims = comp.dimensions || { length: 1.2, height: 1.0 };
-      const railMat = new THREE.MeshBasicMaterial({ color: '#06b6d4', transparent: true, opacity: 0.22, depthWrite: false });
-      const railMesh = new THREE.Mesh(new THREE.BoxGeometry(dims.length, dims.height, 0.05), railMat);
-      railMesh.position.set(comp.position.x, comp.position.y + dims.height * 0.5, comp.position.z);
+    } else if ((comp.traversal === 'barrier' || comp.traversal === 'railing_barrier') && showRailings) {
+      const dims = comp.dimensions || { width: 1.2, height: 1.0, depth: 0.06 };
+      const rw = Math.max(0.05, Number(dims.width ?? dims.length) || 0.06);
+      const rh = Math.max(0.05, Number(dims.height) || 1.0);
+      const rd = Math.max(0.05, Number(dims.depth) || 0.06);
+      const railGeo = new THREE.BoxGeometry(rw, rh, rd);
+      const railMat = new THREE.MeshBasicMaterial({ color: '#06b6d4', transparent: true, opacity: 0.28, depthWrite: false });
+      const railMesh = new THREE.Mesh(railGeo, railMat);
+      railMesh.position.set(comp.position.x, comp.position.y, comp.position.z);
       railMesh.renderOrder = 991;
       root.add(railMesh);
+
+      const railEdgesGeo = new THREE.EdgesGeometry(railGeo);
+      const railEdgesMat = new THREE.LineBasicMaterial({ color: '#22d3ee', transparent: true, opacity: 0.9 });
+      const railEdges = new THREE.LineSegments(railEdgesGeo, railEdgesMat);
+      railEdges.position.copy(railMesh.position);
+      railEdges.renderOrder = 992;
+      root.add(railEdges);
     } else if (comp.traversal === 'climbable_ladder' && showLadders) {
       const startY = comp.startPosition.y;
       const endY = comp.endPosition.y;

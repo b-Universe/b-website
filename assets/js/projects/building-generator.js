@@ -1120,6 +1120,27 @@ function computeFireEscapeMetadata(groundSegments, placement, cfg) {
     }
   });
 
+  const railThick = 0.06;
+  const railHeight = 1.0;
+  const emitRailingStrip = (id, flNum, anchor, cx, cyBottom, cz, alongLen, outThick, stripHeight = railHeight) => {
+    const cyCenter = roundNum(cyBottom + stripHeight * 0.5, 4);
+    const wPos = localToWorld({ x: cx, y: cyCenter, z: cz }, anchor);
+    const dimW = roundNum(isLong ? alongLen : outThick, 3);
+    const dimD = roundNum(isLong ? outThick : alongLen, 3);
+    const dimH = roundNum(stripHeight, 3);
+    components.push({
+      id,
+      type: 'railing',
+      floor: flNum,
+      elevation: roundNum(cyBottom, 3),
+      position: { x: roundNum(wPos.x, 3), y: roundNum(wPos.y, 3), z: roundNum(wPos.z, 3) },
+      dimensions: { width: dimW, height: dimH, depth: dimD },
+      orientation: { ...normal, yawDegrees },
+      traversal: 'barrier',
+      coordinatesZUp: toZUpBox(wPos, dimW, dimH, dimD)
+    });
+  };
+
   if (!flightData.isLegacy && Array.isArray(flightData.landingPlans) && flightData.landingPlans.length > 0) {
     for (const lp of flightData.landingPlans) {
       const f = lp.floor;
@@ -1154,6 +1175,8 @@ function computeFireEscapeMetadata(groundSegments, placement, cfg) {
         };
       });
 
+      const landingDimW = roundNum(isLong ? lp.fullDeckW : lp.totalDeckD, 3);
+      const landingDimD = roundNum(isLong ? lp.totalDeckD : lp.fullDeckW, 3);
       components.push({
         id: `fe_landing_f${f}`,
         type: 'landing',
@@ -1162,39 +1185,56 @@ function computeFireEscapeMetadata(groundSegments, placement, cfg) {
         topSurfaceElevation: wTopY,
         position: { x: roundNum(wDeck.x, 3), y: lp.y, z: roundNum(wDeck.z, 3) },
         dimensions: {
-          width: roundNum(lp.fullDeckW, 3),
+          width: landingDimW,
           height: lp.deckT,
-          depth: roundNum(lp.totalDeckD, 3)
+          depth: landingDimD
         },
         walkablePanels,
         openings,
         orientation: { ...normal, yawDegrees },
         traversal: 'walkable_surface',
-        coordinatesZUp: toZUpBox(wDeck, lp.fullDeckW, lp.deckT, lp.totalDeckD)
+        coordinatesZUp: toZUpBox(wDeck, landingDimW, lp.deckT, landingDimD)
       });
 
-      const railPos = { x: roundNum(wDeck.x, 3), y: roundNum(lp.y + 0.5, 3), z: roundNum(wDeck.z, 3) };
-      components.push({
-        id: `fe_rail_f${f}`,
-        type: 'railing',
-        floor: f,
-        elevation: railPos.y,
-        position: railPos,
-        dimensions: { width: roundNum(lp.fullDeckW, 3), height: 1.0, depth: roundNum(lp.totalDeckD, 3) },
-        hasLeftPortal: Boolean(lp.leftPortal),
-        hasRightPortal: Boolean(lp.rightPortal),
-        orientation: { ...normal, yawDegrees },
-        traversal: 'barrier',
-        coordinatesZUp: toZUpBox(railPos, lp.fullDeckW, 1.0, lp.totalDeckD)
-      });
+      // Outer wide guardrail along far edge away from the building
+      emitRailingStrip(
+        `fe_rail_f${f}_outer`,
+        f,
+        anchor,
+        lp.centerDeckX,
+        lp.y,
+        lp.totalDeckD - railThick * 0.5,
+        lp.fullDeckW,
+        railThick,
+        railHeight
+      );
+
+      // Left & right end guardrails (split around drop/roof ladder portals)
+      const emitEndRailing = (sideTag, xPos, portal) => {
+        if (portal && portal.portalW > 0) {
+          const zOpen1 = Math.max(0, portal.centerZ - portal.portalW * 0.5);
+          const zOpen2 = Math.min(lp.totalDeckD, portal.centerZ + portal.portalW * 0.5);
+          if (zOpen1 > 0.06) {
+            emitRailingStrip(`fe_rail_f${f}_${sideTag}_in`, f, anchor, xPos, lp.y, zOpen1 * 0.5, railThick, zOpen1, railHeight);
+          }
+          if (lp.totalDeckD - zOpen2 > 0.06) {
+            const lenOut = lp.totalDeckD - zOpen2;
+            emitRailingStrip(`fe_rail_f${f}_${sideTag}_out`, f, anchor, xPos, lp.y, zOpen2 + lenOut * 0.5, railThick, lenOut, railHeight);
+          }
+        } else {
+          emitRailingStrip(`fe_rail_f${f}_${sideTag}`, f, anchor, xPos, lp.y, lp.totalDeckD * 0.5, railThick, lp.totalDeckD, railHeight);
+        }
+      };
+      emitEndRailing('left', lp.minDeckX + railThick * 0.5, lp.leftPortal);
+      emitEndRailing('right', lp.maxDeckX - railThick * 0.5, lp.rightPortal);
 
       clearanceVolumes.push({
         id: `fe_clearance_landing_f${f}`,
         type: 'landing_clearance',
         floor: f,
         elevation: lp.y,
-        position: { x: railPos.x, y: roundNum(lp.y + 1.075, 3), z: railPos.z },
-        dimensions: { width: roundNum(lp.fullDeckW, 3), height: 2.15, depth: roundNum(lp.totalDeckD, 3) },
+        position: { x: roundNum(wDeck.x, 3), y: roundNum(lp.y + 1.075, 3), z: roundNum(wDeck.z, 3) },
+        dimensions: { width: landingDimW, height: 2.15, depth: landingDimD },
         clearanceHeight: 2.15,
         traversal: 'clearance_volume'
       });
@@ -1206,8 +1246,10 @@ function computeFireEscapeMetadata(groundSegments, placement, cfg) {
       const posX = Number((anchor.x + normal.x * deckCenterDist).toFixed(3));
       const posY = Number(floorY.toFixed(3));
       const posZ = Number((anchor.z + normal.z * deckCenterDist).toFixed(3));
+      const legacyDimW = roundNum(isLong ? placement.deckW : deckDepth, 3);
+      const legacyDimD = roundNum(isLong ? deckDepth : placement.deckW, 3);
 
-      const landingZUp = toZUpBox({ x: posX, y: posY, z: posZ }, placement.deckW, 0.12, deckDepth);
+      const landingZUp = toZUpBox({ x: posX, y: posY, z: posZ }, legacyDimW, 0.12, legacyDimD);
 
       components.push({
         id: `fe_landing_f${f}`,
@@ -1215,24 +1257,15 @@ function computeFireEscapeMetadata(groundSegments, placement, cfg) {
         floor: f,
         elevation: posY,
         position: { x: posX, y: posY, z: posZ },
-        dimensions: { width: Number(placement.deckW.toFixed(3)), height: 0.12, depth: Number(deckDepth.toFixed(3)) },
+        dimensions: { width: legacyDimW, height: 0.12, depth: legacyDimD },
         orientation: { ...normal, yawDegrees },
         traversal: 'walkable_surface',
         coordinatesZUp: landingZUp
       });
 
-      const railPos = { x: posX, y: Number((floorY + 0.5).toFixed(3)), z: posZ };
-      components.push({
-        id: `fe_rail_f${f}`,
-        type: 'railing',
-        floor: f,
-        elevation: railPos.y,
-        position: railPos,
-        dimensions: { width: Number(placement.deckW.toFixed(3)), height: 1.0, depth: Number(deckDepth.toFixed(3)) },
-        orientation: { ...normal, yawDegrees },
-        traversal: 'barrier',
-        coordinatesZUp: toZUpBox(railPos, placement.deckW, 1.0, deckDepth)
-      });
+      emitRailingStrip(`fe_rail_f${f}_outer`, f, anchor, 0, floorY, deckDepth - railThick * 0.5, placement.deckW, railThick, railHeight);
+      emitRailingStrip(`fe_rail_f${f}_left`, f, anchor, -placement.deckW * 0.5 + railThick * 0.5, floorY, deckDepth * 0.5, railThick, deckDepth, railHeight);
+      emitRailingStrip(`fe_rail_f${f}_right`, f, anchor, placement.deckW * 0.5 - railThick * 0.5, floorY, deckDepth * 0.5, railThick, deckDepth, railHeight);
 
       clearanceVolumes.push({
         id: `fe_clearance_landing_f${f}`,
@@ -1240,7 +1273,7 @@ function computeFireEscapeMetadata(groundSegments, placement, cfg) {
         floor: f,
         elevation: posY,
         position: { x: posX, y: Number((floorY + 1.025).toFixed(3)), z: posZ },
-        dimensions: { width: Number(placement.deckW.toFixed(3)), height: 2.05, depth: Number(deckDepth.toFixed(3)) },
+        dimensions: { width: legacyDimW, height: 2.05, depth: legacyDimD },
         clearanceHeight: 2.05,
         traversal: 'clearance_volume'
       });
@@ -1272,6 +1305,38 @@ function computeFireEscapeMetadata(groundSegments, placement, cfg) {
       for (const tr of fl.treads) {
         components.push(tr);
       }
+
+      // Stepped outer handrail barriers along each stair flight to prevent lateral walk-offs
+      if (fl.local) {
+        const fAnchor = flightData.anchors[fl.floor] || getFireEscapeWallAnchor(mainSeg, side, placement.coord, placement.deckW);
+        const railSegs = 4;
+        const fxStart = fl.local.xStart;
+        const fxEnd = fl.local.xEnd;
+        const fyLower = fl.local.yLower;
+        const fyUpper = fl.local.yUpper;
+        const segSpanX = Math.abs(fxEnd - fxStart) / railSegs;
+        const zRailOuter = roundNum(fl.local.laneZ + flightData.stairHW + railThick * 0.5, 4);
+        const flightKey = fl.id.replace(/^fe_flight_/, '');
+        if (segSpanX > 0.08) {
+          for (let rIdx = 0; rIdx < railSegs; rIdx++) {
+            const tMid = (rIdx + 0.5) / railSegs;
+            const sxCenter = fxStart + (fxEnd - fxStart) * tMid;
+            const syMid = fyLower + (fyUpper - fyLower) * tMid;
+            emitRailingStrip(
+              `fe_rail_${flightKey}_outer_${rIdx + 1}`,
+              fl.floor,
+              fAnchor,
+              sxCenter,
+              syMid,
+              zRailOuter,
+              segSpanX,
+              railThick,
+              railHeight
+            );
+          }
+        }
+      }
+
       clearanceVolumes.push({
         id: `fe_clearance_flight_${fl.id}`,
         type: 'flight_clearance',
@@ -9042,13 +9107,24 @@ function buildFireEscapeDebugGizmos(parent, blueprint, view = {}) {
         rampMesh.renderOrder = 992;
         root.add(rampMesh);
       }
-    } else if (comp.traversal === 'railing_barrier' && showRailings) {
-      const dims = comp.dimensions || { length: 1.2, height: 1.0 };
-      const railMat = new THREE.MeshBasicMaterial({ color: '#06b6d4', transparent: true, opacity: 0.22, depthWrite: false });
-      const railMesh = new THREE.Mesh(new THREE.BoxGeometry(dims.length, dims.height, 0.05), railMat);
-      railMesh.position.set(comp.position.x, comp.position.y + dims.height * 0.5, comp.position.z);
+    } else if ((comp.traversal === 'barrier' || comp.traversal === 'railing_barrier') && showRailings) {
+      const dims = comp.dimensions || { width: 1.2, height: 1.0, depth: 0.06 };
+      const rw = Math.max(0.05, Number(dims.width ?? dims.length) || 0.06);
+      const rh = Math.max(0.05, Number(dims.height) || 1.0);
+      const rd = Math.max(0.05, Number(dims.depth) || 0.06);
+      const railGeo = new THREE.BoxGeometry(rw, rh, rd);
+      const railMat = new THREE.MeshBasicMaterial({ color: '#06b6d4', transparent: true, opacity: 0.28, depthWrite: false });
+      const railMesh = new THREE.Mesh(railGeo, railMat);
+      railMesh.position.set(comp.position.x, comp.position.y, comp.position.z);
       railMesh.renderOrder = 991;
       root.add(railMesh);
+
+      const railEdgesGeo = new THREE.EdgesGeometry(railGeo);
+      const railEdgesMat = new THREE.LineBasicMaterial({ color: '#22d3ee', transparent: true, opacity: 0.9 });
+      const railEdges = new THREE.LineSegments(railEdgesGeo, railEdgesMat);
+      railEdges.position.copy(railMesh.position);
+      railEdges.renderOrder = 992;
+      root.add(railEdges);
     } else if (comp.traversal === 'climbable_ladder' && showLadders) {
       const startY = comp.startPosition.y;
       const endY = comp.endPosition.y;

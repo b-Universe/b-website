@@ -8,6 +8,7 @@ import {
   registerRoofBound
 } from '../core/placement-anchors.js';
 import { solidMaterial, surfaceMaterial, emissiveMaterial, glassMaterial } from '../materials/materials.js';
+import { addParkingStallMarkings } from '../geometry/lot-mesh.js';
 import {
   addBox,
   addCylinder,
@@ -222,6 +223,134 @@ function addHospitalMassBlock(parent, x, baseY, z, w, d, floors, fh, cfg, r, see
   return baseY + localRoofTop;
 }
 
+const HOSPITAL_GARAGE = {
+  parkingWidth: 16.6,
+  rampWidth: 4.2,
+  rampRun: 22,
+  landingDepth: 6.2,
+  levelHeight: 3.1,
+  levels: 4
+};
+
+function buildHospitalParkingDeck(ctx, x, z, trimMat) {
+  const { cfg, attachedGroup, placementCtx } = ctx;
+  const { parkingWidth, rampWidth, rampRun, landingDepth, levelHeight, levels } = HOSPITAL_GARAGE;
+  const width = parkingWidth + rampWidth * 2;
+  const depth = rampRun + landingDepth * 2;
+  const left = x - width * 0.5;
+  const right = x + width * 0.5;
+  const front = z + depth * 0.5;
+  const rear = z - depth * 0.5;
+  const parkingX = right - parkingWidth * 0.5;
+  const topY = (levels - 1) * levelHeight;
+  const bridgeLevel = 2;
+  const deckMat = surfaceMaterial('concrete', '#788088', cfg.condition, cfg.seed + 61, 3, 2);
+  const railMat = solidMaterial('#aeb6be');
+  const rampStripe = solidMaterial('#edba53');
+  const garage = new THREE.Group();
+  garage.name = 'HospitalParkingDeck';
+  garage.position.y = 0.025;
+  attachedGroup.add(garage);
+
+  const thickness = 0.24;
+  const coreZ = z - 4;
+  const coreD = 2.8;
+  const rampEdge = left + rampWidth * 2;
+  let parkingStalls = 0;
+  addBox(garage, x, -thickness * 0.5, z, width, thickness, depth, deckMat);
+
+  for (let level = 0; level < levels; level++) {
+    const y = level * levelHeight;
+    if (level > 0) {
+      // Keep the ramp bays open between the full-width turning landings.
+      addBox(garage, parkingX, y - thickness * 0.5, z, parkingWidth, thickness, depth, deckMat);
+      for (const end of [-1, 1]) {
+        const landingZ = z + end * (rampRun + landingDepth) * 0.5;
+        addBox(garage, left + rampWidth, y - thickness * 0.5, landingZ, rampWidth * 2, thickness, landingDepth, deckMat);
+        addBox(garage, x, y + 0.36, z + end * (depth * 0.5 - 0.12), width, 0.72, 0.24, railMat);
+        addBox(garage, left + 0.12, y + 0.36, landingZ, 0.24, 0.72, landingDepth, railMat);
+      }
+      addBox(garage, rampEdge + 0.12, y + 0.36, z, 0.24, 0.72, rampRun, railMat);
+      if (cfg.includeSkybridge && level === bridgeLevel) {
+        const railLength = (depth - 2.9) * 0.5;
+        for (const end of [-1, 1]) {
+          addBox(garage, right - 0.12, y + 0.36, z + end * (railLength + 2.9) * 0.5, 0.24, 0.72, railLength, railMat);
+        }
+      } else {
+        addBox(garage, right - 0.12, y + 0.36, z, 0.24, 0.72, depth, railMat);
+      }
+    }
+    for (const end of [-1, 1]) {
+      for (let bay = 0; bay < 2; bay++) {
+        const connectedEnd = level % 2 === 0 ? 1 : -1;
+        const connectsBelow = level > 0 && bay === (level - 1) % 2;
+        const connectsAbove = level < levels - 1 && bay === level % 2;
+        if (end === connectedEnd && (connectsBelow || connectsAbove)) continue;
+        addBox(garage, left + (bay + 0.5) * rampWidth, y + 0.36, z + end * (rampRun * 0.5 + 0.12),
+          rampWidth, 0.72, 0.24, railMat);
+      }
+    }
+
+    for (const side of [-1, 1]) {
+      for (let stall = -3; stall <= 3; stall++) {
+        const stallZ = z + stall * 2.6;
+        if (side > 0 && (Math.abs(stallZ - coreZ) < (coreD + 2.6) * 0.5 ||
+          (cfg.includeSkybridge && level === bridgeLevel && Math.abs(stallZ - z) < 2.75))) continue;
+        addParkingStallMarkings(garage, {
+          x: parkingX + side * 5.55, z: stallZ, width: 2.6, depth: 4.9,
+          rotationY: -side * Math.PI / 2
+        }, y);
+        parkingStalls++;
+      }
+    }
+  }
+
+  for (let level = 0; level < levels - 1; level++) {
+    const rampX = left + rampWidth * (level % 2 + 0.5);
+    const angle = Math.atan2(levelHeight, rampRun) * (level % 2 === 0 ? -1 : 1);
+    const length = Math.hypot(levelHeight, rampRun);
+    const rampY = (level + 0.5) * levelHeight;
+    const rot = { rotX: angle };
+    addBox(garage, rampX, rampY - Math.cos(angle) * thickness * 0.5, z - Math.sin(angle) * thickness * 0.5,
+      rampWidth, thickness, length, deckMat, { ...rot, name: `HospitalParkingRamp_${level + 1}` });
+    for (const side of [-1, 1]) {
+      const edgeX = rampX + side * (rampWidth * 0.5 - 0.11);
+      addBox(garage, edgeX, rampY + Math.cos(angle) * 0.3, z + Math.sin(angle) * 0.3, 0.22, 0.6, length, railMat, rot);
+      addBox(garage, edgeX - side * 0.25, rampY + Math.cos(angle) * 0.018, z + Math.sin(angle) * 0.018,
+        0.1, 0.025, length, rampStripe, { ...rot, cast: false });
+    }
+  }
+
+  for (const postX of [left + 0.18, rampEdge, right - 0.18]) {
+    for (const postZ of [rear + 0.18, front - 0.18]) {
+      addBox(garage, postX, topY * 0.5, postZ, 0.36, topY, 0.36, trimMat);
+    }
+  }
+  for (const postX of [left + 0.18, right - 0.18]) {
+    for (const end of [-1, 1]) {
+      addBox(garage, postX, topY * 0.5, z + end * rampRun * 0.47, 0.36, topY, 0.36, trimMat);
+    }
+  }
+  const coreHeight = topY + 2.4;
+  addBox(garage, right - 1.45, coreHeight * 0.5, coreZ, 2.9, coreHeight, coreD, railMat);
+  addSignboardUnit(garage, parkingX, levelHeight, front + 0.14, 4.6, 0.7, 'Hospital Parking', '#1d3557', '#ffffff', cfg);
+  const entrance = {
+    id: 'hospital_parking_deck_portal',
+    role: 'garage',
+    label: 'Visitor Parking Deck Entry',
+    position: { x: roundNum(parkingX, 3), y: garage.position.y, z: roundNum(front, 3) },
+    normal: { x: 0, y: 0, z: 1 },
+    width: 5.8,
+    height: 2.6,
+    clearanceWidth: 6,
+    clearanceDepth: 5.8
+  };
+  ctx.entrances.push(entrance);
+  registerEntranceClearance(placementCtx, entrance);
+  ctx.attachedStructures.push({ id: 'hospital_parking_deck', type: 'parking_garage', width, depth, levels, parkingStalls, vehicleRamps: levels - 1 });
+  return { height: coreHeight + garage.position.y, bridgeY: bridgeLevel * levelHeight + garage.position.y };
+}
+
 function buildLargeHospitalStructure(ctx) {
   const { cfg, mainBuildingGroup, attachedGroup, placementCtx, r } = ctx;
   const w = clamp(cfg.width || 28, 16, 48);
@@ -257,6 +386,14 @@ function buildLargeHospitalStructure(ctx) {
     addBox(attachedGroup, cx, 1.72, d * 0.5 + canopyD - 0.25, 0.32, 3.35, 0.32, postMat);
   }
   addBox(attachedGroup, 0, 0.12, d * 0.5 + canopyD * 0.48, canopyW + 1.2, 0.24, canopyD + 0.4, postMat);
+  registerBuildingFootprint(placementCtx, {
+    id: 'hospital_drop_off_canopy',
+    minX: -(canopyW + 1.2) * 0.5,
+    maxX: (canopyW + 1.2) * 0.5,
+    minZ: d * 0.5,
+    maxZ: d * 0.5 + canopyD + 0.2,
+    maxY: 3.76
+  });
 
   // 2. Upper Inpatient Towers driven by campusLayout
   const layout = cfg.campusLayout || 'twin_towers';
@@ -396,45 +533,17 @@ function buildLargeHospitalStructure(ctx) {
   // 5. Attached Multi-Level Parking Deck or Diagnostic Annex + Elevated Glass Skybridge
   if (cfg.includeParkingDeck || cfg.includeSkybridge) {
     const laneGap = 4.6;
-    const deckW = cfg.includeParkingDeck ? 9.8 : 7.8;
-    const deckD = Math.max(10.5, d * 0.88);
-    const deckFloors = cfg.includeParkingDeck ? 3 : 2;
-    const deckH = deckFloors * 3.1;
+    const deckW = cfg.includeParkingDeck ? HOSPITAL_GARAGE.parkingWidth + 2 * HOSPITAL_GARAGE.rampWidth : 7.8;
+    const deckD = cfg.includeParkingDeck ? HOSPITAL_GARAGE.rampRun + 2 * HOSPITAL_GARAGE.landingDepth : Math.max(10.5, d * 0.88);
     const px = leftExtent - laneGap - deckW * 0.5;
     const pz = 0.2;
+    let deckH = 2 * fh;
+    let bridgeFloorY = fh * 1.48 - 1.09;
 
     if (cfg.includeParkingDeck) {
-      const deckMat = surfaceMaterial('concrete', '#788088', cfg.condition, cfg.seed + 61, 3, 2);
-      const railMat = solidMaterial('#aeb6be');
-      addBox(attachedGroup, px, 0.12, pz, deckW, 0.24, deckD, deckMat);
-      for (let l = 1; l <= deckFloors; l++) {
-        const ly = l * 3.1;
-        addBox(attachedGroup, px, ly - 0.14, pz, deckW, 0.28, deckD, deckMat);
-        // Perimeter parapet spandrel bumpers
-        addBox(attachedGroup, px, ly + 0.42, pz + deckD * 0.5 - 0.12, deckW, 0.84, 0.22, railMat);
-        addBox(attachedGroup, px, ly + 0.42, pz - deckD * 0.5 + 0.12, deckW, 0.84, 0.22, railMat);
-        addBox(attachedGroup, px - deckW * 0.5 + 0.12, ly + 0.42, pz, 0.22, 0.84, deckD, railMat);
-        addBox(attachedGroup, px + deckW * 0.5 - 0.12, ly + 0.42, pz, 0.22, 0.84, deckD, railMat);
-      }
-      for (const sx of [-1, 0, 1]) {
-        for (const sz of [-1, 1]) {
-          addBox(attachedGroup, px + sx * (deckW * 0.44), deckH * 0.5, pz + sz * (deckD * 0.44), 0.36, deckH, 0.36, trimMat);
-        }
-      }
-      // Corner elevator/stair core with signage
-      addBox(attachedGroup, px + deckW * 0.36, (deckH + 2.4) * 0.5, pz + deckD * 0.38, 2.4, deckH + 2.4, 2.4, surfaceMaterial('concrete', cfg.primaryColor, cfg.condition, cfg.seed + 71, 1, 2));
-      addSignboardUnit(attachedGroup, px, 3.05, pz + deckD * 0.5 + 0.12, 3.4, 0.62, 'Hospital Parking', '#1d3557', '#ffffff', cfg);
-      const parkEnt = {
-        id: 'hospital_parking_deck_portal',
-        role: 'garage',
-        label: 'Visitor Parking Deck Entry',
-        position: { x: roundNum(px - deckW * 0.12, 3), y: 0, z: roundNum(pz + deckD * 0.5, 3) },
-        normal: { x: 0, y: 0, z: 1 },
-        width: 4.2,
-        height: 2.6
-      };
-      ctx.entrances.push(parkEnt);
-      registerEntranceClearance(placementCtx, parkEnt);
+      const deck = buildHospitalParkingDeck(ctx, px, pz, trimMat);
+      deckH = deck.height;
+      bridgeFloorY = deck.bridgeY;
     } else {
       addHospitalMassBlock(attachedGroup, px, 0, pz, deckW, deckD, 2, fh, cfg, r, 73);
       addSignboardUnit(attachedGroup, px, 2 * fh - 0.4, pz + deckD * 0.5 + 0.12, 4.2, 0.62, 'Outpatient Pavilion', trimMat.color ? cfg.trimColor : '#1f456e', '#ffffff', cfg);
@@ -453,21 +562,23 @@ function buildLargeHospitalStructure(ctx) {
       kind: 'driveway',
       minX: px + deckW * 0.5 + 0.2,
       maxX: leftExtent - 0.2,
-      minZ: -deckD * 0.6,
-      maxZ: deckD * 0.6 + 2.0
+      minZ: pz - deckD * 0.5,
+      maxZ: pz + deckD * 0.5
     });
 
     // Elevated Glass Skybridge spanning drive lane cleanly at 2nd floor level
     if (cfg.includeSkybridge) {
       const spanLen = (leftExtent - (px + deckW * 0.5)) + 0.6;
       const midX = (px + deckW * 0.5 + leftExtent) * 0.5;
-      const bridgeY = fh * 1.48;
+      const bridgeY = bridgeFloorY + 0.81;
       addBox(attachedGroup, midX, bridgeY - 0.95, 0.2, spanLen, 0.28, 2.9, trimMat);
       addBox(attachedGroup, midX, bridgeY + 1.05, 0.2, spanLen, 0.26, 2.9, trimMat);
       addBox(attachedGroup, midX, bridgeY + 0.05, 0.2, spanLen, 1.75, 2.65, glassMat);
     }
 
     leftExtent = px - deckW * 0.5;
+    maxDepth = Math.max(maxDepth, deckD);
+    maxH = Math.max(maxH, deckH);
   }
 
   // 6. Cryogenic Medical Oxygen Silo Yard on Rear Right
@@ -517,7 +628,17 @@ function buildLargeHospitalStructure(ctx) {
     depth: Math.max(maxDepth, d + canopyD + 2.4),
     height: maxH
   };
-  ctx.lotOptions = { rearMargin: 6.0 };
+  const siteFeatures = [...placementCtx.buildingFootprints, ...placementCtx.laneClearances];
+  ctx.lotOptions = {
+    rearMargin: 6.0,
+    perimeterParking: true,
+    footprintBounds: {
+      minX: Math.min(...siteFeatures.map((feature) => feature.minX)),
+      maxX: Math.max(...siteFeatures.map((feature) => feature.maxX)),
+      minZ: Math.min(...siteFeatures.map((feature) => feature.minZ)),
+      maxZ: Math.max(...siteFeatures.map((feature) => feature.maxZ))
+    }
+  };
 }
 
 function planLargeHospitalObjects(ctx, lotLayout) {
@@ -560,6 +681,7 @@ registerSpecialtyFamily({
   description: 'Multi-tower metropolitan hospitals, teaching medical centers, trauma towers with skybridges, parking decks, and rooftop helipads.',
   environmentTags: ['medical', 'civic', 'downtown', 'urban', 'campus', 'superhero_city'],
   supportedLotTypes: ['multi_building_facility', 'civic_plaza', 'standalone_commercial', 'none'],
+  maxParkingCount: 48,
   defaultObjectGroups: ['site_amenities', 'seating_patio', 'rooftop_mep', 'waste_utility', 'signage_lighting'],
   featureSchema: [
     {
@@ -603,7 +725,8 @@ registerSpecialtyFamily({
     lotWidth: 60,
     lotDepth: 42,
     frontSetback: 11.5,
-    parkingCount: 12
+    parkingConfig: 'wrap_around',
+    parkingCount: 44
   },
   presets: [
     {

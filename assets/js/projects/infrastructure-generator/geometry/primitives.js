@@ -54,6 +54,7 @@ export function geoPrimAddTrussPanel(batcher, p0Bot, p0Top, p1Top, p1Bot, member
 // Builds a B-Remastered compliant staircase (stepRise <= 0.2438m / 4 B units) from originXZ at y=0 up to targetTopY.
 // Uses a 2-flight switchback with an intermediate landing when totalRise > 3.1m so footprints stay compact.
 export function geoPrimAddStairFlight(batcher, basePos, forwardXZ, rightXZ, totalRise, clearWidth = 1.4, options = {}) {
+  if (options.stationStyle) return geoPrimAddStationSwitchback(batcher, basePos, forwardXZ, rightXZ, totalRise, clearWidth, options);
   const rise = Math.max(0.4, Number(totalRise) || 3.4);
   const f = [forwardXZ[0], 0, forwardXZ[1]];
   const r = [rightXZ[0], 0, rightXZ[1]];
@@ -161,10 +162,122 @@ export function geoPrimAddStairFlight(batcher, basePos, forwardXZ, rightXZ, tota
   };
 }
 
+// Fill the opening between the deck and handrail so the capsule slides along
+// a continuous edge instead of catching on individual posts or passing below it.
+export function geoPrimGuardCollisionBox(a, b, height = 1.05) {
+  const pad = 0.03;
+  return [
+    Math.min(a[0], b[0]) - pad, Math.min(a[1], b[1]) - 0.06, Math.min(a[2], b[2]) - pad,
+    Math.max(a[0], b[0]) + pad, Math.max(a[1], b[1]) + height, Math.max(a[2], b[2]) + pad
+  ];
+}
+
+function geoPrimAddStationSwitchback(batcher, base, forward, right, rise, width, options) {
+  const f = [forward[0], 0, forward[1]];
+  const r = [right[0], 0, right[1]];
+  const up = [0, 1, 0];
+  const boxRight = infraVec3Cross(up, f);
+  const pt = (x, h, z) => [base[0] + r[0] * x + f[0] * z, base[1] + h, base[2] + r[2] * x + f[2] * z];
+  const style = options.stationStyle;
+  const treadMat = style === 'concrete' ? 'concrete' : style === 'ribbed' ? 'steel_structure' : 'steel_grating';
+  const accent = style === 'concrete' ? 'rail_steel' : 'steel_accent';
+  const flights = 2 * Math.max(1, Math.ceil(rise / 6.4));
+  const steps = Math.ceil(rise / flights / 0.207);
+  const stepRise = rise / (flights * steps);
+  const run = 0.28;
+  const length = steps * run;
+  const lane = (width + 0.17) / 2;
+  const outer = lane + width / 2;
+  const landingDepth = 1.42;
+  const walkingBoxes = [];
+  const guardBoxes = [];
+  const box = (x, h, z, w, height, d, materialKey, surfaceStratum, walkable = false) => {
+    const center = pt(x, h, z);
+    batcher.addBoxOriented(center, f, boxRight, up, w, height, d, { materialKey, surfaceStratum, layer: 'LayerA_PrimaryStructure' });
+    if (walkable) {
+      const hx = (Math.abs(r[0]) * w + Math.abs(f[0]) * d) / 2;
+      const hz = (Math.abs(r[2]) * w + Math.abs(f[2]) * d) / 2;
+      walkingBoxes.push([center[0] - hx, center[1] - height / 2, center[2] - hz,
+        center[0] + hx, center[1] + height / 2, center[2] + hz]);
+    }
+  };
+  const rail = (a, b, thickness, materialKey = 'steel_structure') =>
+    geoPrimAddBeamBetween(batcher, pt(...a), pt(...b), thickness, thickness, { materialKey, surfaceStratum: 'stair_guard' });
+  const guard = (x, z0, z1, y0, y1) => {
+    for (const h of [0.48, 1.02]) rail([x, y0 + h, z0], [x, y1 + h, z1], h > 1 ? 0.055 : 0.033, h > 1 ? accent : 'steel_structure');
+    const count = Math.max(1, Math.ceil(Math.abs(z1 - z0) / (style === 'ribbed' ? 0.56 : 1.05)));
+    for (let i = 0; i <= count; i++) {
+      const t = (i + 0.025) / (count + 0.05), z = z0 + (z1 - z0) * t, y = y0 + (y1 - y0) * t;
+      rail([x, y, z], [x, y + 1.02, z], 0.045);
+    }
+  };
+
+  for (let flight = 0; flight < flights; flight++) {
+    const forwardFlight = flight % 2 === 0;
+    const x = forwardFlight ? lane : -lane;
+    const z0 = forwardFlight ? 0 : length;
+    const dir = forwardFlight ? 1 : -1;
+    const low = flight * steps * stepRise;
+    const high = low + steps * stepRise;
+    const z1 = z0 + dir * length;
+    for (let i = 0; i < steps; i++) {
+      const z = z0 + dir * (i + 0.5) * run;
+      const top = low + (i + 1) * stepRise;
+      box(x, top - stepRise / 2, z, width, stepRise, run, treadMat, 'stair_tread', true);
+      box(x, top + 0.006, z + dir * (run / 2 - 0.035), width - 0.09, 0.012, 0.045, accent, 'stair_nosing');
+    }
+    for (const side of [-1, 1]) {
+      const edge = x + side * (width / 2 + 0.034);
+      rail([edge, low - 0.06, z0], [edge, high - 0.06, z1], 0.135);
+      guard(edge, z0, z1, low, high);
+      for (let i = 0; i < steps; i++) {
+        const stepZ = z0 + dir * i * run;
+        const stepY = low + i * stepRise;
+        guardBoxes.push(geoPrimGuardCollisionBox(pt(edge, stepY, stepZ), pt(edge, stepY + stepRise, stepZ + dir * run)));
+      }
+    }
+    const final = flight === flights - 1;
+    box(final ? x : 0, high - 0.09, z1 + dir * landingDepth / 2,
+      final ? width : 2 * outer, 0.18, landingDepth, treadMat, 'stair_landing', true);
+    const farZ = z1 + dir * (landingDepth - 0.035);
+    const left = final ? x - width / 2 : -outer;
+    const right = final ? x + width / 2 : outer;
+    rail([left, high + 1.02, farZ], [right, high + 1.02, farZ], 0.055, accent);
+    guardBoxes.push(geoPrimGuardCollisionBox(pt(left, high, farZ), pt(right, high, farZ)));
+    // The street-side landings need both side rails, but leave the inside of
+    // the top landing open to the transverse bridge and boarding platform.
+    for (const edge of final ? [right] : [left, right]) {
+      guard(edge, z1, farZ, high, high);
+      guardBoxes.push(geoPrimGuardCollisionBox(pt(edge, high, z1), pt(edge, high, farZ)));
+    }
+  }
+  for (const x of [-outer - 0.12, outer + 0.12]) {
+    for (const z of [-landingDepth + 0.18, length + landingDepth - 0.18]) {
+      box(x, -0.12, z, 0.45, 0.24, 0.45, 'pier_concrete', 'stair_footing');
+      rail([x, 0, z], [x, rise - 0.09, z], 0.16);
+    }
+    for (let i = 0; i < flights; i += 2) {
+      const low = i * steps * stepRise;
+      const high = low + 2 * steps * stepRise;
+      rail([x, low, -landingDepth + 0.18], [x, high, length + landingDepth - 0.18], 0.095);
+    }
+  }
+  const start = pt(lane, 0, 0);
+  const end = pt(-lane, rise, -landingDepth / 2);
+  return {
+    id: options.id, style, stepCount: flights * steps, stepRiseMeters: infraRound(stepRise, 4), stepRunMeters: run,
+    clearWidthMeters: width, landingCount: flights, flightCount: flights, headroomMeters: 2 * steps * stepRise - 0.18,
+    startPosMeters: start, endPosMeters: end, walkingBoxes, guardBoxes,
+    coordinatesZUp: { start: infraVecToBGameUnits(...start), end: infraVecToBGameUnits(...end) }
+  };
+}
+
 // Builds a non-overlapping curved or straight transit platform with yellow tactile safety strip and shelter canopy.
 export function geoPrimAddPlatformAssembly(batcher, frames, sideSign, innerEdgeX, totalWidth, deckTopY, uStart = 0.25, uEnd = 0.75, options = {}) {
   if (!frames || frames.length < 2) return null;
-  const sub = frames.filter((f) => f.u >= uStart - 0.02 && f.u <= uEnd + 0.02);
+  const sub = options.distanceBounds
+    ? frames.filter((f) => f.s >= options.distanceBounds[0] && f.s <= options.distanceBounds[1])
+    : frames.filter((f) => f.u >= uStart - 0.02 && f.u <= uEnd + 0.02);
   if (sub.length < 2) return null;
 
   const tactileW = 0.42;
@@ -308,6 +421,13 @@ export function geoPrimAddPlatformAssembly(batcher, frames, sideSign, innerEdgeX
   const midPt = pt(midF, xTactileEnd + sideSign * deckW * 0.4, deckTopY);
   return {
     id: options.id || 'platform_1',
+    walkingBoxes: sub.slice(1).map((frame, i) => {
+      const points = [pt(sub[i], minX, deckTopY), pt(sub[i], maxX, deckTopY),
+        pt(frame, minX, deckTopY), pt(frame, maxX, deckTopY)];
+      return [Math.min(...points.map((p) => p[0])), Math.min(frame.position[1], sub[i].position[1]) + deckBottomY,
+        Math.min(...points.map((p) => p[2])), Math.max(...points.map((p) => p[0])),
+        Math.max(...points.map((p) => p[1])), Math.max(...points.map((p) => p[2]))];
+    }),
     positionMeters: [infraRound(midPt[0], 3), infraRound(midPt[1], 3), infraRound(midPt[2], 3)],
     coordinatesZUp: infraVecToBGameUnits(midPt[0], midPt[1], midPt[2]),
     widthMeters: infraRound(totalWidth, 2),

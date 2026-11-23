@@ -1,6 +1,19 @@
 import { solidMaterial, surfaceMaterial } from '../materials/materials.js';
 import { addBox, addCylinder } from './arch-primitives.js';
 
+export function addParkingStallMarkings(parent, stall, surfaceY = 0) {
+  const group = new THREE.Group();
+  group.position.set(stall.x, surfaceY + 0.012, stall.z);
+  group.rotation.y = stall.rotationY || 0;
+  const stripeMat = solidMaterial('#e8ecf0');
+  const stopMat = solidMaterial('#b0b6bc');
+  for (const edge of [-0.48, 0.48]) {
+    addBox(group, stall.width * edge, 0, 0, 0.08, 0.015, stall.depth, stripeMat, { cast: false });
+  }
+  addBox(group, 0, 0.06, -stall.depth * 0.36, stall.width * 0.65, 0.11, 0.16, stopMat);
+  parent.add(group);
+}
+
 export function buildLotLayerMesh(lotLayout, cfg) {
   const group = new THREE.Group();
   group.name = 'LayerB_PropertyLot';
@@ -38,16 +51,8 @@ export function buildLotLayerMesh(lotLayout, cfg) {
   }
 
   // Parking stall stripes & concrete wheel stops
-  const stripeMat = solidMaterial('#e8ecf0');
-  const stopMat = solidMaterial('#b0b6bc');
   for (const st of parkingStalls) {
-    const g = new THREE.Group();
-    g.position.set(st.x, 0.012, st.z);
-    g.rotation.y = st.rotationY || 0;
-    addBox(g, -st.width * 0.48, 0, 0, 0.08, 0.015, st.depth, stripeMat, { cast: false });
-    addBox(g, st.width * 0.48, 0, 0, 0.08, 0.015, st.depth, stripeMat, { cast: false });
-    addBox(g, 0, 0.06, -st.depth * 0.36, st.width * 0.65, 0.11, 0.16, stopMat);
-    group.add(g);
+    addParkingStallMarkings(group, st);
   }
 
   // Service yard concrete pad

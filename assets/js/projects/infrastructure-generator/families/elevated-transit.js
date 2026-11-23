@@ -43,6 +43,26 @@ export const FAM_ELEV_SCHEMA = [
   { key: 'hangingWidthMeters', label: 'Cabin Width Envelope (m)', type: 'range', min: 1.8, max: 3.2, step: 0.05, group: 'Clearance Envelope', rngStream: 'elevation', safeMin: 2.2, safeMax: 2.7 },
   { key: 'includeMaintenanceWalkway', label: 'Maintenance Catwalk', type: 'boolean', group: 'Station & Walkways', rngStream: 'profile', falseBias: 0.25 },
   { key: 'includeStation', label: 'Elevated Boarding Station', type: 'boolean', group: 'Station & Walkways', rngStream: 'profile', falseBias: 0.7 },
+  { key: 'stationArchitecture', label: 'Station Architecture', type: 'select', options: [
+    ['industrial_open', 'Industrial Open-Air'], ['neighborhood_commuter', 'Neighborhood Commuter'],
+    ['metropolitan_enclosed', 'Metropolitan Enclosed']
+  ], group: 'Station & Walkways', rngStream: 'profile' },
+  { key: 'stationCanopy', label: 'Canopy', type: 'select', options: [
+    ['preset', 'Preset Roof'], ['corrugated', 'Corrugated Steel'], ['flat', 'Flat Steel'], ['pitched', 'Pitched Steel'], ['glazed', 'Glazed Roof']
+  ], group: 'Station & Walkways', rngStream: 'profile' },
+  { key: 'stationCoverage', label: 'Canopy Coverage (%)', type: 'range', min: 45, max: 100, step: 5, group: 'Station & Walkways', rngStream: 'profile', safeMin: 55, safeMax: 95 },
+  { key: 'stationPlatformWidth', label: 'Platform Width (m)', type: 'range', min: 3.3, max: 4.4, step: 0.1, group: 'Station & Walkways', rngStream: 'profile', safeMin: 3.4, safeMax: 4.1 },
+  { key: 'stationGlass', label: 'Wind Screen Coverage (%)', type: 'range', min: 0, max: 100, step: 5, group: 'Station & Walkways', rngStream: 'profile' },
+  { key: 'stationStairCover', label: 'Stair Tower Cover', type: 'select', options: [
+    ['preset', 'Preset Tower'], ['open', 'Open with Entry Hood'], ['covered', 'Covered Tower'], ['enclosed', 'Glazed Tower']
+  ], group: 'Station & Walkways', rngStream: 'profile' },
+  { key: 'stationLift', label: 'Accessible Lift', type: 'boolean', group: 'Station & Walkways', rngStream: 'profile' },
+  { key: 'stationSeating', label: 'Benches per Platform', type: 'range', min: 0, max: 5, step: 1, group: 'Station & Walkways', rngStream: 'materials' },
+  { key: 'stationLighting', label: 'Lighting Density', type: 'range', min: 1, max: 3, step: 1, group: 'Station & Walkways', rngStream: 'materials' },
+  { key: 'stationDetail', label: 'Passenger Facility Density', type: 'range', min: 0, max: 3, step: 1, group: 'Station & Walkways', rngStream: 'materials' },
+  { key: 'stationStairStyle', label: 'Station Stair Finish', type: 'select', options: [
+    ['grated', 'Industrial grating'], ['ribbed', 'Ribbed steel'], ['concrete', 'Concrete infill']
+  ], group: 'Station & Walkways', rngStream: 'materials' },
   {
     key: 'supportStyle',
     label: 'Pylon / Portal Style',
@@ -240,10 +260,25 @@ export const FAM_ELEV_PRESETS = [
       supportStyle: 'a_frame_wuppertal',
       includeMaintenanceWalkway: true,
       includeStation: true,
+      stationStairStyle: 'concrete',
       wear: 0.16
     }
   }
 ];
+
+for (const [stationArchitecture, label, width, coverage, glass, seating] of [
+  ['industrial_open', 'Industrial Open-Air', 3.55, 72, 0, 2],
+  ['neighborhood_commuter', 'Neighborhood Commuter', 3.85, 82, 55, 3],
+  ['metropolitan_enclosed', 'Metropolitan Enclosed', 4.15, 96, 100, 4]
+]) {
+  const source = FAM_ELEV_PRESETS[4];
+  const id = `suspended_station_${stationArchitecture}`;
+  FAM_ELEV_PRESETS.push({
+    ...source, id, label, description: `${label} station with sheltered platforms and accessible street entrances.`,
+    params: { ...source.params, presetId: id, includeStation: true, trackCount: 1, stationArchitecture,
+      stationPlatformWidth: width, stationCoverage: coverage, stationGlass: glass, stationSeating: seating }
+  });
+}
 
 function famElevValidateEdge({ sampled, edge }) {
   const out = [];

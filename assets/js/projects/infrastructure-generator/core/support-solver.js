@@ -88,8 +88,10 @@ export function infraSolveSupports(doc, sampledEdgesById, profilesByEdgeId) {
     const count = Math.max(1, Math.round(usableSpan / spacing));
     const stepS = usableSpan / Math.max(1, count);
 
-    for (let k = 0; k <= count; k++) {
-      const targetS = samp.trimStartMeters + edgeMargin + k * stepS;
+    const supportStations = edge.params?.supportAtCenter
+      ? [samp.trimStartMeters + len / 2]
+      : Array.from({ length: count + 1 }, (_, k) => samp.trimStartMeters + edgeMargin + k * stepS);
+    for (const targetS of supportStations) {
       let bestFrame = frames[0];
       let bestDiff = Infinity;
       for (const f of frames) {
@@ -120,7 +122,7 @@ export function infraSolveSupports(doc, sampledEdgesById, profilesByEdgeId) {
         if (style === 'single_pier' || style === 't_pylon' || style === 'y_pylon') return [0];
         if (style === 'cantilever_l') return [-Math.max(2.6, prof.totalWidthMeters * 0.46)];
         if (style === 'a_frame_wuppertal' || style === 'steel_lattice_portal' || style === 'straddle_portal') {
-          const hw = straddleHalfOverride || Math.max(4.4, prof.totalWidthMeters * 0.58 + 1.4);
+          const hw = straddleHalfOverride || edge.params?.portalFootOffsetMeters || Math.max(4.4, prof.totalWidthMeters * 0.58 + 1.4);
           return [-hw, hw];
         }
         const pierOffset = prof.totalWidthMeters * 0.34;
@@ -174,7 +176,7 @@ export function infraSolveSupports(doc, sampledEdgesById, profilesByEdgeId) {
       const finalSpanW = customStraddleHalf
         ? infraRound(customStraddleHalf * 2.1, 3)
         : (chosenStyle === 'a_frame_wuppertal' || chosenStyle === 'steel_lattice_portal' || chosenStyle === 'straddle_portal')
-          ? infraRound(Math.max(prof.totalWidthMeters + 3.4, 9.2), 3)
+          ? infraRound(edge.params?.portalFootOffsetMeters ? edge.params.portalFootOffsetMeters / 0.48 : Math.max(prof.totalWidthMeters + 3.4, 9.2), 3)
           : prof.totalWidthMeters;
 
       supports.push({

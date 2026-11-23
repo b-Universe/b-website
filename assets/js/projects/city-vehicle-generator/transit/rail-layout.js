@@ -145,6 +145,10 @@ export function resolveRailVehicleLayout(rawCfg) {
     'rail_electric_loco',
     'rail_streamlined_diesel',
     'rail_steam_loco',
+    'rail_tank_steam',
+    'rail_articulated_steam',
+    'rail_heavy_diesel',
+    'rail_box_electric',
     'rail_maintenance'
   ].includes(bf);
   const isFreight = [
@@ -152,19 +156,24 @@ export function resolveRailVehicleLayout(rawCfg) {
     'rail_freight_flatcar',
     'rail_freight_tank',
     'rail_freight_hopper',
-    'rail_freight_caboose'
+    'rail_freight_caboose',
+    'rail_freight_autorack',
+    'rail_freight_wellcar'
   ].includes(bf);
 
   const unitType = isLoco ? 'locomotive' : (isFreight ? 'freight_wagon' : 'passenger_coach');
   const isHoodDiesel = bf === 'rail_diesel_road_switcher' || bf === 'rail_diesel_switcher';
 
   const hasPantograph = bf === 'rail_electric_loco' ||
+    bf === 'rail_box_electric' ||
     bf === 'rail_highspeed_lead' ||
     bf === 'rail_articulated_tram' ||
     (bf === 'rail_highspeed_coach' && (cfg.railPantographHeight || 0) > 0.05);
   const hasTrolleyPole = bf === 'rail_historic_streetcar' || bf === 'rail_open_tram';
   const customRunningGear = [
     'rail_steam_loco',
+    'rail_tank_steam',
+    'rail_articulated_steam',
     'rail_articulated_tram',
     'rail_straddle_monorail',
     'rail_suspended_monorail',

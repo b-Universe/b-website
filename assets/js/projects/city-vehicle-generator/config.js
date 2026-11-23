@@ -10,6 +10,14 @@ import {
   RAIL_OPTIONS,
   RAIL_SCHEMA
 } from './transit/rail-archetypes.js';
+import {
+  AIR_ARCHETYPES,
+  AIR_SILHOUETTE_PROFILES,
+  AIR_BASE_DEFAULTS,
+  AIR_PRESET_DEFINITIONS,
+  AIR_OPTIONS,
+  AIR_SCHEMA
+} from './air/air-archetypes.js';
 
 export const STORAGE_KEY = 'b-remastered-city-vehicle-presets-v1';
 export const BLUEPRINT_SCHEMA_VERSION = 'b.vehicle.v1';
@@ -110,12 +118,18 @@ export const PALETTE_FAMILIES = {
     primaries: ['#c8d2dc', '#254a78', '#236b5e', '#d6dde5', '#8f3038'],
     secondaries: ['#253c59', '#1d242e', '#344960', '#d8e0e8'],
     stripes: ['#25a58d', '#eab02e', '#d6453a', '#4de2ff']
+  },
+  broadcast_news: {
+    label: 'News Broadcast & Media',
+    primaries: ['#edf2f7', '#1b3158', '#d9382e', '#243c64', '#f2f5f8'],
+    secondaries: ['#1a3a6c', '#eef3f8', '#1d242e', '#c9332b'],
+    stripes: ['#e0362e', '#f0b429', '#38bdf8', '#f8fafc']
   }
 };
 
-export const STYLES = [...ARCHETYPES, ...RAIL_ARCHETYPES];
-Object.assign(SILHOUETTE_PROFILES, RAIL_SILHOUETTE_PROFILES);
-export const PRESETS = { ...PRESET_DEFINITIONS, ...RAIL_PRESET_DEFINITIONS };
+export const STYLES = [...ARCHETYPES, ...RAIL_ARCHETYPES, ...AIR_ARCHETYPES];
+Object.assign(SILHOUETTE_PROFILES, RAIL_SILHOUETTE_PROFILES, AIR_SILHOUETTE_PROFILES);
+export const PRESETS = { ...PRESET_DEFINITIONS, ...RAIL_PRESET_DEFINITIONS, ...AIR_PRESET_DEFINITIONS };
 export {
   ARCHETYPES,
   SILHOUETTE_PROFILES,
@@ -124,7 +138,11 @@ export {
   RAIL_ARCHETYPES,
   RAIL_BASE_DEFAULTS,
   RAIL_SCHEMA,
-  RAIL_OPTIONS
+  RAIL_OPTIONS,
+  AIR_ARCHETYPES,
+  AIR_BASE_DEFAULTS,
+  AIR_SCHEMA,
+  AIR_OPTIONS
 };
 
 export const BASE = {
@@ -180,9 +198,20 @@ export const OPTIONS = {
     ['rail_freight_caboose', 'Cupola Freight Caboose'],
     ['rail_straddle_monorail', 'Straddle-Beam Monorail'],
     ['rail_suspended_monorail', 'Suspended Skytrain Monorail'],
-    ['rail_aerial_gondola', 'Panoramic Aerial Gondola']
+    ['rail_aerial_gondola', 'Panoramic Aerial Gondola'],
+    ['rail_tank_steam', 'Branchline 0-6-0 Tank Steam'],
+    ['rail_articulated_steam', 'Articulated Heavy Steam'],
+    ['rail_heavy_diesel', 'Wide-Cab Heavy Diesel'],
+    ['rail_box_electric', 'Historic Box-Cab Electric'],
+    ['rail_dining_coach', 'Luxury Heritage Dining Car'],
+    ['rail_sleeper_coach', 'Overnight Sleeper Coach'],
+    ['rail_freight_autorack', 'Bi-Level Auto-Rack Car'],
+    ['rail_freight_wellcar', 'Double-Stack Intermodal Well Car'],
+    ['air_news_chopper', 'ENG News Helicopter'],
+    ['air_twin_chopper', 'Twin-Turbine News Helicopter']
   ],
   ...RAIL_OPTIONS,
+  ...AIR_OPTIONS,
   silhouetteFamily: Object.entries(SILHOUETTE_PROFILES).map(([id, def]) => [id, def.label]),
   rooflineStyle: [
     ['flat', 'Flat Utility Roof'],
@@ -292,7 +321,8 @@ export const OPTIONS = {
     ['ambulance', 'Ambulance / Medical'],
     ['fire', 'Fire & Rescue'],
     ['armored', 'Armored Security'],
-    ['transit', 'Public Transit']
+    ['transit', 'Public Transit'],
+    ['news_media', 'News & TV Broadcast']
   ],
   lightBar: [
     ['none', 'None'],
@@ -309,7 +339,9 @@ export const OPTIONS = {
     ['delivery_pod', 'Aerodynamic Roof Pod'],
     ['bus_ac_unit', 'Rooftop Ac Unit'],
     ['ice_cream_cone', 'Rooftop Ice Cream Cone'],
-    ['fire_ladder', 'Fire Turntable Ladder']
+    ['fire_ladder', 'Fire Turntable Ladder'],
+    ['satellite_dish', 'News Satellite Dish & Mast'],
+    ['broadcast_array', 'TV Broadcast Dish & Array']
   ],
   frontAttachment: [
     ['none', 'None'],
@@ -341,7 +373,8 @@ export const OPTIONS = {
     ['serving_window', 'Food Truck Window & Awning'],
     ['postal_stripe', 'Postal Dual Stripe & Crest'],
     ['fire_pump_panel', 'Fire Pump & Equipment Bays'],
-    ['hazard_stripes', 'Construction Hazard Chevrons']
+    ['hazard_stripes', 'Construction Hazard Chevrons'],
+    ['news_branding', 'TV News Broadcast Livery']
   ],
   lightingTime: [
     ['day', 'Daytime'],
@@ -552,7 +585,20 @@ const RAIL_BODY_FAMILIES = new Set([
   'rail_freight_caboose',
   'rail_straddle_monorail',
   'rail_suspended_monorail',
-  'rail_aerial_gondola'
+  'rail_aerial_gondola',
+  'rail_tank_steam',
+  'rail_articulated_steam',
+  'rail_heavy_diesel',
+  'rail_box_electric',
+  'rail_dining_coach',
+  'rail_sleeper_coach',
+  'rail_freight_autorack',
+  'rail_freight_wellcar'
+]);
+
+const AIR_BODY_FAMILIES = new Set([
+  'air_news_chopper',
+  'air_twin_chopper'
 ]);
 
 export function isRailConfig(cfg) {
@@ -562,9 +608,19 @@ export function isRailConfig(cfg) {
   return RAIL_ARCHETYPES.some((a) => a.id === cfg.style);
 }
 
+export function isAirConfig(cfg) {
+  if (!cfg || typeof cfg !== 'object') return false;
+  if (cfg.vehicleDomain === 'air') return true;
+  if (AIR_BODY_FAMILIES.has(cfg.bodyFamily)) return true;
+  return AIR_ARCHETYPES.some((a) => a.id === cfg.style);
+}
+
 export function getArchetypeCategoryGroup(archOrId) {
   const arch = typeof archOrId === 'string' ? getStyle(archOrId) : archOrId;
   if (!arch) return 'cars';
+  if (arch.vehicleDomain === 'air' || AIR_ARCHETYPES.some((a) => a.id === arch.id)) {
+    return 'aviation';
+  }
   if (arch.vehicleDomain === 'rail' || RAIL_ARCHETYPES.some((a) => a.id === arch.id)) {
     return 'transit_rail';
   }
@@ -615,7 +671,52 @@ export function sanitiseConfig(data) {
   const style = STYLES.some((x) => x.id === data.style) ? data.style : BASE.style;
   const arch = getStyle(style);
   const presetRaw = PRESETS[arch.preset] || {};
-  const isRail = arch.vehicleDomain === 'rail' || isRailConfig({ ...presetRaw, ...data, style });
+  const isAir = arch.vehicleDomain === 'air' || isAirConfig({ ...presetRaw, ...data, style });
+  const isRail = !isAir && (arch.vehicleDomain === 'rail' || isRailConfig({ ...presetRaw, ...data, style }));
+
+  if (isAir) {
+    const merged = {
+      ...copy(BASE),
+      ...copy(AIR_BASE_DEFAULTS),
+      ...copy(presetRaw),
+      ...copy(data),
+      style,
+      vehicleDomain: 'air'
+    };
+    if (!AIR_BODY_FAMILIES.has(merged.bodyFamily)) {
+      merged.bodyFamily = presetRaw.bodyFamily || arch.bodyFamily || 'air_news_chopper';
+    }
+    if (!SILHOUETTE_PROFILES[merged.silhouetteFamily]) {
+      merged.silhouetteFamily = presetRaw.silhouetteFamily || 'news_chopper';
+    }
+    for (const tabKey of ['materials', 'scene']) {
+      for (const def of SCHEMA[tabKey] || []) {
+        if (!def.key) continue;
+        const fallback = presetRaw[def.key] !== undefined ? presetRaw[def.key] : BASE[def.key];
+        sanitiseFieldWithDef(merged, def, fallback);
+      }
+    }
+    for (const rows of Object.values(AIR_SCHEMA)) {
+      for (const def of rows) {
+        if (!def.key || def.key === 'style') continue;
+        const fallback = presetRaw[def.key] !== undefined
+          ? presetRaw[def.key]
+          : (AIR_BASE_DEFAULTS[def.key] !== undefined ? AIR_BASE_DEFAULTS[def.key] : BASE[def.key]);
+        sanitiseFieldWithDef(merged, def, fallback);
+      }
+    }
+    merged.seed = clamp(Math.floor(Number(merged.seed) || 9104), 1, 99999999);
+    merged.airRotorBlades = clamp(Math.round(merged.airRotorBlades), 2, 5);
+    merged.airRotorSpinDeg = ((Number(merged.airRotorSpinDeg) || 0) % 360 + 360) % 360;
+    merged.airHoverHeight = clamp(Number(merged.airHoverHeight || 0), 0, 3.5);
+    merged.airDoorsOpen = clamp(Number(merged.airDoorsOpen ?? (data.doorsOpen ? 1 : 0)), 0, 1);
+    merged.doorsOpen = merged.airDoorsOpen > 0.05;
+    merged.interiorDetail = Boolean(merged.airInteriorEnabled);
+    merged.airCallsign = String(merged.airCallsign || presetRaw.airCallsign || 'CH4-SKY').slice(0, 16);
+    merged.signText = String(merged.signText || presetRaw.signText || 'SKYCAM 4 NEWS').slice(0, 36);
+    delete merged.label;
+    return merged;
+  }
 
   if (isRail) {
     const merged = {
@@ -685,7 +786,7 @@ export function sanitiseConfig(data) {
   }
 
   const merged = { ...copy(BASE), ...copy(presetRaw), ...copy(data), style, vehicleDomain: 'road' };
-  if (RAIL_BODY_FAMILIES.has(merged.bodyFamily)) {
+  if (RAIL_BODY_FAMILIES.has(merged.bodyFamily) || AIR_BODY_FAMILIES.has(merged.bodyFamily)) {
     merged.bodyFamily = presetRaw.bodyFamily || arch.bodyFamily || 'three_box';
   }
 

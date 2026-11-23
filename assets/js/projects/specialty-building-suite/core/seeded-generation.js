@@ -51,7 +51,7 @@ export function applySeedVariation(rawCfg, locks = new Set()) {
     out.frontSetback = roundNum(clamp(cfg.frontSetback + (streams.lot() - 0.5) * 2.2 * factor, 2.0, 22), 1);
   }
   if (!locks.has('parkingCount') && cfg.includeLot && cfg.parkingCount > 0) {
-    out.parkingCount = clamp(cfg.parkingCount + Math.round((streams.lot() - 0.5) * 4 * factor), 1, 26);
+    out.parkingCount = clamp(cfg.parkingCount + Math.round((streams.lot() - 0.5) * 4 * factor), 1, fam?.maxParkingCount ?? 26);
   }
   if (!locks.has('primaryColor') && factor >= 0.45) {
     const tintTarget = streams.materials() > 0.5 ? '#e4e8ec' : '#3a4654';

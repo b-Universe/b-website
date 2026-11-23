@@ -38,6 +38,7 @@ const moduleOrder = [
   'geometry/primitives.js',
   'geometry/sweeper.js',
   'geometry/rail-mesh.js',
+  'geometry/station-mesh.js',
   'geometry/suspended-mesh.js',
   'geometry/bridge-mesh.js',
   'geometry/pedestrian-mesh.js',

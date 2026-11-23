@@ -1,11 +1,15 @@
 import { clamp, degToRad, roundNum } from '../utils.js';
-import { sanitiseConfig, SILHOUETTE_PROFILES, isRailConfig } from '../config.js';
+import { sanitiseConfig, SILHOUETTE_PROFILES, isRailConfig, isAirConfig } from '../config.js';
 import { resolveRailVehicleLayout } from '../transit/rail-layout.js';
+import { resolveAirVehicleLayout } from '../air/air-layout.js';
 
 export function resolveVehicleLayout(rawCfg) {
   const cfg = sanitiseConfig(rawCfg);
   if (isRailConfig(cfg)) {
     return resolveRailVehicleLayout(cfg);
+  }
+  if (isAirConfig(cfg)) {
+    return resolveAirVehicleLayout(cfg);
   }
   const warnings = [];
   const profile = SILHOUETTE_PROFILES[cfg.silhouetteFamily] || SILHOUETTE_PROFILES.executive_sedan;

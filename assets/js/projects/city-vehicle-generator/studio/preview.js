@@ -246,6 +246,39 @@ export function rebuildVehicleEnvironment(environmentGroup, mode, showGrid, boun
   const lineWhite = isNight ? '#687480' : '#cdd5dd';
   const sidewalkColor = isNight ? '#26303a' : '#656e78';
 
+  if (mode === 'helipad') {
+    const padRadius = Math.max(7.8, (boundsMeters?.length || 11) * 0.72);
+    const padDeck = new THREE.Mesh(
+      new THREE.CylinderGeometry(padRadius, padRadius + 0.35, 0.32, 32),
+      new THREE.MeshLambertMaterial({ color: isNight ? '#1b222c' : '#3d4550' })
+    );
+    padDeck.position.y = -0.17;
+    padDeck.receiveShadow = true;
+    padDeck.userData = { _ownedMat: true };
+    environmentGroup.add(padDeck);
+
+    const ringOuter = new THREE.Mesh(
+      new THREE.RingGeometry(padRadius * 0.76, padRadius * 0.82, 36),
+      new THREE.MeshBasicMaterial({ color: lineYellow, side: THREE.DoubleSide })
+    );
+    ringOuter.rotation.x = -Math.PI * 0.5;
+    ringOuter.position.y = 0.004;
+    ringOuter.userData = { _ownedMat: true };
+    environmentGroup.add(ringOuter);
+
+    // Classic Helipad "H" center markings
+    addEnvBox(environmentGroup, -1.35, 0.003, 0, 0.42, 0.01, 3.6, lineWhite, false);
+    addEnvBox(environmentGroup, 1.35, 0.003, 0, 0.42, 0.01, 3.6, lineWhite, false);
+    addEnvBox(environmentGroup, 0, 0.003, 0, 2.7, 0.01, 0.42, lineWhite, false);
+
+    // Perimeter safety lights around helipad rim
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      addEnvBox(environmentGroup, Math.cos(a) * (padRadius - 0.38), 0.08, Math.sin(a) * (padRadius - 0.38), 0.18, 0.16, 0.18, '#f0b429', false);
+    }
+    return null;
+  }
+
   if (mode === 'street') {
     addEnvBox(environmentGroup, 0, -0.05, 0, 12, 0.08, gridSpan * 1.6, asphaltColor);
     for (let z = -gridSpan * 0.7; z <= gridSpan * 0.7; z += 3.2) {

@@ -508,6 +508,17 @@ const INFRA_BASE_ELEVATED_PARAMS = {
   includeMaintenanceWalkway: true,
   includeStation: false,
   stationStyle: 'historic_steel',
+  stationArchitecture: 'industrial_open',
+  stationCanopy: 'preset',
+  stationCoverage: 75,
+  stationPlatformWidth: 3.6,
+  stationGlass: 0,
+  stationStairCover: 'preset',
+  stationLift: true,
+  stationSeating: 2,
+  stationLighting: 2,
+  stationDetail: 2,
+  stationStairStyle: 'concrete',
   includeStationStairs: true,
   lightingFixtures: true,
   wear: 0.18
@@ -3993,8 +4004,10 @@ function infraSolveSupports(doc, sampledEdgesById, profilesByEdgeId) {
     const count = Math.max(1, Math.round(usableSpan / spacing));
     const stepS = usableSpan / Math.max(1, count);
 
-    for (let k = 0; k <= count; k++) {
-      const targetS = samp.trimStartMeters + edgeMargin + k * stepS;
+    const supportStations = edge.params?.supportAtCenter
+      ? [samp.trimStartMeters + len / 2]
+      : Array.from({ length: count + 1 }, (_, k) => samp.trimStartMeters + edgeMargin + k * stepS);
+    for (const targetS of supportStations) {
       let bestFrame = frames[0];
       let bestDiff = Infinity;
       for (const f of frames) {
@@ -4025,7 +4038,7 @@ function infraSolveSupports(doc, sampledEdgesById, profilesByEdgeId) {
         if (style === 'single_pier' || style === 't_pylon' || style === 'y_pylon') return [0];
         if (style === 'cantilever_l') return [-Math.max(2.6, prof.totalWidthMeters * 0.46)];
         if (style === 'a_frame_wuppertal' || style === 'steel_lattice_portal' || style === 'straddle_portal') {
-          const hw = straddleHalfOverride || Math.max(4.4, prof.totalWidthMeters * 0.58 + 1.4);
+          const hw = straddleHalfOverride || edge.params?.portalFootOffsetMeters || Math.max(4.4, prof.totalWidthMeters * 0.58 + 1.4);
           return [-hw, hw];
         }
         const pierOffset = prof.totalWidthMeters * 0.34;
@@ -4079,7 +4092,7 @@ function infraSolveSupports(doc, sampledEdgesById, profilesByEdgeId) {
       const finalSpanW = customStraddleHalf
         ? infraRound(customStraddleHalf * 2.1, 3)
         : (chosenStyle === 'a_frame_wuppertal' || chosenStyle === 'steel_lattice_portal' || chosenStyle === 'straddle_portal')
-          ? infraRound(Math.max(prof.totalWidthMeters + 3.4, 9.2), 3)
+          ? infraRound(edge.params?.portalFootOffsetMeters ? edge.params.portalFootOffsetMeters / 0.48 : Math.max(prof.totalWidthMeters + 3.4, 9.2), 3)
           : prof.totalWidthMeters;
 
       supports.push({
@@ -5927,6 +5940,26 @@ const FAM_ELEV_SCHEMA = [
   { key: 'hangingWidthMeters', label: 'Cabin Width Envelope (m)', type: 'range', min: 1.8, max: 3.2, step: 0.05, group: 'Clearance Envelope', rngStream: 'elevation', safeMin: 2.2, safeMax: 2.7 },
   { key: 'includeMaintenanceWalkway', label: 'Maintenance Catwalk', type: 'boolean', group: 'Station & Walkways', rngStream: 'profile', falseBias: 0.25 },
   { key: 'includeStation', label: 'Elevated Boarding Station', type: 'boolean', group: 'Station & Walkways', rngStream: 'profile', falseBias: 0.7 },
+  { key: 'stationArchitecture', label: 'Station Architecture', type: 'select', options: [
+    ['industrial_open', 'Industrial Open-Air'], ['neighborhood_commuter', 'Neighborhood Commuter'],
+    ['metropolitan_enclosed', 'Metropolitan Enclosed']
+  ], group: 'Station & Walkways', rngStream: 'profile' },
+  { key: 'stationCanopy', label: 'Canopy', type: 'select', options: [
+    ['preset', 'Preset Roof'], ['corrugated', 'Corrugated Steel'], ['flat', 'Flat Steel'], ['pitched', 'Pitched Steel'], ['glazed', 'Glazed Roof']
+  ], group: 'Station & Walkways', rngStream: 'profile' },
+  { key: 'stationCoverage', label: 'Canopy Coverage (%)', type: 'range', min: 45, max: 100, step: 5, group: 'Station & Walkways', rngStream: 'profile', safeMin: 55, safeMax: 95 },
+  { key: 'stationPlatformWidth', label: 'Platform Width (m)', type: 'range', min: 3.3, max: 4.4, step: 0.1, group: 'Station & Walkways', rngStream: 'profile', safeMin: 3.4, safeMax: 4.1 },
+  { key: 'stationGlass', label: 'Wind Screen Coverage (%)', type: 'range', min: 0, max: 100, step: 5, group: 'Station & Walkways', rngStream: 'profile' },
+  { key: 'stationStairCover', label: 'Stair Tower Cover', type: 'select', options: [
+    ['preset', 'Preset Tower'], ['open', 'Open with Entry Hood'], ['covered', 'Covered Tower'], ['enclosed', 'Glazed Tower']
+  ], group: 'Station & Walkways', rngStream: 'profile' },
+  { key: 'stationLift', label: 'Accessible Lift', type: 'boolean', group: 'Station & Walkways', rngStream: 'profile' },
+  { key: 'stationSeating', label: 'Benches per Platform', type: 'range', min: 0, max: 5, step: 1, group: 'Station & Walkways', rngStream: 'materials' },
+  { key: 'stationLighting', label: 'Lighting Density', type: 'range', min: 1, max: 3, step: 1, group: 'Station & Walkways', rngStream: 'materials' },
+  { key: 'stationDetail', label: 'Passenger Facility Density', type: 'range', min: 0, max: 3, step: 1, group: 'Station & Walkways', rngStream: 'materials' },
+  { key: 'stationStairStyle', label: 'Station Stair Finish', type: 'select', options: [
+    ['grated', 'Industrial grating'], ['ribbed', 'Ribbed steel'], ['concrete', 'Concrete infill']
+  ], group: 'Station & Walkways', rngStream: 'materials' },
   {
     key: 'supportStyle',
     label: 'Pylon / Portal Style',
@@ -6124,10 +6157,25 @@ const FAM_ELEV_PRESETS = [
       supportStyle: 'a_frame_wuppertal',
       includeMaintenanceWalkway: true,
       includeStation: true,
+      stationStairStyle: 'concrete',
       wear: 0.16
     }
   }
 ];
+
+for (const [stationArchitecture, label, width, coverage, glass, seating] of [
+  ['industrial_open', 'Industrial Open-Air', 3.55, 72, 0, 2],
+  ['neighborhood_commuter', 'Neighborhood Commuter', 3.85, 82, 55, 3],
+  ['metropolitan_enclosed', 'Metropolitan Enclosed', 4.15, 96, 100, 4]
+]) {
+  const source = FAM_ELEV_PRESETS[4];
+  const id = `suspended_station_${stationArchitecture}`;
+  FAM_ELEV_PRESETS.push({
+    ...source, id, label, description: `${label} station with sheltered platforms and accessible street entrances.`,
+    params: { ...source.params, presetId: id, includeStation: true, trackCount: 1, stationArchitecture,
+      stationPlatformWidth: width, stationCoverage: coverage, stationGlass: glass, stationSeating: seating }
+  });
+}
 
 function famElevValidateEdge({ sampled, edge }) {
   const out = [];
@@ -8773,6 +8821,7 @@ function geoPrimAddTrussPanel(batcher, p0Bot, p0Top, p1Top, p1Bot, memberThickne
 // Builds a B-Remastered compliant staircase (stepRise <= 0.2438m / 4 B units) from originXZ at y=0 up to targetTopY.
 // Uses a 2-flight switchback with an intermediate landing when totalRise > 3.1m so footprints stay compact.
 function geoPrimAddStairFlight(batcher, basePos, forwardXZ, rightXZ, totalRise, clearWidth = 1.4, options = {}) {
+  if (options.stationStyle) return geoPrimAddStationSwitchback(batcher, basePos, forwardXZ, rightXZ, totalRise, clearWidth, options);
   const rise = Math.max(0.4, Number(totalRise) || 3.4);
   const f = [forwardXZ[0], 0, forwardXZ[1]];
   const r = [rightXZ[0], 0, rightXZ[1]];
@@ -8880,10 +8929,122 @@ function geoPrimAddStairFlight(batcher, basePos, forwardXZ, rightXZ, totalRise, 
   };
 }
 
+// Fill the opening between the deck and handrail so the capsule slides along
+// a continuous edge instead of catching on individual posts or passing below it.
+function geoPrimGuardCollisionBox(a, b, height = 1.05) {
+  const pad = 0.03;
+  return [
+    Math.min(a[0], b[0]) - pad, Math.min(a[1], b[1]) - 0.06, Math.min(a[2], b[2]) - pad,
+    Math.max(a[0], b[0]) + pad, Math.max(a[1], b[1]) + height, Math.max(a[2], b[2]) + pad
+  ];
+}
+
+function geoPrimAddStationSwitchback(batcher, base, forward, right, rise, width, options) {
+  const f = [forward[0], 0, forward[1]];
+  const r = [right[0], 0, right[1]];
+  const up = [0, 1, 0];
+  const boxRight = infraVec3Cross(up, f);
+  const pt = (x, h, z) => [base[0] + r[0] * x + f[0] * z, base[1] + h, base[2] + r[2] * x + f[2] * z];
+  const style = options.stationStyle;
+  const treadMat = style === 'concrete' ? 'concrete' : style === 'ribbed' ? 'steel_structure' : 'steel_grating';
+  const accent = style === 'concrete' ? 'rail_steel' : 'steel_accent';
+  const flights = 2 * Math.max(1, Math.ceil(rise / 6.4));
+  const steps = Math.ceil(rise / flights / 0.207);
+  const stepRise = rise / (flights * steps);
+  const run = 0.28;
+  const length = steps * run;
+  const lane = (width + 0.17) / 2;
+  const outer = lane + width / 2;
+  const landingDepth = 1.42;
+  const walkingBoxes = [];
+  const guardBoxes = [];
+  const box = (x, h, z, w, height, d, materialKey, surfaceStratum, walkable = false) => {
+    const center = pt(x, h, z);
+    batcher.addBoxOriented(center, f, boxRight, up, w, height, d, { materialKey, surfaceStratum, layer: 'LayerA_PrimaryStructure' });
+    if (walkable) {
+      const hx = (Math.abs(r[0]) * w + Math.abs(f[0]) * d) / 2;
+      const hz = (Math.abs(r[2]) * w + Math.abs(f[2]) * d) / 2;
+      walkingBoxes.push([center[0] - hx, center[1] - height / 2, center[2] - hz,
+        center[0] + hx, center[1] + height / 2, center[2] + hz]);
+    }
+  };
+  const rail = (a, b, thickness, materialKey = 'steel_structure') =>
+    geoPrimAddBeamBetween(batcher, pt(...a), pt(...b), thickness, thickness, { materialKey, surfaceStratum: 'stair_guard' });
+  const guard = (x, z0, z1, y0, y1) => {
+    for (const h of [0.48, 1.02]) rail([x, y0 + h, z0], [x, y1 + h, z1], h > 1 ? 0.055 : 0.033, h > 1 ? accent : 'steel_structure');
+    const count = Math.max(1, Math.ceil(Math.abs(z1 - z0) / (style === 'ribbed' ? 0.56 : 1.05)));
+    for (let i = 0; i <= count; i++) {
+      const t = (i + 0.025) / (count + 0.05), z = z0 + (z1 - z0) * t, y = y0 + (y1 - y0) * t;
+      rail([x, y, z], [x, y + 1.02, z], 0.045);
+    }
+  };
+
+  for (let flight = 0; flight < flights; flight++) {
+    const forwardFlight = flight % 2 === 0;
+    const x = forwardFlight ? lane : -lane;
+    const z0 = forwardFlight ? 0 : length;
+    const dir = forwardFlight ? 1 : -1;
+    const low = flight * steps * stepRise;
+    const high = low + steps * stepRise;
+    const z1 = z0 + dir * length;
+    for (let i = 0; i < steps; i++) {
+      const z = z0 + dir * (i + 0.5) * run;
+      const top = low + (i + 1) * stepRise;
+      box(x, top - stepRise / 2, z, width, stepRise, run, treadMat, 'stair_tread', true);
+      box(x, top + 0.006, z + dir * (run / 2 - 0.035), width - 0.09, 0.012, 0.045, accent, 'stair_nosing');
+    }
+    for (const side of [-1, 1]) {
+      const edge = x + side * (width / 2 + 0.034);
+      rail([edge, low - 0.06, z0], [edge, high - 0.06, z1], 0.135);
+      guard(edge, z0, z1, low, high);
+      for (let i = 0; i < steps; i++) {
+        const stepZ = z0 + dir * i * run;
+        const stepY = low + i * stepRise;
+        guardBoxes.push(geoPrimGuardCollisionBox(pt(edge, stepY, stepZ), pt(edge, stepY + stepRise, stepZ + dir * run)));
+      }
+    }
+    const final = flight === flights - 1;
+    box(final ? x : 0, high - 0.09, z1 + dir * landingDepth / 2,
+      final ? width : 2 * outer, 0.18, landingDepth, treadMat, 'stair_landing', true);
+    const farZ = z1 + dir * (landingDepth - 0.035);
+    const left = final ? x - width / 2 : -outer;
+    const right = final ? x + width / 2 : outer;
+    rail([left, high + 1.02, farZ], [right, high + 1.02, farZ], 0.055, accent);
+    guardBoxes.push(geoPrimGuardCollisionBox(pt(left, high, farZ), pt(right, high, farZ)));
+    // The street-side landings need both side rails, but leave the inside of
+    // the top landing open to the transverse bridge and boarding platform.
+    for (const edge of final ? [right] : [left, right]) {
+      guard(edge, z1, farZ, high, high);
+      guardBoxes.push(geoPrimGuardCollisionBox(pt(edge, high, z1), pt(edge, high, farZ)));
+    }
+  }
+  for (const x of [-outer - 0.12, outer + 0.12]) {
+    for (const z of [-landingDepth + 0.18, length + landingDepth - 0.18]) {
+      box(x, -0.12, z, 0.45, 0.24, 0.45, 'pier_concrete', 'stair_footing');
+      rail([x, 0, z], [x, rise - 0.09, z], 0.16);
+    }
+    for (let i = 0; i < flights; i += 2) {
+      const low = i * steps * stepRise;
+      const high = low + 2 * steps * stepRise;
+      rail([x, low, -landingDepth + 0.18], [x, high, length + landingDepth - 0.18], 0.095);
+    }
+  }
+  const start = pt(lane, 0, 0);
+  const end = pt(-lane, rise, -landingDepth / 2);
+  return {
+    id: options.id, style, stepCount: flights * steps, stepRiseMeters: infraRound(stepRise, 4), stepRunMeters: run,
+    clearWidthMeters: width, landingCount: flights, flightCount: flights, headroomMeters: 2 * steps * stepRise - 0.18,
+    startPosMeters: start, endPosMeters: end, walkingBoxes, guardBoxes,
+    coordinatesZUp: { start: infraVecToBGameUnits(...start), end: infraVecToBGameUnits(...end) }
+  };
+}
+
 // Builds a non-overlapping curved or straight transit platform with yellow tactile safety strip and shelter canopy.
 function geoPrimAddPlatformAssembly(batcher, frames, sideSign, innerEdgeX, totalWidth, deckTopY, uStart = 0.25, uEnd = 0.75, options = {}) {
   if (!frames || frames.length < 2) return null;
-  const sub = frames.filter((f) => f.u >= uStart - 0.02 && f.u <= uEnd + 0.02);
+  const sub = options.distanceBounds
+    ? frames.filter((f) => f.s >= options.distanceBounds[0] && f.s <= options.distanceBounds[1])
+    : frames.filter((f) => f.u >= uStart - 0.02 && f.u <= uEnd + 0.02);
   if (sub.length < 2) return null;
 
   const tactileW = 0.42;
@@ -9027,6 +9188,13 @@ function geoPrimAddPlatformAssembly(batcher, frames, sideSign, innerEdgeX, total
   const midPt = pt(midF, xTactileEnd + sideSign * deckW * 0.4, deckTopY);
   return {
     id: options.id || 'platform_1',
+    walkingBoxes: sub.slice(1).map((frame, i) => {
+      const points = [pt(sub[i], minX, deckTopY), pt(sub[i], maxX, deckTopY),
+        pt(frame, minX, deckTopY), pt(frame, maxX, deckTopY)];
+      return [Math.min(...points.map((p) => p[0])), Math.min(frame.position[1], sub[i].position[1]) + deckBottomY,
+        Math.min(...points.map((p) => p[2])), Math.max(...points.map((p) => p[0])),
+        Math.max(...points.map((p) => p[1])), Math.max(...points.map((p) => p[2]))];
+    }),
     positionMeters: [infraRound(midPt[0], 3), infraRound(midPt[1], 3), infraRound(midPt[2], 3)],
     coordinatesZUp: infraVecToBGameUnits(midPt[0], midPt[1], midPt[2]),
     widthMeters: infraRound(totalWidth, 2),
@@ -10235,6 +10403,291 @@ function geoBuildLevelCrossing(batcher, cross, doc, solved) {
   }
 }
 
+  // --- Module: geometry/station-mesh.js ---
+const INFRA_STATION_ARCHITECTURE = {
+  industrial_open: { width: 3.55, cover: 0.72, roof: 'corrugated', glass: 0, stairs: 'open', seating: 2 },
+  neighborhood_commuter: { width: 3.85, cover: 0.82, roof: 'pitched', glass: 0.55, stairs: 'covered', seating: 3 },
+  metropolitan_enclosed: { width: 4.15, cover: 0.96, roof: 'glazed', glass: 1, stairs: 'enclosed', seating: 4 }
+};
+
+const STATION_UP = [0, 1, 0];
+
+function geoStationFrameAt(frames, distance) {
+  const next = frames.findIndex((frame) => frame.s >= distance);
+  if (next <= 0) return next === 0 ? frames[0] : frames.at(-1);
+  const a = frames[next - 1];
+  const b = frames[next];
+  const t = (distance - a.s) / (b.s - a.s);
+  return { ...b, s: distance, position: infraVec3Lerp(a.position, b.position, t) };
+}
+
+function geoStationPoint(frame, x, y, along = 0) {
+  return infraVec3Add(infraVec3Add(frame.position, infraVec3Scale(frame.right, x)),
+    infraVec3Add([0, y, 0], infraVec3Scale(frame.tangent, along)));
+}
+
+function stationBox(batcher, frame, x, y, along, width, height, depth, materialKey, surfaceStratum = 'station_detail') {
+  const horizontal = [frame.tangent[0], 0, frame.tangent[2]];
+  batcher.addBoxOriented(geoStationPoint(frame, x, y, along), horizontal, infraVec3Cross(STATION_UP, horizontal),
+    STATION_UP, width, height, depth, { materialKey, surfaceStratum });
+}
+
+function stationMember(batcher, a, b, width, height, materialKey = 'steel_structure') {
+  geoPrimAddBeamBetween(batcher, a, b, width, height, { materialKey, surfaceStratum: 'station_frame' });
+}
+
+function stationGlass(batcher, a, b, c, d) {
+  batcher.addQuad(a, b, c, d, { materialKey: 'glass_station', surfaceStratum: 'station_enclosure' });
+}
+
+function geoBuildStationPlatformArchitecture(batcher, frames, options) {
+  const { side, inner, outer, deck, from, to, openings, style, cover, glass, roof, seating, lighting, detail } = options;
+  const frameAt = (s) => geoStationFrameAt(frames, s);
+  const at = (s, x, h) => geoStationPoint(frameAt(s), x, deck + h);
+  const guards = [];
+  const surfaces = [];
+  const signs = [];
+  const guard = (a, b) => {
+    guards.push(geoPrimGuardCollisionBox(a, b, 1.12));
+    for (const [height, size] of [[0.48, 0.045], [1.08, 0.075]]) {
+      stationMember(batcher, infraVec3Add(a, [0, height, 0]), infraVec3Add(b, [0, height, 0]), size, size,
+        height > 1 ? 'steel_accent' : 'steel_structure');
+    }
+    for (const fraction of [0.03, 0.52, 0.97]) {
+      const post = infraVec3Lerp(a, b, fraction);
+      stationMember(batcher, post, infraVec3Add(post, [0, 1.1, 0]), 0.075, 0.075);
+    }
+  };
+  for (const s of [from, to]) guard(at(s, inner + side * 0.42, 0), at(s, outer, 0));
+  const cuts = [...new Set([from, to, ...frames.filter((f) => f.s > from && f.s < to).map((f) => f.s),
+    ...openings.flatMap(([a, b]) => [Math.max(from, a), Math.min(to, b)])])].sort((a, b) => a - b);
+  const roofStart = from + (to - from) * (1 - cover) / 2;
+  const roofEnd = to - (to - from) * (1 - cover) / 2;
+  const back = outer - side * 0.08;
+  for (let i = 0; i + 1 < cuts.length; i++) {
+    const a = cuts[i], b = cuts[i + 1], middle = (a + b) / 2;
+    if (b - a < 0.04 || middle < from || middle > to) continue;
+    stationMember(batcher, at(a, outer - side * 0.1, -0.36), at(b, outer - side * 0.1, -0.36), 0.19, 0.39);
+    stationMember(batcher, at(a, inner + side * 0.12, -0.31), at(b, inner + side * 0.12, -0.31), 0.14, 0.26);
+    if (openings.some(([lo, hi]) => middle > lo && middle < hi)) continue;
+    guard(at(a, back, 0), at(b, back, 0));
+    if (middle > roofStart && middle < roofEnd && glass > 0 && (i % 5 < Math.ceil(glass * 5))) {
+      stationGlass(batcher, at(a, back, 0.67), at(b, back, 0.67), at(b, back, 2.93), at(a, back, 2.93));
+      guards.push(geoPrimGuardCollisionBox(at(a, back, 0), at(b, back, 0), 2.93));
+    }
+  }
+
+  const pass = Math.abs(outer - inner);
+  const canopyInner = inner + side * 0.32;
+  const cathedral = style === 'metropolitan_enclosed';
+  const outerHeight = cathedral ? 4.25 : 3.20;
+  const ridge = outerHeight + (roof === 'pitched' || roof === 'glazed' ? 0.68 : 0.15);
+  const roofCuts = [roofStart, ...frames.filter((f) => f.s > roofStart && f.s < roofEnd).map((f) => f.s), roofEnd];
+  for (let i = 0; i + 1 < roofCuts.length; i++) {
+    const a = roofCuts[i], b = roofCuts[i + 1];
+    const corners = [at(a, canopyInner, outerHeight), at(a, outer, outerHeight),
+      at(b, canopyInner, outerHeight), at(b, outer, outerHeight)];
+    surfaces.push([Math.min(...corners.map(p => p[0])), Math.min(...corners.map(p => p[1])) - 0.09,
+      Math.min(...corners.map(p => p[2])), Math.max(...corners.map(p => p[0])),
+      Math.max(...corners.map(p => p[1])) + (ridge - outerHeight), Math.max(...corners.map(p => p[2]))]);
+    const middle = (canopyInner + outer) / 2;
+    const panels = roof === 'corrugated' ? 8 : 2;
+    for (let j = 0; j < panels; j++) {
+      const x0 = canopyInner + (outer - canopyInner) * j / panels;
+      const x1 = canopyInner + (outer - canopyInner) * (j + 1) / panels;
+      const elevation = (x) => ridge - Math.abs((x - middle) / (outer - middle)) * (ridge - outerHeight);
+      const y0 = elevation(x0) + (roof === 'corrugated' && j % 2 ? 0.09 : 0);
+      const y1 = elevation(x1);
+      const corners = [at(a, x0, y0), at(a, x1, y1), at(b, x1, y1), at(b, x0, y0)];
+      const ordered = side > 0 ? corners : corners.slice().reverse();
+      const glazed = roof === 'glazed' && i % 4 !== 0;
+      batcher.addQuad(...ordered, { materialKey: glazed ? 'glass_station' : 'steel_structure',
+        surfaceStratum: 'station_roof', expectUpwardNormals: true });
+      if (!glazed) {
+        const soffit = ordered.slice().reverse().map((p) => infraVec3Add(p, [0, -0.085, 0]));
+        batcher.addQuad(...soffit, { materialKey: 'steel_grating', surfaceStratum: 'station_soffit' });
+      }
+    }
+    stationMember(batcher, at(a, outer + side * 0.03, outerHeight - 0.07),
+      at(b, outer + side * 0.03, outerHeight - 0.07), 0.18, 0.13, 'steel_grating');
+    if (i % 2 === 0 && !openings.some(([lo, hi]) => a > lo - 0.4 && a < hi + 0.4)) {
+      const column = outer - side * 0.20;
+      stationMember(batcher, at(a, column, -0.35), at(a, column, outerHeight), 0.19, 0.25);
+      stationBox(batcher, frameAt(a), column, deck + 0.025, 0, 0.33, 0.05, 0.36, 'rail_steel');
+      guards.push(geoPrimGuardCollisionBox(at(a - 0.10, column, 0), at(a + 0.10, column, 0), outerHeight));
+      geoPrimAddTrussPanel(batcher, at(a, column, outerHeight - 0.38), at(a, column, outerHeight),
+        at(a, canopyInner, outerHeight), at(a, canopyInner, outerHeight - 0.38), 0.095);
+      stationMember(batcher, at(a, outer - side * pass * 0.3, outerHeight - 0.42),
+        at(a, outer - side * pass * 0.73, outerHeight - 0.42), 0.12, 0.09, 'station_lamp');
+      if (lighting > 1) stationBox(batcher, frameAt(a), column, deck + 1.9, 0.12, 0.12, 0.22, 0.3, 'station_lamp');
+    }
+  }
+  for (const s of [roofStart, roofEnd]) {
+    if (openings.some(([a, b]) => s > a - 0.25 && s < b + 0.25)) continue;
+    stationMember(batcher, at(s, back, -0.42), at(s, back, outerHeight), 0.23, 0.27);
+    stationMember(batcher, at(s, back, -0.8), at(s, inner + side * 0.3, -0.29), 0.20, 0.24);
+    stationMember(batcher, at(s, back, 0), at(s, back, outerHeight - 0.1), 0.095, 0.08, 'rail_steel');
+  }
+
+  const slots = frames.filter((f) => f.s > roofStart + 0.8 && f.s < roofEnd - 0.8 &&
+    !openings.some(([a, b]) => f.s > a - 1.35 && f.s < b + 1.35));
+  const assetWall = outer - side * 0.40;
+  for (let i = 0; i < seating && slots.length; i++) {
+    const frame = slots[Math.floor((i + 0.5) * slots.length / seating)];
+    stationBox(batcher, frame, assetWall, deck + 0.45, 0, 0.54, 0.10, 1.56, style === 'industrial_open' ? 'steel_grating' : 'sleeper_wood');
+    stationBox(batcher, frame, assetWall + side * 0.19, deck + 0.72, 0, 0.10, 0.40, 1.56, 'steel_structure');
+    for (const end of [-0.54, 0.54]) stationBox(batcher, frame, assetWall, deck + 0.21, end, 0.26, 0.41, 0.12, 'steel_structure');
+    guards.push(geoPrimGuardCollisionBox(geoStationPoint(frame, assetWall, deck, -0.78),
+      geoStationPoint(frame, assetWall, deck, 0.78), 0.94));
+    if (detail > 0) {
+      stationBox(batcher, frame, assetWall, deck + 1.45, 0, 0.14, 0.53, 1.23, 'steel_structure');
+      signs.push({ position: geoStationPoint(frame, assetWall - side * 0.086, deck + 1.45), along: frame.tangent, text: i % 2 ? ' departures ' : ' route map ', width: 1.16, height: 0.44 });
+    }
+  }
+  const furnishingSlots = slots.filter((_, i) => i % 3 === 0 &&
+    Array.from({ length: seating }, (_, seat) => slots[Math.floor((seat + 0.5) * slots.length / seating)])
+      .every((seat) => Math.abs(seat.s - slots[i].s) > 1.35));
+  for (const [i, frame] of furnishingSlots.slice(0, detail + 1).entries()) {
+    if (!detail) break;
+    const ticket = i === 0;
+    const height = ticket ? 1.48 : 0.75;
+    const material = ticket ? 'steel_structure' : i % 2 ? 'glass_station' : 'steel_grating';
+    stationBox(batcher, frame, assetWall, deck + height / 2, 0, 0.48, height, 0.43, material);
+    stationBox(batcher, frame, assetWall - side * 0.25, deck + height * 0.82, 0, 0.035, 0.15, 0.27, ticket ? 'station_lamp' : 'steel_accent');
+    guards.push(geoPrimGuardCollisionBox(geoStationPoint(frame, assetWall, deck, -0.25),
+      geoStationPoint(frame, assetWall, deck, 0.25), height));
+    if (ticket) signs.push({ position: geoStationPoint(frame, assetWall - side * 0.29, deck + 1.06),
+      along: frame.tangent, text: 'TICKETS', width: 0.34, height: 0.15 });
+  }
+  const entry = frameAt((from + to) / 2);
+  stationBox(batcher, entry, (outer + inner) / 2, deck + 2.51, 0, 2.15, 0.45, 0.14, 'steel_structure');
+  signs.push({ position: geoStationPoint(entry, (outer + inner) / 2, deck + 2.51, -0.082),
+    along: entry.right, text: `PLATFORM ${side < 0 ? '1' : '2'}`, width: 2.0, height: 0.40 });
+  if (detail) {
+    stationBox(batcher, entry, back, deck + 2.35, 0.50, 0.23, 0.31, 0.24, 'steel_grating');
+    stationBox(batcher, entry, back - side * 0.21, deck + 2.57, -0.48, 0.32, 0.10, 0.16, 'rail_steel');
+    stationMember(batcher, at(roofStart, back, 2.64), at(roofEnd, back, 2.64), 0.045, 0.095, 'rail_steel');
+  }
+  return { guards, surfaces, signs };
+}
+
+function geoBuildStationLift(batcher, frame, side, outside, platformEdge, deck, style) {
+  const rise = frame.position[1] + deck;
+  const landingY = 0.095;
+  const half = 0.79;
+  const inside = outside - side * half;
+  const edge = outside + side * half;
+  const point = (x, height, s = 0) => geoStationPoint(frame, x, height - frame.position[1], s);
+  const walk = [];
+  const guards = [];
+  for (const h of [landingY, rise]) {
+    const inner = h === rise ? platformEdge : inside;
+    const width = Math.abs(inner - edge);
+    stationBox(batcher, frame, (inner + edge) / 2, h - frame.position[1] - 0.1, 0, width, 0.2, 2 * half, 'steel_grating');
+    const corners = [point(inner, h, -half), point(edge, h, -half), point(inner, h, half), point(edge, h, half)];
+    walk.push([Math.min(...corners.map(p => p[0])), h - 0.2, Math.min(...corners.map(p => p[2])),
+      Math.max(...corners.map(p => p[0])), h, Math.max(...corners.map(p => p[2]))]);
+    for (const z of [-half, half]) {
+      if (h === rise) {
+        stationMember(batcher, point(inner, h + 1.05, z), point(edge, h + 1.05, z), 0.055, 0.075, 'steel_accent');
+        guards.push(geoPrimGuardCollisionBox(point(inner, h, z), point(edge, h, z)));
+      }
+      stationBox(batcher, frame, outside, h - frame.position[1] + 1.05, z, 0.10, 0.27, 0.10, 'station_lamp');
+    }
+  }
+  const top = rise + 2.85;
+  for (const x of [inside, edge]) for (const z of [-half, half]) {
+    stationMember(batcher, point(x, 0, z), point(x, top, z), 0.14, 0.17);
+  }
+  for (const z of [-half, half]) {
+    const panel = [point(inside, 0.18, z), point(edge, 0.18, z), point(edge, top, z), point(inside, top, z)];
+    if (style === 'industrial_open') stationBox(batcher, frame, outside, top / 2 - frame.position[1], z, 2 * half, top, 0.10, 'steel_structure');
+    else stationGlass(batcher, ...panel);
+    guards.push(geoPrimGuardCollisionBox(point(inside, 0.12, z), point(edge, 0.12, z), top));
+  }
+  // Keep the street-side entrance and platform-side landing physically open at their levels.
+  for (const [x, low, high] of [[inside, 0, rise - 0.2], [edge, 2.35, top]]) {
+    stationBox(batcher, frame, x, (low + high) / 2 - frame.position[1], 0, 0.10, high - low, 2 * half, 'steel_structure');
+    guards.push(geoPrimGuardCollisionBox(point(x, low, -half), point(x, low, half), high - low));
+  }
+  stationBox(batcher, frame, outside, top - frame.position[1], 0, 1.85, 0.24, 1.82, 'steel_structure');
+  return { walk, guards, entrance: point(outside, landingY, 0), landing: point(outside, rise, 0),
+    signs: [
+      { position: point(edge + side * 0.10, 2.16), along: frame.tangent, text: 'LIFT • PLATFORM', width: 1.52, height: 0.32 },
+      { position: point(inside - side * 0.10, rise + 2.30), along: frame.tangent, text: 'LIFT • STREET', width: 1.52, height: 0.32 }
+    ] };
+}
+
+function geoBuildStationStairCover(batcher, frame, outside, side, flightDepth, rise, style, lamps, title) {
+  const p = (x, y, z) => geoStationPoint(frame, side * x + outside, y - frame.position[1], z);
+  const guards = [];
+  const signs = [{ position: p(0, 2.69, -1.52), along: frame.right, text: title, width: 2.85, height: 0.40 }];
+  stationBox(batcher, frame, outside, 2.70 - frame.position[1], -1.47, 3.03, 0.55, 0.11, 'steel_structure');
+  const top = style === 'open' ? 3.09 : rise + 2.70;
+  const start = -1.44, end = style === 'open' ? 0.25 : flightDepth + 1.36;
+  for (const dx of [-1.43, 1.43]) {
+    for (const z of [start, end]) {
+      stationMember(batcher, p(dx, 0, z), p(dx, top, z), 0.12, 0.12);
+      // The street entry opens across the end of the tower.
+    }
+    if (style === 'enclosed' && dx > 0) {
+      const levels = Math.max(1, Math.ceil(rise / 3));
+      for (let i = 0; i < levels; i++) {
+        const low = i * rise / levels + 0.14;
+        const high = low + rise / levels - 0.2;
+        stationGlass(batcher, p(dx, low, start), p(dx, low, end), p(dx, high, end), p(dx, high, start));
+        guards.push(geoPrimGuardCollisionBox(p(dx, low, start), p(dx, low, end), high - low));
+        stationMember(batcher, p(dx, high, start), p(dx, high, end), 0.1, 0.14);
+      }
+    }
+  }
+  stationBox(batcher, frame, outside, top - frame.position[1], (start + end) / 2, 3.25, 0.20, end - start, 'steel_structure');
+  for (let h = 2.58; h < rise + 2; h += lamps > 1 ? 2.7 : 5.4) {
+    stationBox(batcher, frame, outside + side * 1.38, h - frame.position[1], end - 0.3, 0.16, 0.16, 0.34, 'station_lamp');
+  }
+  return { guards, signs };
+}
+
+function geoBuildStationPreviewSigns(signs) {
+  if (!signs.length || typeof window === 'undefined' || typeof document === 'undefined') return null;
+  const canvas = document.createElement('canvas');
+  const cols = 4, cellW = 256, cellH = 72;
+  canvas.width = cols * cellW;
+  canvas.height = Math.max(128, 2 ** Math.ceil(Math.log2(Math.ceil(signs.length / cols) * cellH)));
+  const ctx = canvas.getContext('2d');
+  const positions = [], uvs = [], indices = [];
+  for (const [i, sign] of signs.entries()) {
+    const x = i % cols * cellW, y = Math.floor(i / cols) * cellH;
+    ctx.fillStyle = '#162b40';
+    ctx.fillRect(x, y, cellW, cellH);
+    ctx.fillStyle = '#e5b34c';
+    ctx.fillRect(x + 4, y + 60, cellW - 8, 5);
+    ctx.fillStyle = '#f5f7f0';
+    ctx.font = 'bold 25px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(sign.text.trim().toUpperCase(), x + cellW / 2, y + 31, cellW - 12);
+    const u0 = (x + 2) / canvas.width, u1 = (x + cellW - 2) / canvas.width;
+    const v0 = 1 - (y + cellH - 2) / canvas.height, v1 = 1 - (y + 2) / canvas.height;
+    for (const direction of [1, -1]) {
+      const base = positions.length / 3;
+      for (const [side, rise] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+        positions.push(...infraVec3Add(infraVec3Add(sign.position, infraVec3Scale(sign.along, direction * side * sign.width / 2)),
+          [0, rise * sign.height / 2, 0]));
+      }
+      uvs.push(u0, v0, u1, v0, u1, v1, u0, v1);
+      indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
+    }
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  const map = new THREE.CanvasTexture(canvas);
+  map.encoding = THREE.sRGBEncoding;
+  return new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ map }));
+}
+
   // --- Module: geometry/suspended-mesh.js ---
 function geoSuspPt(f, latX, elevY) {
   const p = infraVec3Add(f.position, infraVec3Scale(f.right, latX));
@@ -10474,14 +10927,22 @@ function geoBuildElevatedTransitEdge(batcher, edge, samp, prof, doc, collectors 
       if (fr.s < nextYokeS && i < frames.length - 1) continue;
       nextYokeS = fr.s + 3.4;
 
-      // Crossbeam beneath spine
+      // Flanged crossbeam + accent saddle clip beneath spine
       geoPrimAddBeamBetween(
         batcher,
-        geoSuspPt(fr, -yokeHalfW, 0.12),
-        geoSuspPt(fr, yokeHalfW, 0.12),
+        geoSuspPt(fr, -yokeHalfW, 0.14),
+        geoSuspPt(fr, yokeHalfW, 0.14),
         0.24,
-        0.22,
+        0.16,
         { materialKey: 'steel_structure', surfaceStratum: 'hanger_yoke' }
+      );
+      geoPrimAddBeamBetween(
+        batcher,
+        geoSuspPt(fr, -yokeHalfW * 0.92, 0.04),
+        geoSuspPt(fr, yokeHalfW * 0.92, 0.04),
+        0.14,
+        0.08,
+        { materialKey: 'steel_grating', surfaceStratum: 'hanger_yoke' }
       );
 
       for (const tx of trackOffsets) {
@@ -10495,13 +10956,30 @@ function geoBuildElevatedTransitEdge(batcher, edge, samp, prof, doc, collectors 
           0.18,
           { materialKey: 'steel_structure', surfaceStratum: 'hanger_neck' }
         );
+        // Diagonal knee gusset strut bracing hanger neck back into cross-yoke
+        geoPrimAddBeamBetween(
+          batcher,
+          geoSuspPt(fr, neckX, -0.26),
+          geoSuspPt(fr, neckX - sideSign * 0.42, 0.12),
+          0.09,
+          0.09,
+          { materialKey: 'steel_grating', surfaceStratum: 'hanger_brace' }
+        );
         geoPrimAddBeamBetween(
           batcher,
           geoSuspPt(fr, neckX, -0.42),
           geoSuspPt(fr, tx, -0.42),
           0.18,
-          0.18,
+          0.16,
           { materialKey: 'steel_structure', surfaceStratum: 'hanger_bracket' }
+        );
+        geoPrimAddBeamBetween(
+          batcher,
+          geoSuspPt(fr, tx - 0.12, -0.46),
+          geoSuspPt(fr, tx + 0.12, -0.46),
+          0.22,
+          0.06,
+          { materialKey: 'steel_accent', surfaceStratum: 'hanger_clip' }
         );
       }
     }
@@ -10539,54 +11017,117 @@ function geoBuildElevatedTransitEdge(batcher, edge, samp, prof, doc, collectors 
     if (p.includeStation && samp.lengthMeters >= 24) {
       const midF = frames[Math.floor(frames.length * 0.5)];
       const absGuideY = midF.position[1];
-      const absPlatY = Math.max(2.75, absGuideY - hangingDrop + 0.28);
+      const absPlatY = Math.max(2.75, absGuideY + (p.platformOffsetMeters ?? (-hangingDrop + 0.28)));
       const relPlatY = absPlatY - absGuideY;
       const outerTrackAbsX = trackCount === 2 ? Math.max(...trackOffsets.map(Math.abs)) : 0;
       const innerEdgeX = outerTrackAbsX + hangingW * 0.5 + 0.25;
-      const platWidth = 2.4;
+      const stationStyle = p.stationArchitecture || 'industrial_open';
+      const architecture = INFRA_STATION_ARCHITECTURE[stationStyle] || INFRA_STATION_ARCHITECTURE.industrial_open;
+      const platWidth = infraClamp(p.stationPlatformWidth ?? architecture.width, 3.3, 4.4);
+      const firstPlatform = geoStationFrameAt(frames, frames[0].s + samp.lengthMeters * 0.02);
+      const lastPlatform = geoStationFrameAt(frames, frames[0].s + samp.lengthMeters * 0.98);
+      const archBounds = [firstPlatform.s, lastPlatform.s];
+      const platformFrames = [firstPlatform, ...frames.filter((frame) => frame.s > archBounds[0] && frame.s < archBounds[1]), lastPlatform];
+      const stAnchorF = frames.findLast((f) => f.u <= 0.74) || midF;
+      const liftFrame = geoStationFrameAt(frames, samp.lengthMeters * 0.22 + frames[0].s);
+      const publicName = p.stationName || 'NORTH CROSS';
 
       const platLeft = geoPrimAddPlatformAssembly(
         batcher,
-        frames,
+        platformFrames,
         -1,
         -innerEdgeX,
         platWidth,
         relPlatY,
-        0.28,
-        0.72,
+        firstPlatform.u + 0.02,
+        lastPlatform.u - 0.02,
         {
           id: `stn_${edge.id}_L`,
-          deckBottomY: relPlatY - 0.36,
-          deckMaterial: 'concrete',
-          canopyMaterial: 'steel_structure',
-          includeCanopy: true,
-          glassWalls: true
+          distanceBounds: archBounds,
+          deckBottomY: relPlatY - 0.52,
+          deckMaterial: stationStyle === 'industrial_open' ? 'steel_grating' : 'concrete',
+          includeCanopy: false
         }
       );
       const platRight = geoPrimAddPlatformAssembly(
         batcher,
-        frames,
+        platformFrames,
         1,
         innerEdgeX,
         platWidth,
         relPlatY,
-        0.28,
-        0.72,
+        firstPlatform.u + 0.02,
+        lastPlatform.u - 0.02,
         {
           id: `stn_${edge.id}_R`,
-          deckBottomY: relPlatY - 0.36,
-          deckMaterial: 'concrete',
-          canopyMaterial: 'steel_structure',
-          includeCanopy: true,
-          glassWalls: true
+          distanceBounds: archBounds,
+          deckBottomY: relPlatY - 0.52,
+          deckMaterial: stationStyle === 'industrial_open' ? 'steel_grating' : 'concrete',
+          includeCanopy: false
         }
       );
       if (platLeft && collectors?.platforms) collectors.platforms.push({ ...platLeft, edgeId: edge.id });
       if (platRight && collectors?.platforms) collectors.platforms.push({ ...platRight, edgeId: edge.id });
 
+      for (const [side, platform] of [[-1, platLeft], [1, platRight]]) {
+        if (!platform) continue;
+        const outer = side * (innerEdgeX + platWidth);
+        const openings = [[stAnchorF.s - 1.47, stAnchorF.s + 0.05]];
+        const liftEnabled = p.stationLift !== false;
+        if (liftEnabled) openings.push([liftFrame.s - 0.84, liftFrame.s + 0.84]);
+        const facade = geoBuildStationPlatformArchitecture(batcher, platformFrames, {
+          side, inner: side * innerEdgeX, outer, deck: relPlatY, from: archBounds[0], to: archBounds[1],
+          openings, style: stationStyle, cover: (p.stationCoverage ?? architecture.cover * 100) / 100,
+          glass: (p.stationGlass ?? architecture.glass * 100) / 100,
+          roof: p.stationCanopy && p.stationCanopy !== 'preset' ? p.stationCanopy : architecture.roof,
+          seating: p.stationSeating ?? architecture.seating, lighting: p.stationLighting ?? 1, detail: p.stationDetail ?? 1
+        });
+        platform.guardBoxes = facade.guards;
+        platform.walkingBoxes.push(...facade.surfaces);
+        platform.signs = facade.signs;
+        platform.architecture = stationStyle;
+        platform.boarding = { from: geoStationPoint(firstPlatform, side * innerEdgeX, relPlatY),
+          to: geoStationPoint(lastPlatform, side * innerEdgeX, relPlatY) };
+        if (liftEnabled) {
+          const lift = geoBuildStationLift(batcher, liftFrame, side, side * Math.max(8.1, innerEdgeX + platWidth + 1.35),
+            outer, relPlatY, stationStyle);
+          platform.walkingBoxes.push(...lift.walk);
+          platform.guardBoxes.push(...lift.guards);
+          platform.signs.push(...lift.signs);
+          platform.lift = { entrance: lift.entrance, landing: lift.landing };
+        }
+        // The collector stores the sidewalks, clearances and signs used by the game.
+        const entry = collectors?.platforms?.find((item) => item.id === platform.id);
+        if (entry) Object.assign(entry, platform);
+      }
+
+      if (stationStyle === 'metropolitan_enclosed') {
+        const crown = guidewayDepth + 0.92;
+        const hallHalf = innerEdgeX + platWidth - 0.16;
+        const bays = platformFrames;
+        for (let i = 0; i + 1 < bays.length; i++) {
+          const a = bays[i], b = bays[i + 1];
+          for (const side of [-1, 1]) {
+            const points = [geoSuspPt(a, side * hallHalf, crown), geoSuspPt(a, 0, crown + 0.8),
+              geoSuspPt(b, 0, crown + 0.8), geoSuspPt(b, side * hallHalf, crown)];
+            batcher.addQuad(...(side < 0 ? points : points.reverse()), { materialKey: i % 3 === 0 ? 'steel_structure' : 'glass_station',
+              surfaceStratum: 'station_hall', expectUpwardNormals: true });
+          }
+          if (i % 2 === 0) {
+            for (const side of [-1, 1]) {
+              geoPrimAddBeamBetween(batcher, geoSuspPt(a, side * hallHalf, relPlatY + 4.15), geoSuspPt(a, side * hallHalf, crown),
+                0.16, 0.22, { materialKey: 'steel_structure' });
+              geoPrimAddBeamBetween(batcher, geoSuspPt(a, side * hallHalf, crown), geoSuspPt(a, 0, crown + 0.8),
+                0.17, 0.22, { materialKey: 'steel_structure' });
+            }
+          }
+        }
+      }
+
       // Station Portal Support Towers & Overhead Tie Frames
-      const portalUs = [0.3, 0.7];
-      const colLatX = innerEdgeX + platWidth - 0.32;
+      const portalUs = [0.30, 0.62];
+      const colLatX = Math.max(innerEdgeX + platWidth - 0.32, p.portalFootOffsetMeters || 0);
+      const portalTop = guidewayDepth * 0.65;
       for (const tu of portalUs) {
         let bestF = frames[0];
         let bestDiff = Infinity;
@@ -10600,7 +11141,10 @@ function geoBuildElevatedTransitEdge(batcher, edge, samp, prof, doc, collectors 
         for (const sSide of [-1, 1]) {
           const colX = sSide * colLatX;
           const groundFoot = [bestF.position[0] + bestF.right[0] * colX, -0.25, bestF.position[2] + bestF.right[2] * colX];
-          const topCol = geoSuspPt(bestF, colX, relPlatY + 2.95);
+          const topCol = geoSuspPt(bestF, colX, portalTop);
+          const platform = sSide < 0 ? platLeft : platRight;
+          platform?.guardBoxes.push([groundFoot[0] - 0.25, 0, groundFoot[2] - 0.25,
+            groundFoot[0] + 0.25, topCol[1], groundFoot[2] + 0.25]);
           geoPrimAddBeamBetween(batcher, groundFoot, topCol, 0.38, 0.38, {
             layer: 'LayerB_StructuralSupports',
             materialKey: 'steel_structure',
@@ -10615,55 +11159,75 @@ function geoBuildElevatedTransitEdge(batcher, edge, samp, prof, doc, collectors 
         // Overhead transverse tie frame uniting canopy roof + main guideway truss
         geoPrimAddBeamBetween(
           batcher,
-          geoSuspPt(bestF, -colLatX, relPlatY + 2.9),
-          geoSuspPt(bestF, colLatX, relPlatY + 2.9),
+          geoSuspPt(bestF, -colLatX, portalTop),
+          geoSuspPt(bestF, colLatX, portalTop),
           0.26,
           0.26,
           { materialKey: 'steel_structure', surfaceStratum: 'station_truss' }
         );
       }
 
-      // B-Remastered compliant Switchback Pedestrian Staircase descending from right platform to ground
-      const stairSub = frames.filter((f) => f.u >= 0.62 && f.u <= 0.74);
-      const stAnchorF = stairSub[stairSub.length - 1] || frames[Math.floor(frames.length * 0.7)];
-      const stairOuterOffset = innerEdgeX + platWidth + 1.05;
-      const stairBaseXZ = [
-        stAnchorF.position[0] + stAnchorF.right[0] * stairOuterOffset,
-        0,
-        stAnchorF.position[2] + stAnchorF.right[2] * stairOuterOffset
-      ];
-      const stairTopBridgePt = [
-        stAnchorF.position[0] + stAnchorF.right[0] * (innerEdgeX + platWidth - 0.15),
-        absPlatY - 0.11,
-        stAnchorF.position[2] + stAnchorF.right[2] * (innerEdgeX + platWidth - 0.15)
-      ];
-      const stairMeta = geoPrimAddStairFlight(
-        batcher,
-        stairBaseXZ,
-        [stAnchorF.tangent[0], stAnchorF.tangent[2]],
-        [stAnchorF.right[0], stAnchorF.right[2]],
-        absPlatY,
-        1.45,
-        { id: `stair_${edge.id}_stn`, materialKey: 'steel_structure', treadMaterial: 'concrete' }
-      );
-      if (stairMeta) {
-        // Bridge top step landing cleanly into outer side of right platform
-        const stairEnd = stairMeta.endPosMeters;
-        batcher.addBoxOriented(
-          [
-            (stairEnd[0] + stairTopBridgePt[0]) * 0.5,
-            absPlatY - 0.11,
-            (stairEnd[2] + stairTopBridgePt[2]) * 0.5
-          ],
-          stAnchorF.tangent,
-          stAnchorF.right,
-          [0, 1, 0],
-          Math.max(1.4, Math.hypot(stairEnd[0] - stairTopBridgePt[0], stairEnd[2] - stairTopBridgePt[2]) + 0.8),
-          0.22,
-          1.75,
-          { layer: 'LayerA_PrimaryStructure', materialKey: 'concrete', surfaceStratum: 'stair_landing' }
+      const stairOuterOffset = Math.max(innerEdgeX + platWidth + 1.64, p.stairOffsetMeters || 0);
+      for (const side of [-1, 1]) {
+        const outward = infraVec3Scale(stAnchorF.right, side);
+        const stairBaseXZ = infraVec3Add(stAnchorF.position, infraVec3Scale(outward, stairOuterOffset));
+        stairBaseXZ[1] = 0;
+        const stairTopBridgePt = infraVec3Add(stAnchorF.position, infraVec3Scale(outward, innerEdgeX + platWidth - 0.15));
+        stairTopBridgePt[1] = absPlatY - 0.11;
+        const stairMeta = geoPrimAddStairFlight(
+          batcher,
+          stairBaseXZ,
+          [stAnchorF.tangent[0], stAnchorF.tangent[2]],
+          [outward[0], outward[2]],
+          absPlatY,
+          p.stairClearWidthMeters || 1.45,
+          { id: `stair_${edge.id}_stn_${side}`, stationStyle: p.stationStairStyle || (style === 'industrial_truss' ? 'grated' : 'concrete') }
         );
-        collectors?.stairs?.push({ ...stairMeta, edgeId: edge.id });
+        const stairEnd = stairMeta.endPosMeters;
+        const back = (stairEnd[0] - stairTopBridgePt[0]) * stAnchorF.tangent[0] +
+          (stairEnd[2] - stairTopBridgePt[2]) * stAnchorF.tangent[2];
+        const start = infraVec3Add(stairTopBridgePt, infraVec3Scale(stAnchorF.tangent, back));
+        const platformEdge = infraVec3Add(start, infraVec3Scale(outward, 0.15));
+        const stairEdge = infraVec3Add([stairEnd[0], start[1], stairEnd[2]], infraVec3Scale(outward, -stairMeta.clearWidthMeters / 2));
+        const center = infraVec3Scale(infraVec3Add(platformEdge, stairEdge), 0.5);
+        const width = Math.hypot(stairEdge[0] - platformEdge[0], stairEdge[2] - platformEdge[2]);
+        const depth = 1.42;
+        batcher.addBoxOriented(
+          center,
+          stAnchorF.tangent,
+          infraVec3Cross([0, 1, 0], stAnchorF.tangent),
+          [0, 1, 0],
+          width,
+          0.22,
+          depth,
+          { layer: 'LayerA_PrimaryStructure', materialKey: 'steel_grating', surfaceStratum: 'stair_landing' }
+        );
+        const crossX = (Math.abs(stAnchorF.right[0]) * width + Math.abs(stAnchorF.tangent[0]) * depth) / 2;
+        const crossZ = (Math.abs(stAnchorF.right[2]) * width + Math.abs(stAnchorF.tangent[2]) * depth) / 2;
+        stairMeta.walkingBoxes.push([center[0] - crossX, absPlatY - 0.22, center[2] - crossZ,
+          center[0] + crossX, absPlatY, center[2] + crossZ]);
+        const guard = { materialKey: 'steel_structure', surfaceStratum: 'railing' };
+        for (const edgeSign of [-1, 1]) {
+          const offset = infraVec3Scale(stAnchorF.tangent, edgeSign * 0.67);
+          const a = infraVec3Add(platformEdge, offset);
+          const b = infraVec3Add(stairEdge, offset);
+          stairMeta.guardBoxes.push(geoPrimGuardCollisionBox(infraVec3Add(a, [0, 0.11, 0]), infraVec3Add(b, [0, 0.11, 0])));
+          for (const [height, thickness, materialKey] of [[0.61, 0.035, 'steel_structure'], [1.13, 0.055, 'steel_accent']]) {
+            geoPrimAddBeamBetween(batcher, infraVec3Add(a, [0, height, 0]), infraVec3Add(b, [0, height, 0]),
+              thickness, thickness, { ...guard, materialKey });
+          }
+          const posts = Math.max(1, Math.ceil(width / 1.1));
+          for (let i = 0; i <= posts; i++) {
+            const post = infraVec3Add(a, infraVec3Scale(outward, width * (i + 0.035) / (posts + 0.07)));
+            geoPrimAddBeamBetween(batcher, infraVec3Add(post, [0, 0.11, 0]), infraVec3Add(post, [0, 1.13, 0]), 0.048, 0.048, guard);
+          }
+        }
+        const cover = geoBuildStationStairCover(batcher, stAnchorF, side * stairOuterOffset, side,
+          stairMeta.stepCount / stairMeta.flightCount * stairMeta.stepRunMeters, absPlatY,
+          p.stationStairCover && p.stationStairCover !== 'preset' ? p.stationStairCover : architecture.stairs,
+          p.stationLighting ?? 1, publicName);
+        stairMeta.guardBoxes.push(...cover.guards);
+        collectors?.stairs?.push({ ...stairMeta, signs: cover.signs, edgeId: edge.id });
       }
     }
 
@@ -12622,12 +13186,177 @@ function geoBuildConnectorBend(batcher, bend, sampA, profA, sampB, profB) {
 }
 
   // --- Module: geometry/support-mesh.js ---
+const SUPP_OPTS_STEEL = {
+  layer: 'LayerB_StructuralSupports',
+  materialKey: 'steel_structure',
+  surfaceStratum: 'structural_support'
+};
+
+const SUPP_OPTS_WEB = {
+  layer: 'LayerB_StructuralSupports',
+  materialKey: 'steel_grating',
+  surfaceStratum: 'structural_support'
+};
+
+const SUPP_OPTS_ACCENT = {
+  layer: 'LayerB_StructuralSupports',
+  materialKey: 'steel_accent',
+  surfaceStratum: 'structural_support'
+};
+
+const SUPP_OPTS_RAIL = {
+  layer: 'LayerB_StructuralSupports',
+  materialKey: 'rail_steel',
+  surfaceStratum: 'structural_support'
+};
+
 function geoSuppPt(cx, cz, right, tangent, latX, elevY, longZ = 0) {
   return [
     cx + right[0] * latX + tangent[0] * longZ,
     elevY,
     cz + right[2] * latX + tangent[2] * longZ
   ];
+}
+
+// Stepped chamfered concrete pedestal with steel anchor plate & optional pin-hinge shoe
+function geoSuppAddSteppedPlinth(batcher, cx, cz, baseY, tangent, right, up, w = 1.45, d = 1.55, withPinShoe = true) {
+  batcher.addBoxOriented([cx, baseY + 0.19, cz], tangent, right, up, w, 0.38, d, {
+    layer: 'LayerB_StructuralSupports',
+    materialKey: 'pier_concrete',
+    surfaceStratum: 'structural_support'
+  });
+  batcher.addBoxOriented([cx, baseY + 0.51, cz], tangent, right, up, w * 0.78, 0.26, d * 0.78, {
+    layer: 'LayerB_StructuralSupports',
+    materialKey: 'barrier_concrete',
+    surfaceStratum: 'structural_support'
+  });
+  batcher.addBoxOriented([cx, baseY + 0.67, cz], tangent, right, up, w * 0.62, 0.06, d * 0.64, SUPP_OPTS_WEB);
+  if (withPinShoe) {
+    batcher.addBoxOriented([cx, baseY + 0.79, cz], tangent, right, up, w * 0.42, 0.18, d * 0.56, SUPP_OPTS_STEEL);
+    batcher.addBoxOriented([cx, baseY + 0.82, cz], tangent, right, up, w * 0.48, 0.07, d * 0.14, SUPP_OPTS_RAIL);
+  }
+}
+
+// True 3-piece flanged steel I-beam (recessed dark web + projecting top/bottom flanges + optional web stiffeners)
+function geoSuppAddIBeamBetween(batcher, p0, p1, flangeW, depthH, options = {}) {
+  const len = infraVec3Dist(p0, p1);
+  if (len < 1e-4) return;
+  const dir = infraVec3Norm([p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]], [0, 0, 1]);
+  const upHint = Math.abs(dir[1]) < 0.92 ? [0, 1, 0] : [0, 0, 1];
+  const side = infraVec3Norm(infraVec3Cross(dir, upHint), [1, 0, 0]);
+  const normal = infraVec3Norm(infraVec3Cross(side, dir), [0, 1, 0]);
+
+  const flangeH = Math.max(0.06, depthH * 0.18);
+  const webH = Math.max(0.08, depthH - flangeH * 2 - 0.01);
+  const webW = Math.max(0.08, flangeW * 0.36);
+  const flangeOff = (webH + flangeH) * 0.5 + 0.004;
+  const mid = [(p0[0] + p1[0]) * 0.5, (p0[1] + p1[1]) * 0.5, (p0[2] + p1[2]) * 0.5];
+
+  // Recessed dark web plate
+  batcher.addBoxOriented(mid, dir, side, normal, webW, webH, len, options.webOpts || SUPP_OPTS_WEB);
+  // Top & bottom projecting steel flanges
+  for (const sgn of [-1, 1]) {
+    const fCenter = infraVec3Add(mid, infraVec3Scale(normal, sgn * flangeOff));
+    batcher.addBoxOriented(fCenter, dir, side, normal, flangeW, flangeH, len + 0.02, options.flangeOpts || SUPP_OPTS_STEEL);
+  }
+  // Optional vertical web stiffener ribs along girder span
+  const stiffeners = options.stiffeners || 0;
+  if (stiffeners > 0) {
+    for (let i = 1; i <= stiffeners; i++) {
+      const t = i / (stiffeners + 1);
+      const sp = infraVec3Lerp(p0, p1, t);
+      batcher.addBoxOriented(sp, dir, side, normal, flangeW * 0.88, webH * 0.96, 0.075, SUPP_OPTS_STEEL);
+    }
+  }
+}
+
+// Open Warren-laced twin-chord steel column/leg (slim chords + diagonal X/Warren bracing + tie battens)
+function geoSuppAddLacedLeg(batcher, botA, botB, topA, topB, chordSize = 0.17, bays = 4, options = {}) {
+  const chordOpts = options.chordOpts || SUPP_OPTS_STEEL;
+  const braceOpts = options.braceOpts || SUPP_OPTS_WEB;
+  const braceT = chordSize * 0.56;
+
+  // Twin primary chords
+  geoPrimAddBeamBetween(batcher, botA, topA, chordSize, chordSize, chordOpts);
+  geoPrimAddBeamBetween(batcher, botB, topB, chordSize, chordSize, chordOpts);
+
+  // Diagonal Warren lacing + horizontal batten rungs across bays
+  const count = Math.max(2, bays);
+  for (let i = 0; i < count; i++) {
+    const t0 = i / count;
+    const t1 = (i + 1) / count;
+    const a0 = infraVec3Lerp(botA, topA, t0);
+    const b0 = infraVec3Lerp(botB, topB, t0);
+    const a1 = infraVec3Lerp(botA, topA, t1);
+    const b1 = infraVec3Lerp(botB, topB, t1);
+
+    if (i > 0) {
+      geoPrimAddBeamBetween(batcher, a0, b0, braceT * 1.15, braceT * 1.15, chordOpts);
+    }
+    const diagStart = i % 2 === 0 ? a0 : b0;
+    const diagEnd = i % 2 === 0 ? b1 : a1;
+    geoPrimAddBeamBetween(batcher, diagStart, diagEnd, braceT, braceT, braceOpts);
+  }
+}
+
+// Open-web overhead Warren truss cross-girder (top flanged chord, bottom chord, vertical posts & diagonal web struts)
+function geoSuppAddPortalTrussGirder(batcher, cx, cz, right, tangent, leftX, rightX, botY, topY, bays = 5, chordW = 0.38) {
+  const depth = Math.max(0.45, topY - botY);
+  const chordH = Math.min(0.16, depth * 0.24);
+  const postT = 0.12;
+  const diagT = 0.1;
+
+  // Top & bottom flanged steel chords
+  geoPrimAddBeamBetween(
+    batcher,
+    geoSuppPt(cx, cz, right, tangent, leftX - 0.16, topY),
+    geoSuppPt(cx, cz, right, tangent, rightX + 0.16, topY),
+    chordW,
+    chordH,
+    SUPP_OPTS_STEEL
+  );
+  geoPrimAddBeamBetween(
+    batcher,
+    geoSuppPt(cx, cz, right, tangent, leftX - 0.1, botY),
+    geoSuppPt(cx, cz, right, tangent, rightX + 0.1, botY),
+    chordW * 0.88,
+    chordH * 0.9,
+    SUPP_OPTS_STEEL
+  );
+  // Crisp accent top cap strip along truss crown
+  geoPrimAddBeamBetween(
+    batcher,
+    geoSuppPt(cx, cz, right, tangent, leftX, topY + chordH * 0.56),
+    geoSuppPt(cx, cz, right, tangent, rightX, topY + chordH * 0.56),
+    chordW * 0.42,
+    0.045,
+    SUPP_OPTS_ACCENT
+  );
+
+  // Twin-plane vertical posts & alternating Warren diagonals (slight longitudinal Z offset so zero coplanar faces)
+  const count = Math.max(3, bays);
+  for (let i = 0; i <= count; i++) {
+    const x = leftX + ((rightX - leftX) * i) / count;
+    for (const lz of [-chordW * 0.3, chordW * 0.3]) {
+      geoPrimAddBeamBetween(
+        batcher,
+        geoSuppPt(cx, cz, right, tangent, x, botY + chordH * 0.4, lz),
+        geoSuppPt(cx, cz, right, tangent, x, topY - chordH * 0.4, lz),
+        postT,
+        postT,
+        SUPP_OPTS_STEEL
+      );
+    }
+    if (i < count) {
+      const xNext = leftX + ((rightX - leftX) * (i + 1)) / count;
+      const flip = i % 2 === 1;
+      for (const lz of [-chordW * 0.28, chordW * 0.28]) {
+        const pStart = geoSuppPt(cx, cz, right, tangent, x, flip ? topY - chordH * 0.42 : botY + chordH * 0.42, lz);
+        const pEnd = geoSuppPt(cx, cz, right, tangent, xNext, flip ? botY + chordH * 0.42 : topY - chordH * 0.42, lz);
+        geoPrimAddBeamBetween(batcher, pStart, pEnd, diagT, diagT, SUPP_OPTS_WEB);
+      }
+    }
+  }
 }
 
 function geoBuildSupport(batcher, supp) {
@@ -12649,245 +13378,241 @@ function geoBuildSupport(batcher, supp) {
       materialKey: 'pier_concrete',
       surfaceStratum: 'structural_support'
     });
+    batcher.addBoxOriented([cx, supp.topY - 0.12, cz], tangent, right, up, spanW + 0.24, 0.24, 1.64, {
+      layer: 'LayerB_StructuralSupports',
+      materialKey: 'barrier_concrete',
+      surfaceStratum: 'structural_support'
+    });
     return;
   }
 
-  // Wuppertal A-Frame Arch Portal (angled steel legs clear of lower roadway)
+  // Wuppertal A-Frame Arch Portal (open Warren-laced angled steel legs + overhead truss portal & curved-feel haunches)
   if (supp.style === 'a_frame_wuppertal') {
     const footHalf = Math.max(4.4, spanW * 0.48);
     const topHalf = Math.max(2.6, Math.min(footHalf - 1.2, spanW * 0.32));
     const capY = supp.topY;
     const gCenterY = supp.guidewayCenterY || (capY - 1.1);
-    const tieY = Math.max(baseY + h * 0.56, gCenterY - 0.65);
+    const tieY = Math.max(baseY + h * 0.58, gCenterY - 0.55);
 
     for (const sign of [-1, 1]) {
       const fPos = geoSuppPt(cx, cz, right, tangent, sign * footHalf, baseY);
-      batcher.addBoxOriented([fPos[0], baseY + 0.35, fPos[2]], tangent, right, up, 1.35, 0.7, 1.45, {
-        layer: 'LayerB_StructuralSupports',
-        materialKey: 'pier_concrete',
-        surfaceStratum: 'structural_support'
-      });
-      const footBase = [fPos[0], baseY + 0.55, fPos[2]];
-      const topCradle = geoSuppPt(cx, cz, right, tangent, sign * topHalf, capY);
-      for (const lz of [-0.36, 0.36]) {
-        const legBot = infraVec3Add(footBase, infraVec3Scale(tangent, lz));
-        const legTop = infraVec3Add(topCradle, infraVec3Scale(tangent, lz * 0.7));
-        geoPrimAddBeamBetween(batcher, legBot, legTop, 0.34, 0.34, {
-          layer: 'LayerB_StructuralSupports',
-          materialKey: 'steel_structure',
-          surfaceStratum: 'structural_support'
-        });
-      }
-      // Lacing horizontal collar tying leg pair
-      const midPt = [
-        (footBase[0] + topCradle[0]) * 0.5,
-        (footBase[1] + topCradle[1]) * 0.5,
-        (footBase[2] + topCradle[2]) * 0.5
-      ];
-      batcher.addBoxOriented(midPt, tangent, right, up, 0.42, 0.28, 0.92, {
-        layer: 'LayerB_StructuralSupports',
-        materialKey: 'steel_structure',
-        surfaceStratum: 'structural_support'
-      });
+      geoSuppAddSteppedPlinth(batcher, fPos[0], fPos[2], baseY, tangent, right, up, 1.45, 1.55, true);
+
+      const footBase = [fPos[0], baseY + 0.82, fPos[2]];
+      const topCradle = geoSuppPt(cx, cz, right, tangent, sign * topHalf, capY + 0.18);
+      const botA = infraVec3Add(footBase, infraVec3Scale(tangent, -0.36));
+      const botB = infraVec3Add(footBase, infraVec3Scale(tangent, 0.36));
+      const topA = infraVec3Add(topCradle, infraVec3Scale(tangent, -0.22));
+      const topB = infraVec3Add(topCradle, infraVec3Scale(tangent, 0.22));
+
+      geoSuppAddLacedLeg(batcher, botA, botB, topA, topB, 0.17, 4);
+
+      // Gusset collar band at midpoint & top shoulder haunch plate
+      const midPt = infraVec3Lerp(footBase, topCradle, 0.5);
+      batcher.addBoxOriented(midPt, tangent, right, up, 0.32, 0.22, 0.78, SUPP_OPTS_ACCENT);
+      batcher.addBoxOriented(topCradle, tangent, right, up, 0.48, 0.48, 0.64, SUPP_OPTS_STEEL);
     }
 
-    // Overhead portal cross-girder + diagonal knee struts holding suspended guideway spine
-    geoPrimAddBeamBetween(
-      batcher,
-      geoSuppPt(cx, cz, right, tangent, -topHalf - 0.35, capY),
-      geoSuppPt(cx, cz, right, tangent, topHalf + 0.35, capY),
-      0.55,
-      0.72,
-      { layer: 'LayerB_StructuralSupports', materialKey: 'steel_structure', surfaceStratum: 'structural_support' }
-    );
+    // Open-web Warren truss overhead portal cross-girder
+    geoSuppAddPortalTrussGirder(batcher, cx, cz, right, tangent, -topHalf, topHalf, capY - 0.32, capY + 0.36, 5, 0.42);
+
+    // Twin gusseted diagonal knee haunches bracing legs to lower truss chord
     for (const sign of [-1, 1]) {
-      const kneeFoot = geoSuppPt(cx, cz, right, tangent, sign * (topHalf + (footHalf - topHalf) * 0.25), tieY);
-      const kneeHead = geoSuppPt(cx, cz, right, tangent, sign * (topHalf * 0.4), capY - 0.12);
-      geoPrimAddBeamBetween(batcher, kneeFoot, kneeHead, 0.22, 0.24, {
-        layer: 'LayerB_StructuralSupports',
-        materialKey: 'steel_structure',
-        surfaceStratum: 'structural_support'
-      });
+      const kneeFoot = geoSuppPt(cx, cz, right, tangent, sign * (topHalf + (footHalf - topHalf) * 0.26), tieY);
+      const kneeHead = geoSuppPt(cx, cz, right, tangent, sign * (topHalf * 0.42), capY - 0.3);
+      geoSuppAddIBeamBetween(batcher, kneeFoot, kneeHead, 0.24, 0.24);
+      // Secondary inner web strut tying knee to shoulder
+      const kneeMid = infraVec3Lerp(kneeFoot, kneeHead, 0.5);
+      const shoulderPt = geoSuppPt(cx, cz, right, tangent, sign * (topHalf * 0.88), capY - 0.28);
+      geoPrimAddBeamBetween(batcher, kneeMid, shoulderPt, 0.11, 0.11, SUPP_OPTS_WEB);
     }
     return;
   }
 
-  // Heavy Braced Steel Lattice Portal (twin vertical column towers + overhead truss girder)
+  // Heavy Braced Steel Lattice Portal (twin diagonal-laced tower columns + open-web Warren truss cross-girder)
   if (supp.style === 'steel_lattice_portal') {
     const footHalf = Math.max(4.4, spanW * 0.48);
     const capY = supp.topY;
     for (const sign of [-1, 1]) {
       const fPos = geoSuppPt(cx, cz, right, tangent, sign * footHalf, baseY);
-      batcher.addBoxOriented([fPos[0], baseY + 0.35, fPos[2]], tangent, right, up, 1.35, 0.7, 1.45, {
-        layer: 'LayerB_StructuralSupports',
-        materialKey: 'pier_concrete',
-        surfaceStratum: 'structural_support'
-      });
-      for (const lz of [-0.38, 0.38]) {
-        geoPrimAddBeamBetween(
-          batcher,
-          geoSuppPt(cx, cz, right, tangent, sign * footHalf, baseY + 0.5, lz),
-          geoSuppPt(cx, cz, right, tangent, sign * footHalf, capY, lz),
-          0.24,
-          0.24,
-          { layer: 'LayerB_StructuralSupports', materialKey: 'steel_structure', surfaceStratum: 'structural_support' }
-        );
-      }
-      // Horizontal tower lacing tiers
-      const tiers = 4;
-      for (let t = 1; t < tiers; t++) {
-        const ty = baseY + 0.6 + ((capY - baseY - 0.8) * t) / tiers;
-        geoPrimAddBeamBetween(
-          batcher,
-          geoSuppPt(cx, cz, right, tangent, sign * footHalf, ty, -0.38),
-          geoSuppPt(cx, cz, right, tangent, sign * footHalf, ty, 0.38),
-          0.14,
-          0.14,
-          { layer: 'LayerB_StructuralSupports', materialKey: 'steel_structure', surfaceStratum: 'structural_support' }
-        );
-      }
+      geoSuppAddSteppedPlinth(batcher, fPos[0], fPos[2], baseY, tangent, right, up, 1.45, 1.55, true);
+
+      const botA = geoSuppPt(cx, cz, right, tangent, sign * footHalf, baseY + 0.8, -0.38);
+      const botB = geoSuppPt(cx, cz, right, tangent, sign * footHalf, baseY + 0.8, 0.38);
+      const topA = geoSuppPt(cx, cz, right, tangent, sign * footHalf, capY + 0.18, -0.34);
+      const topB = geoSuppPt(cx, cz, right, tangent, sign * footHalf, capY + 0.18, 0.34);
+      geoSuppAddLacedLeg(batcher, botA, botB, topA, topB, 0.17, 5);
+
+      // Tower cap collar & diagonal corner knee brace
+      batcher.addBoxOriented(geoSuppPt(cx, cz, right, tangent, sign * footHalf, capY + 0.16), tangent, right, up, 0.48, 0.32, 0.84, SUPP_OPTS_STEEL);
+      const braceBot = geoSuppPt(cx, cz, right, tangent, sign * footHalf, capY - 2.25);
+      const braceTop = geoSuppPt(cx, cz, right, tangent, sign * (footHalf - 1.55), capY - 0.96);
+      geoPrimAddBeamBetween(batcher, braceBot, braceTop, 0.16, 0.16, SUPP_OPTS_STEEL);
     }
-    // Twin-chord portal cross truss overhead
-    geoPrimAddBeamBetween(
-      batcher,
-      geoSuppPt(cx, cz, right, tangent, -footHalf, capY),
-      geoSuppPt(cx, cz, right, tangent, footHalf, capY),
-      0.56,
-      0.5,
-      { layer: 'LayerB_StructuralSupports', materialKey: 'steel_structure', surfaceStratum: 'structural_support' }
-    );
-    geoPrimAddBeamBetween(
-      batcher,
-      geoSuppPt(cx, cz, right, tangent, -footHalf, capY - 0.95),
-      geoSuppPt(cx, cz, right, tangent, footHalf, capY - 0.95),
-      0.42,
-      0.24,
-      { layer: 'LayerB_StructuralSupports', materialKey: 'steel_structure', surfaceStratum: 'structural_support' }
-    );
+    geoSuppAddPortalTrussGirder(batcher, cx, cz, right, tangent, -footHalf, footHalf, capY - 0.96, capY + 0.12, 6, 0.44);
     return;
   }
 
-  // Offset Roadside Cantilever L-Mast with Diagonal Knee Brace
+  // Offset Roadside Cantilever L-Mast (flanged H-column + tapered open-web cantilevered truss arm & knee brace)
   if (supp.style === 'cantilever_l') {
     const colLat = -Math.max(2.6, spanW * 0.46);
     const armTipLat = Math.max(2.2, spanW * 0.42);
     const colBase = geoSuppPt(cx, cz, right, tangent, colLat, baseY);
-    batcher.addBoxOriented([colBase[0], baseY + 0.35, colBase[2]], tangent, right, up, 1.35, 0.7, 1.35, {
-      layer: 'LayerB_StructuralSupports',
-      materialKey: 'pier_concrete',
-      surfaceStratum: 'structural_support'
-    });
-    geoPrimAddBeamBetween(batcher, [colBase[0], baseY + 0.5, colBase[2]], [colBase[0], supp.topY + 0.25, colBase[2]], 0.52, 0.52, {
-      layer: 'LayerB_StructuralSupports',
-      materialKey: 'steel_structure',
-      surfaceStratum: 'structural_support'
-    });
+    geoSuppAddSteppedPlinth(batcher, colBase[0], colBase[2], baseY, tangent, right, up, 1.55, 1.55, true);
+
+    // Flanged steel H-column mast with horizontal collar ribs
+    geoSuppAddIBeamBetween(
+      batcher,
+      [colBase[0], baseY + 0.78, colBase[2]],
+      [colBase[0], supp.topY + 0.56, colBase[2]],
+      0.52,
+      0.54,
+      { stiffeners: 4 }
+    );
+    batcher.addBoxOriented([colBase[0], supp.topY + 0.58, colBase[2]], tangent, right, up, 0.62, 0.12, 0.62, SUPP_OPTS_ACCENT);
+
+    // Tapered open-web cantilevered truss arm (sloped upper chord + flanged lower chord + Warren struts)
+    const armBotY = supp.topY - 0.14;
+    const armRootTopY = supp.topY + 0.5;
+    const armTipTopY = supp.topY + 0.14;
+    geoSuppAddIBeamBetween(
+      batcher,
+      geoSuppPt(cx, cz, right, tangent, colLat - 0.14, armBotY),
+      geoSuppPt(cx, cz, right, tangent, armTipLat + 0.14, armBotY),
+      0.44,
+      0.26
+    );
     geoPrimAddBeamBetween(
       batcher,
-      geoSuppPt(cx, cz, right, tangent, colLat - 0.15, supp.topY),
-      geoSuppPt(cx, cz, right, tangent, armTipLat, supp.topY),
-      0.56,
-      0.58,
-      { layer: 'LayerB_StructuralSupports', materialKey: 'steel_structure', surfaceStratum: 'structural_support' }
+      geoSuppPt(cx, cz, right, tangent, colLat - 0.1, armRootTopY),
+      geoSuppPt(cx, cz, right, tangent, armTipLat + 0.1, armTipTopY),
+      0.34,
+      0.16,
+      SUPP_OPTS_STEEL
     );
-    const braceStart = geoSuppPt(cx, cz, right, tangent, colLat, Math.max(baseY + 2.5, supp.topY - 2.6));
-    const braceEnd = geoSuppPt(cx, cz, right, tangent, armTipLat * 0.45, supp.topY - 0.15);
-    geoPrimAddBeamBetween(batcher, braceStart, braceEnd, 0.26, 0.26, {
-      layer: 'LayerB_StructuralSupports',
-      materialKey: 'steel_structure',
-      surfaceStratum: 'structural_support'
-    });
-    return;
-  }
-
-  // Central Tapered Y-Pylon splitting into V-arms
-  if (supp.style === 'y_pylon') {
-    const armHalf = Math.max(2.3, spanW * 0.42);
-    const splitY = baseY + Math.max(1.8, h * 0.46);
-    batcher.addBoxOriented([cx, baseY + 0.25, cz], tangent, right, up, 1.7, 0.5, 1.7, {
-      layer: 'LayerB_StructuralSupports',
-      materialKey: 'pier_concrete',
-      surfaceStratum: 'structural_support'
-    });
-    batcher.addCylinderY(cx, baseY + 0.4, cz, 0.68, 0.54, Math.max(0.5, splitY - baseY - 0.3), 10, {
-      layer: 'LayerB_StructuralSupports',
-      materialKey: 'steel_structure',
-      surfaceStratum: 'structural_support'
-    });
-    for (const sign of [-1, 1]) {
+    const armBays = 4;
+    for (let i = 1; i <= armBays; i++) {
+      const t0 = (i - 1) / armBays;
+      const t1 = i / armBays;
+      const x0 = colLat + (armTipLat - colLat) * t0;
+      const x1 = colLat + (armTipLat - colLat) * t1;
+      const yTop0 = armRootTopY + (armTipTopY - armRootTopY) * t0;
+      const yTop1 = armRootTopY + (armTipTopY - armRootTopY) * t1;
       geoPrimAddBeamBetween(
         batcher,
-        [cx, splitY, cz],
-        geoSuppPt(cx, cz, right, tangent, sign * armHalf, supp.topY),
-        0.44,
-        0.44,
-        { layer: 'LayerB_StructuralSupports', materialKey: 'steel_structure', surfaceStratum: 'structural_support' }
+        geoSuppPt(cx, cz, right, tangent, x1, armBotY + 0.1),
+        geoSuppPt(cx, cz, right, tangent, x1, yTop1 - 0.06),
+        0.13,
+        0.13,
+        SUPP_OPTS_STEEL
+      );
+      geoPrimAddBeamBetween(
+        batcher,
+        geoSuppPt(cx, cz, right, tangent, x0, i % 2 === 0 ? armBotY + 0.1 : yTop0 - 0.06),
+        geoSuppPt(cx, cz, right, tangent, x1, i % 2 === 0 ? yTop1 - 0.06 : armBotY + 0.1),
+        0.11,
+        0.11,
+        SUPP_OPTS_WEB
       );
     }
-    geoPrimAddBeamBetween(
-      batcher,
-      geoSuppPt(cx, cz, right, tangent, -armHalf - 0.2, supp.topY),
-      geoSuppPt(cx, cz, right, tangent, armHalf + 0.2, supp.topY),
-      0.5,
-      0.52,
-      { layer: 'LayerB_StructuralSupports', materialKey: 'steel_structure', surfaceStratum: 'structural_support' }
-    );
+    // Diagonal flanged knee strut & collar
+    const braceStart = geoSuppPt(cx, cz, right, tangent, colLat + 0.12, Math.max(baseY + 2.4, supp.topY - 2.65));
+    const braceEnd = geoSuppPt(cx, cz, right, tangent, armTipLat * 0.42, armBotY - 0.08);
+    geoSuppAddIBeamBetween(batcher, braceStart, braceEnd, 0.24, 0.24);
+    batcher.addBoxOriented(geoSuppPt(cx, cz, right, tangent, armTipLat + 0.16, (armBotY + armTipTopY) * 0.5), tangent, right, up, 0.12, 0.34, 0.48, SUPP_OPTS_ACCENT);
     return;
   }
 
-  // Central Tapered T-Pylon
-  if (supp.style === 't_pylon') {
-    const r = supp.columnRadius || 0.65;
-    batcher.addBoxOriented([cx, baseY + 0.25, cz], tangent, right, up, r * 3.0, 0.5, r * 3.0, {
-      layer: 'LayerB_StructuralSupports',
-      materialKey: 'pier_concrete',
-      surfaceStratum: 'structural_support'
-    });
-    batcher.addCylinderY(cx, baseY + 0.4, cz, r * 1.05, r * 0.85, Math.max(0.4, h - 0.6), 10, {
-      layer: 'LayerB_StructuralSupports',
-      materialKey: 'steel_structure',
-      surfaceStratum: 'structural_support'
-    });
-    const armHalf = Math.max(2.4, spanW * 0.44);
-    geoPrimAddBeamBetween(
+  // Central Tapered Y-Pylon (stepped plinth + ribbed stem + flanged V-arms + I-beam cap)
+  if (supp.style === 'y_pylon') {
+    const armHalf = Math.max(2.3, spanW * 0.42);
+    const splitY = baseY + Math.max(1.9, h * 0.46);
+    geoSuppAddSteppedPlinth(batcher, cx, cz, baseY, tangent, right, up, 1.85, 1.85, false);
+
+    batcher.addCylinderY(cx, baseY + 0.68, cz, 0.66, 0.52, Math.max(0.5, splitY - baseY - 0.6), 10, SUPP_OPTS_STEEL);
+    // Heavy Y-fork saddle collar with accent ring
+    batcher.addBoxOriented([cx, splitY, cz], tangent, right, up, 1.08, 0.34, 0.92, SUPP_OPTS_WEB);
+    batcher.addBoxOriented([cx, splitY - 0.22, cz], tangent, right, up, 1.14, 0.08, 0.98, SUPP_OPTS_ACCENT);
+
+    for (const sign of [-1, 1]) {
+      geoSuppAddIBeamBetween(
+        batcher,
+        [cx, splitY + 0.08, cz],
+        geoSuppPt(cx, cz, right, tangent, sign * armHalf, supp.topY - 0.12),
+        0.38,
+        0.42,
+        { stiffeners: 2 }
+      );
+    }
+    // Overhead flanged I-beam cross-cap with bearing pads
+    geoSuppAddIBeamBetween(
       batcher,
-      geoSuppPt(cx, cz, right, tangent, -armHalf, supp.topY),
-      geoSuppPt(cx, cz, right, tangent, armHalf, supp.topY),
-      0.62,
-      0.58,
-      { layer: 'LayerB_StructuralSupports', materialKey: 'steel_structure', surfaceStratum: 'structural_support' }
+      geoSuppPt(cx, cz, right, tangent, -armHalf - 0.26, supp.topY),
+      geoSuppPt(cx, cz, right, tangent, armHalf + 0.26, supp.topY),
+      0.52,
+      0.5,
+      { stiffeners: 4 }
     );
     for (const sign of [-1, 1]) {
-      geoPrimAddBeamBetween(
+      batcher.addBoxOriented(geoSuppPt(cx, cz, right, tangent, sign * armHalf, supp.topY + 0.26), tangent, right, up, 0.54, 0.08, 0.58, SUPP_OPTS_ACCENT);
+    }
+    return;
+  }
+
+  // Central Tapered T-Pylon (stepped plinth + collared stem + flanged hammerhead I-girder + gusseted struts)
+  if (supp.style === 't_pylon') {
+    const r = supp.columnRadius || 0.65;
+    geoSuppAddSteppedPlinth(batcher, cx, cz, baseY, tangent, right, up, r * 3.1, r * 3.1, false);
+    batcher.addCylinderY(cx, baseY + 0.68, cz, r * 1.04, r * 0.82, Math.max(0.4, h - 0.85), 10, SUPP_OPTS_STEEL);
+    // Mid-height & capital collar rings
+    batcher.addCylinderY(cx, baseY + h * 0.52, cz, r * 0.98, r * 0.98, 0.14, 10, SUPP_OPTS_ACCENT);
+    batcher.addBoxOriented([cx, supp.topY - 0.34, cz], tangent, right, up, r * 2.15, 0.24, r * 1.9, SUPP_OPTS_WEB);
+
+    const armHalf = Math.max(2.4, spanW * 0.44);
+    geoSuppAddIBeamBetween(
+      batcher,
+      geoSuppPt(cx, cz, right, tangent, -armHalf - 0.16, supp.topY),
+      geoSuppPt(cx, cz, right, tangent, armHalf + 0.16, supp.topY),
+      0.58,
+      0.56,
+      { stiffeners: 4 }
+    );
+    for (const sign of [-1, 1]) {
+      geoSuppAddIBeamBetween(
         batcher,
-        [cx, Math.max(baseY + 2.0, supp.topY - 2.0), cz],
-        geoSuppPt(cx, cz, right, tangent, sign * armHalf * 0.78, supp.topY - 0.1),
+        [cx, Math.max(baseY + 2.0, supp.topY - 2.1), cz],
+        geoSuppPt(cx, cz, right, tangent, sign * armHalf * 0.78, supp.topY - 0.22),
         0.24,
-        0.24,
-        { layer: 'LayerB_StructuralSupports', materialKey: 'steel_structure', surfaceStratum: 'structural_support' }
+        0.24
       );
+      batcher.addBoxOriented(geoSuppPt(cx, cz, right, tangent, sign * armHalf * 0.72, supp.topY + 0.3), tangent, right, up, 0.52, 0.07, 0.56, SUPP_OPTS_ACCENT);
     }
     return;
   }
 
   if (supp.style === 'single_pier') {
     const r = supp.columnRadius || 0.65;
-    // Footing pad
-    batcher.addBoxOriented([cx, baseY + 0.2, cz], tangent, right, up, r * 3.2, 0.4, r * 3.2, {
+    geoSuppAddSteppedPlinth(batcher, cx, cz, baseY, tangent, right, up, r * 3.2, r * 3.2, false);
+    batcher.addCylinderY(cx, baseY + 0.66, cz, r * 1.08, r * 0.9, Math.max(0.2, h - 1.1), 10, {
       layer: 'LayerB_StructuralSupports',
       materialKey: 'pier_concrete',
       surfaceStratum: 'structural_support'
     });
-    // Tapered central column
-    batcher.addCylinderY(cx, baseY + 0.35, cz, r * 1.1, r * 0.92, Math.max(0.2, h - 0.75), 8, {
+    // Flared capital & stepped hammerhead cap beam
+    batcher.addCylinderY(cx, supp.topY - 0.78, cz, r * 0.92, r * 1.24, 0.28, 10, {
       layer: 'LayerB_StructuralSupports',
-      materialKey: 'pier_concrete',
+      materialKey: 'barrier_concrete',
       surfaceStratum: 'structural_support'
     });
-    // Hammerhead cap beam
-    batcher.addBoxOriented([cx, supp.topY - 0.28, cz], tangent, right, up, (supp.spanWidthMeters || 8) * 0.78, 0.6, 1.25, {
+    const capSpan = (supp.spanWidthMeters || 8) * 0.78;
+    batcher.addBoxOriented([cx, supp.topY - 0.28, cz], tangent, right, up, capSpan, 0.54, 1.22, {
       layer: 'LayerB_StructuralSupports',
       materialKey: 'deck_concrete',
+      surfaceStratum: 'structural_support'
+    });
+    batcher.addBoxOriented([cx, supp.topY - 0.56, cz], tangent, right, up, capSpan * 0.84, 0.14, 1.02, {
+      layer: 'LayerB_StructuralSupports',
+      materialKey: 'pier_concrete',
       surfaceStratum: 'structural_support'
     });
     return;
@@ -12898,27 +13623,33 @@ function geoBuildSupport(batcher, supp) {
     ? Math.max(4.5, (supp.spanWidthMeters || 14) * 0.44)
     : Math.max(2.0, (supp.spanWidthMeters || 8) * 0.34);
   const colR = supp.columnRadius || 0.45;
-  const colH = Math.max(0.2, h - 0.55);
+  const colH = Math.max(0.2, h - 0.92);
 
   for (const sign of [-1, 1]) {
     const colPos = infraVec3Add([cx, 0, cz], infraVec3Scale(right, sign * offset));
-    batcher.addBoxOriented([colPos[0], baseY + 0.18, colPos[2]], tangent, right, up, colR * 3.0, 0.36, colR * 3.0, {
+    geoSuppAddSteppedPlinth(batcher, colPos[0], colPos[2], baseY, tangent, right, up, colR * 3.1, colR * 3.1, false);
+    batcher.addCylinderY(colPos[0], baseY + 0.66, colPos[2], colR * 1.05, colR * 0.9, colH, 10, {
       layer: 'LayerB_StructuralSupports',
       materialKey: 'pier_concrete',
       surfaceStratum: 'structural_support'
     });
-    batcher.addCylinderY(colPos[0], baseY + 0.3, colPos[2], colR * 1.05, colR * 0.92, colH, 8, {
+    batcher.addCylinderY(colPos[0], supp.topY - 0.76, colPos[2], colR * 0.92, colR * 1.18, 0.22, 10, {
       layer: 'LayerB_StructuralSupports',
-      materialKey: 'pier_concrete',
+      materialKey: 'barrier_concrete',
       surfaceStratum: 'structural_support'
     });
   }
 
-  // Cross cap beam linking both columns cleanly under bridge soffit
-  const capW = offset * 2 + colR * 2.4;
-  batcher.addBoxOriented([cx, supp.topY - 0.25, cz], tangent, right, up, capW, 0.62, 1.15, {
+  // Stepped cross cap beam & elastomeric bearing pads linking both columns cleanly under soffit
+  const capW = offset * 2 + colR * 2.5;
+  batcher.addBoxOriented([cx, supp.topY - 0.26, cz], tangent, right, up, capW, 0.56, 1.16, {
     layer: 'LayerB_StructuralSupports',
     materialKey: 'deck_concrete',
+    surfaceStratum: 'structural_support'
+  });
+  batcher.addBoxOriented([cx, supp.topY - 0.56, cz], tangent, right, up, capW * 0.92, 0.12, 0.96, {
+    layer: 'LayerB_StructuralSupports',
+    materialKey: 'pier_concrete',
     surfaceStratum: 'structural_support'
   });
 }
@@ -13045,6 +13776,10 @@ function infraBuildScene(doc, options = {}) {
   }
 
   const blueprint = infraGenerateBlueprint(doc, solved, stats);
+  if (options.stationPreviewSigns !== false) {
+    const signs = geoBuildStationPreviewSigns([...collectors.platforms, ...collectors.stairs].flatMap((part) => part.signs || []));
+    if (signs) root.add(signs);
+  }
   root.userData = {
     blueprint,
     solved,

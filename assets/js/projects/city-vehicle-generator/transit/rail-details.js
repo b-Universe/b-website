@@ -142,10 +142,14 @@ export function buildRailDetails(batcher, rootGroup, layout, cfg) {
           lit: false
         });
       }
-    } else if (bf === 'rail_steam_loco') {
-      const boilerR = clamp(halfW * 0.62, 0.78, 1.02);
-      const boilerCenterY = deckY + boilerR + 0.38;
-      const smokeboxEndZ = halfL - 0.85;
+    } else if (bf === 'rail_steam_loco' || bf === 'rail_tank_steam' || bf === 'rail_articulated_steam') {
+      const boilerR = bf === 'rail_tank_steam'
+        ? clamp(halfW * 0.54, 0.68, 0.86)
+        : bf === 'rail_articulated_steam'
+          ? clamp(halfW * 0.66, 0.86, 1.08)
+          : clamp(halfW * 0.62, 0.78, 1.02);
+      const boilerCenterY = deckY + boilerR + (bf === 'rail_tank_steam' ? 0.24 : bf === 'rail_articulated_steam' ? 0.42 : 0.38);
+      const smokeboxEndZ = halfL - (bf === 'rail_tank_steam' ? 0.65 : 0.85);
       // Classic brass smokebox headlamp & bracket + pilot marker lanterns
       batcher.addBox(0, boilerCenterY + 0.44, smokeboxEndZ - 0.04, 0.28, 0.08, 0.28, { materialRole: 'utility', layer: 'detail' });
       batcher.addCylinder(0, boilerCenterY + 0.6, smokeboxEndZ + 0.04, 0.16, 0.16, 0.22, 12, 'z', 'secondary', 'detail');
@@ -154,11 +158,36 @@ export function buildRailDetails(batcher, rootGroup, layout, cfg) {
         batcher.addCylinder(sx, deckY + 0.28, frontEndZ - 0.22, 0.06, 0.06, 0.1, 8, 'z', 'headlight', 'detail');
       }
       batcher.addCylinder(0, deckY + 1.48, rearEndZ + 0.24, 0.075, 0.075, 0.04, 10, 'z', 'taillight', 'detail');
-      const cabZ = -halfL + 0.25 + 5.8 + 0.38 + 1.175;
+      const cabZ = bf === 'rail_tank_steam' ? -halfL + 3.05 : (bf === 'rail_articulated_steam' ? -halfL + 9.2 : -halfL + 7.6);
       for (const side of [-1, 1]) {
         trDetailMakeNumberPlate(rootGroup, unitNum, 0.88, 0.22, side * (halfW * 0.94 + 0.024), deckY + 0.92, cabZ, side * Math.PI * 0.5, {
           bgHex: '#181a1f',
           fgHex: cfg.liveryStripeColor || '#d4a644',
+          lit: false
+        });
+      }
+    } else if (bf === 'rail_heavy_diesel') {
+      const topY = rz.zones.bodyTopY;
+      batcher.addCylinder(0, topY - 0.28, frontEndZ - 2.75, 0.095, 0.095, 0.05, 10, 'z', 'headlight', 'detail');
+      for (const sx of [-0.72, 0.72]) {
+        batcher.addCylinder(sx, deckY + 0.28, frontEndZ - 0.35, 0.065, 0.065, 0.04, 8, 'z', 'headlight', 'detail');
+        batcher.addCylinder(sx, deckY + 0.26, rearEndZ + 0.12, 0.06, 0.06, 0.04, 8, 'z', 'taillight', 'detail');
+      }
+      for (const side of [-1, 1]) {
+        trDetailMakeNumberPlate(rootGroup, unitNum, 1.08, 0.24, side * (halfW * 0.96 + 0.025), deckY + 1.02, frontEndZ - 4.1, side * Math.PI * 0.5, {
+          bgHex: cfg.bodySecondaryColor || '#2c3138',
+          fgHex: cfg.bodyPrimaryColor || '#e2a824',
+          lit: false
+        });
+      }
+    } else if (bf === 'rail_box_electric') {
+      for (const endSign of [-1, 1]) {
+        batcher.addCylinder(0, deckY + 1.25, endSign * (halfL - 0.2), 0.11, 0.11, 0.05, 10, 'z', endSign > 0 ? 'headlight' : 'taillight', 'detail');
+      }
+      for (const side of [-1, 1]) {
+        trDetailMakeNumberPlate(rootGroup, unitNum, 1.05, 0.24, side * (halfW * 0.96 + 0.026), deckY + 0.98, 0, side * Math.PI * 0.5, {
+          bgHex: '#182420',
+          fgHex: cfg.liveryStripeColor || '#e2b542',
           lit: false
         });
       }

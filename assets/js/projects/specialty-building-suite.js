@@ -537,6 +537,7 @@ const SHARED_SCHEMA_FIELDS = [
 const FAMILY_MAP = new Map();
 const PRESET_MAP = new Map();
 const CATEGORY_MAP = new Map(BUILDING_CATEGORIES.map((c) => [c.id, c]));
+const parkingCountField = SHARED_SCHEMA_FIELDS.find((field) => field.key === 'parkingCount');
 
 function validId(list, value, fallback) {
   return list.some((item) => item.id === value) ? value : fallback;
@@ -640,7 +641,10 @@ function getSchemaForFamily(familyId) {
     tab: f.tab || 'features',
     isFamilySpecific: true
   }));
-  return [...SHARED_SCHEMA_FIELDS, ...familyFields];
+  const sharedFields = fam?.maxParkingCount
+    ? SHARED_SCHEMA_FIELDS.map((field) => field === parkingCountField ? { ...field, max: fam.maxParkingCount } : field)
+    : SHARED_SCHEMA_FIELDS;
+  return [...sharedFields, ...familyFields];
 }
 
 function buildDefaultSpecialtyConfig(familyId = 'gas_station', presetId = null) {
@@ -700,7 +704,7 @@ function sanitiseSpecialtyConfig(rawCfg = {}) {
   merged.lotDepth = clamp(Math.max(merged.lotDepth, merged.depth + 2), 8, 88);
   merged.frontSetback = clamp(merged.frontSetback, 1.5, 24);
   merged.sideSetback = clamp(merged.sideSetback, 1.0, 18);
-  merged.parkingCount = clamp(Math.round(Number(merged.parkingCount) || 0), 0, 28);
+  merged.parkingCount = clamp(Math.round(Number(merged.parkingCount) || 0), 0, fam?.maxParkingCount ?? parkingCountField.max);
 
   merged.primaryColor = colorHex(merged.primaryColor, '#d9dfe6');
   merged.secondaryColor = colorHex(merged.secondaryColor, '#2c4a6e');
@@ -807,7 +811,7 @@ function applySeedVariation(rawCfg, locks = new Set()) {
     out.frontSetback = roundNum(clamp(cfg.frontSetback + (streams.lot() - 0.5) * 2.2 * factor, 2.0, 22), 1);
   }
   if (!locks.has('parkingCount') && cfg.includeLot && cfg.parkingCount > 0) {
-    out.parkingCount = clamp(cfg.parkingCount + Math.round((streams.lot() - 0.5) * 4 * factor), 1, 26);
+    out.parkingCount = clamp(cfg.parkingCount + Math.round((streams.lot() - 0.5) * 4 * factor), 1, fam?.maxParkingCount ?? 26);
   }
   if (!locks.has('primaryColor') && factor >= 0.45) {
     const tintTarget = streams.materials() > 0.5 ? '#e4e8ec' : '#3a4654';
@@ -1394,6 +1398,71 @@ function buildLayerCObjects(objectSpecs, placementCtx, cfg, options = {}) {
 }
 
   // --- Module: core/lot-layout.js ---
+const STALL_WIDTH = 2.6;
+const STALL_DEPTH = 5.0;
+const PARKING_AISLE_WIDTH = 6.0;
+const PARKING_EDGE_GAP = 0.5;
+const PARKING_ROW_MARGIN = STALL_DEPTH + PARKING_AISLE_WIDTH + PARKING_EDGE_GAP;
+
+function planPerimeterParking(edges, driveways, count, placementCtx) {
+  const { left, right, rear, front } = edges;
+  const rowOffset = PARKING_EDGE_GAP + STALL_DEPTH * 0.5;
+  const leftAisle = left + PARKING_EDGE_GAP + STALL_DEPTH;
+  const rightAisle = right - PARKING_EDGE_GAP - STALL_DEPTH;
+  const rearAisle = rear + PARKING_EDGE_GAP + STALL_DEPTH;
+  const frontAisle = front - PARKING_EDGE_GAP - STALL_DEPTH;
+  const aisles = [
+    ['front', leftAisle, rightAisle, frontAisle - PARKING_AISLE_WIDTH, frontAisle],
+    ['rear', leftAisle, rightAisle, rearAisle, rearAisle + PARKING_AISLE_WIDTH],
+    ['left', leftAisle, leftAisle + PARKING_AISLE_WIDTH, rearAisle, frontAisle],
+    ['right', rightAisle - PARKING_AISLE_WIDTH, rightAisle, rearAisle, frontAisle]
+  ];
+  for (const [side, minX, maxX, minZ, maxZ] of aisles) {
+    registerLaneClearance(placementCtx, { id: `parking_aisle_${side}`, minX, maxX, minZ, maxZ });
+  }
+
+  const rows = [
+    ['front', leftAisle, rightAisle, front - rowOffset, Math.PI],
+    ['rear', leftAisle, rightAisle, rear + rowOffset, 0],
+    ['left', rearAisle, frontAisle, left + rowOffset, Math.PI / 2],
+    ['right', rearAisle, frontAisle, right - rowOffset, -Math.PI / 2]
+  ].map(([side, start, end, fixed, rotationY], rowIndex) => {
+    const alongX = rowIndex < 2;
+    const capacity = Math.max(0, Math.floor((end - start) / STALL_WIDTH));
+    const center = (start + end) * 0.5;
+    const row = [];
+    for (let i = 0; i < capacity; i++) {
+      const position = center + (i - (capacity - 1) * 0.5) * STALL_WIDTH;
+      const x = alongX ? position : fixed;
+      const z = alongX ? fixed : position;
+      if (side === 'front' && driveways.some((dw) => Math.abs(x - dw.x) < (dw.width + STALL_WIDTH) * 0.5 + 0.2)) continue;
+      row.push({ id: `stall_${side}_${i}`, x, z, width: STALL_WIDTH, depth: STALL_DEPTH, rotationY });
+    }
+    const axis = alongX ? 'x' : 'z';
+    return row.sort((a, b) => Math.abs(b[axis] - center) - Math.abs(a[axis] - center));
+  });
+
+  const stalls = [];
+  for (let remaining = Math.min(count, rows.reduce((total, row) => total + row.length, 0)); remaining > 0;) {
+    for (const row of rows) {
+      const stall = remaining > 0 && row.pop();
+      if (!stall) continue;
+      stalls.push(stall);
+      remaining--;
+      const isSide = Math.abs(stall.rotationY) === Math.PI / 2;
+      const halfX = (isSide ? stall.depth : stall.width) * 0.5;
+      const halfZ = (isSide ? stall.width : stall.depth) * 0.5;
+      registerLaneClearance(placementCtx, {
+        id: `stall_zone_${stall.id}`,
+        kind: 'parking_stall',
+        minX: stall.x - halfX, maxX: stall.x + halfX,
+        minZ: stall.z - halfZ, maxZ: stall.z + halfZ
+      });
+    }
+  }
+  return stalls;
+}
+
 function computeLotLayout(cfg, buildingBox, placementCtx = null, options = {}) {
   const enabled = Boolean(cfg.includeLot && cfg.lotType !== 'none');
   const bw = buildingBox?.width || cfg.width;
@@ -1426,40 +1495,48 @@ function computeLotLayout(cfg, buildingBox, placementCtx = null, options = {}) {
   const sidePad = clamp(cfg.sideSetback || 3.5, 1.2, 18.0);
   const rearPad = clamp(options.rearMargin ?? (cfg.serviceAccess ? 4.8 : 2.8), 1.5, 18.0);
 
-  const lotW = Math.max(cfg.lotWidth || (bw + sidePad * 2), bw + sidePad * 2);
-  const lotD = Math.max(cfg.lotDepth || (bd + frontPad + rearPad), bd + frontPad + rearPad);
-
-  const halfW = lotW * 0.5;
-  // Center building along X, offset along Z so frontSetback is in +Z
-  const bldgCenterZ = -lotD * 0.5 + rearPad + bd * 0.5;
-  const lotMinZ = bldgCenterZ - bd * 0.5 - rearPad;
-  const lotMaxZ = bldgCenterZ + bd * 0.5 + frontPad;
-  const actualLotD = lotMaxZ - lotMinZ;
-
-  // Keep building centered at origin and offset lot around it
-  const minX = -halfW;
-  const maxX = halfW;
-  const minZ = -bd * 0.5 - rearPad;
-  const maxZ = bd * 0.5 + frontPad;
-
   const isCivic = cfg.lotType === 'civic_plaza';
   const isIndustrial = cfg.lotType === 'industrial_service' || cfg.lotType === 'multi_building_facility';
   const isUrban = cfg.lotType === 'compact_urban';
   const surfaceKind = isCivic ? 'plaza_stone' : isUrban ? 'concrete' : 'asphalt';
+  const swW = isCivic ? 3.2 : 2.4;
+  const hasFrontWalk = cfg.sidewalkConfig !== 'none';
+  const hasLeftWalk = cfg.sidewalkConfig === 'full_perimeter';
+  const hasRightWalk = hasFrontWalk && (cfg.cornerLot || cfg.sidewalkConfig === 'corner_wrap' || hasLeftWalk);
+  const requestedStalls = cfg.includeParking && cfg.parkingConfig !== 'none' ? (cfg.parkingCount || 0) : 0;
+  const perimeterParking = options.perimeterParking && cfg.parkingConfig === 'wrap_around' && requestedStalls > 0;
+  const footprint = options.footprintBounds || { minX: -bw * 0.5, maxX: bw * 0.5, minZ: -bd * 0.5, maxZ: bd * 0.5 };
+  const leftPad = perimeterParking ? Math.max(sidePad, PARKING_ROW_MARGIN + (hasLeftWalk ? swW : 0)) : sidePad;
+  const rightPad = perimeterParking ? Math.max(sidePad, PARKING_ROW_MARGIN + (hasRightWalk ? swW : 0)) : sidePad;
+  const extraWidth = Math.max(0, cfg.lotWidth - (footprint.maxX - footprint.minX + leftPad + rightPad)) || 0;
+  const minX = footprint.minX - leftPad - extraWidth * 0.5;
+  const maxX = footprint.maxX + rightPad + extraWidth * 0.5;
+  const lotW = maxX - minX;
+  const halfW = lotW * 0.5;
+  const centerX = (minX + maxX) * 0.5;
+  const minZ = footprint.minZ - (perimeterParking ? Math.max(rearPad, PARKING_ROW_MARGIN) : rearPad);
+  const minimumFront = footprint.maxZ + (perimeterParking ? Math.max(frontPad, PARKING_ROW_MARGIN + (hasFrontWalk ? swW : 0)) : frontPad);
+  const maxZ = options.footprintBounds ? Math.max(minimumFront, minZ + cfg.lotDepth) : minimumFront;
+  const actualLotD = maxZ - minZ;
+  const parkingEdges = {
+    left: minX + (hasLeftWalk ? swW : 0),
+    right: maxX - (hasRightWalk ? swW : 0),
+    rear: minZ,
+    front: maxZ - (hasFrontWalk ? swW : 0)
+  };
 
   // Sidewalks
   const sidewalks = [];
-  const swW = isCivic ? 3.2 : 2.4;
-  if (cfg.sidewalkConfig !== 'none') {
+  if (hasFrontWalk) {
     sidewalks.push({
       id: 'sw_front',
-      x: 0,
+      x: centerX,
       z: maxZ - swW * 0.5,
       width: lotW,
       depth: swW,
       y: 0.08
     });
-    if (cfg.cornerLot || cfg.sidewalkConfig === 'corner_wrap' || cfg.sidewalkConfig === 'full_perimeter') {
+    if (hasRightWalk) {
       sidewalks.push({
         id: 'sw_right',
         x: maxX - swW * 0.5,
@@ -1469,7 +1546,7 @@ function computeLotLayout(cfg, buildingBox, placementCtx = null, options = {}) {
         y: 0.08
       });
     }
-    if (cfg.sidewalkConfig === 'full_perimeter') {
+    if (hasLeftWalk) {
       sidewalks.push({
         id: 'sw_left',
         x: minX + swW * 0.5,
@@ -1484,8 +1561,9 @@ function computeLotLayout(cfg, buildingBox, placementCtx = null, options = {}) {
   // Driveways & circulation lanes
   const driveways = [];
   const dw = isIndustrial ? 5.2 : 4.2;
+  const parkingEntryOffset = PARKING_EDGE_GAP + STALL_DEPTH + PARKING_AISLE_WIDTH * 0.5;
   if (cfg.drivewayPlacement === 'dual' || cfg.drivewayPlacement === 'left') {
-    const dx = minX + Math.min(sidePad * 0.75 + 2.2, lotW * 0.25);
+    const dx = perimeterParking ? parkingEdges.left + parkingEntryOffset : minX + Math.min(sidePad * 0.75 + 2.2, lotW * 0.25);
     driveways.push({
       id: 'driveway_left',
       x: dx,
@@ -1499,13 +1577,13 @@ function computeLotLayout(cfg, buildingBox, placementCtx = null, options = {}) {
         kind: 'driveway',
         minX: dx - dw * 0.55,
         maxX: dx + dw * 0.55,
-        minZ: bd * 0.5 + 0.5,
+        minZ: footprint.maxZ + 0.5,
         maxZ: maxZ
       });
     }
   }
   if (cfg.drivewayPlacement === 'dual' || cfg.drivewayPlacement === 'right') {
-    const dx = maxX - Math.min(sidePad * 0.75 + 2.2, lotW * 0.25);
+    const dx = perimeterParking ? parkingEdges.right - parkingEntryOffset : maxX - Math.min(sidePad * 0.75 + 2.2, lotW * 0.25);
     driveways.push({
       id: 'driveway_right',
       x: dx,
@@ -1519,19 +1597,18 @@ function computeLotLayout(cfg, buildingBox, placementCtx = null, options = {}) {
         kind: 'driveway',
         minX: dx - dw * 0.55,
         maxX: dx + dw * 0.55,
-        minZ: bd * 0.5 + 0.5,
+        minZ: footprint.maxZ + 0.5,
         maxZ: maxZ
       });
     }
   }
 
   // Parking stalls
-  const parkingStalls = [];
-  const requestedStalls = cfg.includeParking && cfg.parkingConfig !== 'none' ? (cfg.parkingCount || 0) : 0;
-  const stallW = 2.6;
-  const stallD = 5.0;
+  const parkingStalls = perimeterParking ? planPerimeterParking(parkingEdges, driveways, requestedStalls, placementCtx) : [];
+  const stallW = STALL_WIDTH;
+  const stallD = STALL_DEPTH;
 
-  if (requestedStalls > 0 && !isUrban) {
+  if (requestedStalls > 0 && !isUrban && !perimeterParking) {
     if (cfg.parkingConfig === 'side_lot' || (cfg.parkingConfig === 'wrap_around' && sidePad >= 5.2)) {
       const sideX = minX + 3.2;
       const maxFit = Math.max(1, Math.floor((actualLotD - swW - 4.0) / stallW));
@@ -1563,7 +1640,7 @@ function computeLotLayout(cfg, buildingBox, placementCtx = null, options = {}) {
       const count = Math.min(requestedStalls, maxFit);
       const totalSpan = count * stallW;
       for (let i = 0; i < count; i++) {
-        const sx = -totalSpan * 0.5 + (i + 0.5) * stallW;
+        const sx = centerX - totalSpan * 0.5 + (i + 0.5) * stallW;
         parkingStalls.push({
           id: `stall_rear_${i}`,
           x: sx,
@@ -1580,7 +1657,7 @@ function computeLotLayout(cfg, buildingBox, placementCtx = null, options = {}) {
       const count = Math.min(requestedStalls, maxFit);
       const totalSpan = count * stallW;
       for (let i = 0; i < count; i++) {
-        const sx = -totalSpan * 0.5 + (i + 0.5) * stallW;
+        const sx = centerX - totalSpan * 0.5 + (i + 0.5) * stallW;
         const hitsDriveway = driveways.some((d) => Math.abs(sx - d.x) < d.width * 0.62);
         if (hitsDriveway) continue;
         parkingStalls.push({
@@ -1606,7 +1683,7 @@ function computeLotLayout(cfg, buildingBox, placementCtx = null, options = {}) {
   }
 
   // Service yard / fenced rear zone
-  const serviceYard = cfg.serviceAccess && rearPad >= 3.2 ? {
+  const serviceYard = cfg.serviceAccess && rearPad >= 3.2 && !perimeterParking ? {
     id: 'service_yard',
     x: -bw * 0.25,
     z: minZ + Math.min(rearPad * 0.45, 2.2),
@@ -2771,6 +2848,19 @@ function addStandardBuildingShell(parent, ctx, options = {}) {
 }
 
   // --- Module: geometry/lot-mesh.js ---
+function addParkingStallMarkings(parent, stall, surfaceY = 0) {
+  const group = new THREE.Group();
+  group.position.set(stall.x, surfaceY + 0.012, stall.z);
+  group.rotation.y = stall.rotationY || 0;
+  const stripeMat = solidMaterial('#e8ecf0');
+  const stopMat = solidMaterial('#b0b6bc');
+  for (const edge of [-0.48, 0.48]) {
+    addBox(group, stall.width * edge, 0, 0, 0.08, 0.015, stall.depth, stripeMat, { cast: false });
+  }
+  addBox(group, 0, 0.06, -stall.depth * 0.36, stall.width * 0.65, 0.11, 0.16, stopMat);
+  parent.add(group);
+}
+
 function buildLotLayerMesh(lotLayout, cfg) {
   const group = new THREE.Group();
   group.name = 'LayerB_PropertyLot';
@@ -2808,16 +2898,8 @@ function buildLotLayerMesh(lotLayout, cfg) {
   }
 
   // Parking stall stripes & concrete wheel stops
-  const stripeMat = solidMaterial('#e8ecf0');
-  const stopMat = solidMaterial('#b0b6bc');
   for (const st of parkingStalls) {
-    const g = new THREE.Group();
-    g.position.set(st.x, 0.012, st.z);
-    g.rotation.y = st.rotationY || 0;
-    addBox(g, -st.width * 0.48, 0, 0, 0.08, 0.015, st.depth, stripeMat, { cast: false });
-    addBox(g, st.width * 0.48, 0, 0, 0.08, 0.015, st.depth, stripeMat, { cast: false });
-    addBox(g, 0, 0.06, -st.depth * 0.36, st.width * 0.65, 0.11, 0.16, stopMat);
-    group.add(g);
+    addParkingStallMarkings(group, st);
   }
 
   // Service yard concrete pad
@@ -6174,6 +6256,134 @@ function addHospitalMassBlock(parent, x, baseY, z, w, d, floors, fh, cfg, r, see
   return baseY + localRoofTop;
 }
 
+const HOSPITAL_GARAGE = {
+  parkingWidth: 16.6,
+  rampWidth: 4.2,
+  rampRun: 22,
+  landingDepth: 6.2,
+  levelHeight: 3.1,
+  levels: 4
+};
+
+function buildHospitalParkingDeck(ctx, x, z, trimMat) {
+  const { cfg, attachedGroup, placementCtx } = ctx;
+  const { parkingWidth, rampWidth, rampRun, landingDepth, levelHeight, levels } = HOSPITAL_GARAGE;
+  const width = parkingWidth + rampWidth * 2;
+  const depth = rampRun + landingDepth * 2;
+  const left = x - width * 0.5;
+  const right = x + width * 0.5;
+  const front = z + depth * 0.5;
+  const rear = z - depth * 0.5;
+  const parkingX = right - parkingWidth * 0.5;
+  const topY = (levels - 1) * levelHeight;
+  const bridgeLevel = 2;
+  const deckMat = surfaceMaterial('concrete', '#788088', cfg.condition, cfg.seed + 61, 3, 2);
+  const railMat = solidMaterial('#aeb6be');
+  const rampStripe = solidMaterial('#edba53');
+  const garage = new THREE.Group();
+  garage.name = 'HospitalParkingDeck';
+  garage.position.y = 0.025;
+  attachedGroup.add(garage);
+
+  const thickness = 0.24;
+  const coreZ = z - 4;
+  const coreD = 2.8;
+  const rampEdge = left + rampWidth * 2;
+  let parkingStalls = 0;
+  addBox(garage, x, -thickness * 0.5, z, width, thickness, depth, deckMat);
+
+  for (let level = 0; level < levels; level++) {
+    const y = level * levelHeight;
+    if (level > 0) {
+      // Keep the ramp bays open between the full-width turning landings.
+      addBox(garage, parkingX, y - thickness * 0.5, z, parkingWidth, thickness, depth, deckMat);
+      for (const end of [-1, 1]) {
+        const landingZ = z + end * (rampRun + landingDepth) * 0.5;
+        addBox(garage, left + rampWidth, y - thickness * 0.5, landingZ, rampWidth * 2, thickness, landingDepth, deckMat);
+        addBox(garage, x, y + 0.36, z + end * (depth * 0.5 - 0.12), width, 0.72, 0.24, railMat);
+        addBox(garage, left + 0.12, y + 0.36, landingZ, 0.24, 0.72, landingDepth, railMat);
+      }
+      addBox(garage, rampEdge + 0.12, y + 0.36, z, 0.24, 0.72, rampRun, railMat);
+      if (cfg.includeSkybridge && level === bridgeLevel) {
+        const railLength = (depth - 2.9) * 0.5;
+        for (const end of [-1, 1]) {
+          addBox(garage, right - 0.12, y + 0.36, z + end * (railLength + 2.9) * 0.5, 0.24, 0.72, railLength, railMat);
+        }
+      } else {
+        addBox(garage, right - 0.12, y + 0.36, z, 0.24, 0.72, depth, railMat);
+      }
+    }
+    for (const end of [-1, 1]) {
+      for (let bay = 0; bay < 2; bay++) {
+        const connectedEnd = level % 2 === 0 ? 1 : -1;
+        const connectsBelow = level > 0 && bay === (level - 1) % 2;
+        const connectsAbove = level < levels - 1 && bay === level % 2;
+        if (end === connectedEnd && (connectsBelow || connectsAbove)) continue;
+        addBox(garage, left + (bay + 0.5) * rampWidth, y + 0.36, z + end * (rampRun * 0.5 + 0.12),
+          rampWidth, 0.72, 0.24, railMat);
+      }
+    }
+
+    for (const side of [-1, 1]) {
+      for (let stall = -3; stall <= 3; stall++) {
+        const stallZ = z + stall * 2.6;
+        if (side > 0 && (Math.abs(stallZ - coreZ) < (coreD + 2.6) * 0.5 ||
+          (cfg.includeSkybridge && level === bridgeLevel && Math.abs(stallZ - z) < 2.75))) continue;
+        addParkingStallMarkings(garage, {
+          x: parkingX + side * 5.55, z: stallZ, width: 2.6, depth: 4.9,
+          rotationY: -side * Math.PI / 2
+        }, y);
+        parkingStalls++;
+      }
+    }
+  }
+
+  for (let level = 0; level < levels - 1; level++) {
+    const rampX = left + rampWidth * (level % 2 + 0.5);
+    const angle = Math.atan2(levelHeight, rampRun) * (level % 2 === 0 ? -1 : 1);
+    const length = Math.hypot(levelHeight, rampRun);
+    const rampY = (level + 0.5) * levelHeight;
+    const rot = { rotX: angle };
+    addBox(garage, rampX, rampY - Math.cos(angle) * thickness * 0.5, z - Math.sin(angle) * thickness * 0.5,
+      rampWidth, thickness, length, deckMat, { ...rot, name: `HospitalParkingRamp_${level + 1}` });
+    for (const side of [-1, 1]) {
+      const edgeX = rampX + side * (rampWidth * 0.5 - 0.11);
+      addBox(garage, edgeX, rampY + Math.cos(angle) * 0.3, z + Math.sin(angle) * 0.3, 0.22, 0.6, length, railMat, rot);
+      addBox(garage, edgeX - side * 0.25, rampY + Math.cos(angle) * 0.018, z + Math.sin(angle) * 0.018,
+        0.1, 0.025, length, rampStripe, { ...rot, cast: false });
+    }
+  }
+
+  for (const postX of [left + 0.18, rampEdge, right - 0.18]) {
+    for (const postZ of [rear + 0.18, front - 0.18]) {
+      addBox(garage, postX, topY * 0.5, postZ, 0.36, topY, 0.36, trimMat);
+    }
+  }
+  for (const postX of [left + 0.18, right - 0.18]) {
+    for (const end of [-1, 1]) {
+      addBox(garage, postX, topY * 0.5, z + end * rampRun * 0.47, 0.36, topY, 0.36, trimMat);
+    }
+  }
+  const coreHeight = topY + 2.4;
+  addBox(garage, right - 1.45, coreHeight * 0.5, coreZ, 2.9, coreHeight, coreD, railMat);
+  addSignboardUnit(garage, parkingX, levelHeight, front + 0.14, 4.6, 0.7, 'Hospital Parking', '#1d3557', '#ffffff', cfg);
+  const entrance = {
+    id: 'hospital_parking_deck_portal',
+    role: 'garage',
+    label: 'Visitor Parking Deck Entry',
+    position: { x: roundNum(parkingX, 3), y: garage.position.y, z: roundNum(front, 3) },
+    normal: { x: 0, y: 0, z: 1 },
+    width: 5.8,
+    height: 2.6,
+    clearanceWidth: 6,
+    clearanceDepth: 5.8
+  };
+  ctx.entrances.push(entrance);
+  registerEntranceClearance(placementCtx, entrance);
+  ctx.attachedStructures.push({ id: 'hospital_parking_deck', type: 'parking_garage', width, depth, levels, parkingStalls, vehicleRamps: levels - 1 });
+  return { height: coreHeight + garage.position.y, bridgeY: bridgeLevel * levelHeight + garage.position.y };
+}
+
 function buildLargeHospitalStructure(ctx) {
   const { cfg, mainBuildingGroup, attachedGroup, placementCtx, r } = ctx;
   const w = clamp(cfg.width || 28, 16, 48);
@@ -6209,6 +6419,14 @@ function buildLargeHospitalStructure(ctx) {
     addBox(attachedGroup, cx, 1.72, d * 0.5 + canopyD - 0.25, 0.32, 3.35, 0.32, postMat);
   }
   addBox(attachedGroup, 0, 0.12, d * 0.5 + canopyD * 0.48, canopyW + 1.2, 0.24, canopyD + 0.4, postMat);
+  registerBuildingFootprint(placementCtx, {
+    id: 'hospital_drop_off_canopy',
+    minX: -(canopyW + 1.2) * 0.5,
+    maxX: (canopyW + 1.2) * 0.5,
+    minZ: d * 0.5,
+    maxZ: d * 0.5 + canopyD + 0.2,
+    maxY: 3.76
+  });
 
   // 2. Upper Inpatient Towers driven by campusLayout
   const layout = cfg.campusLayout || 'twin_towers';
@@ -6348,45 +6566,17 @@ function buildLargeHospitalStructure(ctx) {
   // 5. Attached Multi-Level Parking Deck or Diagnostic Annex + Elevated Glass Skybridge
   if (cfg.includeParkingDeck || cfg.includeSkybridge) {
     const laneGap = 4.6;
-    const deckW = cfg.includeParkingDeck ? 9.8 : 7.8;
-    const deckD = Math.max(10.5, d * 0.88);
-    const deckFloors = cfg.includeParkingDeck ? 3 : 2;
-    const deckH = deckFloors * 3.1;
+    const deckW = cfg.includeParkingDeck ? HOSPITAL_GARAGE.parkingWidth + 2 * HOSPITAL_GARAGE.rampWidth : 7.8;
+    const deckD = cfg.includeParkingDeck ? HOSPITAL_GARAGE.rampRun + 2 * HOSPITAL_GARAGE.landingDepth : Math.max(10.5, d * 0.88);
     const px = leftExtent - laneGap - deckW * 0.5;
     const pz = 0.2;
+    let deckH = 2 * fh;
+    let bridgeFloorY = fh * 1.48 - 1.09;
 
     if (cfg.includeParkingDeck) {
-      const deckMat = surfaceMaterial('concrete', '#788088', cfg.condition, cfg.seed + 61, 3, 2);
-      const railMat = solidMaterial('#aeb6be');
-      addBox(attachedGroup, px, 0.12, pz, deckW, 0.24, deckD, deckMat);
-      for (let l = 1; l <= deckFloors; l++) {
-        const ly = l * 3.1;
-        addBox(attachedGroup, px, ly - 0.14, pz, deckW, 0.28, deckD, deckMat);
-        // Perimeter parapet spandrel bumpers
-        addBox(attachedGroup, px, ly + 0.42, pz + deckD * 0.5 - 0.12, deckW, 0.84, 0.22, railMat);
-        addBox(attachedGroup, px, ly + 0.42, pz - deckD * 0.5 + 0.12, deckW, 0.84, 0.22, railMat);
-        addBox(attachedGroup, px - deckW * 0.5 + 0.12, ly + 0.42, pz, 0.22, 0.84, deckD, railMat);
-        addBox(attachedGroup, px + deckW * 0.5 - 0.12, ly + 0.42, pz, 0.22, 0.84, deckD, railMat);
-      }
-      for (const sx of [-1, 0, 1]) {
-        for (const sz of [-1, 1]) {
-          addBox(attachedGroup, px + sx * (deckW * 0.44), deckH * 0.5, pz + sz * (deckD * 0.44), 0.36, deckH, 0.36, trimMat);
-        }
-      }
-      // Corner elevator/stair core with signage
-      addBox(attachedGroup, px + deckW * 0.36, (deckH + 2.4) * 0.5, pz + deckD * 0.38, 2.4, deckH + 2.4, 2.4, surfaceMaterial('concrete', cfg.primaryColor, cfg.condition, cfg.seed + 71, 1, 2));
-      addSignboardUnit(attachedGroup, px, 3.05, pz + deckD * 0.5 + 0.12, 3.4, 0.62, 'Hospital Parking', '#1d3557', '#ffffff', cfg);
-      const parkEnt = {
-        id: 'hospital_parking_deck_portal',
-        role: 'garage',
-        label: 'Visitor Parking Deck Entry',
-        position: { x: roundNum(px - deckW * 0.12, 3), y: 0, z: roundNum(pz + deckD * 0.5, 3) },
-        normal: { x: 0, y: 0, z: 1 },
-        width: 4.2,
-        height: 2.6
-      };
-      ctx.entrances.push(parkEnt);
-      registerEntranceClearance(placementCtx, parkEnt);
+      const deck = buildHospitalParkingDeck(ctx, px, pz, trimMat);
+      deckH = deck.height;
+      bridgeFloorY = deck.bridgeY;
     } else {
       addHospitalMassBlock(attachedGroup, px, 0, pz, deckW, deckD, 2, fh, cfg, r, 73);
       addSignboardUnit(attachedGroup, px, 2 * fh - 0.4, pz + deckD * 0.5 + 0.12, 4.2, 0.62, 'Outpatient Pavilion', trimMat.color ? cfg.trimColor : '#1f456e', '#ffffff', cfg);
@@ -6405,21 +6595,23 @@ function buildLargeHospitalStructure(ctx) {
       kind: 'driveway',
       minX: px + deckW * 0.5 + 0.2,
       maxX: leftExtent - 0.2,
-      minZ: -deckD * 0.6,
-      maxZ: deckD * 0.6 + 2.0
+      minZ: pz - deckD * 0.5,
+      maxZ: pz + deckD * 0.5
     });
 
     // Elevated Glass Skybridge spanning drive lane cleanly at 2nd floor level
     if (cfg.includeSkybridge) {
       const spanLen = (leftExtent - (px + deckW * 0.5)) + 0.6;
       const midX = (px + deckW * 0.5 + leftExtent) * 0.5;
-      const bridgeY = fh * 1.48;
+      const bridgeY = bridgeFloorY + 0.81;
       addBox(attachedGroup, midX, bridgeY - 0.95, 0.2, spanLen, 0.28, 2.9, trimMat);
       addBox(attachedGroup, midX, bridgeY + 1.05, 0.2, spanLen, 0.26, 2.9, trimMat);
       addBox(attachedGroup, midX, bridgeY + 0.05, 0.2, spanLen, 1.75, 2.65, glassMat);
     }
 
     leftExtent = px - deckW * 0.5;
+    maxDepth = Math.max(maxDepth, deckD);
+    maxH = Math.max(maxH, deckH);
   }
 
   // 6. Cryogenic Medical Oxygen Silo Yard on Rear Right
@@ -6469,7 +6661,17 @@ function buildLargeHospitalStructure(ctx) {
     depth: Math.max(maxDepth, d + canopyD + 2.4),
     height: maxH
   };
-  ctx.lotOptions = { rearMargin: 6.0 };
+  const siteFeatures = [...placementCtx.buildingFootprints, ...placementCtx.laneClearances];
+  ctx.lotOptions = {
+    rearMargin: 6.0,
+    perimeterParking: true,
+    footprintBounds: {
+      minX: Math.min(...siteFeatures.map((feature) => feature.minX)),
+      maxX: Math.max(...siteFeatures.map((feature) => feature.maxX)),
+      minZ: Math.min(...siteFeatures.map((feature) => feature.minZ)),
+      maxZ: Math.max(...siteFeatures.map((feature) => feature.maxZ))
+    }
+  };
 }
 
 function planLargeHospitalObjects(ctx, lotLayout) {
@@ -6512,6 +6714,7 @@ registerSpecialtyFamily({
   description: 'Multi-tower metropolitan hospitals, teaching medical centers, trauma towers with skybridges, parking decks, and rooftop helipads.',
   environmentTags: ['medical', 'civic', 'downtown', 'urban', 'campus', 'superhero_city'],
   supportedLotTypes: ['multi_building_facility', 'civic_plaza', 'standalone_commercial', 'none'],
+  maxParkingCount: 48,
   defaultObjectGroups: ['site_amenities', 'seating_patio', 'rooftop_mep', 'waste_utility', 'signage_lighting'],
   featureSchema: [
     {
@@ -6555,7 +6758,8 @@ registerSpecialtyFamily({
     lotWidth: 60,
     lotDepth: 42,
     frontSetback: 11.5,
-    parkingCount: 12
+    parkingConfig: 'wrap_around',
+    parkingCount: 44
   },
   presets: [
     {
