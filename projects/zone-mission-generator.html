@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <title>3D Zone Mission Generator | B Remastered</title>
+ <meta name="description" content="B Remastered procedural Mission Architect: independent interior segments, cave systems, locks, elevators, editable room plans and mission exports.">
+ <meta name="portfolio-title" content="3D Zone Mission Generator">
+ <meta name="portfolio-category" content="project">
+ <meta name="portfolio-date" content="2026-11-23">
+ <meta name="portfolio-thumbnail" content="/assets/img/projects/zone-mission-generator/thumbnail.png">
+ <meta name="portfolio-description" content="Generate and edit seeded mission interiors and caves, test objectives and transitions locally, and export mission JSON or individual 3D segments.">
+ <meta property="og:title" content="3D Zone Mission Generator | B Remastered">
+ <meta property="og:description" content="Generate and edit seeded mission interiors and caves, test objectives and transitions locally, and export mission JSON or individual 3D segments.">
+ <meta property="og:type" content="website">
+ <meta property="og:url" content="https://home.behr.dev/projects/zone-mission-generator.html">
+ <meta property="og:image" content="https://home.behr.dev/assets/img/projects/zone-mission-generator/thumbnail.png">
+ <meta name="twitter:card" content="summary_large_image">
+ <meta name="twitter:title" content="3D Zone Mission Generator | B Remastered">
+ <meta name="twitter:description" content="Generate and edit seeded mission interiors and caves, test objectives and transitions locally, and export mission JSON or individual 3D segments.">
+ <meta name="twitter:image" content="https://home.behr.dev/assets/img/projects/zone-mission-generator/thumbnail.png">
+ <meta name="theme-color" content="#0a1019">
+ <link rel="icon" href="/favicon.ico">
+ <link rel="stylesheet" href="/assets/css/projects/zone-mission-generator.css">
+ <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"}}</script>
+</head>
+<body>
+ <div class="app-shell">
+  <header class="topbar">
+   <a class="brand" href="/pages/index.html" aria-label="B site home"><span class="brand-mark">B<span class="mark-orbit"></span></span><span><strong>B REMASTERED</strong><small>CREATION SYSTEMS</small></span></a>
+   <div class="topbar-sep"></div>
+   <div class="studio-title"><span class="eyebrow">PROCEDURAL STUDIO</span><h1>Zone Mission Generator</h1></div>
+   <div class="top-actions"><a class="button button-secondary" href="#story-editor">Story Architect</a>
+    <span class="version-pill"><span class="status-dot"></span> STUDIO 4.0</span>
+    <button class="button button-ghost" id="btn-save-config" title="Save current generator controls locally">Save Preset</button>
+    <button class="button button-ghost" id="btn-import">Import JSON</button>
+    <button class="button button-ghost" id="btn-export-glb" title="Export only the currently visible 3D segment">Segment .GLB</button>
+    <button class="button button-primary" id="btn-export-json">↧ Export Mission</button>
+   </div>
+  </header>
+  <nav class="mission-breadcrumbs" aria-label="Breadcrumb">
+   <ol>
+    <li><a href="/pages/portfolio.html">Portfolio</a></li>
+    <li><a href="/projects/b-remastered-3d-model-generation-tools.html">3D Studios</a></li>
+    <li aria-current="page">Zone Mission Generator</li>
+   </ol>
+  </nav>
+  <main class="studio-layout">
+   <aside class="sidebar sidebar-left">
+    <div class="section-heading"><span class="section-icon">▦</span><div><strong>Mission library</strong><small>Choose a procedural map family</small></div></div>
+    <div class="archetype-cards" id="archetype-cards"></div>
+    <div class="separator"></div>
+    <div class="left-section-title">GENERATION PARAMETERS <span class="info-dot" title="All controls participate in the deterministic mission definition">ⓘ</span></div>
+    <label class="form-field"><span>Scenario preset</span><select id="scenario-preset"><option value="">Choose a scenario…</option></select></label>
+    <details class="config-group" open>
+    <summary>Mission scale</summary>
+    <div class="field-stack">
+     <label class="form-field"><span>Overall scale</span><select id="cfg-scale"><option value="compact">Compact</option><option value="standard">Standard</option><option value="expansive">Expansive</option><option value="massive">Massive</option></select></label>
+     <label class="form-field"><span>Target floor area (m², 0 for automatic)</span><input type="number" min="0" max="250000" id="cfg-targetArea"></label>
+     <div class="seed-input-wrap"><label for="cfg-seed">GENERATION SEED</label><div><input id="cfg-seed" type="number" min="1" value="2048"><button id="btn-seed" title="Roll a new generation seed">⚄</button></div><small>Same seed + settings → same mission.</small></div>
+     <label class="range-field"><span>Space count target <output id="v-rooms">18</output></span><input type="range" min="7" max="72" step="1" id="cfg-rooms"></label>
+     <label class="range-field"><span>Independent segments <output id="v-floors">1</output></span><input type="range" min="1" max="12" step="1" id="cfg-floors"></label>
+    </div>
+    </details>
+    <details class="config-group" open>
+    <summary>Architecture and navigation</summary>
+    <div class="field-stack">
+     <label class="form-field"><span>Building layout</span><select id="cfg-layout"><option value="auto">Archetype default</option><option value="spine">Spine and wings</option><option value="cross">Cross passages</option><option value="loop">Loop and outer gallery</option><option value="campus">Multi-wing campus</option></select></label>
+     <label class="form-field"><span>Cave network</span><select id="cfg-caveNetwork"><option value="basin">Interconnected basin</option><option value="winding">Winding cave system</option><option value="mine">Mining galleries</option></select></label>
+     <label class="range-field"><span>Open-plan tendency <output id="v-openness">72%</output></span><input type="range" min="0" max="100" id="cfg-openness"></label>
+     <label class="form-field"><span>Corridor width (m, 0 for scale preset)</span><input type="number" min="0" max="18" step=".1" id="cfg-corridorWidth"></label>
+     <label class="form-field"><span>Average bay width (m, 0 for scale preset)</span><input type="number" min="0" max="45" step=".1" id="cfg-bayWidth"></label>
+     <label class="form-field"><span>Average room depth (m, 0 for scale preset)</span><input type="number" min="0" max="50" step=".1" id="cfg-roomDepth"></label>
+     <label class="form-field"><span>Ceiling height (m, 0 for scale preset)</span><input type="number" min="0" max="12" step=".1" id="cfg-ceilingHeight"></label>
+     <label class="range-field"><span>Architectural variation <output id="v-roomVariation">50%</output></span><input type="range" min="0" max="100" step="1" id="cfg-roomVariation"></label>
+     <label class="range-field"><span>Secondary corridors <output id="v-branches">1</output></span><input type="range" min="0" max="3" step="1" id="cfg-branches"></label>
+     <label class="range-field"><span>Alternate routes <output id="v-loops">1</output></span><input type="range" min="0" max="3" step="1" id="cfg-loops"></label>
+    </div>
+    </details>
+    <details class="config-group" id="cave-settings" hidden>
+     <summary>Cave geology and terrain</summary>
+     <div class="field-stack">
+      <label class="form-field"><span>Geology</span><select id="cfg-caveStyle"><option value="limestone">Limestone</option><option value="basalt">Volcanic basalt</option><option value="granite">Granite</option><option value="crystal">Crystal-bearing rock</option></select></label>
+      <label class="form-field"><span>Chamber size multiplier</span><input type="number" min=".65" max="2.5" step=".05" id="cfg-caveChamberScale"></label>
+      <label class="form-field"><span>Tunnel length multiplier</span><input type="number" min=".65" max="2" step=".05" id="cfg-caveTunnelLength"></label>
+      <label class="form-field"><span>Target passage width (m, 0 for automatic)</span><input type="number" min="0" max="55" id="cfg-caveTunnelWidth"></label>
+      <label class="form-field"><span>Terrain relief (m)</span><input type="number" min="0" max="70" id="cfg-caveElevation"></label>
+      <label class="form-field"><span>Target descent across segment (m)</span><input type="number" min="0" max="180" id="cfg-caveDescent"></label>
+      <label class="range-field"><span>Rock irregularity <output id="v-caveRoughness">70%</output></span><input type="range" min="0" max="100" id="cfg-caveRoughness"></label>
+      <label class="form-field"><span>Target mesh spacing (m)</span><input type="number" min="1" max="15" step=".5" id="cfg-caveTriangleSize"></label>
+      <label class="form-field"><span>Extra vault height (m)</span><input type="number" min="0" max="65" id="cfg-caveVault"></label>
+      <label class="form-field"><span>Minimum ceiling clearance (m)</span><input type="number" min="3" max="16" id="cfg-caveClearance"></label>
+      <label class="form-field"><span>Wall overhang (m)</span><input type="number" min="0" max="8" step=".1" id="cfg-caveOverhang"></label>
+      <label class="form-field"><span>Maximum walkable grade (rise/run)</span><input type="number" min=".15" max=".65" step=".01" id="cfg-caveMaxSlope"></label>
+      <label class="range-field"><span>Geological formation density <output id="v-caveFormations">70%</output></span><input type="range" min="0" max="100" id="cfg-caveFormations"></label>
+      <label class="range-field"><span>Ridge and basin frequency <output id="v-caveLandforms">48%</output></span><input type="range" min="0" max="100" id="cfg-caveLandforms"></label>
+      <label><input type="checkbox" id="cfg-cavePools"> Shallow basin pools</label>
+     </div>
+    </details>
+    <details class="config-group">
+    <summary>Transitions and security</summary>
+    <div class="field-stack">
+     <label class="form-field"><span>Progression</span><select id="cfg-progression"><option value="explore">Exploration</option><option value="security">Access checkpoints</option><option value="boss">Boss checkpoints</option></select></label>
+     <label class="form-field"><span>Transition security</span><select id="cfg-transitionSecurity"><option value="open">Unrestricted</option><option value="keycard">Require access</option></select></label>
+     <label class="form-field"><span>Transfer device</span><select id="cfg-transferKind"><option value="auto">Archetype default</option><option value="elevator">Elevator</option><option value="stairwell">Stairwell</option><option value="portal">Portal</option></select></label>
+     <label><input type="checkbox" id="cfg-teleports"> Optional teleport shortcuts</label>
+     <label class="range-field"><span>Secured rooms per segment <output id="v-locks">0</output></span><input type="range" min="0" max="5" step="1" id="cfg-locks"></label>
+    </div>
+    </details>
+    <details class="config-group">
+    <summary>Environment and encounters</summary>
+    <div class="field-stack">
+     <label class="form-field"><span>Mission theme</span><select id="cfg-theme"><option value="contemporary">Contemporary</option><option value="retro">Retro / 1980s</option><option value="industrial">Industrial</option><option value="futuristic">Futuristic</option><option value="brutalist">Brutalist</option></select></label>
+     <label class="form-field"><span>Environmental condition</span><select id="cfg-condition"><option value="operational">Operational</option><option value="worn">Worn / Used</option><option value="abandoned">Abandoned</option><option value="damaged">Battle Damaged</option><option value="lockdown">Security Lockdown</option></select></label>
+     <label class="form-field"><span>Lighting</span><select id="cfg-lighting"><option value="normal">Balanced</option><option value="bright">Bright</option><option value="dim">Dim</option></select></label>
+     <label class="range-field"><span>Environmental furnishing <output id="v-clutter">42%</output></span><input type="range" min="0" max="100" step="1" id="cfg-clutter"></label>
+     <label class="range-field"><span>Encounter placement <output id="v-encounterDensity">45%</output></span><input type="range" min="0" max="100" step="1" id="cfg-encounterDensity"></label>
+    </div>
+    </details>
+    <div class="generate-actions"><button id="btn-generate" class="button button-primary button-wide">✦ Generate New Mission</button></div>
+    <details class="config-group">
+     <summary>Partial regeneration</summary>
+     <div class="generate-actions">
+      <button id="btn-reroll-segment" class="button button-secondary button-wide" title="Replace the active segment layout and its local content">Reroll Active Segment</button>
+      <button id="btn-reroll-rooms" class="button button-secondary button-wide">Reroll Room Assignments</button>
+      <button id="btn-redecorate" class="button button-secondary button-wide">Reroll Furnishing Only</button>
+      <button id="btn-reroll-encounters" class="button button-secondary button-wide">Reroll Encounter Placement</button>
+     </div>
+    </details>
+    <div class="separator"></div>
+    <details class="saved-drawer"><summary>LOCAL PRESETS <span id="save-count">0</span></summary><div id="saved-list" class="saved-list"></div></details>
+    <div class="sidebar-footnote">Independent mission interiors · No exterior building footprint limits.</div>
+   </aside>
+   <section class="workspace" id="mission-workspace">
+    <div class="workspace-bar">
+     <div class="workspace-breadcrumb"><span class="blue-dot"></span><span id="mission-path">CORPORATE OFFICES / LEVEL 01</span></div>
+     <div class="viewport-modes">
+      <button class="button button-ghost" id="btn-theatre" aria-pressed="false" title="Toggle Theatre Mode (T)">Theatre</button>
+      <button class="button button-ghost" id="btn-fullscreen" aria-pressed="false" title="Toggle Fullscreen (F)">Fullscreen</button>
+     </div>
+     <div class="view-segment-picker"><label for="segment-select">ACTIVE SEGMENT</label><select id="segment-select"></select></div>
+    </div>
+    <div class="scene-frame" id="scene-frame">
+     <canvas id="mission-canvas" aria-label="Three dimensional mission environment preview"></canvas>
+     <div id="render-error" class="render-error hidden" role="alert"></div>
+     <div class="scene-top-hud"><span id="hud-segment">LEVEL 01 / 03</span><span id="hud-seed">SEED: 2048</span><span id="hud-state">EDITOR MODE</span></div>
+     <div class="scene-side-actions">
+      <button title="View from inside the cave" aria-label="View from inside the cave" id="walk-camera" hidden>◉</button>
+      <button title="Frame selected room" aria-label="Frame selected room" id="btn-focus" disabled>◎</button>
+      <button title="Isometric view" aria-label="Isometric view" id="btn-iso">◇</button>
+      <button title="Fit scene" id="btn-fit">⌗</button><button title="Top down camera" id="btn-top">▣</button><button title="Reset camera grid" id="btn-grid">⌗</button><button title="Screenshot" id="btn-snapshot">▧</button>
+     </div>
+     <div class="scene-lower-hud"><span><i class="legend-square legend-room"></i> Rooms</span><span><i class="legend-square legend-objective"></i> Objective</span><span><i class="legend-square legend-locked"></i> Locked</span><span><i class="legend-square legend-transition"></i> Transfer</span></div>
+     <div id="scene-tooltip" class="scene-toast" aria-live="polite"></div>
+    </div>
+    <div class="modebar"><div class="mode-tabs"><button class="mode-tab active" data-visual="layout">◈ Floor plan</button><button class="mode-tab" data-visual="graph">◎ Mission graph</button><button class="mode-tab" data-visual="diagnostics">✓ Validation</button></div><div class="modebar-controls"><label><input id="toggle-props" type="checkbox" checked> Props</label><label><input id="toggle-gizmos" type="checkbox" checked> Interactables</label><label><input id="toggle-walls" type="checkbox" checked> Walls</label><label><input id="toggle-ceilings" type="checkbox"> Ceilings</label><label id="wireframe-control" hidden><input id="toggle-wireframe" type="checkbox"> Wireframe</label><label id="grade-control" hidden><input id="toggle-grade" type="checkbox"> Steep terrain</label></div></div>
+    <div class="subviewport"><div id="layout-panel" class="secondary-panel">
+     <svg id="floorplan" role="img" aria-label="Interactive generated floor plan"></svg>
+     <div class="floorplan-controls" aria-label="Floor plan zoom controls">
+      <button class="button button-ghost" id="plan-zoom-in" aria-label="Zoom in on the floor plan">+</button>
+      <button class="button button-ghost" id="plan-zoom-out" aria-label="Zoom out of the floor plan">−</button>
+      <button class="button button-ghost" id="plan-fit">Fit plan</button>
+     </div>
+    </div><div id="graph-panel" class="secondary-panel hidden"><svg id="mission-graph" role="img" aria-label="Logical mission segment connectivity graph"></svg></div><div id="diagnostics-panel" class="secondary-panel hidden"></div></div>
+    <div class="metrics-bar"><div><span>ROOMS / ACTIVE</span><strong id="stat-rooms">—</strong></div><div><span>ACTIVE FLOOR AREA</span><strong id="stat-area">—</strong></div><div><span>MISSION SEGMENTS</span><strong id="stat-segments">—</strong></div><div><span>PROP INSTANCES</span><strong id="stat-props">—</strong></div><div><span>LOGICAL LINKS</span><strong id="stat-links">—</strong></div><div><span>PROGRESSION</span><strong id="stat-status" class="metric-good">VALIDATED</strong></div></div>
+   </section>
+   <aside class="sidebar sidebar-right">
+    <div class="right-tabs"><button class="right-tab active" data-panel="inspect">Inspector</button><button class="right-tab" data-panel="test">Test mission</button><button class="right-tab" data-panel="library">Assets</button></div>
+    <div class="right-panel" id="panel-inspect">
+     <div class="inspector-title"><span class="section-icon">⌗</span><div><strong>Room &amp; transition inspector</strong><small>Click a room, door, or node to inspect it</small></div></div>
+     <div id="inspector-body"></div>
+    </div>
+    <div class="right-panel hidden" id="panel-test">
+     <div class="inspector-title"><span class="section-icon">▷</span><div><strong>Playable mission preview</strong><small>WASD move · E interact · Shift sprint</small></div></div>
+     <div class="panel-copy">A local navigation/interactions sandbox, not the multiplayer runtime. Clearances and objective progress are simulated in memory.</div>
+     <button class="button button-primary button-wide" id="btn-test-start">▷ Enter Mission Preview</button>
+     <div class="test-status" id="test-status"></div><div class="test-actions" id="test-actions"></div>
+     <button class="button button-secondary button-wide hidden" id="btn-test-stop">■ Exit Test Mode</button>
+    </div>
+    <div class="right-panel hidden" id="panel-library">
+     <div class="inspector-title"><span class="section-icon">▤</span><div><strong>City object bridge</strong><small>Import native B object blueprint JSON</small></div></div>
+     <div class="panel-copy">Built-in furniture uses procedural preview proxies. Import <code>b.city-object.v1</code> or <code>b.city-assembly.v1</code> blueprints to register their identifiers and dimensions. Native GLB mesh loading remains a later integration step.</div>
+     <button class="button button-secondary button-wide" id="btn-object-import">＋ Register City Object Blueprint</button>
+     <div class="asset-count" id="asset-count">0 families registered</div><input id="asset-search" placeholder="Search object families..." type="search"><div id="asset-list" class="asset-list"></div>
+    </div>
+    <div class="right-footer"><strong>EXPORT CONTRACT</strong><div><code>b.zone-mission.v1</code></div><p>Deterministic map definitions, room geometry, interaction identifiers, portals, objective metadata, and asset references.</p><div class="footer-source">Reference standards · B Remastered Generator Ecosystem</div></div>
+   </aside>
+  </main>
+  <section id="story-editor" aria-labelledby="story-heading">
+   <header class="story-header"><h2 id="story-heading">Story Architect</h2>
+    <div id="story-actions"></div><p id="story-status" role="status"></p>
+   </header>
+   <div id="story-sequence"></div>
+   <nav id="story-tabs" aria-label="Story authoring"></nav>
+   <div id="story-content"></div>
+   <input id="story-import" type="file" accept="application/json,.json" hidden>
+  </section>
+  <script type="module" src="/assets/js/projects/zone-mission-generator/story-editor.js"></script>
+  <footer class="footer-bar"><span>BUILT FOR B REMASTERED <span class="divider-tiny">/</span> 3D PROCEDURAL WORLD BUILDING</span><span>METRES · RIGHT-HANDED Y-UP <span class="divider-tiny">/</span> 16.4041995 B UNITS / METRE</span><span id="footer-diagnostics">READY</span></footer>
+ </div>
+ <input type="file" id="json-file" accept=".json,application/json" hidden multiple>
+ <script type="module" src="/assets/js/projects/zone-mission-generator/studio.js"></script>
+</body>
+</html>

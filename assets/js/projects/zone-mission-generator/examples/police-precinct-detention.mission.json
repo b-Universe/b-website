@@ -1,0 +1,6625 @@
+{
+  "schemaVersion": "b.zone-mission.v1",
+  "generator": {
+    "name": "B Remastered Zone Mission Studio",
+    "version": "0.8.0"
+  },
+  "identity": {
+    "id": "mission-precinct-9104",
+    "label": "Police Precinct Detention",
+    "revision": "be63f8a5"
+  },
+  "coordinateSpace": "right-handed-y-up-meters",
+  "gameCoordinateSpace": "z-up-b-game-units",
+  "axisMapping": "x,y,z (metres) → x,-z,y (B game units)",
+  "bUnitsPerMeter": 16.404199475065617,
+  "seed": 9104,
+  "settings": {
+    "archetype": "precinct",
+    "theme": "brutalist",
+    "condition": "operational",
+    "seed": 9104,
+    "rooms": 18,
+    "floors": 3,
+    "branches": 1,
+    "loops": 0,
+    "locks": 3,
+    "clutter": 47,
+    "roomVariation": 50,
+    "lighting": "normal",
+    "ceilingHeight": 3.6,
+    "encounterDensity": 39,
+    "decorSeed": 0
+  },
+  "archetype": "precinct",
+  "theme": "brutalist",
+  "condition": "operational",
+  "exteriorBinding": {
+    "mode": "logical-entry-only",
+    "constraintsFromExterior": false,
+    "entryAnchorId": "world-entrance",
+    "returnAnchorId": "world-return"
+  },
+  "instancePolicy": {
+    "authority": "server",
+    "partyShared": true,
+    "segmentStreaming": "eligible",
+    "playerState": "per-player",
+    "worldBinding": "explicit"
+  },
+  "segments": [
+    {
+      "id": "seg-01",
+      "index": 0,
+      "label": "Level 1",
+      "archetype": "precinct",
+      "environment": {
+        "condition": "operational",
+        "theme": "brutalist",
+        "lighting": "normal",
+        "ambientPreset": "interior",
+        "ceilingHeightMeters": 3.6
+      },
+      "rooms": [
+        {
+          "id": "seg-01-r001",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Briefing Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 0,
+            "z": -5.454,
+            "w": 6.426,
+            "d": 7.109
+          },
+          "polygon": null,
+          "center": {
+            "x": 0,
+            "z": -5.454
+          },
+          "doorId": "seg-01-r001-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r001-prop1",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 1.283,
+                "z": -6.864
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r001-prop2",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": -1.851,
+                "z": -6.018
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r002",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Holding Cell",
+          "shape": "rect",
+          "bounds": {
+            "x": 7.4,
+            "z": -6.861,
+            "w": 6.615,
+            "d": 9.922
+          },
+          "polygon": null,
+          "center": {
+            "x": 7.4,
+            "z": -6.861
+          },
+          "doorId": "seg-01-r002-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r002-prop1",
+              "familyId": "security_camera",
+              "position": {
+                "x": 5.972,
+                "z": -8.077
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r002-prop2",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 9.703,
+                "z": -4.585
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r002-prop3",
+              "familyId": "security_camera",
+              "position": {
+                "x": 9.451,
+                "z": -3.005
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r003",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Garage Access",
+          "shape": "rect",
+          "bounds": {
+            "x": 14.8,
+            "z": -6.196,
+            "w": 6.364,
+            "d": 8.593
+          },
+          "polygon": null,
+          "center": {
+            "x": 14.8,
+            "z": -6.196
+          },
+          "doorId": "seg-01-r003-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r003-prop1",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 13.547,
+                "z": -5.404
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r003-prop2",
+              "familyId": "computer",
+              "position": {
+                "x": 16.781,
+                "z": -7.481
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r003-prop3",
+              "familyId": "bookshelf",
+              "position": {
+                "x": 12.858,
+                "z": -3.655
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r004",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Interview Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 22.2,
+            "z": -5.729,
+            "w": 6.562,
+            "d": 7.658
+          },
+          "polygon": null,
+          "center": {
+            "x": 22.2,
+            "z": -5.729
+          },
+          "doorId": "seg-01-r004-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r004-prop1",
+              "familyId": "security_camera",
+              "position": {
+                "x": 20.718,
+                "z": -7.474
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r004-prop2",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 23.771,
+                "z": -3.564
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r005",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Records Archive",
+          "shape": "rect",
+          "bounds": {
+            "x": 29.6,
+            "z": -5.276,
+            "w": 6.5,
+            "d": 6.752
+          },
+          "polygon": null,
+          "center": {
+            "x": 29.6,
+            "z": -5.276
+          },
+          "doorId": "seg-01-r005-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r005-prop1",
+              "familyId": "computer",
+              "position": {
+                "x": 28.33,
+                "z": -6.371
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r005-prop2",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 30.951,
+                "z": -5.929
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r005-prop3",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 31.114,
+                "z": -3.845
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r006",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Staff Locker Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 37,
+            "z": -5.952,
+            "w": 6.42,
+            "d": 8.104
+          },
+          "polygon": null,
+          "center": {
+            "x": 37,
+            "z": -5.952
+          },
+          "doorId": "seg-01-r006-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r006-prop1",
+              "familyId": "sofa",
+              "position": {
+                "x": 38.782,
+                "z": -7.272
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r006-prop2",
+              "familyId": "computer",
+              "position": {
+                "x": 35.117,
+                "z": -7.65
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r006-prop3",
+              "familyId": "security_camera",
+              "position": {
+                "x": 35.121,
+                "z": -5.419
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r007",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Garage Access",
+          "shape": "rect",
+          "bounds": {
+            "x": 44.4,
+            "z": -5.326,
+            "w": 5.485,
+            "d": 6.852
+          },
+          "polygon": null,
+          "center": {
+            "x": 44.4,
+            "z": -5.326
+          },
+          "doorId": "seg-01-r007-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r007-prop1",
+              "familyId": "security_camera",
+              "position": {
+                "x": 46.131,
+                "z": -7.651
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r007-prop2",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 43.124,
+                "z": -7.312
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r007-prop3",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 46.242,
+                "z": -5.989
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r008",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Holding Cell",
+          "shape": "rect",
+          "bounds": {
+            "x": 51.8,
+            "z": -5.734,
+            "w": 6.545,
+            "d": 7.669
+          },
+          "polygon": null,
+          "center": {
+            "x": 51.8,
+            "z": -5.734
+          },
+          "doorId": "seg-01-r008-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r008-prop1",
+              "familyId": "bookshelf",
+              "position": {
+                "x": 53.08,
+                "z": -7.12
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r008-prop2",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 50.177,
+                "z": -7.96
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r009",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Training Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 0,
+            "z": 5.063,
+            "w": 5.571,
+            "d": 6.326
+          },
+          "polygon": null,
+          "center": {
+            "x": 0,
+            "z": 5.063
+          },
+          "doorId": "seg-01-r009-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r009-prop1",
+              "familyId": "storage_crate",
+              "position": {
+                "x": -1.78,
+                "z": 4.215
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r009-prop2",
+              "familyId": "desk",
+              "position": {
+                "x": 1.585,
+                "z": 7.001
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r009-prop3",
+              "familyId": "office_chair",
+              "position": {
+                "x": 1.303,
+                "z": 3.625
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r010",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Briefing Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 7.4,
+            "z": 6.171,
+            "w": 5.796,
+            "d": 8.543
+          },
+          "polygon": null,
+          "center": {
+            "x": 7.4,
+            "z": 6.171
+          },
+          "doorId": "seg-01-r010-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r010-prop1",
+              "familyId": "office_chair",
+              "position": {
+                "x": 5.302,
+                "z": 8.555
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r010-prop2",
+              "familyId": "security_camera",
+              "position": {
+                "x": 5.383,
+                "z": 5.135
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r010-prop3",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 9.398,
+                "z": 4.674
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r011",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Interview Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 14.8,
+            "z": 5.619,
+            "w": 5.757,
+            "d": 7.438
+          },
+          "polygon": null,
+          "center": {
+            "x": 14.8,
+            "z": 5.619
+          },
+          "doorId": "seg-01-r011-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r011-prop1",
+              "familyId": "bench",
+              "position": {
+                "x": 16.023,
+                "z": 4.91
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r011-prop3",
+              "familyId": "desk",
+              "position": {
+                "x": 13.274,
+                "z": 3.278
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r012",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Interview Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 22.2,
+            "z": 4.971,
+            "w": 6.558,
+            "d": 6.142
+          },
+          "polygon": null,
+          "center": {
+            "x": 22.2,
+            "z": 4.971
+          },
+          "doorId": "seg-01-r012-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r012-prop1",
+              "familyId": "office_chair",
+              "position": {
+                "x": 20.047,
+                "z": 6.739
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r012-prop2",
+              "familyId": "desk",
+              "position": {
+                "x": 20.307,
+                "z": 4.953
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r013",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Security Office",
+          "shape": "rect",
+          "bounds": {
+            "x": 37,
+            "z": 5.353,
+            "w": 5.568,
+            "d": 6.905
+          },
+          "polygon": null,
+          "center": {
+            "x": 37,
+            "z": 5.353
+          },
+          "doorId": "seg-01-r013-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r013-prop1",
+              "familyId": "office_chair",
+              "position": {
+                "x": 38.815,
+                "z": 7.227
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r013-prop2",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 38.134,
+                "z": 5.434
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r014",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Records Archive",
+          "shape": "rect",
+          "bounds": {
+            "x": 44.4,
+            "z": 5.198,
+            "w": 5.893,
+            "d": 6.596
+          },
+          "polygon": null,
+          "center": {
+            "x": 44.4,
+            "z": 5.198
+          },
+          "doorId": "seg-01-r014-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r014-prop1",
+              "familyId": "bench",
+              "position": {
+                "x": 42.93,
+                "z": 7.658
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r014-prop2",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 42.423,
+                "z": 4.596
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r015",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Break Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 51.8,
+            "z": 6.196,
+            "w": 6.124,
+            "d": 8.593
+          },
+          "polygon": null,
+          "center": {
+            "x": 51.8,
+            "z": 6.196
+          },
+          "doorId": "seg-01-r015-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r015-prop1",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 53.962,
+                "z": 4.281
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r015-prop2",
+              "familyId": "security_camera",
+              "position": {
+                "x": 50.521,
+                "z": 8.755
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r015-prop3",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 53.249,
+                "z": 8.076
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r016",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Armory",
+          "shape": "rect",
+          "bounds": {
+            "x": 24.882,
+            "z": 18,
+            "w": 5.636,
+            "d": 6.788
+          },
+          "polygon": null,
+          "center": {
+            "x": 24.882,
+            "z": 18
+          },
+          "doorId": "seg-01-r016-door",
+          "doorSide": "east",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r016-prop1",
+              "familyId": "bookshelf",
+              "position": {
+                "x": 23.402,
+                "z": 19.871
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r016-prop2",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 24.728,
+                "z": 16.128
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r016-prop3",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 25.248,
+                "z": 19.357
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r017",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Holding Cell",
+          "shape": "rect",
+          "bounds": {
+            "x": 34.555,
+            "z": 18,
+            "w": 6.11,
+            "d": 6.371
+          },
+          "polygon": null,
+          "center": {
+            "x": 34.555,
+            "z": 18
+          },
+          "doorId": "seg-01-r017-door",
+          "doorSide": "west",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r017-prop1",
+              "familyId": "sofa",
+              "position": {
+                "x": 32.994,
+                "z": 16.011
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r017-prop2",
+              "familyId": "desk",
+              "position": {
+                "x": 34.538,
+                "z": 19.348
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r017-prop3",
+              "familyId": "desk",
+              "position": {
+                "x": 34.91,
+                "z": 16.666
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r018",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Dispatch",
+          "shape": "rect",
+          "bounds": {
+            "x": 24.676,
+            "z": 26.6,
+            "w": 6.048,
+            "d": 5.61
+          },
+          "polygon": null,
+          "center": {
+            "x": 24.676,
+            "z": 26.6
+          },
+          "doorId": "seg-01-r018-door",
+          "doorSide": "east",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r018-prop1",
+              "familyId": "office_chair",
+              "position": {
+                "x": 26,
+                "z": 25.062
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r018-prop2",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 24.94,
+                "z": 28.605
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r018-prop3",
+              "familyId": "sofa",
+              "position": {
+                "x": 23.821,
+                "z": 25.055
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r019",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Training Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 34.899,
+            "z": 26.6,
+            "w": 6.797,
+            "d": 5.767
+          },
+          "polygon": null,
+          "center": {
+            "x": 34.899,
+            "z": 26.6
+          },
+          "doorId": "seg-01-r019-door",
+          "doorSide": "west",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r019-prop1",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 35.137,
+                "z": 28.665
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r019-prop2",
+              "familyId": "desk",
+              "position": {
+                "x": 36.074,
+                "z": 24.517
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r020",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Records Archive",
+          "shape": "rect",
+          "bounds": {
+            "x": 24.49,
+            "z": 35.2,
+            "w": 6.419,
+            "d": 5.678
+          },
+          "polygon": null,
+          "center": {
+            "x": 24.49,
+            "z": 35.2
+          },
+          "doorId": "seg-01-r020-door",
+          "doorSide": "east",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r020-prop1",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 23.31,
+                "z": 33.975
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r020-prop2",
+              "familyId": "bench",
+              "position": {
+                "x": 22.725,
+                "z": 37.017
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-01-r021",
+          "segmentId": "seg-01",
+          "kind": "room",
+          "name": "Interrogation",
+          "shape": "rect",
+          "bounds": {
+            "x": 34.271,
+            "z": 35.2,
+            "w": 5.542,
+            "d": 6.227
+          },
+          "polygon": null,
+          "center": {
+            "x": 34.271,
+            "z": 35.2
+          },
+          "doorId": "seg-01-r021-door",
+          "doorSide": "west",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-01-r021-prop1",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 34.668,
+                "z": 32.986
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-01-r021-prop3",
+              "familyId": "computer",
+              "position": {
+                "x": 34.897,
+                "z": 36.971
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        }
+      ],
+      "corridors": [
+        {
+          "id": "seg-01-hall",
+          "kind": "main",
+          "bounds": {
+            "x": 25.9,
+            "z": 0,
+            "w": 60.532,
+            "d": 3.8
+          }
+        },
+        {
+          "id": "seg-01-wing-0",
+          "kind": "wing",
+          "bounds": {
+            "x": 29.6,
+            "z": 21.5,
+            "w": 3.8,
+            "d": 46.8
+          }
+        }
+      ],
+      "tunnels": [],
+      "doors": [
+        {
+          "id": "seg-01-r001-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r001",
+          "position": {
+            "x": 0,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r002-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r002",
+          "position": {
+            "x": 7.4,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r003-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r003",
+          "position": {
+            "x": 14.8,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r004-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r004",
+          "position": {
+            "x": 22.2,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r005-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r005",
+          "position": {
+            "x": 29.6,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r006-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r006",
+          "position": {
+            "x": 37,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r007-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r007",
+          "position": {
+            "x": 44.4,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r008-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r008",
+          "position": {
+            "x": 51.8,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r009-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r009",
+          "position": {
+            "x": 0,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r010-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r010",
+          "position": {
+            "x": 7.4,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r011-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r011",
+          "position": {
+            "x": 14.8,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r012-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r012",
+          "position": {
+            "x": 22.2,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r013-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r013",
+          "position": {
+            "x": 37,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r014-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r014",
+          "position": {
+            "x": 44.4,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "keycard",
+          "requires": [
+            "clearance-seg-01-1"
+          ],
+          "state": "closed",
+          "lockedInitially": true
+        },
+        {
+          "id": "seg-01-r015-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r015",
+          "position": {
+            "x": 51.8,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r016-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r016",
+          "position": {
+            "x": 27.7,
+            "z": 18
+          },
+          "side": "east",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "security",
+          "requires": [
+            "clearance-seg-01-2"
+          ],
+          "state": "closed",
+          "lockedInitially": true
+        },
+        {
+          "id": "seg-01-r017-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r017",
+          "position": {
+            "x": 31.5,
+            "z": 18
+          },
+          "side": "west",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r018-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r018",
+          "position": {
+            "x": 27.7,
+            "z": 26.6
+          },
+          "side": "east",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r019-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r019",
+          "position": {
+            "x": 31.5,
+            "z": 26.6
+          },
+          "side": "west",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "keycard",
+          "requires": [
+            "clearance-seg-01-3"
+          ],
+          "state": "closed",
+          "lockedInitially": true
+        },
+        {
+          "id": "seg-01-r020-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r020",
+          "position": {
+            "x": 27.7,
+            "z": 35.2
+          },
+          "side": "east",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-01-r021-door",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r021",
+          "position": {
+            "x": 31.5,
+            "z": 35.2
+          },
+          "side": "west",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        }
+      ],
+      "interactables": [
+        {
+          "id": "seg-01-key-1",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r002",
+          "position": {
+            "x": 7.4,
+            "z": -6.861
+          },
+          "label": "Collect security keycard",
+          "kind": "keycard",
+          "grants": [
+            "clearance-seg-01-1"
+          ],
+          "requires": [],
+          "description": "Unlocks Records Archive"
+        },
+        {
+          "id": "seg-01-key-2",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r003",
+          "position": {
+            "x": 14.8,
+            "z": -6.196
+          },
+          "label": "Disable security lock",
+          "kind": "terminal",
+          "grants": [
+            "clearance-seg-01-2"
+          ],
+          "requires": [],
+          "description": "Unlocks Armory"
+        },
+        {
+          "id": "seg-01-key-3",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r004",
+          "position": {
+            "x": 22.2,
+            "z": -5.729
+          },
+          "label": "Collect security keycard",
+          "kind": "keycard",
+          "grants": [
+            "clearance-seg-01-3"
+          ],
+          "requires": [],
+          "description": "Unlocks Training Room"
+        },
+        {
+          "id": "seg-01-lift-access",
+          "segmentId": "seg-01",
+          "roomId": "seg-01-r005",
+          "position": {
+            "x": 29.6,
+            "z": -5.276
+          },
+          "label": "Enable elevator access",
+          "kind": "terminal",
+          "grants": [
+            "access-seg-02"
+          ],
+          "requires": [],
+          "description": "Enables travel to Level 2"
+        }
+      ],
+      "anchors": {
+        "entry": {
+          "x": -3.774,
+          "z": 0
+        },
+        "exit": {
+          "x": 55.574,
+          "z": 0
+        },
+        "safeSpawn": {
+          "x": -2.96,
+          "z": 0
+        }
+      },
+      "bounds": {
+        "minX": -7.4,
+        "maxX": 59.2,
+        "minZ": -40,
+        "maxZ": 40
+      },
+      "architecturalHeight": 3.6,
+      "floorNumber": 1
+    },
+    {
+      "id": "seg-02",
+      "index": 1,
+      "label": "Level 2",
+      "archetype": "precinct",
+      "environment": {
+        "condition": "operational",
+        "theme": "brutalist",
+        "lighting": "normal",
+        "ambientPreset": "interior",
+        "ceilingHeightMeters": 3.6
+      },
+      "rooms": [
+        {
+          "id": "seg-02-r001",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Break Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 0,
+            "z": -5.795,
+            "w": 6.048,
+            "d": 7.79
+          },
+          "polygon": null,
+          "center": {
+            "x": 0,
+            "z": -5.795
+          },
+          "doorId": "seg-02-r001-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r001-prop1",
+              "familyId": "storage_crate",
+              "position": {
+                "x": -1.767,
+                "z": -7.296
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r001-prop2",
+              "familyId": "desk",
+              "position": {
+                "x": 1.171,
+                "z": -8.346
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r001-prop3",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 1.761,
+                "z": -5.492
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r002",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Briefing Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 7.4,
+            "z": -5.837,
+            "w": 6.201,
+            "d": 7.873
+          },
+          "polygon": null,
+          "center": {
+            "x": 7.4,
+            "z": -5.837
+          },
+          "doorId": "seg-02-r002-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r002-prop1",
+              "familyId": "security_camera",
+              "position": {
+                "x": 9.442,
+                "z": -8.637
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r002-prop2",
+              "familyId": "desk",
+              "position": {
+                "x": 5.976,
+                "z": -6.985
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r002-prop3",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 5.113,
+                "z": -3.567
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r003",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Staff Locker Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 14.8,
+            "z": -5.975,
+            "w": 6.187,
+            "d": 8.151
+          },
+          "polygon": null,
+          "center": {
+            "x": 14.8,
+            "z": -5.975
+          },
+          "doorId": "seg-02-r003-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r003-prop1",
+              "familyId": "bookshelf",
+              "position": {
+                "x": 12.906,
+                "z": -5.566
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r003-prop2",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 13.191,
+                "z": -8.053
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r003-prop3",
+              "familyId": "office_chair",
+              "position": {
+                "x": 17.042,
+                "z": -4.208
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r004",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Reception",
+          "shape": "rect",
+          "bounds": {
+            "x": 22.2,
+            "z": -6.864,
+            "w": 6.463,
+            "d": 9.927
+          },
+          "polygon": null,
+          "center": {
+            "x": 22.2,
+            "z": -6.864
+          },
+          "doorId": "seg-02-r004-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r004-prop1",
+              "familyId": "computer",
+              "position": {
+                "x": 20.542,
+                "z": -5.951
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r004-prop2",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 23.774,
+                "z": -10.939
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r004-prop3",
+              "familyId": "sofa",
+              "position": {
+                "x": 20.664,
+                "z": -10.902
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r005",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Dispatch",
+          "shape": "rect",
+          "bounds": {
+            "x": 29.6,
+            "z": -5.903,
+            "w": 5.53,
+            "d": 8.005
+          },
+          "polygon": null,
+          "center": {
+            "x": 29.6,
+            "z": -5.903
+          },
+          "doorId": "seg-02-r005-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r005-prop1",
+              "familyId": "bench",
+              "position": {
+                "x": 31.065,
+                "z": -7.758
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r005-prop2",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 30.715,
+                "z": -6.487
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r005-prop3",
+              "familyId": "bench",
+              "position": {
+                "x": 28.298,
+                "z": -3.444
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r006",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Interview Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 37,
+            "z": -6.384,
+            "w": 6.298,
+            "d": 8.968
+          },
+          "polygon": null,
+          "center": {
+            "x": 37,
+            "z": -6.384
+          },
+          "doorId": "seg-02-r006-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r006-prop1",
+              "familyId": "bookshelf",
+              "position": {
+                "x": 35.263,
+                "z": -9.671
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r006-prop3",
+              "familyId": "security_camera",
+              "position": {
+                "x": 38.698,
+                "z": -4.167
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r007",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Records Archive",
+          "shape": "rect",
+          "bounds": {
+            "x": 44.4,
+            "z": -4.753,
+            "w": 5.596,
+            "d": 5.705
+          },
+          "polygon": null,
+          "center": {
+            "x": 44.4,
+            "z": -4.753
+          },
+          "doorId": "seg-02-r007-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r007-prop1",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 45.548,
+                "z": -3.392
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r007-prop2",
+              "familyId": "computer",
+              "position": {
+                "x": 42.402,
+                "z": -6.425
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r007-prop3",
+              "familyId": "office_chair",
+              "position": {
+                "x": 43.007,
+                "z": -3.861
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r008",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Evidence Storage",
+          "shape": "rect",
+          "bounds": {
+            "x": 51.8,
+            "z": -5.006,
+            "w": 6.31,
+            "d": 6.213
+          },
+          "polygon": null,
+          "center": {
+            "x": 51.8,
+            "z": -5.006
+          },
+          "doorId": "seg-02-r008-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r008-prop1",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 54.055,
+                "z": -3.791
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r008-prop2",
+              "familyId": "computer",
+              "position": {
+                "x": 50.135,
+                "z": -4.357
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r008-prop3",
+              "familyId": "sofa",
+              "position": {
+                "x": 53.65,
+                "z": -5.246
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r009",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Staff Locker Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 0,
+            "z": 6.578,
+            "w": 6.332,
+            "d": 9.355
+          },
+          "polygon": null,
+          "center": {
+            "x": 0,
+            "z": 6.578
+          },
+          "doorId": "seg-02-r009-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r009-prop1",
+              "familyId": "storage_crate",
+              "position": {
+                "x": -1.504,
+                "z": 9.905
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r009-prop2",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 2.096,
+                "z": 6.434
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r009-prop3",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 1.531,
+                "z": 4.813
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r010",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Evidence Storage",
+          "shape": "rect",
+          "bounds": {
+            "x": 7.4,
+            "z": 5.488,
+            "w": 6.237,
+            "d": 7.175
+          },
+          "polygon": null,
+          "center": {
+            "x": 7.4,
+            "z": 5.488
+          },
+          "doorId": "seg-02-r010-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r010-prop1",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 5.931,
+                "z": 7.196
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r010-prop2",
+              "familyId": "office_chair",
+              "position": {
+                "x": 8.962,
+                "z": 5.961
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r010-prop3",
+              "familyId": "computer",
+              "position": {
+                "x": 5.533,
+                "z": 4.369
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r011",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Armory",
+          "shape": "rect",
+          "bounds": {
+            "x": 14.8,
+            "z": 6.747,
+            "w": 6.516,
+            "d": 9.693
+          },
+          "polygon": null,
+          "center": {
+            "x": 14.8,
+            "z": 6.747
+          },
+          "doorId": "seg-02-r011-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r011-prop1",
+              "familyId": "sofa",
+              "position": {
+                "x": 16.523,
+                "z": 10.181
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r011-prop2",
+              "familyId": "sofa",
+              "position": {
+                "x": 13.064,
+                "z": 5.891
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r011-prop3",
+              "familyId": "office_chair",
+              "position": {
+                "x": 12.737,
+                "z": 4.714
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r012",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Evidence Storage",
+          "shape": "rect",
+          "bounds": {
+            "x": 22.2,
+            "z": 6.78,
+            "w": 6.236,
+            "d": 9.761
+          },
+          "polygon": null,
+          "center": {
+            "x": 22.2,
+            "z": 6.78
+          },
+          "doorId": "seg-02-r012-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r012-prop1",
+              "familyId": "bookshelf",
+              "position": {
+                "x": 23.973,
+                "z": 2.887
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r012-prop2",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 20.848,
+                "z": 4.782
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r012-prop3",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 23.731,
+                "z": 9.919
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r013",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Staff Locker Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 37,
+            "z": 5.315,
+            "w": 5.483,
+            "d": 6.831
+          },
+          "polygon": null,
+          "center": {
+            "x": 37,
+            "z": 5.315
+          },
+          "doorId": "seg-02-r013-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r013-prop1",
+              "familyId": "computer",
+              "position": {
+                "x": 38.786,
+                "z": 3.253
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r013-prop2",
+              "familyId": "computer",
+              "position": {
+                "x": 35.25,
+                "z": 2.829
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r013-prop3",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 38.942,
+                "z": 7.05
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r014",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Break Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 44.4,
+            "z": 6.7,
+            "w": 5.526,
+            "d": 9.6
+          },
+          "polygon": null,
+          "center": {
+            "x": 44.4,
+            "z": 6.7
+          },
+          "doorId": "seg-02-r014-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r014-prop1",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 42.919,
+                "z": 9.348
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r014-prop2",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 46.142,
+                "z": 2.958
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r014-prop3",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 43.148,
+                "z": 3.556
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r015",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Training Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 51.8,
+            "z": 5.056,
+            "w": 6.572,
+            "d": 6.311
+          },
+          "polygon": null,
+          "center": {
+            "x": 51.8,
+            "z": 5.056
+          },
+          "doorId": "seg-02-r015-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r015-prop1",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 49.409,
+                "z": 7.339
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r015-prop3",
+              "familyId": "office_chair",
+              "position": {
+                "x": 53.372,
+                "z": 2.892
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r016",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Security Office",
+          "shape": "rect",
+          "bounds": {
+            "x": 24.209,
+            "z": 18,
+            "w": 6.981,
+            "d": 5.949
+          },
+          "polygon": null,
+          "center": {
+            "x": 24.209,
+            "z": 18
+          },
+          "doorId": "seg-02-r016-door",
+          "doorSide": "east",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r016-prop1",
+              "familyId": "bench",
+              "position": {
+                "x": 23.273,
+                "z": 16.314
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r016-prop2",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 26.029,
+                "z": 16.847
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r017",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Interview Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 34.499,
+            "z": 18,
+            "w": 5.998,
+            "d": 5.839
+          },
+          "polygon": null,
+          "center": {
+            "x": 34.499,
+            "z": 18
+          },
+          "doorId": "seg-02-r017-door",
+          "doorSide": "west",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r017-prop1",
+              "familyId": "security_camera",
+              "position": {
+                "x": 33.674,
+                "z": 19.736
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r017-prop2",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 35.864,
+                "z": 16.436
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r017-prop3",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 34.317,
+                "z": 16.57
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r018",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Interrogation",
+          "shape": "rect",
+          "bounds": {
+            "x": 24.275,
+            "z": 26.6,
+            "w": 6.849,
+            "d": 6.683
+          },
+          "polygon": null,
+          "center": {
+            "x": 24.275,
+            "z": 26.6
+          },
+          "doorId": "seg-02-r018-door",
+          "doorSide": "east",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r018-prop1",
+              "familyId": "computer",
+              "position": {
+                "x": 26.816,
+                "z": 25.398
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r018-prop2",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 24.831,
+                "z": 27.894
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r019",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Dispatch",
+          "shape": "rect",
+          "bounds": {
+            "x": 35.132,
+            "z": 26.6,
+            "w": 7.264,
+            "d": 6.205
+          },
+          "polygon": null,
+          "center": {
+            "x": 35.132,
+            "z": 26.6
+          },
+          "doorId": "seg-02-r019-door",
+          "doorSide": "west",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r019-prop1",
+              "familyId": "bookshelf",
+              "position": {
+                "x": 34.474,
+                "z": 24.414
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r019-prop2",
+              "familyId": "security_camera",
+              "position": {
+                "x": 33.753,
+                "z": 25.393
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r019-prop3",
+              "familyId": "sofa",
+              "position": {
+                "x": 33.901,
+                "z": 28.829
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r020",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Dispatch",
+          "shape": "rect",
+          "bounds": {
+            "x": 24.45,
+            "z": 35.2,
+            "w": 6.5,
+            "d": 6.617
+          },
+          "polygon": null,
+          "center": {
+            "x": 24.45,
+            "z": 35.2
+          },
+          "doorId": "seg-02-r020-door",
+          "doorSide": "east",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r020-prop1",
+              "familyId": "desk",
+              "position": {
+                "x": 23.343,
+                "z": 37.246
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r020-prop2",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 23.658,
+                "z": 33.216
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-02-r021",
+          "segmentId": "seg-02",
+          "kind": "room",
+          "name": "Training Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 34.739,
+            "z": 35.2,
+            "w": 6.478,
+            "d": 6.014
+          },
+          "polygon": null,
+          "center": {
+            "x": 34.739,
+            "z": 35.2
+          },
+          "doorId": "seg-02-r021-door",
+          "doorSide": "west",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-02-r021-prop1",
+              "familyId": "computer",
+              "position": {
+                "x": 36.22,
+                "z": 36.822
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r021-prop2",
+              "familyId": "security_camera",
+              "position": {
+                "x": 33.767,
+                "z": 37.306
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-02-r021-prop3",
+              "familyId": "sofa",
+              "position": {
+                "x": 33.452,
+                "z": 32.993
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        }
+      ],
+      "corridors": [
+        {
+          "id": "seg-02-hall",
+          "kind": "main",
+          "bounds": {
+            "x": 25.9,
+            "z": 0,
+            "w": 60.532,
+            "d": 3.8
+          }
+        },
+        {
+          "id": "seg-02-wing-0",
+          "kind": "wing",
+          "bounds": {
+            "x": 29.6,
+            "z": 21.5,
+            "w": 3.8,
+            "d": 46.8
+          }
+        }
+      ],
+      "tunnels": [],
+      "doors": [
+        {
+          "id": "seg-02-r001-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r001",
+          "position": {
+            "x": 0,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r002-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r002",
+          "position": {
+            "x": 7.4,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r003-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r003",
+          "position": {
+            "x": 14.8,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r004-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r004",
+          "position": {
+            "x": 22.2,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r005-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r005",
+          "position": {
+            "x": 29.6,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r006-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r006",
+          "position": {
+            "x": 37,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r007-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r007",
+          "position": {
+            "x": 44.4,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r008-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r008",
+          "position": {
+            "x": 51.8,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r009-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r009",
+          "position": {
+            "x": 0,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r010-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r010",
+          "position": {
+            "x": 7.4,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r011-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r011",
+          "position": {
+            "x": 14.8,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r012-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r012",
+          "position": {
+            "x": 22.2,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r013-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r013",
+          "position": {
+            "x": 37,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r014-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r014",
+          "position": {
+            "x": 44.4,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "keycard",
+          "requires": [
+            "clearance-seg-02-1"
+          ],
+          "state": "closed",
+          "lockedInitially": true
+        },
+        {
+          "id": "seg-02-r015-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r015",
+          "position": {
+            "x": 51.8,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r016-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r016",
+          "position": {
+            "x": 27.7,
+            "z": 18
+          },
+          "side": "east",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "security",
+          "requires": [
+            "clearance-seg-02-2"
+          ],
+          "state": "closed",
+          "lockedInitially": true
+        },
+        {
+          "id": "seg-02-r017-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r017",
+          "position": {
+            "x": 31.5,
+            "z": 18
+          },
+          "side": "west",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r018-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r018",
+          "position": {
+            "x": 27.7,
+            "z": 26.6
+          },
+          "side": "east",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r019-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r019",
+          "position": {
+            "x": 31.5,
+            "z": 26.6
+          },
+          "side": "west",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "keycard",
+          "requires": [
+            "clearance-seg-02-3"
+          ],
+          "state": "closed",
+          "lockedInitially": true
+        },
+        {
+          "id": "seg-02-r020-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r020",
+          "position": {
+            "x": 27.7,
+            "z": 35.2
+          },
+          "side": "east",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-02-r021-door",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r021",
+          "position": {
+            "x": 31.5,
+            "z": 35.2
+          },
+          "side": "west",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        }
+      ],
+      "interactables": [
+        {
+          "id": "seg-02-key-1",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r002",
+          "position": {
+            "x": 7.4,
+            "z": -5.837
+          },
+          "label": "Collect security keycard",
+          "kind": "keycard",
+          "grants": [
+            "clearance-seg-02-1"
+          ],
+          "requires": [],
+          "description": "Unlocks Break Room"
+        },
+        {
+          "id": "seg-02-key-2",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r003",
+          "position": {
+            "x": 14.8,
+            "z": -5.975
+          },
+          "label": "Disable security lock",
+          "kind": "terminal",
+          "grants": [
+            "clearance-seg-02-2"
+          ],
+          "requires": [],
+          "description": "Unlocks Security Office"
+        },
+        {
+          "id": "seg-02-key-3",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r004",
+          "position": {
+            "x": 22.2,
+            "z": -6.864
+          },
+          "label": "Collect security keycard",
+          "kind": "keycard",
+          "grants": [
+            "clearance-seg-02-3"
+          ],
+          "requires": [],
+          "description": "Unlocks Dispatch"
+        },
+        {
+          "id": "seg-02-lift-access",
+          "segmentId": "seg-02",
+          "roomId": "seg-02-r005",
+          "position": {
+            "x": 29.6,
+            "z": -5.903
+          },
+          "label": "Enable elevator access",
+          "kind": "terminal",
+          "grants": [
+            "access-seg-03"
+          ],
+          "requires": [],
+          "description": "Enables travel to Level 3"
+        }
+      ],
+      "anchors": {
+        "entry": {
+          "x": -3.774,
+          "z": 0
+        },
+        "exit": {
+          "x": 55.574,
+          "z": 0
+        },
+        "safeSpawn": {
+          "x": -2.96,
+          "z": 0
+        }
+      },
+      "bounds": {
+        "minX": -7.4,
+        "maxX": 59.2,
+        "minZ": -40,
+        "maxZ": 40
+      },
+      "architecturalHeight": 3.6,
+      "floorNumber": 2
+    },
+    {
+      "id": "seg-03",
+      "index": 2,
+      "label": "Level 3",
+      "archetype": "precinct",
+      "environment": {
+        "condition": "operational",
+        "theme": "brutalist",
+        "lighting": "normal",
+        "ambientPreset": "interior",
+        "ceilingHeightMeters": 3.6
+      },
+      "rooms": [
+        {
+          "id": "seg-03-r001",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Records Archive",
+          "shape": "rect",
+          "bounds": {
+            "x": 0,
+            "z": -5.629,
+            "w": 6.069,
+            "d": 7.457
+          },
+          "polygon": null,
+          "center": {
+            "x": 0,
+            "z": -5.629
+          },
+          "doorId": "seg-03-r001-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r001-prop1",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 1.23,
+                "z": -5.412
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r001-prop2",
+              "familyId": "computer",
+              "position": {
+                "x": 1.348,
+                "z": -8.331
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r001-prop3",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": -1.39,
+                "z": -3.324
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r002",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Staff Locker Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 7.4,
+            "z": -4.943,
+            "w": 5.844,
+            "d": 6.085
+          },
+          "polygon": null,
+          "center": {
+            "x": 7.4,
+            "z": -4.943
+          },
+          "doorId": "seg-03-r002-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r002-prop1",
+              "familyId": "sofa",
+              "position": {
+                "x": 5.778,
+                "z": -6.248
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r002-prop2",
+              "familyId": "office_chair",
+              "position": {
+                "x": 5.441,
+                "z": -4.459
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r002-prop3",
+              "familyId": "office_chair",
+              "position": {
+                "x": 8.885,
+                "z": -2.815
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r003",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Garage Access",
+          "shape": "rect",
+          "bounds": {
+            "x": 14.8,
+            "z": -5.745,
+            "w": 6.621,
+            "d": 7.689
+          },
+          "polygon": null,
+          "center": {
+            "x": 14.8,
+            "z": -5.745
+          },
+          "doorId": "seg-03-r003-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r003-prop1",
+              "familyId": "bench",
+              "position": {
+                "x": 12.886,
+                "z": -5.764
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r003-prop3",
+              "familyId": "bookshelf",
+              "position": {
+                "x": 12.743,
+                "z": -8.2
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r004",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Interrogation",
+          "shape": "rect",
+          "bounds": {
+            "x": 22.2,
+            "z": -6.335,
+            "w": 6.567,
+            "d": 8.869
+          },
+          "polygon": null,
+          "center": {
+            "x": 22.2,
+            "z": -6.335
+          },
+          "doorId": "seg-03-r004-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r004-prop1",
+              "familyId": "sofa",
+              "position": {
+                "x": 20.271,
+                "z": -4.991
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r004-prop2",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 20.321,
+                "z": -9.615
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r005",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Reception",
+          "shape": "rect",
+          "bounds": {
+            "x": 29.6,
+            "z": -6.274,
+            "w": 5.501,
+            "d": 8.747
+          },
+          "polygon": null,
+          "center": {
+            "x": 29.6,
+            "z": -6.274
+          },
+          "doorId": "seg-03-r005-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r005-prop1",
+              "familyId": "sofa",
+              "position": {
+                "x": 28.15,
+                "z": -8.103
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r005-prop2",
+              "familyId": "bench",
+              "position": {
+                "x": 28.15,
+                "z": -3.263
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r005-prop3",
+              "familyId": "computer",
+              "position": {
+                "x": 27.787,
+                "z": -6.989
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r006",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Interrogation",
+          "shape": "rect",
+          "bounds": {
+            "x": 37,
+            "z": -5.107,
+            "w": 5.465,
+            "d": 6.414
+          },
+          "polygon": null,
+          "center": {
+            "x": 37,
+            "z": -5.107
+          },
+          "doorId": "seg-03-r006-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r006-prop1",
+              "familyId": "computer",
+              "position": {
+                "x": 38.933,
+                "z": -4.608
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r006-prop2",
+              "familyId": "desk",
+              "position": {
+                "x": 38.532,
+                "z": -2.979
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r006-prop3",
+              "familyId": "bench",
+              "position": {
+                "x": 35.808,
+                "z": -2.831
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r007",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Detective Office",
+          "shape": "rect",
+          "bounds": {
+            "x": 44.4,
+            "z": -6.412,
+            "w": 5.889,
+            "d": 9.024
+          },
+          "polygon": null,
+          "center": {
+            "x": 44.4,
+            "z": -6.412
+          },
+          "doorId": "seg-03-r007-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r007-prop1",
+              "familyId": "bookshelf",
+              "position": {
+                "x": 43.203,
+                "z": -3.105
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r007-prop3",
+              "familyId": "bench",
+              "position": {
+                "x": 46.044,
+                "z": -4.197
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r008",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Dispatch",
+          "shape": "rect",
+          "bounds": {
+            "x": 51.8,
+            "z": -5.014,
+            "w": 6.146,
+            "d": 6.228
+          },
+          "polygon": null,
+          "center": {
+            "x": 51.8,
+            "z": -5.014
+          },
+          "doorId": "seg-03-r008-door",
+          "doorSide": "north",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r008-prop1",
+              "familyId": "sofa",
+              "position": {
+                "x": 53.573,
+                "z": -3.449
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r008-prop2",
+              "familyId": "desk",
+              "position": {
+                "x": 50.483,
+                "z": -5.364
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r008-prop3",
+              "familyId": "computer",
+              "position": {
+                "x": 53.607,
+                "z": -6.91
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r009",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Dispatch",
+          "shape": "rect",
+          "bounds": {
+            "x": 0,
+            "z": 6.465,
+            "w": 6.252,
+            "d": 9.13
+          },
+          "polygon": null,
+          "center": {
+            "x": 0,
+            "z": 6.465
+          },
+          "doorId": "seg-03-r009-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r009-prop1",
+              "familyId": "security_camera",
+              "position": {
+                "x": -1.221,
+                "z": 9.252
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r009-prop2",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": -2.245,
+                "z": 8.23
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r009-prop3",
+              "familyId": "computer",
+              "position": {
+                "x": 2.012,
+                "z": 9.536
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r010",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Dispatch",
+          "shape": "rect",
+          "bounds": {
+            "x": 7.4,
+            "z": 6.521,
+            "w": 6.521,
+            "d": 9.242
+          },
+          "polygon": null,
+          "center": {
+            "x": 7.4,
+            "z": 6.521
+          },
+          "doorId": "seg-03-r010-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r010-prop1",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 5.79,
+                "z": 9.968
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r010-prop2",
+              "familyId": "bookshelf",
+              "position": {
+                "x": 8.776,
+                "z": 8.921
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r010-prop3",
+              "familyId": "bookshelf",
+              "position": {
+                "x": 8.95,
+                "z": 5.645
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r011",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Records Archive",
+          "shape": "rect",
+          "bounds": {
+            "x": 14.8,
+            "z": 5.864,
+            "w": 6.684,
+            "d": 7.928
+          },
+          "polygon": null,
+          "center": {
+            "x": 14.8,
+            "z": 5.864
+          },
+          "doorId": "seg-03-r011-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r011-prop1",
+              "familyId": "bench",
+              "position": {
+                "x": 12.794,
+                "z": 4.13
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r011-prop2",
+              "familyId": "desk",
+              "position": {
+                "x": 13.283,
+                "z": 6.384
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r011-prop3",
+              "familyId": "computer",
+              "position": {
+                "x": 17.135,
+                "z": 7
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r012",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Break Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 22.2,
+            "z": 5.477,
+            "w": 6.687,
+            "d": 7.155
+          },
+          "polygon": null,
+          "center": {
+            "x": 22.2,
+            "z": 5.477
+          },
+          "doorId": "seg-03-r012-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r012-prop1",
+              "familyId": "sofa",
+              "position": {
+                "x": 24.243,
+                "z": 3.549
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r012-prop2",
+              "familyId": "desk",
+              "position": {
+                "x": 20.389,
+                "z": 5.949
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r012-prop3",
+              "familyId": "office_chair",
+              "position": {
+                "x": 24.375,
+                "z": 8.19
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r013",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Dispatch",
+          "shape": "rect",
+          "bounds": {
+            "x": 37,
+            "z": 5.479,
+            "w": 6.452,
+            "d": 7.158
+          },
+          "polygon": null,
+          "center": {
+            "x": 37,
+            "z": 5.479
+          },
+          "doorId": "seg-03-r013-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r013-prop1",
+              "familyId": "bench",
+              "position": {
+                "x": 35.775,
+                "z": 2.718
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r013-prop2",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 38.294,
+                "z": 5.839
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r013-prop3",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 35.733,
+                "z": 5.249
+              },
+              "rotation": 0,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r014",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Armory",
+          "shape": "rect",
+          "bounds": {
+            "x": 44.4,
+            "z": 6.236,
+            "w": 6.204,
+            "d": 8.673
+          },
+          "polygon": null,
+          "center": {
+            "x": 44.4,
+            "z": 6.236
+          },
+          "doorId": "seg-03-r014-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r014-prop1",
+              "familyId": "sofa",
+              "position": {
+                "x": 45.622,
+                "z": 6.502
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r014-prop2",
+              "familyId": "file_cabinet",
+              "position": {
+                "x": 42.64,
+                "z": 7.685
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r015",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Briefing Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 51.8,
+            "z": 6.605,
+            "w": 5.878,
+            "d": 9.409
+          },
+          "polygon": null,
+          "center": {
+            "x": 51.8,
+            "z": 6.605
+          },
+          "doorId": "seg-03-r015-door",
+          "doorSide": "south",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r015-prop1",
+              "familyId": "security_camera",
+              "position": {
+                "x": 53.591,
+                "z": 9.458
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r015-prop2",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 50.567,
+                "z": 6.182
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r015-prop3",
+              "familyId": "computer",
+              "position": {
+                "x": 49.838,
+                "z": 7.419
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r016",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Training Room",
+          "shape": "rect",
+          "bounds": {
+            "x": 24.37,
+            "z": 18,
+            "w": 6.661,
+            "d": 5.808
+          },
+          "polygon": null,
+          "center": {
+            "x": 24.37,
+            "z": 18
+          },
+          "doorId": "seg-03-r016-door",
+          "doorSide": "east",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r016-prop1",
+              "familyId": "computer",
+              "position": {
+                "x": 25.211,
+                "z": 16.47
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r016-prop2",
+              "familyId": "bench",
+              "position": {
+                "x": 24.003,
+                "z": 16.296
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r017",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Records Archive",
+          "shape": "rect",
+          "bounds": {
+            "x": 34.831,
+            "z": 18,
+            "w": 6.662,
+            "d": 5.929
+          },
+          "polygon": null,
+          "center": {
+            "x": 34.831,
+            "z": 18
+          },
+          "doorId": "seg-03-r017-door",
+          "doorSide": "west",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r017-prop1",
+              "familyId": "bookshelf",
+              "position": {
+                "x": 34.534,
+                "z": 16.551
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r017-prop2",
+              "familyId": "security_camera",
+              "position": {
+                "x": 34.451,
+                "z": 19.934
+              },
+              "rotation": 6.283,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r017-prop3",
+              "familyId": "reception_desk",
+              "position": {
+                "x": 33.222,
+                "z": 20.066
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r018",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Holding Cell",
+          "shape": "rect",
+          "bounds": {
+            "x": 24.477,
+            "z": 26.6,
+            "w": 6.446,
+            "d": 6.586
+          },
+          "polygon": null,
+          "center": {
+            "x": 24.477,
+            "z": 26.6
+          },
+          "doorId": "seg-03-r018-door",
+          "doorSide": "east",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r018-prop1",
+              "familyId": "bench",
+              "position": {
+                "x": 24.335,
+                "z": 25.058
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r018-prop3",
+              "familyId": "security_camera",
+              "position": {
+                "x": 24.383,
+                "z": 28.442
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r019",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Armory",
+          "shape": "rect",
+          "bounds": {
+            "x": 34.318,
+            "z": 26.6,
+            "w": 5.637,
+            "d": 5.935
+          },
+          "polygon": null,
+          "center": {
+            "x": 34.318,
+            "z": 26.6
+          },
+          "doorId": "seg-03-r019-door",
+          "doorSide": "west",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r019-prop1",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 33.954,
+                "z": 27.953
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r019-prop2",
+              "familyId": "sofa",
+              "position": {
+                "x": 32.933,
+                "z": 25.07
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r020",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Dispatch",
+          "shape": "rect",
+          "bounds": {
+            "x": 24.617,
+            "z": 35.2,
+            "w": 6.166,
+            "d": 6.02
+          },
+          "polygon": null,
+          "center": {
+            "x": 24.617,
+            "z": 35.2
+          },
+          "doorId": "seg-03-r020-door",
+          "doorSide": "east",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r020-prop1",
+              "familyId": "sofa",
+              "position": {
+                "x": 22.988,
+                "z": 37.258
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r020-prop2",
+              "familyId": "storage_crate",
+              "position": {
+                "x": 25.176,
+                "z": 33.841
+              },
+              "rotation": 4.712,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        },
+        {
+          "id": "seg-03-r021",
+          "segmentId": "seg-03",
+          "kind": "room",
+          "name": "Interrogation",
+          "shape": "rect",
+          "bounds": {
+            "x": 34.724,
+            "z": 35.2,
+            "w": 6.448,
+            "d": 5.965
+          },
+          "polygon": null,
+          "center": {
+            "x": 34.724,
+            "z": 35.2
+          },
+          "doorId": "seg-03-r021-door",
+          "doorSide": "west",
+          "phase": "standard",
+          "props": [
+            {
+              "id": "seg-03-r021-prop1",
+              "familyId": "computer",
+              "position": {
+                "x": 32.951,
+                "z": 36.988
+              },
+              "rotation": 3.142,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            },
+            {
+              "id": "seg-03-r021-prop2",
+              "familyId": "computer",
+              "position": {
+                "x": 36.568,
+                "z": 36.75
+              },
+              "rotation": 1.571,
+              "scale": 1,
+              "source": "built-in-proxy",
+              "collidable": true
+            }
+          ],
+          "manual": false
+        }
+      ],
+      "corridors": [
+        {
+          "id": "seg-03-hall",
+          "kind": "main",
+          "bounds": {
+            "x": 25.9,
+            "z": 0,
+            "w": 60.532,
+            "d": 3.8
+          }
+        },
+        {
+          "id": "seg-03-wing-0",
+          "kind": "wing",
+          "bounds": {
+            "x": 29.6,
+            "z": 21.5,
+            "w": 3.8,
+            "d": 46.8
+          }
+        }
+      ],
+      "tunnels": [],
+      "doors": [
+        {
+          "id": "seg-03-r001-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r001",
+          "position": {
+            "x": 0,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r002-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r002",
+          "position": {
+            "x": 7.4,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r003-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r003",
+          "position": {
+            "x": 14.8,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r004-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r004",
+          "position": {
+            "x": 22.2,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r005-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r005",
+          "position": {
+            "x": 29.6,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r006-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r006",
+          "position": {
+            "x": 37,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r007-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r007",
+          "position": {
+            "x": 44.4,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r008-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r008",
+          "position": {
+            "x": 51.8,
+            "z": -1.9
+          },
+          "side": "north",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r009-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r009",
+          "position": {
+            "x": 0,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r010-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r010",
+          "position": {
+            "x": 7.4,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r011-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r011",
+          "position": {
+            "x": 14.8,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r012-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r012",
+          "position": {
+            "x": 22.2,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r013-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r013",
+          "position": {
+            "x": 37,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r014-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r014",
+          "position": {
+            "x": 44.4,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "keycard",
+          "requires": [
+            "clearance-seg-03-1"
+          ],
+          "state": "closed",
+          "lockedInitially": true
+        },
+        {
+          "id": "seg-03-r015-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r015",
+          "position": {
+            "x": 51.8,
+            "z": 1.9
+          },
+          "side": "south",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r016-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r016",
+          "position": {
+            "x": 27.7,
+            "z": 18
+          },
+          "side": "east",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "security",
+          "requires": [
+            "clearance-seg-03-2"
+          ],
+          "state": "closed",
+          "lockedInitially": true
+        },
+        {
+          "id": "seg-03-r017-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r017",
+          "position": {
+            "x": 31.5,
+            "z": 18
+          },
+          "side": "west",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r018-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r018",
+          "position": {
+            "x": 27.7,
+            "z": 26.6
+          },
+          "side": "east",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r019-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r019",
+          "position": {
+            "x": 31.5,
+            "z": 26.6
+          },
+          "side": "west",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "keycard",
+          "requires": [
+            "clearance-seg-03-3"
+          ],
+          "state": "closed",
+          "lockedInitially": true
+        },
+        {
+          "id": "seg-03-r020-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r020",
+          "position": {
+            "x": 27.7,
+            "z": 35.2
+          },
+          "side": "east",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        },
+        {
+          "id": "seg-03-r021-door",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r021",
+          "position": {
+            "x": 31.5,
+            "z": 35.2
+          },
+          "side": "west",
+          "width": 1.9,
+          "height": 2.45,
+          "kind": "standard",
+          "requires": [],
+          "state": "closed",
+          "lockedInitially": false
+        }
+      ],
+      "interactables": [
+        {
+          "id": "seg-03-key-1",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r002",
+          "position": {
+            "x": 7.4,
+            "z": -4.943
+          },
+          "label": "Collect security keycard",
+          "kind": "keycard",
+          "grants": [
+            "clearance-seg-03-1"
+          ],
+          "requires": [],
+          "description": "Unlocks Armory"
+        },
+        {
+          "id": "seg-03-key-2",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r003",
+          "position": {
+            "x": 14.8,
+            "z": -5.745
+          },
+          "label": "Disable security lock",
+          "kind": "terminal",
+          "grants": [
+            "clearance-seg-03-2"
+          ],
+          "requires": [],
+          "description": "Unlocks Training Room"
+        },
+        {
+          "id": "seg-03-key-3",
+          "segmentId": "seg-03",
+          "roomId": "seg-03-r004",
+          "position": {
+            "x": 22.2,
+            "z": -6.335
+          },
+          "label": "Collect security keycard",
+          "kind": "keycard",
+          "grants": [
+            "clearance-seg-03-3"
+          ],
+          "requires": [],
+          "description": "Unlocks Armory"
+        }
+      ],
+      "anchors": {
+        "entry": {
+          "x": -3.774,
+          "z": 0
+        },
+        "exit": {
+          "x": 55.574,
+          "z": 0
+        },
+        "safeSpawn": {
+          "x": -2.96,
+          "z": 0
+        }
+      },
+      "bounds": {
+        "minX": -7.4,
+        "maxX": 59.2,
+        "minZ": -40,
+        "maxZ": 40
+      },
+      "architecturalHeight": 3.6,
+      "floorNumber": 3
+    }
+  ],
+  "transitions": [
+    {
+      "id": "link-1-up",
+      "fromSegmentId": "seg-01",
+      "toSegmentId": "seg-02",
+      "fromAnchor": {
+        "x": 55.574,
+        "z": 0
+      },
+      "toAnchor": {
+        "x": -3.774,
+        "z": 0
+      },
+      "kind": "elevator",
+      "label": "Elevator → Level 2",
+      "requires": [
+        "access-seg-02"
+      ],
+      "direction": "forward",
+      "spawnFacing": 0
+    },
+    {
+      "id": "link-1-down",
+      "fromSegmentId": "seg-02",
+      "toSegmentId": "seg-01",
+      "fromAnchor": {
+        "x": -3.774,
+        "z": 0
+      },
+      "toAnchor": {
+        "x": 55.574,
+        "z": 0
+      },
+      "kind": "elevator",
+      "label": "Elevator → Level 1",
+      "requires": [],
+      "direction": "return",
+      "spawnFacing": 3.141592653589793
+    },
+    {
+      "id": "link-2-up",
+      "fromSegmentId": "seg-02",
+      "toSegmentId": "seg-03",
+      "fromAnchor": {
+        "x": 55.574,
+        "z": 0
+      },
+      "toAnchor": {
+        "x": -3.774,
+        "z": 0
+      },
+      "kind": "elevator",
+      "label": "Elevator → Level 3",
+      "requires": [
+        "access-seg-03"
+      ],
+      "direction": "forward",
+      "spawnFacing": 0
+    },
+    {
+      "id": "link-2-down",
+      "fromSegmentId": "seg-03",
+      "toSegmentId": "seg-02",
+      "fromAnchor": {
+        "x": -3.774,
+        "z": 0
+      },
+      "toAnchor": {
+        "x": 55.574,
+        "z": 0
+      },
+      "kind": "elevator",
+      "label": "Elevator → Level 2",
+      "requires": [],
+      "direction": "return",
+      "spawnFacing": 3.141592653589793
+    }
+  ],
+  "objectives": [
+    {
+      "id": "objective-primary",
+      "type": "interact",
+      "label": "Secure the final objective",
+      "segmentId": "seg-03",
+      "roomId": "seg-03-r021",
+      "position": {
+        "x": 34.724,
+        "z": 35.2
+      },
+      "requires": [],
+      "mandatory": true,
+      "state": "pending"
+    },
+    {
+      "id": "objective-explore",
+      "type": "reach",
+      "label": "Enter and investigate the mission",
+      "segmentId": "seg-01",
+      "roomId": "seg-01-r001",
+      "position": {
+        "x": 0,
+        "z": -5.454
+      },
+      "requires": [],
+      "mandatory": false,
+      "state": "pending"
+    }
+  ],
+  "encounters": [
+    {
+      "id": "seg-01-encounter-1",
+      "segmentId": "seg-01",
+      "roomId": "seg-01-r006",
+      "spawnAnchor": {
+        "x": 37,
+        "z": -5.952
+      },
+      "type": "enemy_group",
+      "groupSize": 2,
+      "difficultyBand": 1,
+      "npcArchetypeRef": null,
+      "powerSetRef": null,
+      "authority": "server",
+      "status": "metadata_only"
+    },
+    {
+      "id": "seg-01-encounter-2",
+      "segmentId": "seg-01",
+      "roomId": "seg-01-r012",
+      "spawnAnchor": {
+        "x": 22.2,
+        "z": 4.971
+      },
+      "type": "enemy_group",
+      "groupSize": 2,
+      "difficultyBand": 1,
+      "npcArchetypeRef": null,
+      "powerSetRef": null,
+      "authority": "server",
+      "status": "metadata_only"
+    },
+    {
+      "id": "seg-01-encounter-3",
+      "segmentId": "seg-01",
+      "roomId": "seg-01-r018",
+      "spawnAnchor": {
+        "x": 24.676,
+        "z": 26.6
+      },
+      "type": "enemy_group",
+      "groupSize": 3,
+      "difficultyBand": 1,
+      "npcArchetypeRef": null,
+      "powerSetRef": null,
+      "authority": "server",
+      "status": "metadata_only"
+    },
+    {
+      "id": "seg-02-encounter-1",
+      "segmentId": "seg-02",
+      "roomId": "seg-02-r006",
+      "spawnAnchor": {
+        "x": 37,
+        "z": -6.384
+      },
+      "type": "enemy_group",
+      "groupSize": 3,
+      "difficultyBand": 2,
+      "npcArchetypeRef": null,
+      "powerSetRef": null,
+      "authority": "server",
+      "status": "metadata_only"
+    },
+    {
+      "id": "seg-02-encounter-2",
+      "segmentId": "seg-02",
+      "roomId": "seg-02-r012",
+      "spawnAnchor": {
+        "x": 22.2,
+        "z": 6.78
+      },
+      "type": "enemy_group",
+      "groupSize": 5,
+      "difficultyBand": 2,
+      "npcArchetypeRef": null,
+      "powerSetRef": null,
+      "authority": "server",
+      "status": "metadata_only"
+    },
+    {
+      "id": "seg-02-encounter-3",
+      "segmentId": "seg-02",
+      "roomId": "seg-02-r018",
+      "spawnAnchor": {
+        "x": 24.275,
+        "z": 26.6
+      },
+      "type": "enemy_group",
+      "groupSize": 2,
+      "difficultyBand": 2,
+      "npcArchetypeRef": null,
+      "powerSetRef": null,
+      "authority": "server",
+      "status": "metadata_only"
+    },
+    {
+      "id": "seg-03-encounter-1",
+      "segmentId": "seg-03",
+      "roomId": "seg-03-r006",
+      "spawnAnchor": {
+        "x": 37,
+        "z": -5.107
+      },
+      "type": "enemy_group",
+      "groupSize": 2,
+      "difficultyBand": 2,
+      "npcArchetypeRef": null,
+      "powerSetRef": null,
+      "authority": "server",
+      "status": "metadata_only"
+    },
+    {
+      "id": "seg-03-encounter-2",
+      "segmentId": "seg-03",
+      "roomId": "seg-03-r012",
+      "spawnAnchor": {
+        "x": 22.2,
+        "z": 5.477
+      },
+      "type": "enemy_group",
+      "groupSize": 5,
+      "difficultyBand": 2,
+      "npcArchetypeRef": null,
+      "powerSetRef": null,
+      "authority": "server",
+      "status": "metadata_only"
+    },
+    {
+      "id": "seg-03-encounter-3",
+      "segmentId": "seg-03",
+      "roomId": "seg-03-r018",
+      "spawnAnchor": {
+        "x": 24.477,
+        "z": 26.6
+      },
+      "type": "boss_candidate",
+      "groupSize": 5,
+      "difficultyBand": 2,
+      "npcArchetypeRef": null,
+      "powerSetRef": null,
+      "authority": "server",
+      "status": "metadata_only"
+    }
+  ],
+  "navigation": {
+    "nodes": [
+      {
+        "id": "seg-01",
+        "segmentId": "seg-01",
+        "type": "segment_entry",
+        "position": {
+          "x": -3.774,
+          "z": 0
+        }
+      },
+      {
+        "id": "seg-01-hall",
+        "segmentId": "seg-01",
+        "type": "corridor",
+        "position": {
+          "x": 25.9,
+          "z": 0
+        }
+      },
+      {
+        "id": "seg-01-wing-0",
+        "segmentId": "seg-01",
+        "type": "corridor",
+        "position": {
+          "x": 29.6,
+          "z": 21.5
+        }
+      },
+      {
+        "id": "seg-01-r001",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 0,
+          "z": -5.454
+        }
+      },
+      {
+        "id": "seg-01-r002",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 7.4,
+          "z": -6.861
+        }
+      },
+      {
+        "id": "seg-01-r003",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 14.8,
+          "z": -6.196
+        }
+      },
+      {
+        "id": "seg-01-r004",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 22.2,
+          "z": -5.729
+        }
+      },
+      {
+        "id": "seg-01-r005",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 29.6,
+          "z": -5.276
+        }
+      },
+      {
+        "id": "seg-01-r006",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 37,
+          "z": -5.952
+        }
+      },
+      {
+        "id": "seg-01-r007",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 44.4,
+          "z": -5.326
+        }
+      },
+      {
+        "id": "seg-01-r008",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 51.8,
+          "z": -5.734
+        }
+      },
+      {
+        "id": "seg-01-r009",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 0,
+          "z": 5.063
+        }
+      },
+      {
+        "id": "seg-01-r010",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 7.4,
+          "z": 6.171
+        }
+      },
+      {
+        "id": "seg-01-r011",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 14.8,
+          "z": 5.619
+        }
+      },
+      {
+        "id": "seg-01-r012",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 22.2,
+          "z": 4.971
+        }
+      },
+      {
+        "id": "seg-01-r013",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 37,
+          "z": 5.353
+        }
+      },
+      {
+        "id": "seg-01-r014",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 44.4,
+          "z": 5.198
+        }
+      },
+      {
+        "id": "seg-01-r015",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 51.8,
+          "z": 6.196
+        }
+      },
+      {
+        "id": "seg-01-r016",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 24.882,
+          "z": 18
+        }
+      },
+      {
+        "id": "seg-01-r017",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 34.555,
+          "z": 18
+        }
+      },
+      {
+        "id": "seg-01-r018",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 24.676,
+          "z": 26.6
+        }
+      },
+      {
+        "id": "seg-01-r019",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 34.899,
+          "z": 26.6
+        }
+      },
+      {
+        "id": "seg-01-r020",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 24.49,
+          "z": 35.2
+        }
+      },
+      {
+        "id": "seg-01-r021",
+        "segmentId": "seg-01",
+        "type": "room",
+        "position": {
+          "x": 34.271,
+          "z": 35.2
+        }
+      },
+      {
+        "id": "seg-02",
+        "segmentId": "seg-02",
+        "type": "segment_entry",
+        "position": {
+          "x": -3.774,
+          "z": 0
+        }
+      },
+      {
+        "id": "seg-02-hall",
+        "segmentId": "seg-02",
+        "type": "corridor",
+        "position": {
+          "x": 25.9,
+          "z": 0
+        }
+      },
+      {
+        "id": "seg-02-wing-0",
+        "segmentId": "seg-02",
+        "type": "corridor",
+        "position": {
+          "x": 29.6,
+          "z": 21.5
+        }
+      },
+      {
+        "id": "seg-02-r001",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 0,
+          "z": -5.795
+        }
+      },
+      {
+        "id": "seg-02-r002",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 7.4,
+          "z": -5.837
+        }
+      },
+      {
+        "id": "seg-02-r003",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 14.8,
+          "z": -5.975
+        }
+      },
+      {
+        "id": "seg-02-r004",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 22.2,
+          "z": -6.864
+        }
+      },
+      {
+        "id": "seg-02-r005",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 29.6,
+          "z": -5.903
+        }
+      },
+      {
+        "id": "seg-02-r006",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 37,
+          "z": -6.384
+        }
+      },
+      {
+        "id": "seg-02-r007",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 44.4,
+          "z": -4.753
+        }
+      },
+      {
+        "id": "seg-02-r008",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 51.8,
+          "z": -5.006
+        }
+      },
+      {
+        "id": "seg-02-r009",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 0,
+          "z": 6.578
+        }
+      },
+      {
+        "id": "seg-02-r010",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 7.4,
+          "z": 5.488
+        }
+      },
+      {
+        "id": "seg-02-r011",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 14.8,
+          "z": 6.747
+        }
+      },
+      {
+        "id": "seg-02-r012",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 22.2,
+          "z": 6.78
+        }
+      },
+      {
+        "id": "seg-02-r013",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 37,
+          "z": 5.315
+        }
+      },
+      {
+        "id": "seg-02-r014",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 44.4,
+          "z": 6.7
+        }
+      },
+      {
+        "id": "seg-02-r015",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 51.8,
+          "z": 5.056
+        }
+      },
+      {
+        "id": "seg-02-r016",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 24.209,
+          "z": 18
+        }
+      },
+      {
+        "id": "seg-02-r017",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 34.499,
+          "z": 18
+        }
+      },
+      {
+        "id": "seg-02-r018",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 24.275,
+          "z": 26.6
+        }
+      },
+      {
+        "id": "seg-02-r019",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 35.132,
+          "z": 26.6
+        }
+      },
+      {
+        "id": "seg-02-r020",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 24.45,
+          "z": 35.2
+        }
+      },
+      {
+        "id": "seg-02-r021",
+        "segmentId": "seg-02",
+        "type": "room",
+        "position": {
+          "x": 34.739,
+          "z": 35.2
+        }
+      },
+      {
+        "id": "seg-03",
+        "segmentId": "seg-03",
+        "type": "segment_entry",
+        "position": {
+          "x": -3.774,
+          "z": 0
+        }
+      },
+      {
+        "id": "seg-03-hall",
+        "segmentId": "seg-03",
+        "type": "corridor",
+        "position": {
+          "x": 25.9,
+          "z": 0
+        }
+      },
+      {
+        "id": "seg-03-wing-0",
+        "segmentId": "seg-03",
+        "type": "corridor",
+        "position": {
+          "x": 29.6,
+          "z": 21.5
+        }
+      },
+      {
+        "id": "seg-03-r001",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 0,
+          "z": -5.629
+        }
+      },
+      {
+        "id": "seg-03-r002",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 7.4,
+          "z": -4.943
+        }
+      },
+      {
+        "id": "seg-03-r003",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 14.8,
+          "z": -5.745
+        }
+      },
+      {
+        "id": "seg-03-r004",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 22.2,
+          "z": -6.335
+        }
+      },
+      {
+        "id": "seg-03-r005",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 29.6,
+          "z": -6.274
+        }
+      },
+      {
+        "id": "seg-03-r006",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 37,
+          "z": -5.107
+        }
+      },
+      {
+        "id": "seg-03-r007",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 44.4,
+          "z": -6.412
+        }
+      },
+      {
+        "id": "seg-03-r008",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 51.8,
+          "z": -5.014
+        }
+      },
+      {
+        "id": "seg-03-r009",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 0,
+          "z": 6.465
+        }
+      },
+      {
+        "id": "seg-03-r010",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 7.4,
+          "z": 6.521
+        }
+      },
+      {
+        "id": "seg-03-r011",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 14.8,
+          "z": 5.864
+        }
+      },
+      {
+        "id": "seg-03-r012",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 22.2,
+          "z": 5.477
+        }
+      },
+      {
+        "id": "seg-03-r013",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 37,
+          "z": 5.479
+        }
+      },
+      {
+        "id": "seg-03-r014",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 44.4,
+          "z": 6.236
+        }
+      },
+      {
+        "id": "seg-03-r015",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 51.8,
+          "z": 6.605
+        }
+      },
+      {
+        "id": "seg-03-r016",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 24.37,
+          "z": 18
+        }
+      },
+      {
+        "id": "seg-03-r017",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 34.831,
+          "z": 18
+        }
+      },
+      {
+        "id": "seg-03-r018",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 24.477,
+          "z": 26.6
+        }
+      },
+      {
+        "id": "seg-03-r019",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 34.318,
+          "z": 26.6
+        }
+      },
+      {
+        "id": "seg-03-r020",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 24.617,
+          "z": 35.2
+        }
+      },
+      {
+        "id": "seg-03-r021",
+        "segmentId": "seg-03",
+        "type": "room",
+        "position": {
+          "x": 34.724,
+          "z": 35.2
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "nav-seg-01-entry",
+        "from": "seg-01",
+        "to": "seg-01-hall",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "segment_entry"
+      },
+      {
+        "id": "nav-seg-01-wing-0",
+        "from": "seg-01-hall",
+        "to": "seg-01-wing-0",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "corridor_junction"
+      },
+      {
+        "id": "nav-seg-01-r001",
+        "from": "seg-01-hall",
+        "to": "seg-01-r001",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r001-door"
+      },
+      {
+        "id": "nav-seg-01-r002",
+        "from": "seg-01-hall",
+        "to": "seg-01-r002",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r002-door"
+      },
+      {
+        "id": "nav-seg-01-r003",
+        "from": "seg-01-hall",
+        "to": "seg-01-r003",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r003-door"
+      },
+      {
+        "id": "nav-seg-01-r004",
+        "from": "seg-01-hall",
+        "to": "seg-01-r004",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r004-door"
+      },
+      {
+        "id": "nav-seg-01-r005",
+        "from": "seg-01-wing-0",
+        "to": "seg-01-r005",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r005-door"
+      },
+      {
+        "id": "nav-seg-01-r006",
+        "from": "seg-01-hall",
+        "to": "seg-01-r006",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r006-door"
+      },
+      {
+        "id": "nav-seg-01-r007",
+        "from": "seg-01-hall",
+        "to": "seg-01-r007",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r007-door"
+      },
+      {
+        "id": "nav-seg-01-r008",
+        "from": "seg-01-hall",
+        "to": "seg-01-r008",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r008-door"
+      },
+      {
+        "id": "nav-seg-01-r009",
+        "from": "seg-01-hall",
+        "to": "seg-01-r009",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r009-door"
+      },
+      {
+        "id": "nav-seg-01-r010",
+        "from": "seg-01-hall",
+        "to": "seg-01-r010",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r010-door"
+      },
+      {
+        "id": "nav-seg-01-r011",
+        "from": "seg-01-hall",
+        "to": "seg-01-r011",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r011-door"
+      },
+      {
+        "id": "nav-seg-01-r012",
+        "from": "seg-01-hall",
+        "to": "seg-01-r012",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r012-door"
+      },
+      {
+        "id": "nav-seg-01-r013",
+        "from": "seg-01-hall",
+        "to": "seg-01-r013",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r013-door"
+      },
+      {
+        "id": "nav-seg-01-r014",
+        "from": "seg-01-hall",
+        "to": "seg-01-r014",
+        "bidirectional": true,
+        "requires": [
+          "clearance-seg-01-1"
+        ],
+        "kind": "doorway",
+        "doorId": "seg-01-r014-door"
+      },
+      {
+        "id": "nav-seg-01-r015",
+        "from": "seg-01-hall",
+        "to": "seg-01-r015",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r015-door"
+      },
+      {
+        "id": "nav-seg-01-r016",
+        "from": "seg-01-wing-0",
+        "to": "seg-01-r016",
+        "bidirectional": true,
+        "requires": [
+          "clearance-seg-01-2"
+        ],
+        "kind": "doorway",
+        "doorId": "seg-01-r016-door"
+      },
+      {
+        "id": "nav-seg-01-r017",
+        "from": "seg-01-wing-0",
+        "to": "seg-01-r017",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r017-door"
+      },
+      {
+        "id": "nav-seg-01-r018",
+        "from": "seg-01-wing-0",
+        "to": "seg-01-r018",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r018-door"
+      },
+      {
+        "id": "nav-seg-01-r019",
+        "from": "seg-01-wing-0",
+        "to": "seg-01-r019",
+        "bidirectional": true,
+        "requires": [
+          "clearance-seg-01-3"
+        ],
+        "kind": "doorway",
+        "doorId": "seg-01-r019-door"
+      },
+      {
+        "id": "nav-seg-01-r020",
+        "from": "seg-01-wing-0",
+        "to": "seg-01-r020",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r020-door"
+      },
+      {
+        "id": "nav-seg-01-r021",
+        "from": "seg-01-wing-0",
+        "to": "seg-01-r021",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-01-r021-door"
+      },
+      {
+        "id": "nav-seg-02-entry",
+        "from": "seg-02",
+        "to": "seg-02-hall",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "segment_entry"
+      },
+      {
+        "id": "nav-seg-02-wing-0",
+        "from": "seg-02-hall",
+        "to": "seg-02-wing-0",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "corridor_junction"
+      },
+      {
+        "id": "nav-seg-02-r001",
+        "from": "seg-02-hall",
+        "to": "seg-02-r001",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r001-door"
+      },
+      {
+        "id": "nav-seg-02-r002",
+        "from": "seg-02-hall",
+        "to": "seg-02-r002",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r002-door"
+      },
+      {
+        "id": "nav-seg-02-r003",
+        "from": "seg-02-hall",
+        "to": "seg-02-r003",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r003-door"
+      },
+      {
+        "id": "nav-seg-02-r004",
+        "from": "seg-02-hall",
+        "to": "seg-02-r004",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r004-door"
+      },
+      {
+        "id": "nav-seg-02-r005",
+        "from": "seg-02-wing-0",
+        "to": "seg-02-r005",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r005-door"
+      },
+      {
+        "id": "nav-seg-02-r006",
+        "from": "seg-02-hall",
+        "to": "seg-02-r006",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r006-door"
+      },
+      {
+        "id": "nav-seg-02-r007",
+        "from": "seg-02-hall",
+        "to": "seg-02-r007",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r007-door"
+      },
+      {
+        "id": "nav-seg-02-r008",
+        "from": "seg-02-hall",
+        "to": "seg-02-r008",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r008-door"
+      },
+      {
+        "id": "nav-seg-02-r009",
+        "from": "seg-02-hall",
+        "to": "seg-02-r009",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r009-door"
+      },
+      {
+        "id": "nav-seg-02-r010",
+        "from": "seg-02-hall",
+        "to": "seg-02-r010",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r010-door"
+      },
+      {
+        "id": "nav-seg-02-r011",
+        "from": "seg-02-hall",
+        "to": "seg-02-r011",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r011-door"
+      },
+      {
+        "id": "nav-seg-02-r012",
+        "from": "seg-02-hall",
+        "to": "seg-02-r012",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r012-door"
+      },
+      {
+        "id": "nav-seg-02-r013",
+        "from": "seg-02-hall",
+        "to": "seg-02-r013",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r013-door"
+      },
+      {
+        "id": "nav-seg-02-r014",
+        "from": "seg-02-hall",
+        "to": "seg-02-r014",
+        "bidirectional": true,
+        "requires": [
+          "clearance-seg-02-1"
+        ],
+        "kind": "doorway",
+        "doorId": "seg-02-r014-door"
+      },
+      {
+        "id": "nav-seg-02-r015",
+        "from": "seg-02-hall",
+        "to": "seg-02-r015",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r015-door"
+      },
+      {
+        "id": "nav-seg-02-r016",
+        "from": "seg-02-wing-0",
+        "to": "seg-02-r016",
+        "bidirectional": true,
+        "requires": [
+          "clearance-seg-02-2"
+        ],
+        "kind": "doorway",
+        "doorId": "seg-02-r016-door"
+      },
+      {
+        "id": "nav-seg-02-r017",
+        "from": "seg-02-wing-0",
+        "to": "seg-02-r017",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r017-door"
+      },
+      {
+        "id": "nav-seg-02-r018",
+        "from": "seg-02-wing-0",
+        "to": "seg-02-r018",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r018-door"
+      },
+      {
+        "id": "nav-seg-02-r019",
+        "from": "seg-02-wing-0",
+        "to": "seg-02-r019",
+        "bidirectional": true,
+        "requires": [
+          "clearance-seg-02-3"
+        ],
+        "kind": "doorway",
+        "doorId": "seg-02-r019-door"
+      },
+      {
+        "id": "nav-seg-02-r020",
+        "from": "seg-02-wing-0",
+        "to": "seg-02-r020",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r020-door"
+      },
+      {
+        "id": "nav-seg-02-r021",
+        "from": "seg-02-wing-0",
+        "to": "seg-02-r021",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-02-r021-door"
+      },
+      {
+        "id": "nav-seg-03-entry",
+        "from": "seg-03",
+        "to": "seg-03-hall",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "segment_entry"
+      },
+      {
+        "id": "nav-seg-03-wing-0",
+        "from": "seg-03-hall",
+        "to": "seg-03-wing-0",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "corridor_junction"
+      },
+      {
+        "id": "nav-seg-03-r001",
+        "from": "seg-03-hall",
+        "to": "seg-03-r001",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r001-door"
+      },
+      {
+        "id": "nav-seg-03-r002",
+        "from": "seg-03-hall",
+        "to": "seg-03-r002",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r002-door"
+      },
+      {
+        "id": "nav-seg-03-r003",
+        "from": "seg-03-hall",
+        "to": "seg-03-r003",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r003-door"
+      },
+      {
+        "id": "nav-seg-03-r004",
+        "from": "seg-03-hall",
+        "to": "seg-03-r004",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r004-door"
+      },
+      {
+        "id": "nav-seg-03-r005",
+        "from": "seg-03-wing-0",
+        "to": "seg-03-r005",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r005-door"
+      },
+      {
+        "id": "nav-seg-03-r006",
+        "from": "seg-03-hall",
+        "to": "seg-03-r006",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r006-door"
+      },
+      {
+        "id": "nav-seg-03-r007",
+        "from": "seg-03-hall",
+        "to": "seg-03-r007",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r007-door"
+      },
+      {
+        "id": "nav-seg-03-r008",
+        "from": "seg-03-hall",
+        "to": "seg-03-r008",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r008-door"
+      },
+      {
+        "id": "nav-seg-03-r009",
+        "from": "seg-03-hall",
+        "to": "seg-03-r009",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r009-door"
+      },
+      {
+        "id": "nav-seg-03-r010",
+        "from": "seg-03-hall",
+        "to": "seg-03-r010",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r010-door"
+      },
+      {
+        "id": "nav-seg-03-r011",
+        "from": "seg-03-hall",
+        "to": "seg-03-r011",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r011-door"
+      },
+      {
+        "id": "nav-seg-03-r012",
+        "from": "seg-03-hall",
+        "to": "seg-03-r012",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r012-door"
+      },
+      {
+        "id": "nav-seg-03-r013",
+        "from": "seg-03-hall",
+        "to": "seg-03-r013",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r013-door"
+      },
+      {
+        "id": "nav-seg-03-r014",
+        "from": "seg-03-hall",
+        "to": "seg-03-r014",
+        "bidirectional": true,
+        "requires": [
+          "clearance-seg-03-1"
+        ],
+        "kind": "doorway",
+        "doorId": "seg-03-r014-door"
+      },
+      {
+        "id": "nav-seg-03-r015",
+        "from": "seg-03-hall",
+        "to": "seg-03-r015",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r015-door"
+      },
+      {
+        "id": "nav-seg-03-r016",
+        "from": "seg-03-wing-0",
+        "to": "seg-03-r016",
+        "bidirectional": true,
+        "requires": [
+          "clearance-seg-03-2"
+        ],
+        "kind": "doorway",
+        "doorId": "seg-03-r016-door"
+      },
+      {
+        "id": "nav-seg-03-r017",
+        "from": "seg-03-wing-0",
+        "to": "seg-03-r017",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r017-door"
+      },
+      {
+        "id": "nav-seg-03-r018",
+        "from": "seg-03-wing-0",
+        "to": "seg-03-r018",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r018-door"
+      },
+      {
+        "id": "nav-seg-03-r019",
+        "from": "seg-03-wing-0",
+        "to": "seg-03-r019",
+        "bidirectional": true,
+        "requires": [
+          "clearance-seg-03-3"
+        ],
+        "kind": "doorway",
+        "doorId": "seg-03-r019-door"
+      },
+      {
+        "id": "nav-seg-03-r020",
+        "from": "seg-03-wing-0",
+        "to": "seg-03-r020",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r020-door"
+      },
+      {
+        "id": "nav-seg-03-r021",
+        "from": "seg-03-wing-0",
+        "to": "seg-03-r021",
+        "bidirectional": true,
+        "requires": [],
+        "kind": "doorway",
+        "doorId": "seg-03-r021-door"
+      },
+      {
+        "id": "nav-link-1-up",
+        "from": "seg-01",
+        "to": "seg-02",
+        "bidirectional": false,
+        "requires": [
+          "access-seg-02"
+        ],
+        "kind": "inter_segment_transition",
+        "transitionId": "link-1-up"
+      },
+      {
+        "id": "nav-link-1-down",
+        "from": "seg-02",
+        "to": "seg-01",
+        "bidirectional": false,
+        "requires": [],
+        "kind": "inter_segment_transition",
+        "transitionId": "link-1-down"
+      },
+      {
+        "id": "nav-link-2-up",
+        "from": "seg-02",
+        "to": "seg-03",
+        "bidirectional": false,
+        "requires": [
+          "access-seg-03"
+        ],
+        "kind": "inter_segment_transition",
+        "transitionId": "link-2-up"
+      },
+      {
+        "id": "nav-link-2-down",
+        "from": "seg-03",
+        "to": "seg-02",
+        "bidirectional": false,
+        "requires": [],
+        "kind": "inter_segment_transition",
+        "transitionId": "link-2-down"
+      }
+    ]
+  },
+  "assetReferences": [
+    "bench",
+    "bookshelf",
+    "computer",
+    "desk",
+    "file_cabinet",
+    "office_chair",
+    "reception_desk",
+    "security_camera",
+    "sofa",
+    "storage_crate"
+  ],
+  "validation": {
+    "ok": true,
+    "errors": [],
+    "warnings": [],
+    "reachableSegments": [
+      "seg-01",
+      "seg-02",
+      "seg-03"
+    ],
+    "reachableRooms": [
+      "seg-01-r001",
+      "seg-01-r002",
+      "seg-01-r003",
+      "seg-01-r004",
+      "seg-01-r005",
+      "seg-01-r006",
+      "seg-01-r007",
+      "seg-01-r008",
+      "seg-01-r009",
+      "seg-01-r010",
+      "seg-01-r011",
+      "seg-01-r012",
+      "seg-01-r013",
+      "seg-01-r014",
+      "seg-01-r015",
+      "seg-01-r016",
+      "seg-01-r017",
+      "seg-01-r018",
+      "seg-01-r019",
+      "seg-01-r020",
+      "seg-01-r021",
+      "seg-02-r001",
+      "seg-02-r002",
+      "seg-02-r003",
+      "seg-02-r004",
+      "seg-02-r005",
+      "seg-02-r006",
+      "seg-02-r007",
+      "seg-02-r008",
+      "seg-02-r009",
+      "seg-02-r010",
+      "seg-02-r011",
+      "seg-02-r012",
+      "seg-02-r013",
+      "seg-02-r014",
+      "seg-02-r015",
+      "seg-02-r016",
+      "seg-02-r017",
+      "seg-02-r018",
+      "seg-02-r019",
+      "seg-02-r020",
+      "seg-02-r021",
+      "seg-03-r001",
+      "seg-03-r002",
+      "seg-03-r003",
+      "seg-03-r004",
+      "seg-03-r005",
+      "seg-03-r006",
+      "seg-03-r007",
+      "seg-03-r008",
+      "seg-03-r009",
+      "seg-03-r010",
+      "seg-03-r011",
+      "seg-03-r012",
+      "seg-03-r013",
+      "seg-03-r014",
+      "seg-03-r015",
+      "seg-03-r016",
+      "seg-03-r017",
+      "seg-03-r018",
+      "seg-03-r019",
+      "seg-03-r020",
+      "seg-03-r021"
+    ],
+    "grants": [
+      "access-seg-02",
+      "access-seg-03",
+      "clearance-seg-01-1",
+      "clearance-seg-01-2",
+      "clearance-seg-01-3",
+      "clearance-seg-02-1",
+      "clearance-seg-02-2",
+      "clearance-seg-02-3",
+      "clearance-seg-03-1",
+      "clearance-seg-03-2",
+      "clearance-seg-03-3"
+    ],
+    "totals": {
+      "segments": 3,
+      "rooms": 63,
+      "transitions": 4,
+      "props": 165
+    }
+  }
+}

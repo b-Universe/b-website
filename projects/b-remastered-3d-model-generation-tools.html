@@ -10,11 +10,11 @@
     <meta name="portfolio-category" content="project">
     <meta name="portfolio-date" content="2026-11-16">
     <meta name="portfolio-thumbnail" content="/assets/img/projects/b-remastered-3d-model-generation-tools/thumbnail.png">
-    <meta name="portfolio-description" content="Explore the six standalone procedural 3D model generation studios for B Remastered: Buildings, Skyscrapers, Specialty Buildings, Flora & Trees, City Vehicles, and City Objects.">
+    <meta name="portfolio-description" content="Explore the standalone procedural 3D model generation studios for B Remastered: Buildings, Skyscrapers, Specialty Buildings, Flora & Trees, City Vehicles, City Objects, and Zone Missions.">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:title" content="B - B Remastered 3D Model Generation Tools">
-    <meta property="og:description" content="Explore the six standalone procedural 3D model generation studios for B Remastered: Buildings, Skyscrapers, Specialty Buildings, Flora & Trees, City Vehicles, and City Objects.">
+    <meta property="og:description" content="Explore the standalone procedural 3D model generation studios for B Remastered: Buildings, Skyscrapers, Specialty Buildings, Flora & Trees, City Vehicles, City Objects, and Zone Missions.">
     <meta property="og:url" content="https://home.behr.dev/projects/b-remastered-3d-model-generation-tools.html">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://home.behr.dev/assets/img/projects/b-remastered-3d-model-generation-tools/thumbnail.png">
@@ -22,7 +22,7 @@
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="B - B Remastered 3D Model Generation Tools">
-    <meta name="twitter:description" content="Six procedural 3D asset studios built for B Remastered with deterministic seeds, live Three.js previews, JSON blueprints, and one-click .GLB export.">
+    <meta name="twitter:description" content="Procedural 3D asset and mission studios built for B Remastered with deterministic seeds, live Three.js previews, JSON blueprints, and one-click .GLB export.">
     <meta name="twitter:image" content="https://home.behr.dev/assets/img/projects/b-remastered-3d-model-generation-tools/thumbnail.png">
     <meta name="theme-color" content="#00FFFE">
 
@@ -170,7 +170,7 @@
                 <div class="gen-hub-intro">
                     <h1>B Remastered 3D Model Generation Tools</h1>
                     <p>
-                        A suite of six standalone browser-based procedural 3D asset studios built for <strong>B Remastered</strong>. Every studio pairs deterministic seed-driven geometry and stylized low-poly materials with interactive Three.js viewports,
+                        A suite of standalone browser-based procedural 3D asset and mission studios built for <strong>B Remastered</strong>. Every studio pairs deterministic seed-driven geometry and stylized low-poly materials with interactive Three.js viewports,
                         versioned JSON blueprints, and one-click binary <code>.GLB</code> exports ready for game worlds.
                     </p>
                 </div>
@@ -343,10 +343,36 @@
                             </div>
                         </div>
                     </article>
+
+                    <article class="panel gen-tool-card">
+                        <div class="panel-image hover-standard gen-tool-thumb">
+                            <a href="/projects/zone-mission-generator.html" aria-label="Open 3D Zone Mission Generator">
+                                <img src="/assets/img/projects/zone-mission-generator/thumbnail.png" alt="Triangulated limestone cavern generated in the Zone Mission Studio">
+                            </a>
+                        </div>
+                        <div class="gen-tool-body">
+                            <div class="gen-tool-meta">
+                                <span>Mission Studio · Interiors &amp; Caves</span>
+                                <span><code>b.zone-mission.v1</code></span>
+                            </div>
+                            <h2>3D Zone Mission Generator</h2>
+                            <p>Generate open-plan buildings and three-dimensional cavern networks, test mission progression locally, and export mission JSON or individual 3D segments.</p>
+                            <ul class="gen-tool-highlights">
+                                <li>72 seeded scenarios, from compact offices to vaulted cavern networks with graded terrain</li>
+                                <li>Editable room labels, door locks, furnishings, and directed transitions</li>
+                                <li>Local walkthroughs and progression checks before export</li>
+                            </ul>
+                            <div class="gen-tool-actions d-grid">
+                                <a href="/projects/zone-mission-generator.html" class="btn btn-primary btn-icon-prepend">
+                                    <i class="fas fa-map" aria-hidden="true"></i> Open 3D Zone Mission Generator
+                                </a>
+                            </div>
+                        </div>
+                    </article>
                 </div>
 
                 <blockquote class="panel-note">
-                    All six studios run 100% client-side in your browser with Three.js-no external backend required. Share seeds or exported <code>.json</code> blueprints between sessions to reproduce exact models, or drop exported
+                    The studios run client-side in your browser and use Three.js for 3D previews. Share seeds or exported <code>.json</code> blueprints between sessions to reproduce exact models, or drop exported
                     <code>.GLB</code> meshes straight into your B Remastered scenes.
                 </blockquote>
             </section>
